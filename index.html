@@ -124,8 +124,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.28";
+const VER="0.29";
 const HIST=[
+ ["0.29","10.11.2026",["Steinart / Herkunft: Natürlich, Labor (CVD), Labor (HPHT), Moissanit, Zirkonia, Farbstein u. a. – im Lager, in der Fertigung (automatisch übernommen) und in Bestellungen"]],
  ["0.28","10.11.2026",["Steine nach 4C-Tabelle: Farbe D–Z mit Gruppen, Reinheit IF bis I3, Schliff mit Ideal (Hearts & Arrows), Standard-Karat 0,05–3,00 als Vorschlag; ungefährer Durchmesser (rund) wird angezeigt"]],
  ["0.27","10.11.2026",["Lager: Steinkarten mit Art/Form (z. B. Radiant), Farbe (z. B. F), Reinheit (z. B. VVS2), Schliff und Karat je Stein, mit Auswahlvorschlägen; in der Fertigung werden diese Werte beim Auswählen des Steins automatisch übernommen; Excel-Export erweitert"]],
  ["0.26","10.11.2026",["Hauptwährung Euro oder US-Dollar (bei neuem Benutzer wählbar, danach in den Einstellungen, solange keine Daten); Gold und zweite Währung werden entsprechend gerechnet","Kursabruf: „Abgleich“ (+/− je g) wird beim Abruf zum Goldkurs addiert, zum Angleichen an den eigenen Vergleichskurs"]],
@@ -583,6 +584,15 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Steinart / Herkunft ~ Stone type / origin ~ Taş türü / menşei
+Natürlich ~ Natural ~ Doğal
+Labor (CVD) ~ Lab-grown (CVD) ~ Laboratuvar (CVD)
+Labor (HPHT) ~ Lab-grown (HPHT) ~ Laboratuvar (HPHT)
+Labor (Verfahren unbekannt) ~ Lab-grown (method unknown) ~ Laboratuvar (yöntem bilinmiyor)
+Moissanit ~ Moissanite ~ Moissanit
+Zirkonia ~ Cubic zirconia ~ Zirkon
+Farbstein ~ Coloured gemstone ~ Renkli taş
+Steinart / Herkunft: Natürlich, Labor (CVD), Labor (HPHT), Moissanit, Zirkonia, Farbstein u. a. – im Lager, in der Fertigung (automatisch übernommen) und in Bestellungen ~ Stone type / origin: natural, lab-grown (CVD), lab-grown (HPHT), moissanite, cubic zirconia, coloured gemstone etc. – in stock, in production (filled in automatically) and in orders ~ Taş türü / menşei: doğal, laboratuvar (CVD), laboratuvar (HPHT), moissanit, zirkon, renkli taş vb. – depoda, üretimde (otomatik doldurulur) ve siparişlerde
 Farblos ~ Colourless ~ Renksiz
 Fast farblos ~ Near colourless ~ Neredeyse renksiz
 Leicht getönt ~ Slightly tinted ~ Hafif renkli
@@ -881,6 +891,7 @@ function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:
 
 
 /* ---------- Bestellungen ---------- */
+const SNAT=[["","– wählen –"],"Natürlich","Labor (CVD)","Labor (HPHT)","Labor (Verfahren unbekannt)","Moissanit","Zirkonia","Farbstein","Sonstiges"];
 const OART=["Ring","Diamantring","Armband","Diamantarmband","Kette","Ohrringe","Anhänger","Anderes (selbst eingeben)"],OMET=["Gold","Roségold","Silber","Platin"],OCOL=[["y","Nur Gelb"],["w","Nur Weiß"],["h","50 : 50"],["c","Eigene Angabe"]],
  OFEIN=[["","– egal –"],["333","8K (333)"],["585","14K (585)"],["750","18K (750)"],["875","21K (875)"],["916","22K (916)"],["999","24K (999)"]],
  OCT=[["","– ohne Stein –"],"0,5","0,6","0,7","0,8","0,9","1","1,5","2",["x","Eigene Eingabe"]];
@@ -888,20 +899,21 @@ const pfxO=()=>(data.prefix&&data.prefix.Bestellung)||"B";
 function nextOrdNo(date){const d=String(date||today()),pre=pfxO()+d.slice(2,4)+d.slice(5,7);let mx=0;
  data.orders.forEach(o=>{if(o.no&&o.no.startsWith(pre)){const r=o.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});
  return pre+String(mx+1).padStart(3,"0")}
-const newOf=()=>({no:nextOrdNo(today()),ov:false,art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",qty:"1",note:"",date:today()});
+const newOf=()=>({no:nextOrdNo(today()),ov:false,art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",qty:"1",note:"",date:today()});
 function colSplit(o){const q=Number(o.qty)||0,c=o.col||"y";let y=q;
  if(c==="w")y=0;else if(c==="h")y=Math.ceil(q/2);else if(c==="c")y=Math.min(q,Math.max(0,Math.round(parse(o.cy))));return[y,q-y]}
 function colTxt(o){if(o.met!=="Gold"||!o.col)return o.met;const[y,w]=colSplit(o);
  if(!w)return"Gelbgold";if(!y)return"Weißgold";return y+"× Gelb + "+w+"× Weiß"}
 function uOf(){const e=$("ofw");if(e&&ui.of){const[y,w]=colSplit(ui.of);e.textContent="Gelb: "+y+" · Weiß: "+w}}
 function ordTxt(o){const ct=o.ct==="x"?o.ctc:o.ct,fe=o.fein?(OFEIN.find(x=>x[0]===o.fein)||[0,o.fein])[1].split(" ")[0]:"";
- return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,colTxt(o),fe,ct?ct+" ct":""].filter(Boolean).join(" · ")}
+ return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,colTxt(o),fe,ct?ct+" ct":"",o.nat||""].filter(Boolean).join(" · ")}
 function ordForm(){const f=ui.of=ui.of||newOf();
  return `<div class="bar">Neue Bestellung</div>
  <div class="g2">${F("Bestellnummer",`<input data-f="ui.of.no" value="${esc(f.no)}"${f.ov?"":" readonly"} autocapitalize="characters" autocorrect="off" spellcheck="false">`)}${F("Kürzel",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}</div>
  ${CB("ui.of.ov",f.ov,"Nummer überschreiben",'data-r="1"')}${F("Artikel",S("ui.of.art",f.art,OART,'data-r="1"'))}
  ${f.art==="Anderes (selbst eingeben)"?F("Bezeichnung",I("ui.of.own",f.own,"z. B. Collier",'autocorrect="off"')):""}
  <div class="g2">${F("Metall",S("ui.of.met",f.met,OMET,'data-r="1"'))}${F("Feingehalt",S("ui.of.fein",f.fein,OFEIN))}</div>
+ ${F("Steinart / Herkunft",S("ui.of.nat",f.nat||"",SNAT))}
  <div class="g2">${F("Steingröße (ct)",S("ui.of.ct",f.ct,OCT,'data-r="1"'))}${F("Anzahl",I("ui.of.qty",f.qty,"",'inputmode="decimal" data-u="uOf"'))}</div>
  ${f.met==="Gold"?F("Goldfarbe",S("ui.of.col",f.col,OCOL,'data-r="1"'))+(f.col==="c"?F("Davon Gelb (Rest ist Weiß)",I("ui.of.cy",f.cy,"",'inputmode="decimal" data-u="uOf"')):"")+'<p class="mu" id="ofw" style="margin:0 0 8px"></p>':""}
  ${f.ct==="x"?F("Steingröße selbst (ct)",N("ui.of.ctc",f.ctc)):""}
@@ -911,7 +923,7 @@ act.osave=()=>{const f=ui.of,q=Math.round(parse(f.qty));if(!ui.pid||!(q>0)){toas
  if(f.art==="Anderes (selbst eingeben)"&&!String(f.own).trim()){toast("Bitte Bezeichnung eingeben");return}
  const no=String(f.no).trim();if(!no){toast("Nummer fehlt");return}
  if(data.orders.some(o=>o.no===no)){toast("Diese Nummer gibt es schon");return}
- data.orders.push({id:uid(),no,pid:ui.pid,art:f.art,own:String(f.own).trim(),met:f.met,col:f.met==="Gold"?f.col:"",cy:f.cy,fein:f.fein,ct:f.ct,ctc:f.ctc,qty:q,note:String(f.note).trim(),date:f.date||today(),done:false});
+ data.orders.push({id:uid(),no,pid:ui.pid,art:f.art,own:String(f.own).trim(),met:f.met,col:f.met==="Gold"?f.col:"",cy:f.cy,fein:f.fein,ct:f.ct,ctc:f.ctc,nat:f.nat||"",qty:q,note:String(f.note).trim(),date:f.date||today(),done:false});
  ui.of=newOf();render();toast("Bestellung gespeichert")};
 function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid);
  return `<div class="it" style="border-left:4px solid ${o.done?"var(--out)":"var(--in)"};padding-left:10px"><div><b>${esc(o.no||"")} · ${o.qty}× ${esc(ordTxt(o))}</b><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}${o.note?" · "+esc(o.note):""}</small></div>
@@ -1044,7 +1056,7 @@ function uL(){const q=ui.lq.toLowerCase();
  const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
   .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
  $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
-  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small></div><div class="r ${q<0?"out":""}"><b>${f3(q)} ${UL[s.unit]}</b></div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small></div><div class="r ${q<0?"out":""}"><b>${f3(q)} ${UL[s.unit]}</b></div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
 /* 4C: Standard-Karat mit ungefährem Durchmesser (Rund, Brillantschliff) */
 const CTD=[[0.05,2.5],[0.10,3.0],[0.20,3.8],[0.25,4.1],[0.30,4.5],[0.40,4.8],[0.50,5.2],[0.70,5.8],[0.90,6.3],[1.00,6.5],[1.25,6.9],[1.50,7.4],[1.75,7.8],[2.00,8.2],[2.50,8.8],[3.00,9.4]];
 function ctDiam(ct){if(!(ct>0))return 0;const t=CTD;
@@ -1067,7 +1079,7 @@ function rLE(){const s=ui.se,isNew=!data.stock.some(x=>x.id===s.id);
  <div class="g2">${F("Gruppe",S("ui.se.group",s.group,SG,'data-r="1"'))}${F("Einheit",S("ui.se.unit",s.unit,[["GR","Gramm"],["CT","Karat (ct)"],["AD","Stück"]]))}</div>
  <div class="g2">${F("Feingehalt ‰ (z. B. 585)",N("ui.se.fine",s.fine))}${F("Nummer / Barcode",I("ui.se.code",s.code))}</div>
  <div class="f"><span>Status</span><div class="tg">${TG("sact",s.active===false?"p":"a",[["p","Passiv"],["a","Aktiv"]])}</div></div>
- ${s.group==="Stein"?`<div class="g2">${F("Art / Form",I("ui.se.type",s.type||"","z. B. Radiant",DX+' list="dlForm"'))}${F("Karat je Stein (ct)",I("ui.se.ct",s.ct||"","z. B. 1,07",'inputmode="decimal" list="dlCt" data-u="uCt" autocomplete="off"'))}</div>
+ ${s.group==="Stein"?`${F("Steinart / Herkunft",S("ui.se.nat",s.nat||"",SNAT))}<div class="g2">${F("Art / Form",I("ui.se.type",s.type||"","z. B. Radiant",DX+' list="dlForm"'))}${F("Karat je Stein (ct)",I("ui.se.ct",s.ct||"","z. B. 1,07",'inputmode="decimal" list="dlCt" data-u="uCt" autocomplete="off"'))}</div>
  <p class="mu" id="ctd" style="margin:-4px 0 8px">${diaTxt(parse(s.ct))}</p>
  <div class="g2">${F("Farbe",I("ui.se.color",s.color||"","z. B. F",DX+' list="dlCol"'))}${F("Reinheit",I("ui.se.clar",s.clar||"","z. B. VVS2",DX+' list="dlClar"'))}</div>
  ${F("Schliff",I("ui.se.cut",s.cut||"","z. B. Excellent",DX+' list="dlCut"'))}${DLSf()}`:""}
@@ -1150,7 +1162,7 @@ function pEdit(p){const d=ui.pd,k=p.slice(6);
  if(mm){const m=d.metal[mm[1]],s=data.stock.find(x=>x.id===m.sid);if(s)m.fine=String(s.fine||"")}
  const sm=p.match(/^ui\.pd\.stones\.(\d+)\.sid$/);
  if(sm){const t=d.stones[sm[1]],s=data.stock.find(x=>x.id===t.sid);
-  if(s){if(s.type)t.type=s.type;if(s.color)t.color=s.color;if(s.clar)t.clar=s.clar;if(s.cut)t.cut=s.cut;
+  if(s){if(s.nat)t.nat=s.nat;if(s.type)t.type=s.type;if(s.color)t.color=s.color;if(s.clar)t.clar=s.clar;if(s.cut)t.cut=s.cut;
    if(parse(s.ct)>0)t.qty=String(s.ct).replace(".",",");if(!String(t.pcs||"").trim())t.pcs="1"}}
  calcP()}
 function setV(path,val){const e=document.querySelector(`[data-f="${path}"]`);if(e&&document.activeElement!==e)e.value=val}
@@ -1197,6 +1209,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  h+=`<button class="sec" data-a="padd" data-t="metal">+ Metall-Zeile</button></div>
  <div class="bar"><span>Steine</span><span>💎</span></div><div class="card">`;
  d.stones.forEach((s,i)=>{h+=`<div class="rowc">${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1" data-r="1"'))}
+  ${F("Steinart / Herkunft",S(`ui.pd.stones.${i}.nat`,s.nat||"",SNAT))}
   <div class="g2">${F("Karat ct",I(`ui.pd.stones.${i}.qty`,s.qty,"",'inputmode="decimal" list="dlCt" autocomplete="off"'))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
   <div class="g2">${F("Preis pro ct",N(`ui.pd.stones.${i}.price`,s.price))}${F("Währung",S(`ui.pd.stones.${i}.cur`,s.cur,CUR))}</div>
   <div class="g2">${F("Art",I(`ui.pd.stones.${i}.type`,s.type,"",DX+' list="dlForm"'))}${F("Farbe",I(`ui.pd.stones.${i}.color`,s.color,"",DX+' list="dlCol"'))}</div>
@@ -1374,7 +1387,7 @@ function xlsx(sheets){const sh=sheets.map(([n,rows])=>`<?xml version="1.0" encod
  return zipStore(F)}
 const ST={prod:"In Fertigung",done:"Fertig (Lager)",sold:"Verkauft"};
 const pnm=id=>{const p=data.people.find(x=>x.id===id);return p?p.name:""};
-function xLager(){return["Lager",[["Gruppe","Nummer","Bezeichnung","Einheit","Feingehalt","Bestand","Art","Farbe","Reinheit","Schliff","Karat je Stein","Notiz"],...data.stock.map(s=>[s.group,s.code||"",s.name,UL[s.unit]||s.unit,Number(s.fine)||"",Math.round(qtyOf(s.id)*1000)/1000,s.type||"",s.color||"",s.clar||"",s.cut||"",Number(parse(s.ct))||"",s.note||""])]]}
+function xLager(){return["Lager",[["Gruppe","Nummer","Bezeichnung","Einheit","Feingehalt","Bestand","Herkunft","Art","Farbe","Reinheit","Schliff","Karat je Stein","Notiz"],...data.stock.map(s=>[s.group,s.code||"",s.name,UL[s.unit]||s.unit,Number(s.fine)||"",Math.round(qtyOf(s.id)*1000)/1000,s.nat||"",s.type||"",s.color||"",s.clar||"",s.cut||"",Number(parse(s.ct))||"",s.note||""])]]}
 function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status","Gewicht g","Kosten","Währung"],...data.prods.map(p=>[p.code,p.grp,p.name,ST[p.status]||p.status,Number(p.w)||"",Math.round((Number(p.cost)||0)*100)/100,p.cur||""])]]}
 function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
  data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
