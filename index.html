@@ -124,8 +124,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.34";
+const VER="0.35";
 const HIST=[
+ ["0.35","11.11.2026",["Fertigung: Gesamtgewicht (Gold + Steine); Steingewicht = Karat × 0,2 g. Goldgewicht eingetragen → Gesamtgewicht rechnet sich; Gesamtgewicht eingetragen → Goldgewicht rechnet sich"]],
  ["0.34","11.11.2026",["Lager: bei verbauten Einzelsteinen steht die Kurznummer der Ware (z. B. RNG1) unter „verbaut“"]],
  ["0.33","11.11.2026",["Fertigung: Arbeitsschritt (Vorgang) per Auswahl – Guss, Fassen, Polieren, Rhodinieren, Vergolden, Löten, Montage, Größe ändern, Gravur, Reparatur u. a., oder selbst eingeben"]],
  ["0.32","11.11.2026",["Karat wieder frei eintippen (Zahlentastatur, z. B. 1,07); Farbe nur noch als Buchstabe (D–Z, Fancy)"]],
@@ -594,6 +595,9 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Gesamtgewicht g (Gold + Steine) ~ Total weight g (gold + stones) ~ Toplam ağırlık g (altın + taşlar)
+z. B. 4,35 ~ e.g. 4.35 ~ örn. 4,35
+Fertigung: Gesamtgewicht (Gold + Steine); Steingewicht = Karat × 0,2 g. Goldgewicht eingetragen → Gesamtgewicht rechnet sich; Gesamtgewicht eingetragen → Goldgewicht rechnet sich ~ Production: total weight (gold + stones); stone weight = carat × 0.2 g. Enter gold weight → total is calculated; enter total weight → gold weight is calculated ~ Üretim: toplam ağırlık (altın + taşlar); taş ağırlığı = karat × 0,2 g. Altın girilirse toplam hesaplanır; toplam girilirse altın hesaplanır
 Lager: bei verbauten Einzelsteinen steht die Kurznummer der Ware (z. B. RNG1) unter „verbaut“ ~ Stock: set single stones show the item’s short number (e.g. RNG1) under “set” ~ Depo: takılmış tek taşlarda “takıldı” altında ürünün kısa numarası (örn. RNG1) yazar
 Guss ~ Casting ~ Döküm
 Fassen (Steine) ~ Stone setting ~ Taş mıhlama
@@ -1249,6 +1253,8 @@ act.pback=()=>{ui.pd=null;render()};
 act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
 act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
 function pEdit(p){const d=ui.pd,k=p.slice(6);
+ if(k==="tw")d.wm=String(d.tw).trim()?"t":"a";
+ if(/^metal\.\d+\.qty$/.test(k))d.wm="a";
  if(k==="grp"&&!d.ov&&ui.pnew)d.code=nextCode(d.grp);
  if(k==="ov"&&!d.ov)d.code=ui.pnew?nextCode(d.grp):d.code0;
  if(k==="f1")d.m1="f";if(k==="p1")d.m1="p";if(k==="f2")d.m2="f";if(k==="p2")d.m2="p";
@@ -1261,8 +1267,13 @@ function pEdit(p){const d=ui.pd,k=p.slice(6);
  calcP()}
 function setV(path,val){const e=document.querySelector(`[data-f="${path}"]`);if(e&&document.activeElement!==e)e.value=val}
 const pm=v=>{const n=parse(v||"");return n>0&&n<=1.5?n*1000:n};
+const w3=n=>String(Math.round(n*1000)/1000).replace(".",",");
 function calcP(){
  const d=ui.pd;if(!d)return;
+ const sg=d.stones.reduce((a,s)=>a+parse(s.qty)*0.2,0);let wnote="";
+ if(d.wm==="t"){const gw=Math.max(0,parse(d.tw)-sg);
+  if(d.metal.length===1){d.metal[0].qty=w3(gw);setV("ui.pd.metal.0.qty",d.metal[0].qty)}
+  else wnote=d.metal.length?" · Mehrere Metall-Zeilen: Goldgewicht bitte selbst aufteilen":" · Für das Goldgewicht bitte eine Metall-Zeile anlegen"}
  const g=R("gold");let w=0,has=0,eu=0,fire=0,usd=false;
  const cu=c=>{if(c==="USD")usd=true};cu(d.cur);
  d.metal.forEach((m,i)=>{const q=parse(m.qty),fe=pm(m.fine)+pm(m.wg),hv=q*fe/1000;w+=q;has+=hv;cu(m.lc);
@@ -1276,7 +1287,8 @@ function calcP(){
  if(d.m2==="p")d.f2=b>0?fs(parse(d.p2)/b):d.f2;else d.p2=fx(b*parse(d.f2));
  const e=$("cT");if(e)e.value=f2(cost);
  setV("ui.pd.p1",d.p1);setV("ui.pd.f1",d.f1);setV("ui.pd.p2",d.p2);setV("ui.pd.f2",d.f2);
- sT("cW",`Gewicht ${f3(w)} g · Feingold ${f3(has)} g · Verlust ${f3(fire)} g`);
+ if(d.wm!=="t"){d.tw=(w||sg)?w3(w+sg):"";setV("ui.pd.tw",d.tw)}
+ sT("cW",`Gold ${f3(w)} g · Steine ${f3(sg)} g (${f3(sg*5)} ct) · Gesamt ${f3(w+sg)} g · Feingold ${f3(has)} g · Verlust ${f3(fire)} g${wnote}`);
  sT("cWarn",(has>0&&!g?"Goldkurs fehlt (oben antippen). ":"")+(usd&&!R("usd")?"USD-Kurs fehlt (oben antippen).":""))}
 function rPE(){const d=ui.pd;
  const gold=data.stock.filter(s=>(s.group==="Gold"||s.group==="Altgold")&&s.active!==false);
@@ -1319,6 +1331,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  h+=`<button class="sec" data-a="padd" data-t="steps">+ Arbeitsschritt</button></div>
  <div class="bar"><span>Beträge</span><span>💰</span></div><div class="card">
  <div class="g2">${F("Gesamtkosten",'<input id="cT" readonly>')}${F("Währung",S("ui.pd.cur",d.cur,CUR,'data-r="1"'))}</div>
+ ${F("Gesamtgewicht g (Gold + Steine)",I("ui.pd.tw",d.tw||"","z. B. 4,35",'inputmode="decimal" autocomplete="off"'))}
  <p class="mu" id="cW" style="margin:0 0 8px"></p>
  <div class="g2">${F("Multiplikator (Verkauf)",N("ui.pd.f1",d.f1))}${F("Verkaufspreis",N("ui.pd.p1",d.p1))}</div>
  <div class="g2">${F("Multiplikator (Etikett)",N("ui.pd.f2",d.f2))}${F("Etikettenpreis",N("ui.pd.p2",d.p2))}</div>
