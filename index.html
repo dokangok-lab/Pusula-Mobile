@@ -19,6 +19,7 @@
 body{background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;padding:12px 12px 130px;max-width:520px;margin:0 auto}
 .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}
 h1{font-size:22px;margin:4px 0 12px}
+#who{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}#bSave{white-space:nowrap;padding-left:10px;padding-right:10px}
 button,input,select,textarea{font:inherit;color:inherit}
 button{border:0;border-radius:12px;padding:12px 14px;background:var(--ac);color:#fff;font-weight:600;width:100%}
 button.sec{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
@@ -33,7 +34,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 .it:last-child{border:0}.it small{display:block;color:var(--mu)}
 .nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
 .hide{display:none}.click{cursor:pointer}.r{text-align:right}
-.rb{display:flex;gap:6px;background:var(--card);border-radius:14px;padding:8px;margin-bottom:10px;cursor:pointer}
+.rb{display:flex;flex-wrap:wrap;gap:6px;background:var(--card);border-radius:14px;padding:8px;margin-bottom:10px;cursor:pointer}
 .rc{flex:1;text-align:center;font-size:12px;line-height:1.3}.rc b{display:block}.rc span{color:var(--mu)}
 .bar{background:linear-gradient(90deg,var(--hd),var(--ac));color:#fff;padding:9px 12px;border-radius:12px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .f{display:block;margin-bottom:8px}.f span{display:block;font-size:12px;color:var(--mu);margin:0 0 3px 2px}
@@ -122,8 +123,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.21";
+const VER="0.22";
 const HIST=[
+ ["0.22","10.11.2026",["Kurse online holen (Gold und USD, Spot von xaus.com) mit Bestätigung, optional automatisch beim Öffnen; ohne Internet bleibt der letzte Kurs mit Hinweis stehen","Kopfzeile: „Speichern & Beenden“ bricht nicht mehr um"]],
  ["0.21","10.11.2026",["Konten: „Navigieren“ (Apple Karten, Google Maps, Waze) und „Kontakt teilen“ (Name, Adresse, Telefon per Teilen-Menü oder Kopieren)"]],
  ["0.20","10.11.2026",["Bestellung: Goldfarbe Nur Gelb / Nur Weiß / 50 : 50 / Eigene Angabe (Gelb eintragen, Weiß wird automatisch ergänzt); Anzeige z. B. „3× Gelb + 2× Weiß“"]],
  ["0.19","10.11.2026",["Bestellnummern automatisch: Kürzel + Jahr + Monat + Zähler (z. B. B2611001), Kürzel änderbar, Nummer überschreibbar"]],
@@ -150,7 +152,7 @@ const HIST=[
 /* ---------- Grundlagen ---------- */
 const $=id=>document.getElementById(id);
 let data=null,pw="",_u=0;
-const ui={s:"home",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:"EUR"};
+const ui={s:"home",rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:"EUR"};
 const uid=()=>Date.now()*1000+(_u++%1000);
 const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -211,9 +213,9 @@ function open(d){
  if(!data.people.some(p=>p.walk))data.people.unshift({id:uid(),name:"Laufkunde (bar)",walk:true});
  data.ver=VER;
  if(!picked&&LOC[data.lang])lang=data.lang;data.lang=lang;document.documentElement.lang=lang;langBtns();
- Object.assign(ui,{nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
+ Object.assign(ui,{rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
  $("who").textContent=data.user;$("date").value=today();$("rEd").classList.add("hide");
- rRates();show(true);go("home")}
+ rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
  if(!n||$("pw").value.length<6){$("msg").textContent="Name und Passwort (mind. 6 Zeichen) eingeben.";return}
  pw=$("pw").value;open({app:"kasse",user:n,entries:[]})};
@@ -255,7 +257,7 @@ function hook(p){
  if(p==="ui.kf.prod")kProd();
  if(p==="ui.pid"){ui.pe=false;ui.pf=null;ui.nv=false;ui.ptxt=""}
  else if(p==="ui.se.group")ui.se.unit=SU[ui.se.group];
- else if(p.startsWith("data.rates")){data.rates.at=now();rRates();if(ui.pd&&ui.s==="prod")calcP()}
+ else if(p.startsWith("data.rates")){if(p!=="data.rates.auto"){data.rates.at=now();data.rates.net=""}rRates();if(ui.pd&&ui.s==="prod")calcP()}
  else if(p==="data.prefix.Bestellung"||p==="ui.of.date"||p==="ui.of.ov"){const f=ui.of;if(f&&!f.ov){f.no=nextOrdNo(f.date);setV("ui.of.no",f.no)}}
  else if(p.startsWith("data.prefix.")){const d=ui.pd;if(d&&ui.pnew&&!d.ov&&p==="data.prefix."+d.grp){d.code=nextCode(d.grp);setV("ui.pd.code",d.code)}}
  else if(p.startsWith("ui.pd."))pEdit(p);
@@ -569,6 +571,16 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+🌐 Kurse online holen ~ 🌐 Fetch rates online ~ 🌐 Kurları çevrimiçi al
+Wirklich abrufen? Nochmal tippen ~ Really fetch? Tap again ~ Gerçekten alınsın mı? Tekrar dokunun
+Beim Öffnen automatisch abrufen ~ Fetch automatically on opening ~ Açılışta otomatik al
+Kosten rechnen mit dem Verkaufskurs. Der Abruf füllt Kauf und Verkauf mit demselben Referenzkurs (Spot, nicht Kitco); danach kannst du Auf- und Abschläge von Hand eintragen. Nicht für verbindliche Abrechnung. ~ Costs are calculated at the sell rate. Fetching fills buy and sell with the same reference rate (spot, not Kitco); you can then enter mark-ups and mark-downs by hand. Not for binding settlement. ~ Maliyetler satış kuruyla hesaplanır. Alma işlemi alış ve satışı aynı referans kurla doldurur (spot, Kitco değil); sonra artı/eksi farkları elle girebilirsiniz. Bağlayıcı hesaplama için değildir.
+Kurse aktualisiert ~ Rates updated ~ Kurlar güncellendi
+Abruf fehlgeschlagen ~ Fetch failed ~ Alma başarısız
+Keine Verbindung ~ No connection ~ Bağlantı yok
+Quelle meldet veraltete Daten ~ Source reports outdated data ~ Kaynak güncel olmayan veri bildiriyor
+Kurse online holen (Gold und USD, Spot von xaus.com) mit Bestätigung, optional automatisch beim Öffnen; ohne Internet bleibt der letzte Kurs mit Hinweis stehen ~ Fetch rates online (gold and USD, spot from xaus.com) with confirmation, optionally automatic on opening; without internet the last rate stays with a notice ~ Kurları çevrimiçi al (altın ve USD, xaus.com spot) onayla, isteğe bağlı açılışta otomatik; internet yoksa son kur uyarıyla kalır
+Kopfzeile: „Speichern & Beenden“ bricht nicht mehr um ~ Header: “Save & Exit” no longer wraps ~ Üst çubuk: “Kaydet ve Çık” artık satır atlamaz
 🧭 Navigieren ~ 🧭 Navigate ~ 🧭 Yol tarifi
 📤 Kontakt teilen ~ 📤 Share contact ~ 📤 Kişiyi paylaş
 Navigieren mit … ~ Navigate with … ~ Şununla yol tarifi …
@@ -725,11 +737,39 @@ watch();
 
 /* ---------- Kurse ---------- */
 const rv=v=>v?String(v):"–";
+const RSRC="https://xaus.com/api/v1/spot?currency=EUR&unit=gram&compact=1";
+const f2c=(n,d)=>n.toFixed(d).replace(".",",");
+function rInfo(){const r=data.rates,last=r.net?"letzter Kurs vom "+r.net:(r.at?"zuletzt eingegeben "+r.at:"noch keine Kurse");
+ if(ui.rs==="busy")return"Abruf läuft …";
+ if(ui.rs==="off")return"⚠️ Keine Verbindung – "+last;
+ if(ui.rs==="err")return"⚠️ Quelle antwortet nicht – "+last;
+ if(ui.rs==="old")return"⚠️ Quelle meldet veraltete Daten – "+last;
+ return r.net?"Online abgerufen: "+r.net+" (xaus.com)":(r.at?"Zuletzt eingegeben: "+r.at:"Kurse noch nicht eingegeben")}
+function rPanel(){const e=$("rEd"),r=data.rates;if(!e)return;
+ e.innerHTML=`<button data-a="rfetch"${ui.rs==="busy"?" disabled":""}>${armed("rf")?"Wirklich abrufen? Nochmal tippen":"🌐 Kurse online holen"}</button>
+ <div class="g2" style="margin-top:10px">${F("Gold Kauf €/g",N("data.rates.gold.0",r.gold[0]))}${F("Gold Verkauf €/g",N("data.rates.gold.1",r.gold[1]))}</div><div class="g2">${F("USD Kauf (€)",N("data.rates.usd.0",r.usd[0]))}${F("USD Verkauf (€)",N("data.rates.usd.1",r.usd[1]))}</div>
+ <p class="mu" id="rAt"></p>${CB("data.rates.auto",!!r.auto,"Beim Öffnen automatisch abrufen")}
+ <p class="mu">Kosten rechnen mit dem Verkaufskurs. Der Abruf füllt Kauf und Verkauf mit demselben Referenzkurs (Spot, nicht Kitco); danach kannst du Auf- und Abschläge von Hand eintragen. Nicht für verbindliche Abrechnung.</p>`;rRates()}
+async function fetchRates(quiet){const r=data.rates;
+ if(typeof navigator!=="undefined"&&navigator.onLine===false){ui.rs="off";rRates();if(!quiet)toast("Keine Verbindung");return}
+ ui.rs="busy";rRates();
+ try{const ac=new AbortController(),t=setTimeout(()=>ac.abort(),9000);
+  const res=await fetch(RSRC,{signal:ac.signal,cache:"no-store"});clearTimeout(t);
+  if(!res.ok)throw new Error("http");const j=await res.json();
+  const eg=Number(j&&j.xau&&j.xau.price),ug=Number(j&&j.per_gram_usd);
+  if(!(eg>0)||!(ug>0))throw new Error("data");
+  if(j.stale===true){ui.rs="old";rRates();if(!quiet)toast("Quelle meldet veraltete Daten");return}
+  const g=f2c(eg,2),u=f2c(eg/ug,4);r.gold=[g,g];r.usd=[u,u];r.at=now();r.net=now();ui.rs="";
+  rRates();if(ui.s==="prod"&&ui.pd)calcP();if(!quiet)toast("Kurse aktualisiert")}
+ catch(e){ui.rs=(typeof navigator!=="undefined"&&navigator.onLine===false)?"off":"err";rRates();if(!quiet)toast("Abruf fehlgeschlagen")}}
+act.rfetch=()=>{if(!armed("rf")){ui.arm={k:"rf",t:Date.now()};rPanel();setTimeout(()=>{if(!armed("rf"))rPanel()},5200);return}
+ ui.arm=null;rPanel();fetchRates(false).then(()=>rPanel())};
 function rRates(){const r=data.rates;
  $("rb").innerHTML=`<div class="rc"><b>🟡 GOLD €/g</b><span>${rv(r.gold[0])} / ${rv(r.gold[1])}</span></div><div class="rc"><b>💵 USD (€)</b><span>${rv(r.usd[0])} / ${rv(r.usd[1])}</span></div><div class="rc"><b>💶 EUR</b><span>1,0000 / 1,0000</span></div>`;
- const e=$("rAt");if(e)e.textContent=r.at?"Zuletzt eingegeben: "+r.at:"Kurse noch nicht eingegeben"}
+ if(ui.rs&&ui.rs!=="busy")$("rb").innerHTML+=`<div style="flex-basis:100%;font-size:11px;text-align:center;color:var(--out)">${esc(rInfo())}</div>`;
+ const e=$("rAt");if(e)e.textContent=rInfo()}
 act.rtog=()=>{const e=$("rEd"),r=data.rates;e.classList.toggle("hide");
- if(!e.classList.contains("hide"))e.innerHTML=`<div class="g2">${F("Gold Kauf €/g",N("data.rates.gold.0",r.gold[0]))}${F("Gold Verkauf €/g",N("data.rates.gold.1",r.gold[1]))}</div><div class="g2">${F("USD Kauf (€)",N("data.rates.usd.0",r.usd[0]))}${F("USD Verkauf (€)",N("data.rates.usd.1",r.usd[1]))}</div><p class="mu" id="rAt"></p><p class="mu">Kosten rechnen mit dem Verkaufskurs. Online-Abruf folgt in der nativen App.</p>`;
+ if(!e.classList.contains("hide"))rPanel();
  rRates()};
 
 /* ---------- Kasse ---------- */
