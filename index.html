@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="de"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Kasse">
@@ -15,7 +15,7 @@
 --bg:#eceff6;--card:#fff;--tx:#1d1d2b;--mu:#6b6b80;--ac:#4a2bb8;--hd:#2e1578;--in:#0a7d5a;--out:#c8372d;--bd:#d9dbe8;--fld:#f6f7fb}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b0b12;--card:#17171f;--tx:#f2f2f7;--mu:#9a9aae;--ac:#8b73ff;--hd:#3b1d99;--in:#30c48d;--out:#ff6b61;--bd:#2d2d3a;--fld:#0f0f16}}
 :root[data-theme="dark"]{color-scheme:dark;--bg:#0b0b12;--card:#17171f;--tx:#f2f2f7;--mu:#9a9aae;--ac:#8b73ff;--hd:#3b1d99;--in:#30c48d;--out:#ff6b61;--bd:#2d2d3a;--fld:#0f0f16}
-*{box-sizing:border-box}html,body{margin:0}
+*{box-sizing:border-box;touch-action:manipulation}html,body{margin:0;-webkit-text-size-adjust:100%}
 body{background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;padding:12px 12px 130px;max-width:520px;margin:0 auto}
 .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}
 h1{font-size:22px;margin:4px 0 12px}
@@ -123,8 +123,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.22";
+const VER="0.23";
 const HIST=[
+ ["0.23","10.11.2026",["Kein Zoomen mehr durch Doppeltippen"]],
  ["0.22","10.11.2026",["Kurse online holen (Gold und USD, Spot von xaus.com) mit Bestätigung, optional automatisch beim Öffnen; ohne Internet bleibt der letzte Kurs mit Hinweis stehen","Kopfzeile: „Speichern & Beenden“ bricht nicht mehr um"]],
  ["0.21","10.11.2026",["Konten: „Navigieren“ (Apple Karten, Google Maps, Waze) und „Kontakt teilen“ (Name, Adresse, Telefon per Teilen-Menü oder Kopieren)"]],
  ["0.20","10.11.2026",["Bestellung: Goldfarbe Nur Gelb / Nur Weiß / 50 : 50 / Eigene Angabe (Gelb eintragen, Weiß wird automatisch ergänzt); Anzeige z. B. „3× Gelb + 2× Weiß“"]],
@@ -571,6 +572,7 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Kein Zoomen mehr durch Doppeltippen ~ No more zooming by double-tapping ~ Çift dokunmayla yakınlaştırma artık yok
 🌐 Kurse online holen ~ 🌐 Fetch rates online ~ 🌐 Kurları çevrimiçi al
 Wirklich abrufen? Nochmal tippen ~ Really fetch? Tap again ~ Gerçekten alınsın mı? Tekrar dokunun
 Beim Öffnen automatisch abrufen ~ Fetch automatically on opening ~ Açılışta otomatik al
