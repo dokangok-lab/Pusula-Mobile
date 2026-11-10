@@ -72,6 +72,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
  </div>
  <div class="card">
   <input id="newName" placeholder="Neuer Benutzer, z. B. Ahmet" autocomplete="off" style="margin-bottom:8px">
+  <label class="f"><span>Hauptwährung (nur bei neuem Benutzer)</span><select id="newBase"><option value="EUR">Euro (€)</option><option value="USD">US-Dollar ($)</option></select></label>
   <button class="sec" id="bNew">Neu beginnen (mit obigem Passwort)</button>
  </div>
  <p class="mu" id="msg"></p>
@@ -123,8 +124,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.25";
+const VER="0.26";
 const HIST=[
+ ["0.26","10.11.2026",["Hauptwährung Euro oder US-Dollar (bei neuem Benutzer wählbar, danach in den Einstellungen, solange keine Daten); Gold und zweite Währung werden entsprechend gerechnet","Kursabruf: „Abgleich“ (+/− je g) wird beim Abruf zum Goldkurs addiert, zum Angleichen an den eigenen Vergleichskurs"]],
  ["0.25","10.11.2026",["Einstellungen: Passwort ändern (aktuelles Passwort prüfen, neues zweimal eingeben)"]],
  ["0.24","10.11.2026",["App heißt jetzt „Pusula Mobile“ (Titel, Startbildschirm, Symbolname)"]],
  ["0.23","10.11.2026",["Kein Zoomen mehr durch Doppeltippen"]],
@@ -155,7 +157,7 @@ const HIST=[
 /* ---------- Grundlagen ---------- */
 const $=id=>document.getElementById(id);
 let data=null,pw="",_u=0;
-const ui={s:"home",pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:"EUR"};
+const ui={s:"home",pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
 const uid=()=>Date.now()*1000+(_u++%1000);
 const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -166,7 +168,8 @@ const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&g
 const parse=v=>{const n=parseFloat(String(v??"").replace(",","."));return isNaN(n)?0:n};
 const f2=n=>(+n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
 const f3=n=>(+n||0).toLocaleString("de-DE",{maximumFractionDigits:3});
-const eur=n=>f2(n)+" €";
+const BC=()=>(data&&data.base)||"EUR",FC=()=>BC()==="USD"?"EUR":"USD",SYM=c=>c==="USD"?"$":"€";
+const eur=n=>f2(n)+" "+SYM(BC());
 const fx=n=>(Math.round(n*100)/100).toFixed(2).replace(".",",");
 const fs=n=>String(Math.round(n*100)/100).replace(".",",");
 const UN={EUR:"€",USD:"USD",HAS:"g Gold",Stk:"Stück"},CUR=["EUR","USD"];
@@ -175,10 +178,10 @@ const fu=(n,u)=>fn(n,u)+" "+UN[u];
 function toast(t){const e=$("toast");e.textContent=tx(t);e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2400)}
 function sT(id,t){const e=$(id);if(e)e.textContent=t}
 
-/* Kurse: Gold in €/g, USD in € pro USD */
+/* Kurse: Gold je g in Hauptwährung; zweite Währung = Hauptwährung pro 1 Fremdwährung. Interner Bezug (toEUR/fromEUR) = Hauptwährung */
 const R=k=>{const r=(data.rates&&data.rates[k])||[];return parse(r[1])||parse(r[0])||0};
-const toEUR=(a,c)=>c==="USD"?a*R("usd"):c==="HAS"?a*R("gold"):a;
-const fromEUR=(a,c)=>c==="USD"?(R("usd")?a/R("usd"):0):c==="HAS"?(R("gold")?a/R("gold"):0):a;
+const toEUR=(a,c)=>c==="HAS"?a*R("gold"):c===FC()?a*R("usd"):a;
+const fromEUR=(a,c)=>c==="HAS"?(R("gold")?a/R("gold"):0):c===FC()?(R("usd")?a/R("usd"):0):a;
 
 /* Formular-Helfer */
 const F=(l,h)=>`<label class="f"><span>${l}</span>${h}</label>`;
@@ -206,7 +209,8 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){
- data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],prefix:{}},d);
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],prefix:{},base:"EUR"},d);
+ ui.lastCur=data.base;
  const r=data.rates;
  if(typeof r.gold==="string"||typeof r.usd==="string"){r.gold=[r.gold||"",r.gold||""];r.usd=[r.usd||"",r.usd||""]}
  r.gold=r.gold||["",""];r.usd=r.usd||["",""];
@@ -221,7 +225,7 @@ function open(d){
  rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
  if(!n||$("pw").value.length<6){$("msg").textContent="Name und Passwort (mind. 6 Zeichen) eingeben.";return}
- pw=$("pw").value;open({app:"kasse",user:n,entries:[]})};
+ pw=$("pw").value;open({app:"kasse",user:n,entries:[],base:$("newBase").value==="USD"?"USD":"EUR"})};
 $("bLoad").onclick=()=>{if(!$("pw").value){$("msg").textContent="Bitte zuerst das Passwort eingeben.";return}$("file").click()};
 $("file").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
  try{const j=JSON.parse(await f.text());pw=$("pw").value;
@@ -260,7 +264,10 @@ function hook(p){
  if(p==="ui.kf.prod")kProd();
  if(p==="ui.pid"){ui.pe=false;ui.pf=null;ui.nv=false;ui.ptxt=""}
  else if(p==="ui.se.group")ui.se.unit=SU[ui.se.group];
- else if(p.startsWith("data.rates")){if(p!=="data.rates.auto"){data.rates.at=now();data.rates.net=""}rRates();if(ui.pd&&ui.s==="prod")calcP()}
+ else if(p.startsWith("data.rates")){if(p!=="data.rates.auto"&&!p.startsWith("data.rates.adj")){data.rates.at=now();data.rates.net=""}rRates();if(ui.pd&&ui.s==="prod")calcP()}
+ else if(p==="data.base"){const r=data.rates;
+  const cv=(g,x)=>{const gg=parse(g),xx=parse(x);return[gg&&xx?f2c(gg/xx,2):"",xx?f2c(1/xx,4):""]};
+  const a=cv(r.gold[0],r.usd[0]),b=cv(r.gold[1],r.usd[1]);r.gold=[a[0],b[0]];r.usd=[a[1],b[1]];r.net="";r.adj=["",""];ui.lastCur=data.base;rRates();render()}
  else if(p==="data.prefix.Bestellung"||p==="ui.of.date"||p==="ui.of.ov"){const f=ui.of;if(f&&!f.ov){f.no=nextOrdNo(f.date);setV("ui.of.no",f.no)}}
  else if(p.startsWith("data.prefix.")){const d=ui.pd;if(d&&ui.pnew&&!d.ov&&p==="data.prefix."+d.grp){d.code=nextCode(d.grp);setV("ui.pd.code",d.code)}}
  else if(p.startsWith("ui.pd."))pEdit(p);
@@ -574,6 +581,20 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Hauptwährung ~ Main currency ~ Ana para birimi
+Hauptwährung (nur bei neuem Benutzer) ~ Main currency (new user only) ~ Ana para birimi (sadece yeni kullanıcı)
+Euro (€) ~ Euro (€) ~ Euro (€)
+US-Dollar ($) ~ US dollar ($) ~ ABD doları ($)
+Nur änderbar, solange es noch keine Buchungen, Waren oder Verkäufe gibt. ~ Can only be changed while there are no postings, items or sales. ~ Kayıt, ürün veya satış yokken değiştirilebilir.
+Gold und die andere Währung werden danach in dieser Währung gerechnet. ~ Gold and the other currency are then calculated in this currency. ~ Altın ve diğer para birimi bu para biriminde hesaplanır.
+Gold Kauf $/g ~ Gold buy $/g ~ Altın alış $/g
+Gold Verkauf $/g ~ Gold sell $/g ~ Altın satış $/g
+EUR Kauf ($) ~ EUR buy ($) ~ EUR alış ($)
+EUR Verkauf ($) ~ EUR sell ($) ~ EUR satış ($)
+Abgleich Kauf (+/− je g) ~ Adjustment buy (+/− per g) ~ Alış ayarı (+/− gram başı)
+Abgleich Verkauf (+/− je g) ~ Adjustment sell (+/− per g) ~ Satış ayarı (+/− gram başı)
+Hauptwährung Euro oder US-Dollar (bei neuem Benutzer wählbar, danach in den Einstellungen, solange keine Daten); Gold und zweite Währung werden entsprechend gerechnet ~ Main currency euro or US dollar (selectable for a new user, later in settings while there is no data); gold and the second currency are calculated accordingly ~ Ana para birimi euro veya ABD doları (yeni kullanıcıda seçilebilir, sonra ayarlarda, veri yokken); altın ve ikinci para birimi buna göre hesaplanır
+Kursabruf: „Abgleich“ (+/− je g) wird beim Abruf zum Goldkurs addiert, zum Angleichen an den eigenen Vergleichskurs ~ Rate fetch: “adjustment” (+/− per g) is added to the gold rate on each fetch, to match your own reference rate ~ Kur alma: “ayar” (+/− gram başı) her almada altın kuruna eklenir, kendi referans kurunuza uydurmak için
 Passwort ändern ~ Change password ~ Şifreyi değiştir
 Aktuelles Passwort ~ Current password ~ Mevcut şifre
 Neues Passwort (mind. 6 Zeichen) ~ New password (min. 6 characters) ~ Yeni şifre (en az 6 karakter)
@@ -761,11 +782,12 @@ function rInfo(){const r=data.rates,last=r.net?"letzter Kurs vom "+r.net:(r.at?"
  if(ui.rs==="err")return"⚠️ Quelle antwortet nicht – "+last;
  if(ui.rs==="old")return"⚠️ Quelle meldet veraltete Daten – "+last;
  return r.net?"Online abgerufen: "+r.net+" (xaus.com)":(r.at?"Zuletzt eingegeben: "+r.at:"Kurse noch nicht eingegeben")}
-function rPanel(){const e=$("rEd"),r=data.rates;if(!e)return;
+function rPanel(){const e=$("rEd"),r=data.rates;if(!e)return;if(!Array.isArray(r.adj))r.adj=["",""];
  e.innerHTML=`<button data-a="rfetch"${ui.rs==="busy"?" disabled":""}>${armed("rf")?"Wirklich abrufen? Nochmal tippen":"🌐 Kurse online holen"}</button>
- <div class="g2" style="margin-top:10px">${F("Gold Kauf €/g",N("data.rates.gold.0",r.gold[0]))}${F("Gold Verkauf €/g",N("data.rates.gold.1",r.gold[1]))}</div><div class="g2">${F("USD Kauf (€)",N("data.rates.usd.0",r.usd[0]))}${F("USD Verkauf (€)",N("data.rates.usd.1",r.usd[1]))}</div>
+ <div class="g2" style="margin-top:10px">${F("Gold Kauf "+SYM(BC())+"/g",N("data.rates.gold.0",r.gold[0]))}${F("Gold Verkauf "+SYM(BC())+"/g",N("data.rates.gold.1",r.gold[1]))}</div><div class="g2">${F(BC()==="USD"?"EUR Kauf ($)":"USD Kauf (€)",N("data.rates.usd.0",r.usd[0]))}${F(BC()==="USD"?"EUR Verkauf ($)":"USD Verkauf (€)",N("data.rates.usd.1",r.usd[1]))}</div>
+ <div class="g2">${F("Abgleich Kauf (+/− je g)",N("data.rates.adj.0",r.adj[0]))}${F("Abgleich Verkauf (+/− je g)",N("data.rates.adj.1",r.adj[1]))}</div>
  <p class="mu" id="rAt"></p>${CB("data.rates.auto",!!r.auto,"Beim Öffnen automatisch abrufen")}
- <p class="mu">Kosten rechnen mit dem Verkaufskurs. Der Abruf füllt Kauf und Verkauf mit demselben Referenzkurs (Spot, nicht Kitco); danach kannst du Auf- und Abschläge von Hand eintragen. Nicht für verbindliche Abrechnung.</p>`;rRates()}
+ <p class="mu">Kosten rechnen mit dem Verkaufskurs. Der Abruf füllt Kauf und Verkauf mit demselben Referenzkurs (Spot, nicht Kitco); danach kannst du Auf- und Abschläge von Hand eintragen. Nicht für verbindliche Abrechnung. „Abgleich“ wird bei jedem Abruf zum Goldkurs addiert, z. B. +0,40, wenn dein Vergleichskurs höher liegt.</p>`;rRates()}
 async function fetchRates(quiet){const r=data.rates;
  if(typeof navigator!=="undefined"&&navigator.onLine===false){ui.rs="off";rRates();if(!quiet)toast("Keine Verbindung");return}
  ui.rs="busy";rRates();
@@ -775,13 +797,14 @@ async function fetchRates(quiet){const r=data.rates;
   const eg=Number(j&&j.xau&&j.xau.price),ug=Number(j&&j.per_gram_usd);
   if(!(eg>0)||!(ug>0))throw new Error("data");
   if(j.stale===true){ui.rs="old";rRates();if(!quiet)toast("Quelle meldet veraltete Daten");return}
-  const g=f2c(eg,2),u=f2c(eg/ug,4);r.gold=[g,g];r.usd=[u,u];r.at=now();r.net=now();ui.rs="";
+  if(!Array.isArray(r.adj))r.adj=["",""];
+  const gb=BC()==="USD"?ug:eg,fx=BC()==="USD"?ug/eg:eg/ug,gk=f2c(gb+parse(r.adj[0]),2),gv=f2c(gb+parse(r.adj[1]),2),u=f2c(fx,4);r.gold=[gk,gv];r.usd=[u,u];r.at=now();r.net=now();ui.rs="";
   rRates();if(ui.s==="prod"&&ui.pd)calcP();if(!quiet)toast("Kurse aktualisiert")}
  catch(e){ui.rs=(typeof navigator!=="undefined"&&navigator.onLine===false)?"off":"err";rRates();if(!quiet)toast("Abruf fehlgeschlagen")}}
 act.rfetch=()=>{if(!armed("rf")){ui.arm={k:"rf",t:Date.now()};rPanel();setTimeout(()=>{if(!armed("rf"))rPanel()},5200);return}
  ui.arm=null;rPanel();fetchRates(false).then(()=>rPanel())};
 function rRates(){const r=data.rates;
- $("rb").innerHTML=`<div class="rc"><b>🟡 GOLD €/g</b><span>${rv(r.gold[0])} / ${rv(r.gold[1])}</span></div><div class="rc"><b>💵 USD (€)</b><span>${rv(r.usd[0])} / ${rv(r.usd[1])}</span></div><div class="rc"><b>💶 EUR</b><span>1,0000 / 1,0000</span></div>`;
+ $("rb").innerHTML=`<div class="rc"><b>🟡 GOLD ${SYM(BC())}/g</b><span>${rv(r.gold[0])} / ${rv(r.gold[1])}</span></div><div class="rc"><b>${BC()==="USD"?"💶 EUR ($)":"💵 USD (€)"}</b><span>${rv(r.usd[0])} / ${rv(r.usd[1])}</span></div><div class="rc"><b>${BC()==="USD"?"💵 USD":"💶 EUR"}</b><span>1,0000 / 1,0000</span></div>`;
  if(ui.rs&&ui.rs!=="busy")$("rb").innerHTML+=`<div style="flex-basis:100%;font-size:11px;text-align:center;color:var(--out)">${esc(rInfo())}</div>`;
  const e=$("rAt");if(e)e.textContent=rInfo()}
 act.rtog=()=>{const e=$("rEd"),r=data.rates;e.classList.toggle("hide");
@@ -829,10 +852,10 @@ const OP={
 const opName=m=>OP[m.type]?OP[m.type][0]:(m.dir==="out"?"Ich gab":"Ich nahm");
 const tiles=(keys,a)=>`<div class="tiles">${keys.map(k=>`<button data-a="${a}" data-k="${k}"><b>${k}</b><span>${OP[k][0]}</span></button>`).join("")}</div>`;
 const balOf=pid=>{const b={};data.moves.filter(m=>m.pid===pid).forEach(m=>b[m.unit]=(b[m.unit]||0)+(m.dir==="out"?m.amount:-m.amount));return b};
-function eurOf(b){let t=0,miss=false;for(const u in b){if(u==="Stk")continue;if((u==="USD"&&!R("usd"))||(u==="HAS"&&!R("gold")))miss=true;t+=toEUR(b[u],u)}return{t,miss}}
+function eurOf(b){let t=0,miss=false;for(const u in b){if(u==="Stk")continue;if((u===FC()&&!R("usd"))||(u==="HAS"&&!R("gold")))miss=true;t+=toEUR(b[u],u)}return{t,miss}}
 function balHTML(pid){
  const b=balOf(pid),us=Object.keys(b).filter(u=>Math.abs(b[u])>1e-9),e=eurOf(b),owed=e.t>=0;
- return `<div class="risk ${owed?"":"neg"}"><b>Risikostatus</b><div>${owed?"Er schuldet mir":"Ich schulde"}</div><div class="big">${f2(Math.abs(e.t))} €</div><small>${e.miss?"Kurse fehlen für Teilbeträge":"zu aktuellen Kursen, ca."}</small></div>
+ return `<div class="risk ${owed?"":"neg"}"><b>Risikostatus</b><div>${owed?"Er schuldet mir":"Ich schulde"}</div><div class="big">${f2(Math.abs(e.t))} ${SYM(BC())}</div><small>${e.miss?"Kurse fehlen für Teilbeträge":"zu aktuellen Kursen, ca."}</small></div>
  <div class="card tbl"><div class="th"><span>Währung</span><span>Ich schulde</span><span>Er schuldet</span></div>${us.map(u=>`<div class="tr"><span>${UN[u]}</span><span class="out">${b[u]<0?fn(-b[u],u):""}</span><span class="in">${b[u]>0?fn(b[u],u):""}</span></div>`).join("")||'<p class="mu">Noch keine Buchungen.</p>'}</div>`}
 function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:uid(),name:n};data.people.push(p);return p}
 
@@ -971,7 +994,7 @@ function histHTML(pid){
   `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
 act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=true;render()}};
 act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
-act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2],amount:"",note:"",date:today(),prod:0,sid:0,qty:"",q:""};render()};
+act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,sid:0,qty:"",q:""};render()};
 act.kcancel=()=>{ui.kf=null;render()};
 act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte Betrag eingeben");return}
  if(f.k==="VB"&&!f.prod){toast("Bitte eine Ware wählen");return}
@@ -1043,7 +1066,7 @@ function nextCode(g){const pre=pfx(g);let mx=0;
  data.prods.forEach(p=>{const m=String(p.code).match(new RegExp("^"+pre+"(\\d+)$","i"));if(m)mx=Math.max(mx,parseInt(m[1],10))});
  return pre+String(mx+1).padStart(7,"0")}
 function newP(){const g="Ring";return{id:uid(),code:nextCode(g),code0:"",ov:false,grp:g,name:"",status:"prod",model:"",feat:"",maker:"",reyon:"",len:"",orig:"",
- metal:[],stones:[],steps:[],cur:ui.lastCur||"EUR",f1:"2",p1:"",m1:"f",f2:"1",p2:"",m2:"f",note:"",date:today(),cost:0,w:0}}
+ metal:[],stones:[],steps:[],cur:ui.lastCur||BC(),f1:"2",p1:"",m1:"f",f2:"1",p2:"",m2:"f",note:"",date:today(),cost:0,w:0}}
 document.addEventListener("change",e=>{const el=e.target;if(!el||el.id!=="pimg"||!el.files||!el.files[0]||!ui.pd)return;
  const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{try{
   const sc=Math.min(1,640/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*sc)),hh=Math.max(1,Math.round(im.height*sc)),c=document.createElement("canvas");c.width=w;c.height=hh;
@@ -1077,7 +1100,7 @@ function uP(){const l=plist();
 act.pnew=()=>{ui.pd=newP();ui.pnew=true;render()};
 act.pedit=d=>{ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
 act.pback=()=>{ui.pd=null;render()};
-act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:"EUR",maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:"EUR",type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:"EUR",atelier:"",out:"",in:"",state:"Offen"});render()};
+act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
 act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
 function pEdit(p){const d=ui.pd,k=p.slice(6);
  if(k==="grp"&&!d.ov&&ui.pnew)d.code=nextCode(d.grp);
@@ -1175,7 +1198,7 @@ act.pdel=()=>{if(!confirmTap("pdel"))return;const d=ui.pd,p=data.prods.find(x=>x
 act.pnav=d=>{const l=plist(),i=l.findIndex(p=>p.id===ui.pd.id);if(i<0)return;const j=i+Number(d.v);if(j<0||j>=l.length)return;ui.pd=openP(l[j]);ui.pnew=false;render()};
 
 /* ---------- Verkauf ---------- */
-const newSale=()=>({pid:(data.people.find(p=>p.walk)||{}).id||0,date:today(),cur:"EUR",lines:[],note:"",lf:null});
+const newSale=()=>({pid:(data.people.find(p=>p.walk)||{}).id||0,date:today(),cur:BC(),lines:[],note:"",lf:null});
 function rV(){const s=ui.sv||(ui.sv=newSale());
  const no=Math.max(0,...data.sales.map(x=>x.no))+1;
  const tot=s.lines.reduce((a,l)=>a+(OP[l.k][1]==="out"?l.amount:-l.amount),0);
@@ -1244,7 +1267,7 @@ function cashBy(types){const c={};data.moves.forEach(m=>{const o=types[m.type];i
 function pStart(k){const d=new Date();if(k==="y")return d.getFullYear()+"-01-01";if(k!=="t")d.setDate(d.getDate()-(Number(k)-1));return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 const PERS=[["t","Heute"],["7","7 Tage"],["30","30 Tage"],["90","90 Tage"],["y","Dieses Jahr"]];
 function rHome(){
- const cash=cashBy({NT:1,NO:-1});data.entries.forEach(e=>{cash.EUR=(cash.EUR||0)+(e.type==="in"?e.amount:-e.amount)});
+ const cash=cashBy({NT:1,NO:-1});data.entries.forEach(e=>{cash[BC()]=(cash[BC()]||0)+(e.type==="in"?e.amount:-e.amount)});
  const bank=cashBy({KK:1,GH:-1});
  const bl=o=>Object.keys(o).filter(u=>Math.abs(o[u])>1e-9).map(u=>[UN[u],`<b class="${o[u]<0?"out":""}">${fn(o[u],u)}</b>`]);
  const rec={},owe={};
@@ -1308,7 +1331,7 @@ function xlsx(sheets){const sh=sheets.map(([n,rows])=>`<?xml version="1.0" encod
 const ST={prod:"In Fertigung",done:"Fertig (Lager)",sold:"Verkauft"};
 const pnm=id=>{const p=data.people.find(x=>x.id===id);return p?p.name:""};
 function xLager(){return["Lager",[["Gruppe","Nummer","Bezeichnung","Einheit","Feingehalt","Bestand","Notiz"],...data.stock.map(s=>[s.group,s.code||"",s.name,UL[s.unit]||s.unit,Number(s.fine)||"",Math.round(qtyOf(s.id)*1000)/1000,s.note||""])]]}
-function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status","Gewicht g","Kosten €"],...data.prods.map(p=>[p.code,p.grp,p.name,ST[p.status]||p.status,Number(p.w)||"",Math.round((Number(p.cost)||0)*100)/100])]]}
+function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status","Gewicht g","Kosten","Währung"],...data.prods.map(p=>[p.code,p.grp,p.name,ST[p.status]||p.status,Number(p.w)||"",Math.round((Number(p.cost)||0)*100)/100,p.cur||""])]]}
 function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
  data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
 function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Betrag","Notiz"],...data.moves.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(m=>[m.date,pnm(m.pid),m.dir==="out"?"Ich gebe":"Ich erhalte",UN[m.unit]||m.unit,m.amount,m.note||""])]]}
@@ -1334,6 +1357,7 @@ function rSet(){
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div></div>
+ <div class="card"><b>Hauptwährung</b>${(data.entries.length||data.moves.length||data.prods.length||data.sales.length)?`<p style="margin:6px 0">${data.base==="USD"?"US-Dollar ($)":"Euro (€)"}</p><p class="mu" style="margin:0">Nur änderbar, solange es noch keine Buchungen, Waren oder Verkäufe gibt.</p>`:F("Hauptwährung",S("data.base",data.base,[["EUR","Euro (€)"],["USD","US-Dollar ($)"]]))+'<p class="mu" style="margin:0">Gold und die andere Währung werden danach in dieser Währung gerechnet.</p>'}</div>
  <div class="card"><b>Passwort ändern</b>
  ${F("Aktuelles Passwort",`<input type="password" data-f="ui.pwf.a" value="${esc(ui.pwf.a)}" autocomplete="off" autocapitalize="off" autocorrect="off">`)}
  ${F("Neues Passwort (mind. 6 Zeichen)",`<input type="password" data-f="ui.pwf.b" value="${esc(ui.pwf.b)}" autocomplete="new-password" autocapitalize="off" autocorrect="off">`)}
