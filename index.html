@@ -123,8 +123,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.24";
+const VER="0.25";
 const HIST=[
+ ["0.25","10.11.2026",["Einstellungen: Passwort ändern (aktuelles Passwort prüfen, neues zweimal eingeben)"]],
  ["0.24","10.11.2026",["App heißt jetzt „Pusula Mobile“ (Titel, Startbildschirm, Symbolname)"]],
  ["0.23","10.11.2026",["Kein Zoomen mehr durch Doppeltippen"]],
  ["0.22","10.11.2026",["Kurse online holen (Gold und USD, Spot von xaus.com) mit Bestätigung, optional automatisch beim Öffnen; ohne Internet bleibt der letzte Kurs mit Hinweis stehen","Kopfzeile: „Speichern & Beenden“ bricht nicht mehr um"]],
@@ -154,7 +155,7 @@ const HIST=[
 /* ---------- Grundlagen ---------- */
 const $=id=>document.getElementById(id);
 let data=null,pw="",_u=0;
-const ui={s:"home",rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:"EUR"};
+const ui={s:"home",pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:"EUR"};
 const uid=()=>Date.now()*1000+(_u++%1000);
 const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -215,7 +216,7 @@ function open(d){
  if(!data.people.some(p=>p.walk))data.people.unshift({id:uid(),name:"Laufkunde (bar)",walk:true});
  data.ver=VER;
  if(!picked&&LOC[data.lang])lang=data.lang;data.lang=lang;document.documentElement.lang=lang;langBtns();
- Object.assign(ui,{rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
+ Object.assign(ui,{pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
  $("who").textContent=data.user;$("date").value=today();$("rEd").classList.add("hide");
  rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
@@ -573,6 +574,17 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Passwort ändern ~ Change password ~ Şifreyi değiştir
+Aktuelles Passwort ~ Current password ~ Mevcut şifre
+Neues Passwort (mind. 6 Zeichen) ~ New password (min. 6 characters) ~ Yeni şifre (en az 6 karakter)
+Neues Passwort wiederholen ~ Repeat new password ~ Yeni şifreyi tekrarlayın
+Das neue Passwort gilt ab dem nächsten „Speichern & Beenden“. Alte Dateien öffnen sich weiter mit dem alten Passwort. Vergisst du das Passwort, ist die Datei nicht wiederherstellbar. ~ The new password applies from the next “Save & Exit”. Old files still open with the old password. If you forget the password, the file cannot be recovered. ~ Yeni şifre bir sonraki “Kaydet ve Çık” ile geçerli olur. Eski dosyalar eski şifreyle açılır. Şifreyi unutursanız dosya kurtarılamaz.
+Aktuelles Passwort stimmt nicht ~ Current password is wrong ~ Mevcut şifre yanlış
+Neues Passwort: mind. 6 Zeichen ~ New password: min. 6 characters ~ Yeni şifre: en az 6 karakter
+Die neuen Passwörter sind nicht gleich ~ The new passwords do not match ~ Yeni şifreler aynı değil
+Neues Passwort ist gleich dem alten ~ New password is the same as the old one ~ Yeni şifre eskisiyle aynı
+Passwort geändert – jetzt „Speichern & Beenden“ ~ Password changed – now “Save & Exit” ~ Şifre değişti – şimdi “Kaydet ve Çık”
+Einstellungen: Passwort ändern (aktuelles Passwort prüfen, neues zweimal eingeben) ~ Settings: change password (check current password, enter new one twice) ~ Ayarlar: şifre değiştirme (mevcut şifre kontrolü, yenisi iki kez)
 App heißt jetzt „Pusula Mobile“ (Titel, Startbildschirm, Symbolname) ~ The app is now called “Pusula Mobile” (title, home screen, icon name) ~ Uygulamanın adı artık “Pusula Mobile” (başlık, ana ekran, simge adı)
 Kein Zoomen mehr durch Doppeltippen ~ No more zooming by double-tapping ~ Çift dokunmayla yakınlaştırma artık yok
 🌐 Kurse online holen ~ 🌐 Fetch rates online ~ 🌐 Kurları çevrimiçi al
@@ -1310,12 +1322,23 @@ async function xSave(kind){
   else{const f=new File([blob],name),a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}
   toast("Excel bereit")}catch(e){toast("Nicht gespeichert")}}
 act.xl=d=>xSave(d.v);
+act.pwchg=()=>{const f=ui.pwf;
+ if(f.a!==pw){toast("Aktuelles Passwort stimmt nicht");return}
+ if(String(f.b).length<6){toast("Neues Passwort: mind. 6 Zeichen");return}
+ if(f.b!==f.c){toast("Die neuen Passwörter sind nicht gleich");return}
+ if(f.b===pw){toast("Neues Passwort ist gleich dem alten");return}
+ pw=f.b;ui.pwf={a:"",b:"",c:""};render();toast("Passwort geändert – jetzt „Speichern & Beenden“")};
 
 function rSet(){
  $("s-set").innerHTML=`<div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div></div>
+ <div class="card"><b>Passwort ändern</b>
+ ${F("Aktuelles Passwort",`<input type="password" data-f="ui.pwf.a" value="${esc(ui.pwf.a)}" autocomplete="off" autocapitalize="off" autocorrect="off">`)}
+ ${F("Neues Passwort (mind. 6 Zeichen)",`<input type="password" data-f="ui.pwf.b" value="${esc(ui.pwf.b)}" autocomplete="new-password" autocapitalize="off" autocorrect="off">`)}
+ ${F("Neues Passwort wiederholen",`<input type="password" data-f="ui.pwf.c" value="${esc(ui.pwf.c)}" autocomplete="new-password" autocapitalize="off" autocorrect="off">`)}
+ <button data-a="pwchg">Passwort ändern</button><p class="mu" style="margin:8px 0 0">Das neue Passwort gilt ab dem nächsten „Speichern &amp; Beenden“. Alte Dateien öffnen sich weiter mit dem alten Passwort. Vergisst du das Passwort, ist die Datei nicht wiederherstellbar.</p></div>
  <div class="card"><b>Excel-Export</b><p class="mu" style="margin:4px 0 10px">Erstellt eine Excel-Datei (.xlsx) zum Speichern. Kein Passwortschutz – Datei sicher aufbewahren.</p><div class="row" style="margin:0"><button data-a="xl" data-v="lager">Lagertabelle</button><button class="sec" data-a="xl" data-v="alles">Alles</button></div></div>
  <div class="card"><b>Version ${VER}</b><p class="mu">Datei verschlüsselt mit deinem Passwort · ${data.people.length} Personen · ${data.stock.length} Lagerkarten · ${data.prods.length} Waren · ${data.sales.length} Verkäufe</p></div>
  <div class="card"><b>Update-Historie</b>${HIST.map(h=>`<p style="margin:10px 0 2px"><b>${h[0]}</b> <span class="mu">${h[1]}</span></p><ul style="margin:0;padding-left:18px">${h[2].map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`).join("")}</div>`}
