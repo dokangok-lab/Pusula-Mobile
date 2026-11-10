@@ -124,8 +124,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.29";
+const VER="0.30";
 const HIST=[
+ ["0.30","10.11.2026",["Steinart kurz: nur noch Echt, CVD oder HPHT (alte Einträge werden automatisch umbenannt)"]],
  ["0.29","10.11.2026",["Steinart / Herkunft: Natürlich, Labor (CVD), Labor (HPHT), Moissanit, Zirkonia, Farbstein u. a. – im Lager, in der Fertigung (automatisch übernommen) und in Bestellungen"]],
  ["0.28","10.11.2026",["Steine nach 4C-Tabelle: Farbe D–Z mit Gruppen, Reinheit IF bis I3, Schliff mit Ideal (Hearts & Arrows), Standard-Karat 0,05–3,00 als Vorschlag; ungefährer Durchmesser (rund) wird angezeigt"]],
  ["0.27","10.11.2026",["Lager: Steinkarten mit Art/Form (z. B. Radiant), Farbe (z. B. F), Reinheit (z. B. VVS2), Schliff und Karat je Stein, mit Auswahlvorschlägen; in der Fertigung werden diese Werte beim Auswählen des Steins automatisch übernommen; Excel-Export erweitert"]],
@@ -214,6 +215,7 @@ function show(on){$("start").classList.toggle("hide",on);$("main").classList.tog
 function open(d){
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],prefix:{},base:"EUR"},d);
  ui.lastCur=data.base;
+ {const mn=o=>{if(o&&NATM[o.nat])o.nat=NATM[o.nat]};data.stock.forEach(mn);data.orders.forEach(mn);data.prods.forEach(p=>(p.stones||[]).forEach(mn))}
  const r=data.rates;
  if(typeof r.gold==="string"||typeof r.usd==="string"){r.gold=[r.gold||"",r.gold||""];r.usd=[r.usd||"",r.usd||""]}
  r.gold=r.gold||["",""];r.usd=r.usd||["",""];
@@ -584,6 +586,8 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Echt ~ Natural ~ Doğal
+Steinart kurz: nur noch Echt, CVD oder HPHT (alte Einträge werden automatisch umbenannt) ~ Short stone type: only natural, CVD or HPHT (old entries are renamed automatically) ~ Kısa taş türü: sadece doğal, CVD veya HPHT (eski kayıtlar otomatik yeniden adlandırılır)
 Steinart / Herkunft ~ Stone type / origin ~ Taş türü / menşei
 Natürlich ~ Natural ~ Doğal
 Labor (CVD) ~ Lab-grown (CVD) ~ Laboratuvar (CVD)
@@ -891,7 +895,7 @@ function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:
 
 
 /* ---------- Bestellungen ---------- */
-const SNAT=[["","– wählen –"],"Natürlich","Labor (CVD)","Labor (HPHT)","Labor (Verfahren unbekannt)","Moissanit","Zirkonia","Farbstein","Sonstiges"];
+const SNAT=[["","– wählen –"],"Echt","CVD","HPHT"],NATM={"Natürlich":"Echt","Labor (CVD)":"CVD","Labor (HPHT)":"HPHT"};
 const OART=["Ring","Diamantring","Armband","Diamantarmband","Kette","Ohrringe","Anhänger","Anderes (selbst eingeben)"],OMET=["Gold","Roségold","Silber","Platin"],OCOL=[["y","Nur Gelb"],["w","Nur Weiß"],["h","50 : 50"],["c","Eigene Angabe"]],
  OFEIN=[["","– egal –"],["333","8K (333)"],["585","14K (585)"],["750","18K (750)"],["875","21K (875)"],["916","22K (916)"],["999","24K (999)"]],
  OCT=[["","– ohne Stein –"],"0,5","0,6","0,7","0,8","0,9","1","1,5","2",["x","Eigene Eingabe"]];
