@@ -1,0 +1,1279 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Kasse">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#2e1578">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Kasse</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);
+--bg:#eceff6;--card:#fff;--tx:#1d1d2b;--mu:#6b6b80;--ac:#4a2bb8;--hd:#2e1578;--in:#0a7d5a;--out:#c8372d;--bd:#d9dbe8;--fld:#f6f7fb}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){color-scheme:dark;--bg:#0b0b12;--card:#17171f;--tx:#f2f2f7;--mu:#9a9aae;--ac:#8b73ff;--hd:#3b1d99;--in:#30c48d;--out:#ff6b61;--bd:#2d2d3a;--fld:#0f0f16}}
+:root[data-theme="dark"]{color-scheme:dark;--bg:#0b0b12;--card:#17171f;--tx:#f2f2f7;--mu:#9a9aae;--ac:#8b73ff;--hd:#3b1d99;--in:#30c48d;--out:#ff6b61;--bd:#2d2d3a;--fld:#0f0f16}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;padding:12px 12px 130px;max-width:520px;margin:0 auto}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}
+h1{font-size:22px;margin:4px 0 12px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{border:0;border-radius:12px;padding:12px 14px;background:var(--ac);color:#fff;font-weight:600;width:100%}
+button.sec{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+button.sm{width:auto;padding:6px 12px}
+input,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--fld);margin:0}
+input[readonly]{opacity:.75}
+input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:none;text-align:left;min-height:46px}
+.row{display:flex;gap:8px;margin-bottom:8px}.row>*{flex:1}
+.mu{color:var(--mu);font-size:14px}.in{color:var(--in)}.out{color:var(--out)}
+.sum{display:flex;justify-content:space-between;text-align:center;gap:8px}.sum b{display:block;font-size:18px}
+.it{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);gap:8px}
+.it:last-child{border:0}.it small{display:block;color:var(--mu)}
+.nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px}
+.hide{display:none}.click{cursor:pointer}.r{text-align:right}
+.rb{display:flex;gap:6px;background:var(--card);border-radius:14px;padding:8px;margin-bottom:10px;cursor:pointer}
+.rc{flex:1;text-align:center;font-size:12px;line-height:1.3}.rc b{display:block}.rc span{color:var(--mu)}
+.bar{background:linear-gradient(90deg,var(--hd),var(--ac));color:#fff;padding:9px 12px;border-radius:12px;font-weight:600;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.f{display:block;margin-bottom:8px}.f span{display:block;font-size:12px;color:var(--mu);margin:0 0 3px 2px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}.g2>.f{min-width:0}
+.ck{display:flex;align-items:center;gap:8px;margin:4px 0 8px;font-size:15px}.ck input{width:auto}
+.tg{display:flex}.tg button{border-radius:0;padding:9px}.tg button:first-child{border-radius:10px 0 0 10px}.tg button:last-child{border-radius:0 10px 10px 0}
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.tiles button{background:var(--card);color:var(--tx);border:1px solid var(--bd);padding:10px 4px;font-weight:500;font-size:12px;display:flex;flex-direction:column;gap:2px;align-items:center;min-height:62px}
+.tiles button b{font-size:16px;color:var(--ac)}
+.risk{border-radius:14px;padding:12px;margin-bottom:12px;color:#fff;background:#0f7f6a}.risk.neg{background:#a53a33}
+.risk .big{font-size:24px;font-weight:700}.risk small{opacity:.85}
+.tbl .th,.tbl .tr{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:6px;padding:6px 0;border-bottom:1px solid var(--bd);font-size:14px}
+.tbl .th{font-weight:600;color:var(--ac)}
+.rowc{border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:10px}
+.rf{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--mu)}
+.navb{flex:1;text-align:center;padding:12px 6px;border-radius:12px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--bd);color:var(--tx);background:var(--fld)}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}.chips button{width:auto;white-space:nowrap;padding:7px 12px}
+.pill{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--fld);border:1px solid var(--bd);color:var(--mu)}
+[data-a]{cursor:pointer;-webkit-tap-highlight-color:transparent}[data-a] *{pointer-events:none}
+.nb{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom,0px)*.25 + 2px);display:flex;gap:2px;background:var(--hd);padding:6px;border-radius:20px;z-index:5;box-shadow:0 4px 16px rgba(0,0,0,.35)}
+.nb button{background:none;color:#d6ccff;font-size:10px;padding:6px 0;border-radius:14px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:48px}
+.nb button span{font-size:18px}.nb button.on{background:rgba(255,255,255,.18);color:#fff}
+#toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 14px;border-radius:20px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9;max-width:90%;text-align:center}
+#toast.on{opacity:1}
+</style></head><body>
+
+<div id="start">
+ <h1>Kasse</h1>
+ <div class="row" id="langS"><button data-a="lang" data-v="de">🇩🇪 Deutsch</button><button class="sec" data-a="lang" data-v="en">🇬🇧 English</button><button class="sec" data-a="lang" data-v="tr">🇹🇷 Türkçe</button></div>
+ <div class="card">
+  <p class="mu">Die App speichert nichts selbst. Gib dein Passwort ein und lade deine Datei, oder starte neu.</p>
+  <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password" style="margin-bottom:8px">
+  <button id="bLoad">Datei laden (.json)</button>
+  <input type="file" id="file" accept=".json,application/json" class="hide">
+ </div>
+ <div class="card">
+  <input id="newName" placeholder="Neuer Benutzer, z. B. Ahmet" autocomplete="off" style="margin-bottom:8px">
+  <button class="sec" id="bNew">Neu beginnen (mit obigem Passwort)</button>
+ </div>
+ <p class="mu" id="msg"></p>
+ <p class="mu" id="verS"></p>
+</div>
+
+<div id="main" class="hide">
+ <div class="nav"><h1 id="who" style="margin:0"></h1><div style="display:flex;gap:6px"><button class="sec sm" data-a="go" data-v="orders">📋</button><button class="sec sm" data-a="go" data-v="set">⚙️</button><button class="sec sm" id="bSave">Speichern &amp; Beenden</button></div></div>
+ <div id="rb" class="rb" data-a="rtog"></div>
+ <div id="rEd" class="card hide"></div>
+
+ <section id="s-home"></section>
+ <section id="s-kasse" class="hide">
+  <div class="bar"><span>Kontobuch</span><span>📒</span></div>
+  <div class="card" id="kbooks"></div>
+  <div class="card">
+   <div class="nav"><button class="sec sm" id="prev">‹</button><b id="mon"></b><button class="sec sm" id="next">›</button></div>
+   <div class="sum"><div><span class="mu">Einnahmen</span><b class="in" id="sIn"></b></div><div><span class="mu">Ausgaben</span><b class="out" id="sOut"></b></div><div><span class="mu">Saldo</span><b id="sBal"></b></div></div>
+  </div>
+  <div class="card">
+   <div class="row"><select id="kbk"></select></div>
+   <div class="row"><select id="type"><option value="in">Einnahme</option><option value="out" selected>Ausgabe</option></select>
+   <input id="amt" type="text" inputmode="decimal" placeholder="Betrag"></div>
+   <div class="row"><input id="cat" list="cats" placeholder="Kategorie (z. B. Miete)"><datalist id="cats"></datalist></div>
+   <div class="row"><input id="note" placeholder="Notiz (optional)"></div>
+   <div class="row"><input id="date" type="date"></div>
+   <button id="bAdd">Eintrag hinzufügen</button>
+  </div>
+  <div class="card"><b>Nach Kategorie</b><div id="bycat"></div></div>
+  <div class="card"><b>Einträge</b><div id="list"></div></div>
+ </section>
+ <section id="s-konten" class="hide"></section>
+ <section id="s-lager" class="hide"></section>
+ <section id="s-prod" class="hide"></section>
+ <section id="s-verkauf" class="hide"></section>
+ <section id="s-orders" class="hide"></section>
+ <section id="s-set" class="hide"></section>
+
+ <nav class="nb">
+  <button data-a="go" data-v="home" class="on"><span>🏠</span>Übersicht</button>
+  <button data-a="go" data-v="konten"><span>👥</span>Konten</button>
+  <button data-a="go" data-v="lager"><span>📦</span>Lager</button>
+  <button data-a="go" data-v="prod"><span>💍</span>Fertigung</button>
+  <button data-a="go" data-v="verkauf"><span>🏷️</span>Verkauf</button>
+  <button data-a="go" data-v="kasse"><span>📒</span>Kontobuch</button>
+ </nav>
+</div>
+<div id="toast"></div>
+
+<script>
+if(!window.claude)window.claude={use:async()=>null};
+const VER="0.21";
+const HIST=[
+ ["0.21","10.11.2026",["Konten: „Navigieren“ (Apple Karten, Google Maps, Waze) und „Kontakt teilen“ (Name, Adresse, Telefon per Teilen-Menü oder Kopieren)"]],
+ ["0.20","10.11.2026",["Bestellung: Goldfarbe Nur Gelb / Nur Weiß / 50 : 50 / Eigene Angabe (Gelb eintragen, Weiß wird automatisch ergänzt); Anzeige z. B. „3× Gelb + 2× Weiß“"]],
+ ["0.19","10.11.2026",["Bestellnummern automatisch: Kürzel + Jahr + Monat + Zähler (z. B. B2611001), Kürzel änderbar, Nummer überschreibbar"]],
+ ["0.18","10.11.2026",["Fertigung: Foto je Ware (aus Fotos/Dateien, wird verkleinert, Transparenz bleibt erhalten); Vorschaubild in der Warenliste"]],
+ ["0.17","10.11.2026",["Untere Leiste sitzt tiefer am Bildschirmrand"]],
+ ["0.16","10.11.2026",["Bestellungen: in Konten dritte Option „Bestellung“ (Artikel, Metall, Feingehalt, Steingröße in ct, Anzahl); neue Seite „Bestellungen“ (📋 oben und in der Übersicht) mit Aktiv grün, Erledigt rot, aktive zuerst"]],
+ ["0.15","10.11.2026",["Kontobuch: mehrere Kontobücher (z. B. Personalkosten, Auslagen); das Hauptbuch zeigt alles; Excel-Export mit Spalte Kontobuch"]],
+ ["0.14","10.11.2026",["Fertigung: Metallzeile mit „Arbeit in Gold“ (z. B. 585 + 115 = 700 fein) und „Zuschlag pro g“; Preis je Gramm wird angezeigt"]],
+ ["0.13","10.11.2026",["Konten: „Verkauf mit Barcode“ (Ware aus der Liste wählen, Preis automatisch) und „Verkauf ohne Barcode“ (optional mit Lagerabbuchung); verkaufte Ware bleibt in der Liste mit „verkauft an … am …“"]],
+ ["0.12","10.11.2026",["Einstellungen: Excel-Export (.xlsx) – Lagertabelle (Lager + Fertige Ware) oder Alles (zusätzlich Konten, Buchungen, Kontobuch)"]],
+ ["0.11","10.11.2026",["Übersicht: Tipp auf den lila Balken öffnet den passenden Bereich (Kasse, Bank, Lager, Fertigware, Konten)"]],
+ ["0.10","10.11.2026",["Personen mit Details: Typ, Firma, Land, Stadt, Adresse, Telefon, Notiz; Personensuche; Offene Konten in der Übersicht"]],
+ ["0.09","10.11.2026",["Suche findet Nummern auch ohne Nullen (YZD178 findet YZD0000178); Nummernsuche auch beim Verkauf"]],
+ ["0.08","10.11.2026",["Eigene Nummern-Kürzel pro Gruppe (z. B. YZD statt RNG), direkt in der Ware und in den Einstellungen änderbar"]],
+ ["0.07","10.11.2026",["Sprachauswahl in den Einstellungen: Deutsch, Englisch, Türkisch (mit Flaggen)","Menü-Tasten reagieren jetzt auf Antippen"]],
+ ["0.06","10.11.2026",["Neue Startseite „Übersicht“: Offene Position, Kasse, Bank, Lager ohne Barcode, fertige Gold- und Sonderware, Verkäufe nach Zeitraum","„Kasse“ heißt jetzt „Kontobuch“ und ist nicht mehr die erste Seite","Menüleiste überarbeitet (schwebend, besser antippbar); Einstellungen über ⚙️ oben"]],
+ ["0.05","10.11.2026",["Verkauf: Kunde wählen, Verkauf mit/ohne Barcode, Einkauf, Zahlungen, Rabatt, Rückgabe","Jeder Verkauf landet automatisch im Konto der Person (ein Verlauf, keine Doppeleingabe)","Verkaufte Ware wird automatisch als „Verkauft“ markiert; Verkaufsliste mit Löschen"]],
+ ["0.04","10.11.2026",["Fertigung: eigene Ware mit automatischer Nummer und Haken „Nummer überschreiben“","Metall, Steine und Arbeitsschritte (Arbeit, Politur …) mit automatischer Kostenberechnung","Verkaufs- und Etikettenpreis per Multiplikator oder Handeingabe","Fertigstellen bucht Metall und Steine vom Lager ab"]],
+ ["0.03","10.11.2026",["Lager: Lagerkarten für Gold, Altgold, Steine und Sonderware mit Nummer; Bestand buchen mit Verlauf; Feingold-Summe","Konten: Vorgangs-Tasten (Goldeingang, Bareinzug …), Risikostatus und Saldo je Währung","Neues Design im Stil der Vorlage: Menüleiste unten, violette Kopfleisten","Kursleiste mit Kauf/Verkauf (Tippen zum Ändern)"]],
+ ["0.02","10.11.2026",["Passwort: Datei wird verschlüsselt gespeichert und nur mit Passwort geladen","Konten mit Verlauf","Kursleiste oben mit Handeingabe","Einstellungen mit Update-Historie, Versionsnummer x.xx"]],
+ ["0.01","10.11.2026",["Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht","Speichern und Laden als Datei pro Benutzer"]]
+];
+
+/* ---------- Grundlagen ---------- */
+const $=id=>document.getElementById(id);
+let data=null,pw="",_u=0;
+const ui={s:"home",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:"EUR"};
+const uid=()=>Date.now()*1000+(_u++%1000);
+const pad=n=>String(n).padStart(2,"0");
+const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
+const ym=d=>d.getFullYear()+"-"+pad(d.getMonth()+1);
+const dt=s=>new Date(s+"T12:00:00").toLocaleDateString(LOC[lang]||"de-DE");
+const now=()=>new Date().toLocaleString("de-DE",{dateStyle:"short",timeStyle:"short"});
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const parse=v=>{const n=parseFloat(String(v??"").replace(",","."));return isNaN(n)?0:n};
+const f2=n=>(+n||0).toLocaleString("de-DE",{minimumFractionDigits:2,maximumFractionDigits:2});
+const f3=n=>(+n||0).toLocaleString("de-DE",{maximumFractionDigits:3});
+const eur=n=>f2(n)+" €";
+const fx=n=>(Math.round(n*100)/100).toFixed(2).replace(".",",");
+const fs=n=>String(Math.round(n*100)/100).replace(".",",");
+const UN={EUR:"€",USD:"USD",HAS:"g Gold",Stk:"Stück"},CUR=["EUR","USD"];
+const fn=(n,u)=>u==="EUR"||u==="USD"?f2(n):f3(n);
+const fu=(n,u)=>fn(n,u)+" "+UN[u];
+function toast(t){const e=$("toast");e.textContent=tx(t);e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2400)}
+function sT(id,t){const e=$(id);if(e)e.textContent=t}
+
+/* Kurse: Gold in €/g, USD in € pro USD */
+const R=k=>{const r=(data.rates&&data.rates[k])||[];return parse(r[1])||parse(r[0])||0};
+const toEUR=(a,c)=>c==="USD"?a*R("usd"):c==="HAS"?a*R("gold"):a;
+const fromEUR=(a,c)=>c==="USD"?(R("usd")?a/R("usd"):0):c==="HAS"?(R("gold")?a/R("gold"):0):a;
+
+/* Formular-Helfer */
+const F=(l,h)=>`<label class="f"><span>${l}</span>${h}</label>`;
+const I=(p,v,ph="",ex="")=>`<input data-f="${p}" value="${esc(v)}" placeholder="${esc(ph)}" ${ex}>`;
+const N=(p,v,ph="")=>I(p,v,ph,'inputmode="decimal"');
+const S=(p,v,o,ex="")=>`<select data-f="${p}" ${ex}>${o.map(x=>{const[a,b]=Array.isArray(x)?x:[x,x];return`<option value="${esc(a)}"${String(a)===String(v)?" selected":""}>${esc(b)}</option>`}).join("")}</select>`;
+const CB=(p,v,l,ex="")=>`<label class="ck"><input type="checkbox" data-f="${p}" ${v?"checked":""} ${ex}> ${l}</label>`;
+const TG=(a,cur,items)=>items.map(([v,l])=>`<button class="${cur===v?"":"sec"}" data-a="${a}" data-v="${v}">${l}</button>`).join("");
+const armed=k=>ui.arm&&ui.arm.k===k&&Date.now()-ui.arm.t<5000;
+const dl=(k,l)=>armed(k)?"Sicher löschen?":l;
+function confirmTap(k){if(armed(k)){ui.arm=null;return true}ui.arm={k,t:Date.now()};render();return false}
+
+/* ---------- Verschlüsselung ---------- */
+const b64=b=>{let s="";new Uint8Array(b).forEach(c=>s+=String.fromCharCode(c));return btoa(s)};
+const unb64=s=>Uint8Array.from(atob(s),c=>c.charCodeAt(0));
+async function mkKey(p,salt){const m=await crypto.subtle.importKey("raw",new TextEncoder().encode(p),"PBKDF2",false,["deriveKey"]);
+ return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},m,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
+async function enc(obj,p){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
+ const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},await mkKey(p,salt),new TextEncoder().encode(JSON.stringify(obj)));
+ return JSON.stringify({app:"kasse",v:2,salt:b64(salt),iv:b64(iv),data:b64(c)})}
+async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(f.iv)},await mkKey(p,unb64(f.salt)),unb64(f.data));
+ return JSON.parse(new TextDecoder().decode(c))}
+
+/* ---------- Start / Laden / Speichern ---------- */
+$("verS").textContent="Version "+VER;
+function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
+function open(d){
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],prefix:{}},d);
+ const r=data.rates;
+ if(typeof r.gold==="string"||typeof r.usd==="string"){r.gold=[r.gold||"",r.gold||""];r.usd=[r.usd||"",r.usd||""]}
+ r.gold=r.gold||["",""];r.usd=r.usd||["",""];
+ data.moves.forEach(m=>{if(m.dir==="gave")m.dir="out";if(m.dir==="took")m.dir="in";
+  m.unit=({"€":"EUR","Gold g":"HAS","Stück":"Stk"})[m.unit]||m.unit;m.type=m.type||"MN"});
+ data.orders.slice().sort((a,b)=>String(a.date).localeCompare(b.date)||a.id-b.id).forEach(o=>{if(!o.no)o.no=nextOrdNo(o.date)});
+ if(!data.people.some(p=>p.walk))data.people.unshift({id:uid(),name:"Laufkunde (bar)",walk:true});
+ data.ver=VER;
+ if(!picked&&LOC[data.lang])lang=data.lang;data.lang=lang;document.documentElement.lang=lang;langBtns();
+ Object.assign(ui,{nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
+ $("who").textContent=data.user;$("date").value=today();$("rEd").classList.add("hide");
+ rRates();show(true);go("home")}
+$("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
+ if(!n||$("pw").value.length<6){$("msg").textContent="Name und Passwort (mind. 6 Zeichen) eingeben.";return}
+ pw=$("pw").value;open({app:"kasse",user:n,entries:[]})};
+$("bLoad").onclick=()=>{if(!$("pw").value){$("msg").textContent="Bitte zuerst das Passwort eingeben.";return}$("file").click()};
+$("file").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
+ try{const j=JSON.parse(await f.text());pw=$("pw").value;
+  if(j.v===2)open(await dec(j,pw));
+  else if(j.app==="kasse"&&Array.isArray(j.entries))open(j);
+  else throw 0}
+ catch(_){$("msg").textContent="Datei nicht lesbar oder Passwort falsch."}};
+$("bSave").onclick=async()=>{
+ const name=data.user+".json";let text;
+ try{text=await enc(data,pw);
+  const dlc=await claude.use("downloads");
+  if(dlc){await dlc.save({filename:name,data:text})}
+  else{const f=new File([text],name,{type:"application/json"});
+   if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f]});
+   else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}}
+ }catch(e){alert(tx("Nicht gespeichert – die Daten bleiben noch in der App."));return}
+ data=null;pw="";$("pw").value="";$("msg").textContent="Gespeichert. Die App ist jetzt leer.";show(false)};
+
+/* ---------- Navigation und Ereignisse ---------- */
+const act={};
+function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
+ document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===s));render();window.scrollTo(0,0)}
+act.go=d=>go(d.v);
+function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet})[ui.s]()}
+function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
+document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
+document.addEventListener("input",e=>{const el=e.target;if(!el.dataset||!el.dataset.f||el.tagName==="SELECT"||el.type==="checkbox")return;apply(el,false)});
+document.addEventListener("change",e=>{const el=e.target;if(!el.dataset||!el.dataset.f)return;apply(el,true)});
+function apply(el,ch){
+ const p=el.dataset.f;let v=el.type==="checkbox"?el.checked:el.value;if(el.dataset.n)v=Number(v)||0;
+ if(el.dataset.up){v=String(v).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);if(el.value!==v)el.value=v}
+ setPath(p,v);hook(p);
+ if(!ch&&el.dataset.u)window[el.dataset.u]();
+ if(ch&&el.dataset.r)render()}
+function hook(p){
+ if(p==="ui.kf.prod")kProd();
+ if(p==="ui.pid"){ui.pe=false;ui.pf=null;ui.nv=false;ui.ptxt=""}
+ else if(p==="ui.se.group")ui.se.unit=SU[ui.se.group];
+ else if(p.startsWith("data.rates")){data.rates.at=now();rRates();if(ui.pd&&ui.s==="prod")calcP()}
+ else if(p==="data.prefix.Bestellung"||p==="ui.of.date"||p==="ui.of.ov"){const f=ui.of;if(f&&!f.ov){f.no=nextOrdNo(f.date);setV("ui.of.no",f.no)}}
+ else if(p.startsWith("data.prefix.")){const d=ui.pd;if(d&&ui.pnew&&!d.ov&&p==="data.prefix."+d.grp){d.code=nextCode(d.grp);setV("ui.pd.code",d.code)}}
+ else if(p.startsWith("ui.pd."))pEdit(p);
+ else if(p==="ui.sv.lf.prod")vProd()}
+
+/* ---------- Sprachen (DE / EN / TR) ---------- */
+const LANGS=[["de","🇩🇪","Deutsch"],["en","🇬🇧","English"],["tr","🇹🇷","Türkçe"]];
+const LOC={de:"de-DE",en:"en-GB",tr:"tr-TR"};
+let lang="de",picked=false;
+const DICT={},DYN=[];
+const TXT=`Kasse ~ Cash ~ Kasa
+Die App speichert nichts selbst. Gib dein Passwort ein und lade deine Datei, oder starte neu. ~ The app stores nothing by itself. Enter your password and load your file, or start fresh. ~ Uygulama kendi başına hiçbir şey saklamaz. Şifrenizi girin ve dosyanızı yükleyin ya da yeni başlayın.
+Passwort ~ Password ~ Şifre
+Datei laden (.json) ~ Load file (.json) ~ Dosya yükle (.json)
+Neuer Benutzer, z. B. Ahmet ~ New user, e.g. Ahmet ~ Yeni kullanıcı, örn. Ahmet
+Neu beginnen (mit obigem Passwort) ~ Start new (with the password above) ~ Yeni başla (yukarıdaki şifre ile)
+Name und Passwort (mind. 6 Zeichen) eingeben. ~ Enter a name and a password (min. 6 characters). ~ Ad ve şifre girin (en az 6 karakter).
+Bitte zuerst das Passwort eingeben. ~ Please enter the password first. ~ Lütfen önce şifreyi girin.
+Datei nicht lesbar oder Passwort falsch. ~ File unreadable or wrong password. ~ Dosya okunamadı veya şifre yanlış.
+Gespeichert. Die App ist jetzt leer. ~ Saved. The app is now empty. ~ Kaydedildi. Uygulama şimdi boş.
+Nicht gespeichert – die Daten bleiben noch in der App. ~ Not saved – the data is still in the app. ~ Kaydedilmedi – veriler hâlâ uygulamada.
+Speichern & Beenden ~ Save & Exit ~ Kaydet ve Çık
+Kontobuch ~ Ledger ~ Defter
+Einnahmen ~ Income ~ Gelir
+Ausgaben ~ Expenses ~ Gider
+Saldo ~ Balance ~ Bakiye
+Einnahme ~ Income ~ Gelir
+Ausgabe ~ Expense ~ Gider
+Betrag ~ Amount ~ Tutar
+Kategorie (z. B. Miete) ~ Category (e.g. rent) ~ Kategori (örn. kira)
+Notiz (optional) ~ Note (optional) ~ Not (isteğe bağlı)
+Eintrag hinzufügen ~ Add entry ~ Kayıt ekle
+Nach Kategorie ~ By category ~ Kategoriye göre
+Einträge ~ Entries ~ Kayıtlar
+Noch nichts in diesem Monat. ~ Nothing yet this month. ~ Bu ay henüz bir şey yok.
+Keine Einträge. ~ No entries. ~ Kayıt yok.
+Löschen ~ Delete ~ Sil
+Sicher löschen? ~ Really delete? ~ Emin misiniz?
+Sonstiges ~ Other ~ Diğer
+Übersicht ~ Overview ~ Ana Ekran
+Konten ~ Accounts ~ Hesaplar
+Lager ~ Stock ~ Stok
+Fertigung ~ Production ~ Üretim
+Verkauf ~ Sales ~ Satış
+Offene Position ~ Open position ~ Açık pozisyon
+Währung ~ Currency ~ Para birimi
+Forderung ~ Receivable ~ Alacak
+Schuld ~ Debt ~ Borç
+Differenz ~ Difference ~ Fark
+Keine Daten. ~ No data. ~ Veri yok.
+Bank ~ Bank ~ Banka
+Bestand ~ Balance ~ Bakiye
+Lager ohne Barcode ~ Stock without barcode ~ Barkodsuz stok
+Artikel ~ Item ~ Malzeme
+Menge ~ Quantity ~ Miktar
+Feingehalt ~ Fineness ~ Milyem
+Fertige Ware: Gold ~ Finished goods: gold ~ Bitmiş ürün: altın
+Gewicht ~ Weight ~ Ağırlık
+Fertige Ware: Sonderware ~ Finished goods: special items ~ Bitmiş ürün: özel ürün
+Bezeichnung ~ Name ~ Ad
+Stück ~ Pieces ~ Adet
+Kosten ~ Cost ~ Maliyet
+Verkäufe ~ Sales ~ Satışlar
+Heute ~ Today ~ Bugün
+7 Tage ~ 7 days ~ 7 gün
+30 Tage ~ 30 days ~ 30 gün
+90 Tage ~ 90 days ~ 90 gün
+Dieses Jahr ~ This year ~ Bu yıl
+Stück (Barcode) ~ Pieces (barcode) ~ Adet (barkodlu)
+Umsatz ~ Revenue ~ Ciro
+Tag ~ Day ~ Gün
+Anzahl ~ Count ~ Adet
+g Gold ~ g gold ~ g altın
+Konto ~ Account ~ Hesap
+Person wählen … ~ Choose person … ~ Kişi seçin …
+Neue Person ~ New person ~ Yeni kişi
+Anlegen ~ Create ~ Ekle
+Eingänge (ich nahm) ~ Incoming (I took) ~ Girişler (aldım)
+Ausgänge (ich gab) ~ Outgoing (I gave) ~ Çıkışlar (verdim)
+Eingänge ~ Incoming ~ Girişler
+Ausgänge ~ Outgoing ~ Çıkışlar
+Goldeingang ~ Gold in ~ Altın girişi
+Bareinzug ~ Cash received ~ Nakit tahsilat
+Banküberweisung ~ Bank transfer ~ Banka havalesi
+Wareneingang ~ Goods in ~ Mal girişi
+Gutschrift ~ Credit ~ Alacaklandırma
+Altgold-Ausgang ~ Scrap gold out ~ Hurda çıkışı
+Barzahlung ~ Cash payment ~ Nakit ödeme
+Überweisung aus ~ Outgoing transfer ~ Giden havale
+Warenausgang ~ Goods out ~ Mal çıkışı
+Belastung ~ Debit ~ Borçlandırma
+Verkauf mit Barcode ~ Sale with barcode ~ Barkodlu satış
+Verkauf ohne Barcode ~ Sale without barcode ~ Barkodsuz satış
+Einkauf ohne Barcode ~ Purchase without barcode ~ Barkodsuz alış
+Rückgabe mit Barcode ~ Return with barcode ~ Barkodlu iade
+Rabatt ~ Discount ~ İskonto
+Betrag / Menge ~ Amount / quantity ~ Tutar / miktar
+Einheit ~ Unit ~ Birim
+Notiz (z. B. Ring, 14K) ~ Note (e.g. ring, 14K) ~ Not (örn. yüzük, 14K)
+Datum ~ Date ~ Tarih
+Buchen ~ Post ~ Kaydet
+Abbrechen ~ Cancel ~ Vazgeç
+Verlauf ~ History ~ Geçmiş
+Noch kein Verlauf. ~ No history yet. ~ Henüz geçmiş yok.
+Ich gab ~ I gave ~ Verdim
+Ich nahm ~ I took ~ Aldım
+Risikostatus ~ Risk status ~ Risk durumu
+Er schuldet mir ~ He owes me ~ Bana borçlu
+Ich schulde ~ I owe ~ Ben borçluyum
+Kurse fehlen für Teilbeträge ~ Rates missing for some amounts ~ Bazı tutarlar için kur eksik
+zu aktuellen Kursen, ca. ~ at current rates, approx. ~ güncel kurlarla, yaklaşık
+Er schuldet ~ He owes ~ Borcu
+Noch keine Buchungen. ~ No postings yet. ~ Henüz kayıt yok.
+Feingold gesamt ~ Total fine gold ~ Toplam saf altın
+Fertige Ware ~ Finished goods ~ Bitmiş ürün
++ Neue Lagerkarte ~ + New stock card ~ + Yeni stok kartı
+Standard-Karten anlegen ~ Create standard cards ~ Standart kartları oluştur
+Alle ~ All ~ Tümü
+Gold ~ Gold ~ Altın
+Altgold ~ Scrap gold ~ Hurda altın
+Stein ~ Stone ~ Taş
+Sonderware ~ Special items ~ Özel ürün
+Suchen (Name oder Nummer) ~ Search (name or number) ~ Ara (ad veya numara)
+passiv ~ inactive ~ pasif
+Keine Lagerkarten. ~ No stock cards. ~ Stok kartı yok.
+Neue Lagerkarte ~ New stock card ~ Yeni stok kartı
+Lagerkarte ~ Stock card ~ Stok kartı
+Zurück ~ Back ~ Geri
+Name ~ Name ~ Ad
+z. B. 14K oder Steinnummer ~ e.g. 14K or stone number ~ örn. 14K veya taş numarası
+Gruppe ~ Group ~ Grup
+Gramm ~ Gram ~ Gram
+Karat (ct) ~ Carat (ct) ~ Karat (ct)
+Feingehalt ‰ (z. B. 585) ~ Fineness ‰ (e.g. 585) ~ Milyem ‰ (örn. 585)
+Nummer / Barcode ~ Number / barcode ~ Numara / barkod
+Status ~ Status ~ Durum
+Passiv ~ Inactive ~ Pasif
+Aktiv ~ Active ~ Aktif
+Notiz ~ Note ~ Not
+Speichern ~ Save ~ Kaydet
++ Zugang ~ + Add stock ~ + Giriş
+− Abgang ~ − Remove stock ~ − Çıkış
+Bestandsverlauf ~ Stock history ~ Stok geçmişi
+Zugang ~ Addition ~ Giriş
+Abgang ~ Removal ~ Çıkış
+Noch keine Bewegungen. ~ No movements yet. ~ Henüz hareket yok.
++ Neue Ware (Barcode) ~ + New item (barcode) ~ + Yeni ürün (barkod)
+Ring ~ Ring ~ Yüzük
+Kette ~ Necklace ~ Kolye
+Armband ~ Bracelet ~ Bilezik
+Ohrringe ~ Earrings ~ Küpe
+Anhänger ~ Pendant ~ Kolye ucu
+In Fertigung ~ In production ~ Üretimde
+Fertig (Lager) ~ Finished (in stock) ~ Tamamlandı (stokta)
+Verkauft ~ Sold ~ Satıldı
+Suchen (Nummer oder Name) ~ Search (number or name) ~ Ara (numara veya ad)
+Keine Ware. ~ No items. ~ Ürün yok.
+Neue Ware ~ New item ~ Yeni ürün
+Ware ~ Item ~ Ürün
+Liste ~ List ~ Liste
+z. B. Brillantring ~ e.g. diamond ring ~ örn. pırlanta yüzük
+Nummer (Barcode) ~ Number (barcode) ~ Numara (barkod)
+Nummer überschreiben ~ Override number ~ Numarayı değiştir
+Weitere Angaben ~ More details ~ Diğer bilgiler
+Modell ~ Model ~ Model
+Eigenschaft ~ Attribute ~ Özellik
+Hersteller ~ Manufacturer ~ Üretici firma
+Vitrine / Fach ~ Display case / shelf ~ Reyon
+Länge ~ Length ~ Boy
+Originalcode ~ Original code ~ Orijinal kod
+Metall ~ Metal ~ Maden
+Lagerartikel (Metall) ~ Stock item (metal) ~ Stok kartı (maden)
+– wählen – ~ – select – ~ – seçin –
+Menge g ~ Quantity g ~ Miktar g
+Feingehalt ‰ ~ Fineness ‰ ~ Milyem ‰
+Zuschlag pro g ~ Surcharge per g ~ Gram başı ilave
+Feingehalt ‰ (z. B. 585 oder 0,585) ~ Fineness ‰ (e.g. 585 or 0.585) ~ Milyem ‰ (örn. 585 veya 0,585)
+Arbeit in Gold ‰ (z. B. 115 oder 0,115) ~ Labor in gold ‰ (e.g. 115 or 0.115) ~ Altın cinsinden işçilik ‰ (örn. 115 veya 0,115)
+Fein ~ Fine ~ Has
+je g ~ per g ~ gram başı
+Fertigung: Metallzeile mit „Arbeit in Gold“ (z. B. 585 + 115 = 700 fein) und „Zuschlag pro g“; Preis je Gramm wird angezeigt ~ Production: metal row with “labor in gold” (e.g. 585 + 115 = 700 fine) and “surcharge per g”; price per gram is shown ~ Üretim: “altın cinsinden işçilik” (örn. 585 + 115 = 700 has) ve “gram başı ilave” içeren metal satırı; gram fiyatı gösterilir
+Entfernen ~ Remove ~ Kaldır
++ Metall-Zeile ~ + Metal row ~ + Maden satırı
+Steine ~ Stones ~ Taşlar
+Stein (Lagerartikel) ~ Stone (stock item) ~ Taş (stok kartı)
+Karat ct ~ Carat ct ~ Karat ct
+Preis pro ct ~ Price per ct ~ Karat fiyatı
+Art ~ Type ~ Cins
+Farbe ~ Color ~ Renk
+Reinheit ~ Clarity ~ Saflık
+Schliff ~ Cut ~ Kesim
++ Stein-Zeile ~ + Stone row ~ + Taş satırı
+Fertigung (Arbeit, Politur …) ~ Production (labor, polishing …) ~ Üretim (işçilik, cila …)
+Vorgang ~ Operation ~ İşlem
+Atelier ~ Workshop ~ Atölye
+Ausgang g ~ Out g ~ Çıkış g
+Eingang g ~ In g ~ Giriş g
+Offen ~ Open ~ Açık
+Erledigt ~ Done ~ Tamamlandı
++ Arbeitsschritt ~ + Work step ~ + İş adımı
+Arbeit ~ Labor ~ İşçilik
+Politur ~ Polishing ~ Cila
+Fassen ~ Setting ~ Taş çakma
+Guss ~ Casting ~ Döküm
+Gravur ~ Engraving ~ Gravür
+Beträge ~ Amounts ~ Tutarlar
+Gesamtkosten ~ Total cost ~ Toplam maliyet
+Multiplikator (Verkauf) ~ Multiplier (sale) ~ Çarpan (satış)
+Verkaufspreis ~ Sale price ~ Satış fiyatı
+Multiplikator (Etikett) ~ Multiplier (label) ~ Çarpan (etiket)
+Etikettenpreis ~ Label price ~ Etiket fiyatı
+Beschreibung ~ Description ~ Açıklama
+Goldwert wird mit dem Verkaufskurs oben gerechnet. Preis oder Multiplikator: du kannst beides eingeben, das andere rechnet sich. ~ Gold value is calculated at the sell rate above. Price or multiplier: enter either one, the other is calculated. ~ Altın değeri yukarıdaki satış kuruyla hesaplanır. Fiyat veya çarpan: birini girin, diğeri otomatik hesaplanır.
+Fertigstellen ~ Finish ~ Tamamla
+Wieder in Fertigung ~ Back to production ~ Tekrar üretime al
+◀ Vorheriges ~ ◀ Previous ~ ◀ Önceki
+Nächstes ▶ ~ Next ▶ ~ Sonraki ▶
+Kunde / Händler ~ Customer / dealer ~ Müşteri / tüccar
+Datum ~ Date ~ Tarih
+Konto & Verlauf ~ Account & history ~ Hesap ve geçmiş
+Verkaufsliste ~ Sales list ~ Satış listesi
+keine passende Ware ~ no matching item ~ uygun ürün yok
+Gewicht g (optional) ~ Weight g (optional) ~ Ağırlık g (isteğe bağlı)
+optional ~ optional ~ isteğe bağlı
+z. B. Ring 14K ~ e.g. ring 14K ~ örn. yüzük 14K
+Zeile hinzufügen ~ Add line ~ Satır ekle
+Zeilen ~ Lines ~ Satırlar
+Noch keine Zeilen. ~ No lines yet. ~ Henüz satır yok.
+Offen aus diesem Vorgang ~ Open from this transaction ~ Bu işlemden açık
+Verkauf speichern ~ Save sale ~ Satışı kaydet
+Verwerfen ~ Discard ~ Vazgeç
+Noch keine Verkäufe. ~ No sales yet. ~ Henüz satış yok.
+Betrag (EUR) ~ Amount (EUR) ~ Tutar (EUR)
+Betrag (USD) ~ Amount (USD) ~ Tutar (USD)
+Laufkunde (bar) ~ Walk-in customer (cash) ~ Peşin müşteri
+Details ~ Details ~ Detaylar
+Details bearbeiten ~ Edit details ~ Detayları düzenle
+Keine Angaben. ~ No details. ~ Bilgi yok.
+Typ ~ Type ~ Tür
+Firma ~ Company ~ Firma
+Land ~ Country ~ Ülke
+Stadt ~ City ~ Şehir
+Adresse ~ Address ~ Adres
+Telefon ~ Phone ~ Telefon
+Notiz / Info ~ Note / info ~ Not / bilgi
+z. B. kommt freitags ~ e.g. comes on Fridays ~ örn. cuma günleri gelir
+Kunde ~ Customer ~ Müşteri
+Händler ~ Dealer ~ Tüccar
+Lieferant ~ Supplier ~ Tedarikçi
+Werkstatt ~ Workshop ~ Atölye
+Sonstige ~ Other ~ Diğer
+Person löschen ~ Delete person ~ Kişiyi sil
+Person hat Buchungen – kann nicht gelöscht werden ~ Person has postings – cannot be deleted ~ Kişinin kayıtları var – silinemez
+Person suchen ~ Search person ~ Kişi ara
+Name, Stadt, Land … ~ Name, city, country … ~ Ad, şehir, ülke …
+Offene Konten ~ Open accounts ~ Açık hesaplar
++ schuldet mir · − ich schulde ~ + owes me · − I owe ~ + bana borçlu · − ben borçluyum
+Personen mit Details: Typ, Firma, Land, Stadt, Adresse, Telefon, Notiz; Personensuche; Offene Konten in der Übersicht ~ People with details: type, company, country, city, address, phone, note; people search; open accounts in the overview ~ Detaylı kişiler: tür, firma, ülke, şehir, adres, telefon, not; kişi arama; ana ekranda açık hesaplar
+Nummer suchen ~ Search number ~ Numara ara
+z. B. YZD178 ~ e.g. YZD178 ~ örn. YZD178
+Suche findet Nummern auch ohne Nullen (YZD178 findet YZD0000178); Nummernsuche auch beim Verkauf ~ Search finds numbers without zeros (YZD178 finds YZD0000178); number search also in sales ~ Arama sıfırsız numaraları da bulur (YZD178, YZD0000178'i bulur); satışta da numara arama
+Kürzel ~ Prefix ~ Ön ek
+Nummern-Kürzel ~ Number prefixes ~ Numara ön ekleri
+Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware. ~ The first letters of the automatic number, e.g. YZD for ring (YZD0000001). Applies to new items. ~ Otomatik numaranın ilk harfleri, örn. yüzük için YZD (YZD0000001). Yeni ürünler için geçerlidir.
+Eigene Nummern-Kürzel pro Gruppe (z. B. YZD statt RNG), direkt in der Ware und in den Einstellungen änderbar ~ Custom number prefixes per group (e.g. YZD instead of RNG), editable directly in the item and in settings ~ Grup başına özel numara ön ekleri (örn. RNG yerine YZD), ürün içinde ve ayarlarda değiştirilebilir
+Brillant ~ Diamond ~ Pırlanta
+Sprache ~ Language ~ Dil
+Update-Historie ~ Update history ~ Güncelleme geçmişi
+Kurse noch nicht eingegeben ~ Rates not entered yet ~ Kurlar henüz girilmedi
+Gold Kauf €/g ~ Gold buy €/g ~ Altın alış €/g
+Gold Verkauf €/g ~ Gold sell €/g ~ Altın satış €/g
+USD Kauf (€) ~ USD buy (€) ~ USD alış (€)
+USD Verkauf (€) ~ USD sell (€) ~ USD satış (€)
+Kosten rechnen mit dem Verkaufskurs. Online-Abruf folgt in der nativen App. ~ Costs are calculated at the sell rate. Online lookup will follow in the native app. ~ Maliyetler satış kuruyla hesaplanır. Çevrimiçi sorgu yerel uygulamada gelecek.
+Gespeichert ~ Saved ~ Kaydedildi
+Gebucht ~ Posted ~ Kaydedildi
+Name fehlt ~ Name missing ~ Ad eksik
+Menge eingeben ~ Enter quantity ~ Miktar girin
+Betrag eingeben ~ Enter amount ~ Tutar girin
+Bitte Betrag eingeben ~ Please enter an amount ~ Lütfen tutar girin
+Nummer fehlt ~ Number missing ~ Numara eksik
+Diese Nummer gibt es schon ~ This number already exists ~ Bu numara zaten var
+Fertig – Lager abgebucht ~ Finished – stock deducted ~ Tamamlandı – stoktan düşüldü
+Wieder in Fertigung – Lager zurückgebucht ~ Back in production – stock restored ~ Tekrar üretimde – stok geri eklendi
+Standard-Karten angelegt ~ Standard cards created ~ Standart kartlar oluşturuldu
+Keine Zeilen oder keine Person ~ No lines or no person ~ Satır veya kişi yok
+Bitte Ware wählen ~ Please select an item ~ Lütfen ürün seçin
+Verkauft – erst den Verkauf löschen ~ Sold – delete the sale first ~ Satıldı – önce satışı silin
+Verkauf gelöscht ~ Sale deleted ~ Satış silindi
+Sprachauswahl in den Einstellungen: Deutsch, Englisch, Türkisch (mit Flaggen) ~ Language selection in settings: German, English, Turkish (with flags) ~ Ayarlarda dil seçimi: Almanca, İngilizce, Türkçe (bayraklarla)
+Menü-Tasten reagieren jetzt auf Antippen ~ Menu buttons now respond to taps ~ Menü düğmeleri artık dokunmaya yanıt veriyor
+Neue Startseite „Übersicht“: Offene Position, Kasse, Bank, Lager ohne Barcode, fertige Gold- und Sonderware, Verkäufe nach Zeitraum ~ New start page “Overview”: open position, cash, bank, stock without barcode, finished gold and special items, sales by period ~ Yeni başlangıç sayfası “Ana Ekran”: açık pozisyon, kasa, banka, barkodsuz stok, bitmiş altın ve özel ürünler, döneme göre satışlar
+„Kasse“ heißt jetzt „Kontobuch“ und ist nicht mehr die erste Seite ~ “Kasse” is now called “Ledger” and is no longer the first page ~ “Kasa” artık “Defter” olarak adlandırıldı ve ilk sayfa değil
+Menüleiste überarbeitet (schwebend, besser antippbar); Einstellungen über ⚙️ oben ~ Menu bar reworked (floating, easier to tap); settings via ⚙️ at the top ~ Menü çubuğu yenilendi (yüzen, dokunması daha kolay); ayarlar üstteki ⚙️ ile
+Verkauf: Kunde wählen, Verkauf mit/ohne Barcode, Einkauf, Zahlungen, Rabatt, Rückgabe ~ Sales: choose customer, sale with/without barcode, purchase, payments, discount, return ~ Satış: müşteri seç, barkodlu/barkodsuz satış, alış, ödemeler, iskonto, iade
+Jeder Verkauf landet automatisch im Konto der Person (ein Verlauf, keine Doppeleingabe) ~ Every sale goes automatically into the person's account (one history, no double entry) ~ Her satış otomatik olarak kişinin hesabına işlenir (tek geçmiş, çift giriş yok)
+Verkaufte Ware wird automatisch als „Verkauft“ markiert; Verkaufsliste mit Löschen ~ Sold items are marked “Sold” automatically; sales list with delete ~ Satılan ürün otomatik olarak “Satıldı” işaretlenir; silme özellikli satış listesi
+Fertigung: eigene Ware mit automatischer Nummer und Haken „Nummer überschreiben“ ~ Production: own items with automatic number and checkbox “Override number” ~ Üretim: otomatik numaralı kendi ürünleriniz ve “Numarayı değiştir” kutusu
+Metall, Steine und Arbeitsschritte (Arbeit, Politur …) mit automatischer Kostenberechnung ~ Metal, stones and work steps (labor, polishing …) with automatic cost calculation ~ Maden, taşlar ve iş adımları (işçilik, cila …) otomatik maliyet hesabıyla
+Verkaufs- und Etikettenpreis per Multiplikator oder Handeingabe ~ Sale and label price by multiplier or manual entry ~ Çarpan veya elle girişle satış ve etiket fiyatı
+Fertigstellen bucht Metall und Steine vom Lager ab ~ Finishing deducts metal and stones from stock ~ Tamamlama, maden ve taşları stoktan düşer
+Lager: Lagerkarten für Gold, Altgold, Steine und Sonderware mit Nummer; Bestand buchen mit Verlauf; Feingold-Summe ~ Stock: stock cards for gold, scrap gold, stones and special items with number; post stock with history; fine gold total ~ Stok: altın, hurda altın, taş ve özel ürün için numaralı stok kartları; geçmişli stok hareketi; saf altın toplamı
+Konten: Vorgangs-Tasten (Goldeingang, Bareinzug …), Risikostatus und Saldo je Währung ~ Accounts: transaction buttons (gold in, cash received …), risk status and balance per currency ~ Hesaplar: işlem düğmeleri (altın girişi, nakit tahsilat …), risk durumu ve para birimi başına bakiye
+Neues Design im Stil der Vorlage: Menüleiste unten, violette Kopfleisten ~ New design in the style of the template: menu bar at the bottom, purple header bars ~ Şablon tarzında yeni tasarım: altta menü çubuğu, mor başlık çubukları
+Kursleiste mit Kauf/Verkauf (Tippen zum Ändern) ~ Rate bar with buy/sell (tap to change) ~ Alış/satış kur çubuğu (değiştirmek için dokunun)
+Passwort: Datei wird verschlüsselt gespeichert und nur mit Passwort geladen ~ Password: file is saved encrypted and only loads with the password ~ Şifre: dosya şifreli kaydedilir ve yalnızca şifreyle yüklenir
+Konten mit Verlauf ~ Accounts with history ~ Geçmişli hesaplar
+Kursleiste oben mit Handeingabe ~ Rate bar at the top with manual entry ~ Üstte elle girişli kur çubuğu
+Einstellungen mit Update-Historie, Versionsnummer x.xx ~ Settings with update history, version number x.xx ~ Güncelleme geçmişli ayarlar, sürüm numarası x.xx
+Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First version: income and expenses, categories, monthly overview ~ İlk sürüm: gelir ve giderler, kategoriler, aylık özet
+Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
+const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
+Letzte Buchung: ~ Last posting: ~ Son kayıt:
+🧭 Navigieren ~ 🧭 Navigate ~ 🧭 Yol tarifi
+📤 Kontakt teilen ~ 📤 Share contact ~ 📤 Kişiyi paylaş
+Navigieren mit … ~ Navigate with … ~ Şununla yol tarifi …
+Öffnet die jeweilige App, falls installiert. ~ Opens the respective app if installed. ~ Yüklüyse ilgili uygulamayı açar.
+Kontakt-Text ~ Contact text ~ Kişi metni
+Text markieren und kopieren. ~ Select and copy the text. ~ Metni seçip kopyalayın.
+Kopiert – jetzt in WhatsApp o. ä. einfügen ~ Copied – paste into WhatsApp etc. ~ Kopyalandı – WhatsApp vb. içine yapıştırın
+Konten: „Navigieren“ (Apple Karten, Google Maps, Waze) und „Kontakt teilen“ (Name, Adresse, Telefon per Teilen-Menü oder Kopieren) ~ Accounts: “Navigate” (Apple Maps, Google Maps, Waze) and “Share contact” (name, address, phone via share sheet or copy) ~ Hesaplar: “Yol tarifi” (Apple Haritalar, Google Haritalar, Waze) ve “Kişiyi paylaş” (ad, adres, telefon; paylaşım menüsü veya kopyalama ile)
+Goldfarbe ~ Gold colour ~ Altın rengi
+Nur Gelb ~ Yellow only ~ Sadece sarı
+Nur Weiß ~ White only ~ Sadece beyaz
+50 : 50 ~ 50 : 50 ~ 50 : 50
+Eigene Angabe ~ Custom ~ Özel giriş
+Davon Gelb (Rest ist Weiß) ~ Of which yellow (rest is white) ~ Bunun sarı olanı (kalan beyaz)
+Gelbgold ~ Yellow gold ~ Sarı altın
+Bestellung: Goldfarbe Nur Gelb / Nur Weiß / 50 : 50 / Eigene Angabe (Gelb eintragen, Weiß wird automatisch ergänzt); Anzeige z. B. „3× Gelb + 2× Weiß“ ~ Order: gold colour yellow only / white only / 50 : 50 / custom (enter yellow, white is filled in automatically); shown e.g. “3× yellow + 2× white” ~ Sipariş: altın rengi sadece sarı / sadece beyaz / 50 : 50 / özel (sarıyı girin, beyaz otomatik tamamlanır); örn. “3× sarı + 2× beyaz” olarak gösterilir
+Bestellnummer ~ Order number ~ Sipariş numarası
+Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001 ~ Order no.: prefix + year + month + counter, e.g. B2611001 ~ Sipariş no.: ön ek + yıl + ay + sayaç, örn. B2611001
+Bestellnummern automatisch: Kürzel + Jahr + Monat + Zähler (z. B. B2611001), Kürzel änderbar, Nummer überschreibbar ~ Automatic order numbers: prefix + year + month + counter (e.g. B2611001), prefix changeable, number can be overridden ~ Otomatik sipariş numaraları: ön ek + yıl + ay + sayaç (örn. B2611001), ön ek değiştirilebilir, numara üzerine yazılabilir
+Foto ~ Photo ~ Fotoğraf
+Noch kein Foto. ~ No photo yet. ~ Henüz fotoğraf yok.
+Foto hinzufügen ~ Add photo ~ Fotoğraf ekle
+Foto ändern ~ Change photo ~ Fotoğrafı değiştir
+Foto hinzugefügt – mit Speichern übernehmen ~ Photo added – save to keep it ~ Fotoğraf eklendi – kaydederek onaylayın
+Foto konnte nicht gelesen werden ~ Photo could not be read ~ Fotoğraf okunamadı
+Fertigung: Foto je Ware (aus Fotos/Dateien, wird verkleinert, Transparenz bleibt erhalten); Vorschaubild in der Warenliste ~ Production: photo per item (from Photos/Files, resized, transparency kept); thumbnail in the item list ~ Üretim: ürün başına fotoğraf (Fotoğraflar/Dosyalar’dan, küçültülür, şeffaflık korunur); ürün listesinde küçük resim
+Untere Leiste sitzt tiefer am Bildschirmrand ~ Bottom bar sits lower at the screen edge ~ Alt çubuk ekran kenarına daha yakın
+📋 Bestellung ~ 📋 Order ~ 📋 Sipariş
+Neue Bestellung ~ New order ~ Yeni sipariş
+Artikel ~ Item ~ Ürün
+Bezeichnung ~ Description ~ Tanım
+Metall ~ Metal ~ Metal
+Feingehalt ~ Fineness ~ Milyem
+Steingröße (ct) ~ Stone size (ct) ~ Taş boyutu (ct)
+Steingröße selbst (ct) ~ Own stone size (ct) ~ Kendi taş boyutu (ct)
+Anzahl ~ Quantity ~ Adet
+Bestellung speichern ~ Save order ~ Siparişi kaydet
+Bestellung gespeichert ~ Order saved ~ Sipariş kaydedildi
+Bitte Anzahl eingeben ~ Please enter quantity ~ Lütfen adet girin
+Bitte Bezeichnung eingeben ~ Please enter a description ~ Lütfen tanım girin
+Bestellungen dieser Person ~ Orders of this person ~ Bu kişinin siparişleri
+Noch keine Bestellungen. ~ No orders yet. ~ Henüz sipariş yok.
+Keine Bestellungen. ~ No orders. ~ Sipariş yok.
+Keine aktiven Bestellungen. ~ No active orders. ~ Aktif sipariş yok.
+Aktive Bestellungen ~ Active orders ~ Aktif siparişler
+Bestellungen ~ Orders ~ Siparişler
+Aktiv ~ Active ~ Aktif
+Erledigt ~ Done ~ Tamamlandı
+Wieder aktiv ~ Active again ~ Tekrar aktif
+Ring ~ Ring ~ Yüzük
+Diamantring ~ Diamond ring ~ Pırlanta yüzük
+Armband ~ Bracelet ~ Bilezik
+Diamantarmband ~ Diamond bracelet ~ Pırlanta bileklik
+Kette ~ Chain ~ Zincir
+Ohrringe ~ Earrings ~ Küpe
+Anhänger ~ Pendant ~ Kolye ucu
+Anderes (selbst eingeben) ~ Other (enter yourself) ~ Diğer (kendiniz girin)
+Weißgold ~ White gold ~ Beyaz altın
+Roségold ~ Rose gold ~ Rose altın
+Silber ~ Silver ~ Gümüş
+Platin ~ Platinum ~ Platin
+– egal – ~ – any – ~ – fark etmez –
+– ohne Stein – ~ – no stone – ~ – taşsız –
+Eigene Eingabe ~ Enter own ~ Kendi giriş
+Suchen ~ Search ~ Ara
+Name, Artikel … ~ Name, item … ~ Ad, ürün …
+Bestellungen: in Konten dritte Option „Bestellung“ (Artikel, Metall, Feingehalt, Steingröße in ct, Anzahl); neue Seite „Bestellungen“ (📋 oben und in der Übersicht) mit Aktiv grün, Erledigt rot, aktive zuerst ~ Orders: third option “Order” in accounts (item, metal, fineness, stone size in ct, quantity); new “Orders” page (📋 at the top and in the overview) with active green, done red, active first ~ Siparişler: hesaplarda üçüncü seçenek “Sipariş” (ürün, metal, milyem, ct taş boyutu, adet); yeni “Siparişler” sayfası (üstte 📋 ve ana ekranda), aktif yeşil, tamamlanan kırmızı, aktifler önde
+Hauptbuch (alle) ~ Main book (all) ~ Ana defter (hepsi)
+Hauptbuch ~ Main book ~ Ana defter
+Eigenes Kontobuch – alles davon erscheint auch im Hauptbuch. ~ Own cash book – everything in it also appears in the main book. ~ Ayrı kasa defteri – içindeki her şey ana defterde de görünür.
+Kontobuch löschen ~ Delete cash book ~ Kasa defterini sil
+Kontobuch hat Einträge – kann nicht gelöscht werden ~ Cash book has entries – cannot be deleted ~ Defterde kayıt var – silinemez
+Neues Kontobuch (z. B. Personalkosten) ~ New cash book (e.g. staff costs) ~ Yeni kasa defteri (örn. personel giderleri)
+Kontobuch: mehrere Kontobücher (z. B. Personalkosten, Auslagen); das Hauptbuch zeigt alles; Excel-Export mit Spalte Kontobuch ~ Cash book: several cash books (e.g. staff costs, expenses); the main book shows everything; Excel export with a cash book column ~ Kasa defteri: birden fazla defter (örn. personel giderleri, masraflar); ana defter her şeyi gösterir; Excel dışa aktarımında defter sütunu
+Ware suchen (Nummer oder Name) ~ Search item (number or name) ~ Ürün ara (numara veya ad)
+Ware (fertig, im Lager) ~ Item (finished, in stock) ~ Ürün (hazır, depoda)
+Lagerware ohne Barcode (optional) ~ Stock item without barcode (optional) ~ Barkodsuz depo malı (isteğe bağlı)
+Menge aus dem Lager ~ Quantity from stock ~ Depodan miktar
+– wählen – ~ – select – ~ – seçin –
+Bitte eine Ware wählen ~ Please select an item ~ Lütfen bir ürün seçin
+Konten: „Verkauf mit Barcode“ (Ware aus der Liste wählen, Preis automatisch) und „Verkauf ohne Barcode“ (optional mit Lagerabbuchung); verkaufte Ware bleibt in der Liste mit „verkauft an … am …“ ~ Accounts: “Sale with barcode” (pick item from the list, price automatic) and “Sale without barcode” (optionally deducting stock); sold items stay in the list as “sold to … on …” ~ Hesaplar: “Barkodlu satış” (listeden ürün seç, fiyat otomatik) ve “Barkodsuz satış” (isteğe bağlı depo düşümü); satılan ürünler “… kişisine … tarihinde satıldı” olarak listede kalır
+Excel-Export ~ Excel export ~ Excel dışa aktarma
+Erstellt eine Excel-Datei (.xlsx) zum Speichern. Kein Passwortschutz – Datei sicher aufbewahren. ~ Creates an Excel file (.xlsx) to save. No password protection – keep the file safe. ~ Kaydetmek için Excel dosyası (.xlsx) oluşturur. Şifre koruması yok – dosyayı güvenli saklayın.
+Lagertabelle ~ Stock table ~ Depo tablosu
+Alles ~ Everything ~ Hepsi
+Excel bereit ~ Excel ready ~ Excel hazır
+Einstellungen: Excel-Export (.xlsx) – Lagertabelle (Lager + Fertige Ware) oder Alles (zusätzlich Konten, Buchungen, Kontobuch) ~ Settings: Excel export (.xlsx) – stock table (stock + finished goods) or everything (plus accounts, postings, cash book) ~ Ayarlar: Excel dışa aktarma (.xlsx) – depo tablosu (depo + hazır mal) veya hepsi (hesaplar, kayıtlar, kasa defteri dahil)
+Übersicht: Tipp auf den lila Balken öffnet den passenden Bereich (Kasse, Bank, Lager, Fertigware, Konten) ~ Overview: tapping the purple bar opens the matching area (cash, bank, stock, finished goods, accounts) ~ Ana ekran: mor çubuğa dokunmak ilgili bölümü açar (kasa, banka, depo, hazır mal, hesaplar)
+Kunde ~ Customer ~ Müşteri
+Händler ~ Dealer ~ Tüccar
+Lieferant ~ Supplier ~ Tedarikçi
+Werkstatt ~ Workshop ~ Atölye
+Sonstige ~ Other ~ Diğer
+Verkauf Nr. ~ Sale no. ~ Satış no.
+Fertigung ~ Production ~ Üretim
+gespeichert ~ saved ~ kaydedildi
+Goldkurs fehlt (oben antippen). ~ Gold rate missing (tap above). ~ Altın kuru eksik (yukarıya dokunun).
+USD-Kurs fehlt (oben antippen). ~ USD rate missing (tap above). ~ USD kuru eksik (yukarıya dokunun).
+Datei verschlüsselt mit deinem Passwort ~ File encrypted with your password ~ Dosya şifrenizle şifrelendi
+Bestand: ~ Stock: ~ Stok:
+→ gab ~ → gave ~ → verdi
+← nahm ~ ← took ~ ← aldı
+g Gold ~ g gold ~ g altın
+Feingold ~ Fine gold ~ Saf altın
+Summe ~ Total ~ Toplam
+Verlust ~ Loss ~ Fire
+Gewicht ~ Weight ~ Ağırlık
+Zeilen ~ lines ~ satır
+Personen ~ people ~ kişi
+Lagerkarten ~ stock cards ~ stok kartı
+Waren ~ items ~ ürün
+Verkäufe ~ sales ~ satış
+Stück ~ pcs ~ adet
+Stk ~ pcs ~ adet
+Version ~ Version ~ Sürüm
+Nr. ~ No. ~ No:
+VK ~ Sale ~ Satış
+Etikett ~ Label ~ Etiket
+In Fertigung ~ In production ~ Üretimde
+Fertig (Lager) ~ Finished (in stock) ~ Tamamlandı (stokta)
+Verkauft ~ Sold ~ Satıldı
+Ring ~ Ring ~ Yüzük
+Kette ~ Necklace ~ Kolye
+Armband ~ Bracelet ~ Bilezik
+Ohrringe ~ Earrings ~ Küpe
+Anhänger ~ Pendant ~ Kolye ucu
+Altgold ~ Scrap gold ~ Hurda altın
+Stein ~ Stone ~ Taş
+Sonderware ~ Special items ~ Özel ürün
+Gold ~ Gold ~ Altın`;
+TXT.split("\n").forEach(l=>{const p=l.split(" ~ ");if(p.length===3)DICT[p[0].trim()]={en:p[1].trim(),tr:p[2].trim()}});
+DYT.split("\n").map(l=>l.split(" ~ ")).filter(p=>p.length===3).sort((a,b)=>b[0].length-a[0].length).forEach(p=>
+ DYN.push([new RegExp("(^|[^\\p{L}\\p{N}])"+p[0].trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?=$|[^\\p{L}\\p{N}])","gu"),{en:p[1].trim(),tr:p[2].trim()}]));
+function tx(s){if(lang==="de"||!s)return s;const m=String(s).match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return s;
+ const d=DICT[c];if(d)return m[1]+d[lang]+m[3];
+ let r=c;for(const[re,o]of DYN)r=r.replace(re,(x,a)=>a+o[lang]);return m[1]+r+m[3]}
+let obs=null,busy=false,pend=false;
+function watch(){if(typeof MutationObserver==="undefined")return;
+ if(!obs)obs=new MutationObserver(()=>{if(busy||pend)return;pend=true;requestAnimationFrame(()=>{pend=false;applyLang()})});
+ obs.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:["placeholder"]})}
+function applyLang(){
+ if(busy||typeof document.createTreeWalker!=="function")return;busy=true;
+ try{if(obs)obs.disconnect();
+  const w=document.createTreeWalker(document.body,4);let n;
+  while((n=w.nextNode())){const p=n.parentNode&&n.parentNode.tagName;if(p==="SCRIPT"||p==="STYLE")continue;
+   if(n.__t===undefined||n.nodeValue!==n.__t)n.__o=n.nodeValue;
+   const o=tx(n.__o);if(n.nodeValue!==o)n.nodeValue=o;n.__t=o}
+  document.querySelectorAll("[placeholder]").forEach(e=>{if(e.__pt===undefined||e.placeholder!==e.__pt)e.__po=e.placeholder;
+   const o=tx(e.__po);if(e.placeholder!==o)e.placeholder=o;e.__pt=o})
+ }finally{busy=false;watch()}}
+function langBtns(){document.querySelectorAll("#langS button").forEach(b=>b.classList.toggle("sec",b.dataset.v!==lang))}
+act.lang=d=>{lang=d.v;picked=true;document.documentElement.lang=lang;if(data){data.lang=lang;render()}langBtns();applyLang()};
+watch();
+
+/* ---------- Kurse ---------- */
+const rv=v=>v?String(v):"–";
+function rRates(){const r=data.rates;
+ $("rb").innerHTML=`<div class="rc"><b>🟡 GOLD €/g</b><span>${rv(r.gold[0])} / ${rv(r.gold[1])}</span></div><div class="rc"><b>💵 USD (€)</b><span>${rv(r.usd[0])} / ${rv(r.usd[1])}</span></div><div class="rc"><b>💶 EUR</b><span>1,0000 / 1,0000</span></div>`;
+ const e=$("rAt");if(e)e.textContent=r.at?"Zuletzt eingegeben: "+r.at:"Kurse noch nicht eingegeben"}
+act.rtog=()=>{const e=$("rEd"),r=data.rates;e.classList.toggle("hide");
+ if(!e.classList.contains("hide"))e.innerHTML=`<div class="g2">${F("Gold Kauf €/g",N("data.rates.gold.0",r.gold[0]))}${F("Gold Verkauf €/g",N("data.rates.gold.1",r.gold[1]))}</div><div class="g2">${F("USD Kauf (€)",N("data.rates.usd.0",r.usd[0]))}${F("USD Verkauf (€)",N("data.rates.usd.1",r.usd[1]))}</div><p class="mu" id="rAt"></p><p class="mu">Kosten rechnen mit dem Verkaufskurs. Online-Abruf folgt in der nativen App.</p>`;
+ rRates()};
+
+/* ---------- Kasse ---------- */
+$("prev").onclick=()=>{ui.view=new Date(ui.view.getFullYear(),ui.view.getMonth()-1,1);rKasse()};
+$("next").onclick=()=>{ui.view=new Date(ui.view.getFullYear(),ui.view.getMonth()+1,1);rKasse()};
+$("bAdd").onclick=()=>{const a=parse($("amt").value);if(!(a>0)){$("amt").focus();return}
+ data.entries.push({id:uid(),type:$("type").value,amount:Math.round(a*100)/100,cat:$("cat").value.trim()||"Sonstiges",note:$("note").value.trim(),date:$("date").value||today(),book:Number($("kbk").value)||0});
+ $("amt").value="";$("note").value="";ui.view=new Date(($("date").value||today())+"T12:00:00");rKasse()};
+function del(id){data.entries=data.entries.filter(e=>e.id!==id);rKasse()}
+const bkName=id=>{const b=(data.books||[]).find(x=>x.id===id);return b?b.name:""};
+function kbRender(){
+ if(ui.kb&&!bkName(ui.kb))ui.kb=0;
+ const bs=data.books||[],i=bs.findIndex(b=>b.id===ui.kb);
+ $("kbooks").innerHTML=`<div class="chips"><button class="${ui.kb?"sec":""}" data-a="kbsel" data-id="0">📒 Hauptbuch (alle)</button>${bs.map(b=>`<button class="${ui.kb===b.id?"":"sec"}" data-a="kbsel" data-id="${b.id}">${esc(b.name)}</button>`).join("")}</div>
+ ${i>=0?`<p class="mu" style="margin:8px 0 4px">Eigenes Kontobuch – alles davon erscheint auch im Hauptbuch.</p>${F("Name",I("data.books."+i+".name",bs[i].name,"",'data-u="kbName" autocorrect="off" autocomplete="off"'))}<button class="sec" data-a="kbdel">${dl("kbdel","Kontobuch löschen")}</button>`:""}
+ <div class="row" style="margin:10px 0 0"><input id="kbNew" placeholder="Neues Kontobuch (z. B. Personalkosten)" autocorrect="off"><button class="sec" data-a="kbnew" style="flex:0 0 30%">Anlegen</button></div>`;
+ const s=$("kbk");if(s)s.innerHTML=[[0,"Hauptbuch"],...bs.map(b=>[b.id,b.name])].map(([a,b])=>`<option value="${a}"${a===ui.kb?" selected":""}>${esc(b)}</option>`).join("")}
+function kbName(){const b=data.books.find(x=>x.id===ui.kb);const s=$("kbk");if(b&&s){const o=[...s.options].find(x=>Number(x.value)===b.id);if(o)o.textContent=b.name}}
+act.kbsel=d=>{ui.kb=Number(d.id);rKasse()};
+act.kbnew=()=>{const n=$("kbNew").value.trim();if(!n)return;const b={id:uid(),name:n};data.books.push(b);ui.kb=b.id;rKasse()};
+act.kbdel=()=>{const id=ui.kb;if(data.entries.some(e=>(e.book||0)===id)){toast("Kontobuch hat Einträge – kann nicht gelöscht werden");return}
+ if(!confirmTap("kbdel"))return;data.books=data.books.filter(b=>b.id!==id);ui.kb=0;rKasse()};
+function rKasse(){
+ $("mon").textContent=ui.view.toLocaleDateString(LOC[lang]||"de-DE",{month:"long",year:"numeric"});
+ kbRender();
+ const m=ym(ui.view),es=data.entries.filter(e=>(!ui.kb||(e.book||0)===ui.kb)&&e.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
+ let i=0,o=0;const c={};
+ es.forEach(e=>{e.type==="in"?i+=e.amount:o+=e.amount;const k=e.type+"|"+e.cat;c[k]=(c[k]||0)+e.amount});
+ $("sIn").textContent=eur(i);$("sOut").textContent=eur(o);$("sBal").textContent=eur(i-o);$("sBal").className=i-o<0?"out":"in";
+ $("bycat").innerHTML=Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const t=k.split("|")[0],n=k.slice(t.length+1);
+  return `<div class="it"><span>${esc(n)}</span><span class="${t==="in"?"in":"out"}">${eur(v)}</span></div>`}).join("")||'<p class="mu">Noch nichts in diesem Monat.</p>';
+ $("list").innerHTML=es.map(e=>`<div class="it"><div>${esc(e.cat)}<small>${dt(e.date)}${e.note?" · "+esc(e.note):""}${!ui.kb&&e.book?" · 📒 "+esc(bkName(e.book)):""}</small></div>
+  <div class="r ${e.type==="in"?"in":"out"}">${e.type==="in"?"+":"−"}${eur(e.amount)}<br><button class="sec sm" onclick="del(${e.id})">Löschen</button></div></div>`).join("")||'<p class="mu">Keine Einträge.</p>';
+ $("cats").innerHTML=[...new Set(data.entries.map(e=>e.cat))].map(x=>`<option value="${esc(x)}">`).join("")}
+
+/* ---------- Vorgänge (gemeinsam für Konten und Verkauf) ---------- */
+const OP={
+ AG:["Goldeingang","in","HAS"],NT:["Bareinzug","in","EUR"],KK:["Banküberweisung","in","EUR"],MG:["Wareneingang","in","EUR"],AL:["Gutschrift","in","EUR"],
+ HC:["Altgold-Ausgang","out","HAS"],NO:["Barzahlung","out","EUR"],GH:["Überweisung aus","out","EUR"],MC:["Warenausgang","out","EUR"],BR:["Belastung","out","EUR"],
+ VB:["Verkauf mit Barcode","out","EUR"],VO:["Verkauf ohne Barcode","out","EUR"],EO:["Einkauf ohne Barcode","in","EUR"],RB:["Rückgabe mit Barcode","in","EUR"],RA:["Rabatt","in","EUR"]};
+const opName=m=>OP[m.type]?OP[m.type][0]:(m.dir==="out"?"Ich gab":"Ich nahm");
+const tiles=(keys,a)=>`<div class="tiles">${keys.map(k=>`<button data-a="${a}" data-k="${k}"><b>${k}</b><span>${OP[k][0]}</span></button>`).join("")}</div>`;
+const balOf=pid=>{const b={};data.moves.filter(m=>m.pid===pid).forEach(m=>b[m.unit]=(b[m.unit]||0)+(m.dir==="out"?m.amount:-m.amount));return b};
+function eurOf(b){let t=0,miss=false;for(const u in b){if(u==="Stk")continue;if((u==="USD"&&!R("usd"))||(u==="HAS"&&!R("gold")))miss=true;t+=toEUR(b[u],u)}return{t,miss}}
+function balHTML(pid){
+ const b=balOf(pid),us=Object.keys(b).filter(u=>Math.abs(b[u])>1e-9),e=eurOf(b),owed=e.t>=0;
+ return `<div class="risk ${owed?"":"neg"}"><b>Risikostatus</b><div>${owed?"Er schuldet mir":"Ich schulde"}</div><div class="big">${f2(Math.abs(e.t))} €</div><small>${e.miss?"Kurse fehlen für Teilbeträge":"zu aktuellen Kursen, ca."}</small></div>
+ <div class="card tbl"><div class="th"><span>Währung</span><span>Ich schulde</span><span>Er schuldet</span></div>${us.map(u=>`<div class="tr"><span>${UN[u]}</span><span class="out">${b[u]<0?fn(-b[u],u):""}</span><span class="in">${b[u]>0?fn(b[u],u):""}</span></div>`).join("")||'<p class="mu">Noch keine Buchungen.</p>'}</div>`}
+function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:uid(),name:n};data.people.push(p);return p}
+
+
+/* ---------- Bestellungen ---------- */
+const OART=["Ring","Diamantring","Armband","Diamantarmband","Kette","Ohrringe","Anhänger","Anderes (selbst eingeben)"],OMET=["Gold","Roségold","Silber","Platin"],OCOL=[["y","Nur Gelb"],["w","Nur Weiß"],["h","50 : 50"],["c","Eigene Angabe"]],
+ OFEIN=[["","– egal –"],["333","8K (333)"],["585","14K (585)"],["750","18K (750)"],["875","21K (875)"],["916","22K (916)"],["999","24K (999)"]],
+ OCT=[["","– ohne Stein –"],"0,5","0,6","0,7","0,8","0,9","1","1,5","2",["x","Eigene Eingabe"]];
+const pfxO=()=>(data.prefix&&data.prefix.Bestellung)||"B";
+function nextOrdNo(date){const d=String(date||today()),pre=pfxO()+d.slice(2,4)+d.slice(5,7);let mx=0;
+ data.orders.forEach(o=>{if(o.no&&o.no.startsWith(pre)){const r=o.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});
+ return pre+String(mx+1).padStart(3,"0")}
+const newOf=()=>({no:nextOrdNo(today()),ov:false,art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",qty:"1",note:"",date:today()});
+function colSplit(o){const q=Number(o.qty)||0,c=o.col||"y";let y=q;
+ if(c==="w")y=0;else if(c==="h")y=Math.ceil(q/2);else if(c==="c")y=Math.min(q,Math.max(0,Math.round(parse(o.cy))));return[y,q-y]}
+function colTxt(o){if(o.met!=="Gold"||!o.col)return o.met;const[y,w]=colSplit(o);
+ if(!w)return"Gelbgold";if(!y)return"Weißgold";return y+"× Gelb + "+w+"× Weiß"}
+function uOf(){const e=$("ofw");if(e&&ui.of){const[y,w]=colSplit(ui.of);e.textContent="Gelb: "+y+" · Weiß: "+w}}
+function ordTxt(o){const ct=o.ct==="x"?o.ctc:o.ct,fe=o.fein?(OFEIN.find(x=>x[0]===o.fein)||[0,o.fein])[1].split(" ")[0]:"";
+ return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,colTxt(o),fe,ct?ct+" ct":""].filter(Boolean).join(" · ")}
+function ordForm(){const f=ui.of=ui.of||newOf();
+ return `<div class="bar">Neue Bestellung</div>
+ <div class="g2">${F("Bestellnummer",`<input data-f="ui.of.no" value="${esc(f.no)}"${f.ov?"":" readonly"} autocapitalize="characters" autocorrect="off" spellcheck="false">`)}${F("Kürzel",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}</div>
+ ${CB("ui.of.ov",f.ov,"Nummer überschreiben",'data-r="1"')}${F("Artikel",S("ui.of.art",f.art,OART,'data-r="1"'))}
+ ${f.art==="Anderes (selbst eingeben)"?F("Bezeichnung",I("ui.of.own",f.own,"z. B. Collier",'autocorrect="off"')):""}
+ <div class="g2">${F("Metall",S("ui.of.met",f.met,OMET,'data-r="1"'))}${F("Feingehalt",S("ui.of.fein",f.fein,OFEIN))}</div>
+ <div class="g2">${F("Steingröße (ct)",S("ui.of.ct",f.ct,OCT,'data-r="1"'))}${F("Anzahl",I("ui.of.qty",f.qty,"",'inputmode="decimal" data-u="uOf"'))}</div>
+ ${f.met==="Gold"?F("Goldfarbe",S("ui.of.col",f.col,OCOL,'data-r="1"'))+(f.col==="c"?F("Davon Gelb (Rest ist Weiß)",I("ui.of.cy",f.cy,"",'inputmode="decimal" data-u="uOf"')):"")+'<p class="mu" id="ofw" style="margin:0 0 8px"></p>':""}
+ ${f.ct==="x"?F("Steingröße selbst (ct)",N("ui.of.ctc",f.ctc)):""}
+ ${F("Notiz",I("ui.of.note",f.note,"z. B. Größe 54, bis Freitag"))}${F("Datum",`<input type="date" data-f="ui.of.date" value="${f.date}">`)}
+ <button data-a="osave">Bestellung speichern</button>`}
+act.osave=()=>{const f=ui.of,q=Math.round(parse(f.qty));if(!ui.pid||!(q>0)){toast("Bitte Anzahl eingeben");return}
+ if(f.art==="Anderes (selbst eingeben)"&&!String(f.own).trim()){toast("Bitte Bezeichnung eingeben");return}
+ const no=String(f.no).trim();if(!no){toast("Nummer fehlt");return}
+ if(data.orders.some(o=>o.no===no)){toast("Diese Nummer gibt es schon");return}
+ data.orders.push({id:uid(),no,pid:ui.pid,art:f.art,own:String(f.own).trim(),met:f.met,col:f.met==="Gold"?f.col:"",cy:f.cy,fein:f.fein,ct:f.ct,ctc:f.ctc,qty:q,note:String(f.note).trim(),date:f.date||today(),done:false});
+ ui.of=newOf();render();toast("Bestellung gespeichert")};
+function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid);
+ return `<div class="it" style="border-left:4px solid ${o.done?"var(--out)":"var(--in)"};padding-left:10px"><div><b>${esc(o.no||"")} · ${o.qty}× ${esc(ordTxt(o))}</b><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}${o.note?" · "+esc(o.note):""}</small></div>
+ <div class="r"><span class="${o.done?"out":"in"}"><b>${o.done?"Erledigt":"Aktiv"}</b></span><br><button class="sec sm" data-a="odone" data-id="${o.id}">${o.done?"Wieder aktiv":"Erledigt"}</button> <button class="sec sm" data-a="odel" data-id="${o.id}">${dl("od"+o.id,"Löschen")}</button></div></div>`}
+const ordSort=l=>l.slice().sort((a,b)=>(a.done-b.done)||String(b.date).localeCompare(a.date)||b.id-a.id);
+function ordList(pid){const l=ordSort(data.orders.filter(o=>o.pid===pid));
+ return `</div><div class="card"><b>Bestellungen dieser Person</b>${l.map(o=>ordRow(o,false)).join("")||'<p class="mu">Noch keine Bestellungen.</p>'}`}
+act.odone=d=>{const o=data.orders.find(x=>x.id===Number(d.id));if(o){o.done=!o.done;o.doneDate=o.done?today():"";render()}};
+act.odel=d=>{const id=Number(d.id);if(!confirmTap("od"+id))return;data.orders=data.orders.filter(o=>o.id!==id);render()};
+act.of2=d=>{ui.of2=d.v;render()};
+function rOrd(){const n=data.orders.filter(o=>!o.done).length,q=String(ui.oq||"").trim().toLowerCase();
+ let l=data.orders.filter(o=>ui.of2==="all"||(ui.of2==="act"?!o.done:o.done));
+ if(q)l=l.filter(o=>((o.no||"")+" "+ordTxt(o)+" "+pnm(o.pid)+" "+o.note).toLowerCase().includes(q));
+ $("s-orders").innerHTML=`<div class="bar"><span>Bestellungen</span><span>📋</span></div>
+ <div class="card"><div class="tg">${TG("of2",ui.of2,[["act","Aktiv ("+n+")"],["done","Erledigt"],["all","Alle"]])}</div>
+ ${F("Suchen",I("ui.oq",ui.oq,"Name, Artikel …",'data-u="uOq" autocorrect="off" autocomplete="off"'))}</div>
+ <div class="card" id="orows">${ordRowsHTML(l)}</div>`}
+const ordRowsHTML=l=>ordSort(l).map(o=>ordRow(o,true)).join("")||'<p class="mu">Keine Bestellungen.</p>';
+function uOq(){const q=String(ui.oq||"").trim().toLowerCase();let l=data.orders.filter(o=>ui.of2==="all"||(ui.of2==="act"?!o.done:o.done));
+ if(q)l=l.filter(o=>((o.no||"")+" "+ordTxt(o)+" "+pnm(o.pid)+" "+o.note).toLowerCase().includes(q));$("orows").innerHTML=ordRowsHTML(l)}
+function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
+ return box("Aktive Bestellungen","📋",l.map(o=>ordRow(o,true)).join("")||'<p class="mu">Keine aktiven Bestellungen.</p>',"orders")}
+
+/* ---------- Konten ---------- */
+/* Personen: Details, Suche */
+const plabel=p=>p.name+(p.city?" · "+p.city:"");
+const pOpts=sel=>{const q=String(ui.pq2||"").trim().toLowerCase();
+ return [[0,"Person wählen …"],...data.people.filter(p=>p.id===sel||!q||[p.name,p.company,p.city,p.country,p.addr,p.phone,p.type,p.note].join(" ").toLowerCase().includes(q)).map(p=>[p.id,plabel(p)])]};
+function uK(){[["psel",ui.pid],["vpsel",ui.sv?ui.sv.pid:0]].forEach(([id,sel])=>{const e=$(id);
+ if(e)e.innerHTML=pOpts(sel).map(([a,b])=>`<option value="${a}"${String(a)===String(sel)?" selected":""}>${esc(b)}</option>`).join("")})}
+function pinfo(p){const l=[],a=[p.type,p.company].filter(Boolean).join(" · "),w=[p.addr,p.city,p.country].filter(Boolean).join(", ");
+ if(a)l.push(`<div><b>${esc(a)}</b></div>`);
+ if(w)l.push(`<div>📍 ${esc(w)}</div>`);
+ if(p.phone)l.push(`<div>📞 <a href="tel:${esc(String(p.phone).replace(/[^+\d]/g,""))}" style="color:var(--ac)">${esc(p.phone)}</a></div>`);
+ if(p.note)l.push(`<div>📝 ${esc(p.note)}</div>`);
+ const last=data.moves.filter(m=>m.pid===p.id).sort((x,y)=>y.date.localeCompare(x.date))[0];
+ if(last)l.push(`<div class="mu">Letzte Buchung: ${dt(last.date)}</div>`);
+ return l.join("")||'<p class="mu" style="margin:0">Keine Angaben.</p>'}
+function pCard(){const p=data.people.find(x=>x.id===ui.pid);if(!p)return"";
+ if(ui.pe&&ui.pf){const f=ui.pf,t3='autocorrect="off" autocapitalize="words" spellcheck="false" autocomplete="off"';
+  return `<div class="card"><div class="bar"><span>Details</span><span>📇</span></div>
+  ${F("Name",I("ui.pf.name",f.name,"",t3))}
+  <div class="g2">${F("Typ",S("ui.pf.type",f.type||"",[["","– wählen –"],"Kunde","Händler","Lieferant","Werkstatt","Sonstige"]))}${F("Firma",I("ui.pf.company",f.company||"","",t3))}</div>
+  <div class="g2">${F("Land",I("ui.pf.country",f.country||"","",t3))}${F("Stadt",I("ui.pf.city",f.city||"","",t3))}</div>
+  ${F("Adresse",I("ui.pf.addr",f.addr||"","",t3))}
+  ${F("Telefon",I("ui.pf.phone",f.phone||"","",'inputmode="tel" autocomplete="off"'))}
+  ${F("Notiz / Info",I("ui.pf.note",f.note||"","z. B. kommt freitags",t3))}
+  <div class="row"><button data-a="pfsave">Speichern</button><button class="sec" data-a="pfcancel">Abbrechen</button></div>
+  ${p.walk?"":`<button class="sec" data-a="pfdel">${dl("pfdel","Person löschen")}</button>`}</div>`}
+ const adr=padr(p),q=encodeURIComponent(adr);
+ const nav=ui.nv&&adr?`<div class="card" style="margin:10px 0 0"><b>Navigieren mit …</b><div class="row" style="margin:8px 0 0"><a class="sec navb" href="https://maps.apple.com/?q=${q}" target="_blank" rel="noopener">🍎 Apple Karten</a><a class="sec navb" href="https://www.google.com/maps/search/?api=1&query=${q}" target="_blank" rel="noopener">🗺️ Google Maps</a><a class="sec navb" href="https://waze.com/ul?q=${q}&navigate=yes" target="_blank" rel="noopener">🚗 Waze</a></div><p class="mu" style="margin:8px 0 0">Öffnet die jeweilige App, falls installiert.</p></div>`:"";
+ const sh=ui.ptxt?`<div class="card" style="margin:10px 0 0"><b>Kontakt-Text</b><textarea readonly rows="4" style="width:100%;margin-top:6px" onfocus="this.select()">${esc(ui.ptxt)}</textarea><p class="mu" style="margin:6px 0 0">Text markieren und kopieren.</p></div>`:"";
+ return `<div class="card"><div class="bar"><span>${esc(p.name)}</span><span>📇</span></div>${pinfo(p)}
+ <div class="row" style="margin:10px 0 0">${adr?'<button class="sec" data-a="pmap">🧭 Navigieren</button>':""}<button class="sec" data-a="pshare">📤 Kontakt teilen</button></div>${nav}${sh}
+ <button class="sec" data-a="pfedit" style="margin-top:10px">Details bearbeiten</button></div>`}
+const padr=p=>[p.addr,p.city,p.country].filter(Boolean).join(", ");
+const ptext=p=>[p.name,p.company,padr(p),p.phone?"Tel: "+p.phone:""].filter(Boolean).join("\n");
+act.pmap=()=>{ui.nv=!ui.nv;render()};
+act.pshare=async()=>{const p=data.people.find(x=>x.id===ui.pid);if(!p)return;const t=ptext(p);
+ try{if(navigator.share){await navigator.share({title:p.name,text:t});return}}catch(e){if(e&&e.name==="AbortError")return}
+ try{if(navigator.clipboard){await navigator.clipboard.writeText(t);toast("Kopiert – jetzt in WhatsApp o. ä. einfügen")}}catch(_){}
+ ui.ptxt=t;render()};
+act.pfedit=()=>{const p=data.people.find(x=>x.id===ui.pid);if(!p)return;ui.pf={...p};ui.pe=true;render()};
+act.pfcancel=()=>{ui.pe=false;ui.pf=null;render()};
+act.pfsave=()=>{const p=data.people.find(x=>x.id===ui.pid),f=ui.pf;if(!p||!f)return;if(!String(f.name).trim()){toast("Name fehlt");return}
+ ["name","type","company","country","city","addr","phone","note"].forEach(k=>p[k]=String(f[k]||"").trim());ui.pe=false;ui.pf=null;render();toast("Gespeichert")};
+act.pfdel=()=>{const id=ui.pid;
+ if(data.moves.some(m=>m.pid===id)||data.sales.some(s=>s.pid===id)){toast("Person hat Buchungen – kann nicht gelöscht werden");return}
+ if(!confirmTap("pfdel"))return;
+ data.people=data.people.filter(p=>p.id!==id);ui.pid=0;ui.pe=false;ui.pf=null;render()};
+act.gop=d=>{ui.pid=Number(d.id);ui.pe=false;ui.pf=null;go("konten")};
+const kProds=q=>data.prods.filter(p=>p.status==="done"&&pMatch(p,q||"")).sort((a,b)=>String(a.code).localeCompare(String(b.code)));
+function kExtra(f){
+ if(f.k==="VB")return F("Ware suchen (Nummer oder Name)",I("ui.kf.q",f.q||"","z. B. YZD178",'data-u="uKp" autocorrect="off" autocomplete="off" spellcheck="false"'))+F("Ware (fertig, im Lager)",`<select data-f="ui.kf.prod" data-n="1" data-r="1" id="kpsel">${kPopts(f)}</select>`);
+ if(f.k==="VO"){const st=data.stock.filter(s=>s.active!==false);
+  return F("Lagerware ohne Barcode (optional)",S("ui.kf.sid",f.sid,[[0,"– keine –"],...st.map(s=>[s.id,s.name+" ("+f3(qtyOf(s.id))+" "+(UL[s.unit]||"")+")"])],'data-n="1" data-r="1"'))+(f.sid?F("Menge aus dem Lager",N("ui.kf.qty",f.qty)):"")}
+ return""}
+const kPopts=f=>[[0,"– wählen –"],...kProds(f.q).map(p=>[p.id,p.code+" · "+p.name])].map(([a,b])=>`<option value="${a}"${String(a)===String(f.prod)?" selected":""}>${esc(b)}</option>`).join("");
+function uKp(){const e=$("kpsel");if(e&&ui.kf){const l=kProds(ui.kf.q);if(l.length===1&&ui.kf.prod!==l[0].id){ui.kf.prod=l[0].id;kProd();render();return}e.innerHTML=kPopts(ui.kf)}}
+function kProd(){const f=ui.kf,p=data.prods.find(x=>x.id===f.prod);if(!p)return;
+ f.unit=(p.cur==="USD"?"USD":"EUR");const pr=parse(p.p1);if(pr>0)f.amount=String(pr).replace(".",",");f.note=p.code+" "+p.name}
+function rKo(){
+ let h=`<div class="card">${F("Person suchen",I("ui.pq2",ui.pq2,"Name, Stadt, Land …",'data-u="uK" autocorrect="off" autocomplete="off" spellcheck="false"'))}
+ ${F("Konto",S("ui.pid",ui.pid,pOpts(ui.pid),'data-n="1" data-r="1" id="psel"'))}
+ <div class="row" style="margin:0"><input id="pNew" placeholder="Neue Person"><button class="sec" data-a="addP" style="flex:0 0 36%">Anlegen</button></div></div>`;
+ if(ui.pid){
+  h+=pCard();
+  h+=balHTML(ui.pid);
+  h+=`<div class="card"><div class="tg" style="margin-bottom:10px">${TG("kdir",ui.kdir,[["in","Eingänge (ich nahm)"],["out","Ausgänge (ich gab)"],["ord","📋 Bestellung"]])}</div>
+   ${ui.kdir==="ord"?"":tiles(ui.kdir==="in"?["AG","NT","KK","MG","AL"]:["VB","VO","HC","NO","GH","MC","BR"],"kop")}`;
+  if(ui.kdir==="ord")h+=ordForm()+ordList(ui.pid);
+  if(ui.kf&&ui.kdir!=="ord"){const f=ui.kf;
+   h+=`<div class="bar">${OP[f.k][0]}</div>${kExtra(f)}<div class="g2">${F("Betrag / Menge",N("ui.kf.amount",f.amount))}${F("Einheit",S("ui.kf.unit",f.unit,Object.keys(UN).map(u=>[u,UN[u]])))}</div>
+   ${F("Notiz (z. B. Ring, 14K)",I("ui.kf.note",f.note))}${F("Datum",`<input type="date" data-f="ui.kf.date" value="${f.date}">`)}
+   <div class="row"><button data-a="kbook">Buchen</button><button class="sec" data-a="kcancel">Abbrechen</button></div>`}
+  h+=`</div><div class="card"><b>Verlauf</b>${histHTML(ui.pid)}</div>`}
+ $("s-konten").innerHTML=h;uOf()}
+function histHTML(pid){
+ return data.moves.filter(m=>m.pid===pid).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(m=>
+  `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
+act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=true;render()}};
+act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
+act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2],amount:"",note:"",date:today(),prod:0,sid:0,qty:"",q:""};render()};
+act.kcancel=()=>{ui.kf=null;render()};
+act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte Betrag eingeben");return}
+ if(f.k==="VB"&&!f.prod){toast("Bitte eine Ware wählen");return}
+ const mv={id:uid(),pid:ui.pid,type:f.k,dir:OP[f.k][1],unit:f.unit,amount:a,note:f.note.trim(),date:f.date||today()},date=mv.date;
+ if(f.k==="VB"){const p=data.prods.find(x=>x.id===f.prod);if(p){p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prod=p.id}}
+ if(f.k==="VO"&&f.sid){const q=parse(f.qty);if(q>0){const s=data.stock.find(x=>x.id===f.sid);data.smoves.push({id:uid(),sid:f.sid,qty:-q,date,note:"Verkauf an "+pnm(ui.pid),ref:"m"+mv.id});mv.ref="m"+mv.id;if(s&&!mv.note)mv.note=s.name}}
+ data.moves.push(mv);ui.kf=null;render();toast("Gebucht")};
+act.kdel=d=>{const id=Number(d.id),m=data.moves.find(x=>x.id===id);
+ if(m&&m.prod){const p=data.prods.find(x=>x.id===m.prod);if(p&&p.status==="sold"&&!p.saleId){p.status="done";delete p.soldTo;delete p.soldDate}}
+ if(m&&m.ref)data.smoves=data.smoves.filter(x=>x.ref!==m.ref);
+ data.moves=data.moves.filter(x=>x.id!==id);render()};
+
+/* ---------- Lager ---------- */
+const SG=["Gold","Altgold","Stein","Sonderware"],SU={Gold:"GR",Altgold:"GR",Stein:"CT",Sonderware:"AD"},UL={GR:"g",CT:"ct",AD:"Stk"};
+const qtyOf=sid=>data.smoves.filter(m=>m.sid===sid).reduce((a,m)=>a+m.qty,0);
+function rL(){
+ const el=$("s-lager");
+ if(ui.se){el.innerHTML=rLE();return}
+ let fine=0;data.stock.forEach(s=>{if(s.group==="Gold"||s.group==="Altgold")fine+=qtyOf(s.id)*s.fine/1000});
+ const fw=data.prods.filter(p=>p.status==="done");
+ el.innerHTML=`<div class="card"><div class="sum"><div><span class="mu">Feingold gesamt</span><b>${f3(fine)} g</b></div><div><span class="mu">Fertige Ware</span><b>${fw.length} Stk · ${f3(fw.reduce((a,p)=>a+(p.w||0),0))} g</b></div></div></div>
+ <div class="row"><button data-a="snew">+ Neue Lagerkarte</button>${data.stock.length?"":'<button class="sec" data-a="sstd">Standard-Karten anlegen</button>'}</div>
+ <div class="chips">${[["","Alle"],...SG.map(g=>[g,g])].map(([v,l])=>`<button class="${ui.lg===v?"":"sec"}" data-a="lg" data-v="${v}">${l}</button>`).join("")}</div>
+ <div style="margin-bottom:10px"><input data-f="ui.lq" data-u="uL" value="${esc(ui.lq)}" placeholder="Suchen (Name oder Nummer)"></div>
+ <div class="card" id="lrows"></div>`;uL()}
+function uL(){const q=ui.lq.toLowerCase();
+ const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
+  .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
+ $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}</small></div><div class="r ${q<0?"out":""}"><b>${f3(q)} ${UL[s.unit]}</b></div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+function rLE(){const s=ui.se,isNew=!data.stock.some(x=>x.id===s.id);
+ let h=`<div class="nav"><b>${isNew?"Neue Lagerkarte":"Lagerkarte"}</b><button class="sec sm" data-a="sback">Zurück</button></div>
+ <div class="card">${F("Name",I("ui.se.name",s.name,"z. B. 14K oder Steinnummer"))}
+ <div class="g2">${F("Gruppe",S("ui.se.group",s.group,SG,'data-r="1"'))}${F("Einheit",S("ui.se.unit",s.unit,[["GR","Gramm"],["CT","Karat (ct)"],["AD","Stück"]]))}</div>
+ <div class="g2">${F("Feingehalt ‰ (z. B. 585)",N("ui.se.fine",s.fine))}${F("Nummer / Barcode",I("ui.se.code",s.code))}</div>
+ <div class="f"><span>Status</span><div class="tg">${TG("sact",s.active===false?"p":"a",[["p","Passiv"],["a","Aktiv"]])}</div></div>
+ ${F("Notiz",I("ui.se.note",s.note))}
+ <div class="row"><button data-a="ssave">Speichern</button>${isNew?"":`<button class="sec" data-a="sdel">${dl("sdel","Löschen")}</button>`}</div></div>`;
+ if(!isNew){
+  h+=`<div class="card"><div class="lbl">Bestand: <b>${f3(qtyOf(s.id))} ${UL[s.unit]}</b></div>
+  <div class="g2">${F("Menge",N("ui.sb.qty",ui.sb.qty))}${F("Notiz",I("ui.sb.note",ui.sb.note))}</div>
+  <div class="row" style="margin:0"><button data-a="sin">+ Zugang</button><button class="sec" data-a="sout">− Abgang</button></div></div>
+  <div class="card"><b>Bestandsverlauf</b>${data.smoves.filter(m=>m.sid===s.id).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(m=>
+   `<div class="it"><div>${m.qty>=0?"Zugang":"Abgang"}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><b class="${m.qty<0?"out":"in"}">${m.qty>0?"+":""}${f3(m.qty)} ${UL[s.unit]}</b>${m.ref?"":`<br><button class="sec sm" data-a="smdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch keine Bewegungen.</p>'}</div>`}
+ return h}
+act.lg=d=>{ui.lg=d.v;render()};
+act.snew=()=>{ui.se={id:uid(),name:"",group:"Gold",unit:"GR",fine:"",code:"",active:true,note:""};ui.sb={qty:"",note:""};render()};
+act.sedit=d=>{const s=data.stock.find(x=>x.id===Number(d.id));ui.se={...s,fine:s.fine?String(s.fine):"",code:s.code||"",note:s.note||""};ui.sb={qty:"",note:""};render()};
+act.sback=()=>{ui.se=null;render()};
+act.sact=d=>{ui.se.active=d.v==="a";render()};
+act.ssave=()=>{const s=ui.se;if(!s.name.trim()){toast("Name fehlt");return}
+ const o={...s,name:s.name.trim(),fine:parse(s.fine),code:s.code.trim()},i=data.stock.findIndex(x=>x.id===s.id);
+ if(i<0)data.stock.push(o);else data.stock[i]=o;ui.se=null;render();toast("Gespeichert")};
+act.sdel=()=>{if(!confirmTap("sdel"))return;const id=ui.se.id;data.stock=data.stock.filter(x=>x.id!==id);data.smoves=data.smoves.filter(m=>m.sid!==id);ui.se=null;render()};
+function sBook(sign){const q=parse(ui.sb.qty);if(!(q>0)){toast("Menge eingeben");return}
+ data.smoves.push({id:uid(),sid:ui.se.id,qty:sign*q,date:today(),note:ui.sb.note.trim()});ui.sb={qty:"",note:""};render();toast("Gebucht")}
+act.sin=()=>sBook(1);act.sout=()=>sBook(-1);
+act.smdel=d=>{data.smoves=data.smoves.filter(m=>m.id!==Number(d.id));render()};
+act.sstd=()=>{[["8K",333],["10K",417],["14K",585],["18K",750],["21K",875],["22K",916],["24K",995]].forEach(([n,f])=>{
+  data.stock.push({id:uid(),name:n,group:"Gold",unit:"GR",fine:f,code:"",active:true,note:""});
+  data.stock.push({id:uid(),name:n+" Altgold",group:"Altgold",unit:"GR",fine:f,code:"",active:true,note:""})});
+ data.stock.push({id:uid(),name:"Brillant",group:"Stein",unit:"CT",fine:0,code:"",active:true,note:""});render();toast("Standard-Karten angelegt")};
+
+/* ---------- Fertigung ---------- */
+const PG={Ring:"RNG",Kette:"KET",Armband:"ARM",Ohrringe:"OHR","Anhänger":"ANH",Sonstiges:"SON"};
+const SL={prod:"In Fertigung",done:"Fertig (Lager)",sold:"Verkauft"};
+const pfx=g=>(data.prefix&&data.prefix[g])||PG[g]||"SON";
+function nextCode(g){const pre=pfx(g);let mx=0;
+ data.prods.forEach(p=>{const m=String(p.code).match(new RegExp("^"+pre+"(\\d+)$","i"));if(m)mx=Math.max(mx,parseInt(m[1],10))});
+ return pre+String(mx+1).padStart(7,"0")}
+function newP(){const g="Ring";return{id:uid(),code:nextCode(g),code0:"",ov:false,grp:g,name:"",status:"prod",model:"",feat:"",maker:"",reyon:"",len:"",orig:"",
+ metal:[],stones:[],steps:[],cur:ui.lastCur||"EUR",f1:"2",p1:"",m1:"f",f2:"1",p2:"",m2:"f",note:"",date:today(),cost:0,w:0}}
+document.addEventListener("change",e=>{const el=e.target;if(!el||el.id!=="pimg"||!el.files||!el.files[0]||!ui.pd)return;
+ const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{try{
+  const sc=Math.min(1,640/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*sc)),hh=Math.max(1,Math.round(im.height*sc)),c=document.createElement("canvas");c.width=w;c.height=hh;
+  const x=c.getContext("2d");x.drawImage(im,0,0,w,hh);let alpha=false;
+  try{const px=x.getImageData(0,0,w,hh).data;for(let i=3;i<px.length;i+=4*7)if(px[i]<250){alpha=true;break}}catch(_){}
+  let u;if(alpha){u=c.toDataURL("image/webp",.85);if(u.indexOf("data:image/webp")!==0)u=c.toDataURL("image/png")}else u=c.toDataURL("image/jpeg",.82);
+  ui.pd.img=u;render();toast("Foto hinzugefügt – mit Speichern übernehmen")}catch(_){toast("Foto konnte nicht gelesen werden")}};
+  im.onerror=()=>toast("Foto konnte nicht gelesen werden");im.src=fr.result};fr.readAsDataURL(el.files[0])});
+act.pimgdel=()=>{if(ui.pd){delete ui.pd.img;render()}};
+function openP(p){const d=JSON.parse(JSON.stringify(p));d.ov=false;d.code0=p.code;return d}
+/* Nummernsuche: "YZD178" findet "YZD0000178" (führende Nullen egal) */
+function codeMatch(code,q){const c=String(code).toLowerCase();if(c.includes(q))return true;
+ const m=q.match(/^([a-z0-9]*?[a-z])?\s*0*(\d+)$/);if(!m)return false;
+ const seven=c.length>7&&/^\d{7}$/.test(c.slice(-7)),mm=c.match(/^(.*?)0*(\d+)$/);if(!mm)return false;
+ const pre=seven?c.slice(0,-7):mm[1],num=seven?c.slice(-7):mm[2];
+ if(q.replace(/\s/g,"")===pre+String(parseInt(num,10)))return true;
+ return parseInt(num,10)===parseInt(m[2],10)&&(!m[1]||pre===m[1])}
+const pMatch=(p,q)=>{q=String(q||"").trim().toLowerCase();return !q||codeMatch(p.code,q)||(p.code+" "+p.name).toLowerCase().includes(q)};
+function plist(){
+ return data.prods.filter(p=>(!ui.pg||p.grp===ui.pg)&&(!ui.ps||p.status===ui.ps)&&pMatch(p,ui.pq)).sort((a,b)=>b.id-a.id)}
+function rP(){
+ if(ui.pd){rPE();return}
+ $("s-prod").innerHTML=`<div class="row"><button data-a="pnew">+ Neue Ware (Barcode)</button></div>
+ <div class="card"><div class="g2">${F("Gruppe",S("ui.pg",ui.pg,[["","Alle"],...Object.keys(PG)],'data-r="1"'))}${F("Status",S("ui.ps",ui.ps,[["","Alle"],["prod","In Fertigung"],["done","Fertig (Lager)"],["sold","Verkauft"]],'data-r="1"'))}</div>
+ <input data-f="ui.pq" data-u="uP" value="${esc(ui.pq)}" placeholder="Suchen (Nummer oder Name)"></div>
+ <div class="card" id="prows"></div>`;uP()}
+const soldTxt=p=>p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"";
+function uP(){const l=plist();
+ $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}">${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(p.w||0)} g · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small></div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
+ $("prows").innerHTML+=l.length?`<div class="it"><b>${l.length} Stück</b><b>${f3(l.reduce((a,p)=>a+(p.w||0),0))} g</b></div>`:""}
+act.pnew=()=>{ui.pd=newP();ui.pnew=true;render()};
+act.pedit=d=>{ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
+act.pback=()=>{ui.pd=null;render()};
+act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:"EUR",maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:"EUR",type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:"EUR",atelier:"",out:"",in:"",state:"Offen"});render()};
+act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
+function pEdit(p){const d=ui.pd,k=p.slice(6);
+ if(k==="grp"&&!d.ov&&ui.pnew)d.code=nextCode(d.grp);
+ if(k==="ov"&&!d.ov)d.code=ui.pnew?nextCode(d.grp):d.code0;
+ if(k==="f1")d.m1="f";if(k==="p1")d.m1="p";if(k==="f2")d.m2="f";if(k==="p2")d.m2="p";
+ const mm=p.match(/^ui\.pd\.metal\.(\d+)\.sid$/);
+ if(mm){const m=d.metal[mm[1]],s=data.stock.find(x=>x.id===m.sid);if(s)m.fine=String(s.fine||"")}
+ calcP()}
+function setV(path,val){const e=document.querySelector(`[data-f="${path}"]`);if(e&&document.activeElement!==e)e.value=val}
+const pm=v=>{const n=parse(v||"");return n>0&&n<=1.5?n*1000:n};
+function calcP(){
+ const d=ui.pd;if(!d)return;
+ const g=R("gold");let w=0,has=0,eu=0,fire=0,usd=false;
+ const cu=c=>{if(c==="USD")usd=true};cu(d.cur);
+ d.metal.forEach((m,i)=>{const q=parse(m.qty),fe=pm(m.fine)+pm(m.wg),hv=q*fe/1000;w+=q;has+=hv;cu(m.lc);
+  const t=hv*g+toEUR(q*parse(m.lab),m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g · je g ${f2(fromEUR(fe/1000*g,m.lc)+parse(m.lab))} ${m.lc} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
+ d.stones.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.qty)*parse(s.price),s.cur);eu+=t;sT("tt_"+i,`Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
+ d.steps.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.amt),s.cur),fr=parse(s.out)-parse(s.in);eu+=t;fire+=fr;sT("st_"+i,`Verlust ${f3(fr)} g · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
+ const cost=fromEUR(eu,d.cur);
+ d.cost=cost;d.w=w;
+ if(d.m1==="p")d.f1=cost>0?fs(parse(d.p1)/cost):d.f1;else d.p1=fx(cost*parse(d.f1));
+ const b=parse(d.p1);
+ if(d.m2==="p")d.f2=b>0?fs(parse(d.p2)/b):d.f2;else d.p2=fx(b*parse(d.f2));
+ const e=$("cT");if(e)e.value=f2(cost);
+ setV("ui.pd.p1",d.p1);setV("ui.pd.f1",d.f1);setV("ui.pd.p2",d.p2);setV("ui.pd.f2",d.f2);
+ sT("cW",`Gewicht ${f3(w)} g · Feingold ${f3(has)} g · Verlust ${f3(fire)} g`);
+ sT("cWarn",(has>0&&!g?"Goldkurs fehlt (oben antippen). ":"")+(usd&&!R("usd")?"USD-Kurs fehlt (oben antippen).":""))}
+function rPE(){const d=ui.pd;
+ const gold=data.stock.filter(s=>(s.group==="Gold"||s.group==="Altgold")&&s.active!==false);
+ const stn=data.stock.filter(s=>s.group==="Stein"&&s.active!==false);
+ const gOpt=[[0,"– wählen –"],...gold.map(s=>[s.id,s.name])],sOpt=[[0,"– wählen –"],...stn.map(s=>[s.id,s.name])];
+ const idx=plist().findIndex(p=>p.id===d.id);
+ let h=`<div class="nav"><b>${ui.pnew?"Neue Ware":"Ware"} <span class="pill">${SL[d.status]}</span></b><button class="sec sm" data-a="pback">Liste</button></div>
+<div class="card"><b>Foto</b>${d.img?`<img src="${d.img}" alt="" style="display:block;width:100%;max-height:260px;object-fit:contain;margin:10px 0;border-radius:12px;background:var(--fld)">`:'<p class="mu" style="margin:6px 0">Noch kein Foto.</p>'}<div class="row" style="margin:0"><label class="btn" style="flex:1;text-align:center;cursor:pointer;padding:12px;border-radius:12px;background:var(--ac);color:#fff;font-weight:600"><input id="pimg" type="file" accept="image/*" style="display:none">${d.img?"Foto ändern":"Foto hinzufügen"}</label>${d.img?'<button class="sec" data-a="pimgdel" style="flex:0 0 36%">Entfernen</button>':""}</div></div>
+${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pnm(d.soldTo))} · ${dt(d.soldDate)}</div></div>`:""} <div class="card"><div class="g2">${F("Gruppe",S("ui.pd.grp",d.grp,Object.keys(PG),'data-r="1"'))}${F("Kürzel",I("data.prefix."+d.grp,pfx(d.grp),PG[d.grp],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}</div>
+ ${F("Bezeichnung",I("ui.pd.name",d.name,"z. B. Brillantring"))}
+ ${F("Nummer (Barcode)",I("ui.pd.code",d.code,"",d.ov?"":"readonly"))}
+ ${CB("ui.pd.ov",d.ov,"Nummer überschreiben",'data-r="1"')}
+ <details><summary class="mu">Weitere Angaben</summary><div style="margin-top:8px">
+ <div class="g2">${F("Modell",I("ui.pd.model",d.model))}${F("Eigenschaft",I("ui.pd.feat",d.feat))}</div>
+ <div class="g2">${F("Hersteller",I("ui.pd.maker",d.maker))}${F("Vitrine / Fach",I("ui.pd.reyon",d.reyon))}</div>
+ <div class="g2">${F("Länge",I("ui.pd.len",d.len))}${F("Originalcode",I("ui.pd.orig",d.orig))}</div></div></details></div>
+ <div class="bar"><span>Metall</span><span>🥇</span></div><div class="card">`;
+ d.metal.forEach((m,i)=>{h+=`<div class="rowc">${F("Lagerartikel (Metall)",S(`ui.pd.metal.${i}.sid`,m.sid,gOpt,'data-n="1" data-r="1"'))}
+  <div class="g2">${F("Menge g",N(`ui.pd.metal.${i}.qty`,m.qty))}${F("Feingehalt ‰ (z. B. 585 oder 0,585)",N(`ui.pd.metal.${i}.fine`,m.fine))}</div>
+  ${F("Arbeit in Gold ‰ (z. B. 115 oder 0,115)",N(`ui.pd.metal.${i}.wg`,m.wg||""))}
+  <div class="g2">${F("Zuschlag pro g",N(`ui.pd.metal.${i}.lab`,m.lab))}${F("Währung",S(`ui.pd.metal.${i}.lc`,m.lc,CUR))}</div>
+  ${F("Hersteller",I(`ui.pd.metal.${i}.maker`,m.maker))}
+  <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
+ h+=`<button class="sec" data-a="padd" data-t="metal">+ Metall-Zeile</button></div>
+ <div class="bar"><span>Steine</span><span>💎</span></div><div class="card">`;
+ d.stones.forEach((s,i)=>{h+=`<div class="rowc">${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1"'))}
+  <div class="g2">${F("Karat ct",N(`ui.pd.stones.${i}.qty`,s.qty))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
+  <div class="g2">${F("Preis pro ct",N(`ui.pd.stones.${i}.price`,s.price))}${F("Währung",S(`ui.pd.stones.${i}.cur`,s.cur,CUR))}</div>
+  <div class="g2">${F("Art",I(`ui.pd.stones.${i}.type`,s.type))}${F("Farbe",I(`ui.pd.stones.${i}.color`,s.color))}</div>
+  <div class="g2">${F("Reinheit",I(`ui.pd.stones.${i}.clar`,s.clar))}${F("Schliff",I(`ui.pd.stones.${i}.cut`,s.cut))}</div>
+  <div class="rf"><span id="tt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="stones" data-i="${i}">Entfernen</button></div></div>`});
+ h+=`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
+ <div class="bar"><span>Fertigung (Arbeit, Politur …)</span><span>🔧</span></div><div class="card"><datalist id="stepl"><option>Arbeit</option><option>Politur</option><option>Fassen</option><option>Guss</option><option>Gravur</option></datalist>`;
+ d.steps.forEach((s,i)=>{h+=`<div class="rowc"><div class="g2">${F("Vorgang",I(`ui.pd.steps.${i}.type`,s.type,"",'list="stepl"'))}${F("Atelier",I(`ui.pd.steps.${i}.atelier`,s.atelier))}</div>
+  <div class="g2">${F("Betrag",N(`ui.pd.steps.${i}.amt`,s.amt))}${F("Währung",S(`ui.pd.steps.${i}.cur`,s.cur,CUR))}</div>
+  <div class="g2">${F("Ausgang g",N(`ui.pd.steps.${i}.out`,s.out))}${F("Eingang g",N(`ui.pd.steps.${i}.in`,s.in))}</div>
+  ${F("Status",S(`ui.pd.steps.${i}.state`,s.state,["Offen","Erledigt"]))}
+  <div class="rf"><span id="st_${i}"></span><button class="sec sm" data-a="pdelr" data-t="steps" data-i="${i}">Entfernen</button></div></div>`});
+ h+=`<button class="sec" data-a="padd" data-t="steps">+ Arbeitsschritt</button></div>
+ <div class="bar"><span>Beträge</span><span>💰</span></div><div class="card">
+ <div class="g2">${F("Gesamtkosten",'<input id="cT" readonly>')}${F("Währung",S("ui.pd.cur",d.cur,CUR,'data-r="1"'))}</div>
+ <p class="mu" id="cW" style="margin:0 0 8px"></p>
+ <div class="g2">${F("Multiplikator (Verkauf)",N("ui.pd.f1",d.f1))}${F("Verkaufspreis",N("ui.pd.p1",d.p1))}</div>
+ <div class="g2">${F("Multiplikator (Etikett)",N("ui.pd.f2",d.f2))}${F("Etikettenpreis",N("ui.pd.p2",d.p2))}</div>
+ <p class="mu out" id="cWarn" style="margin:0 0 8px"></p>
+ ${F("Beschreibung",I("ui.pd.note",d.note))}
+ <p class="mu">Goldwert wird mit dem Verkaufskurs oben gerechnet. Preis oder Multiplikator: du kannst beides eingeben, das andere rechnet sich.</p></div>
+ <div class="row"><button data-a="psave">Speichern</button><button class="sec" data-a="pdel">${dl("pdel","Löschen")}</button></div>
+ <div class="row">${d.status==="sold"?"":`<button class="sec" data-a="pfin">${d.status==="done"?"Wieder in Fertigung":"Fertigstellen"}</button>`}</div>
+ ${idx>=0?`<div class="row"><button class="sec" data-a="pnav" data-v="-1">◀ Vorheriges</button><button class="sec" data-a="pnav" data-v="1">Nächstes ▶</button></div>`:""}`;
+ $("s-prod").innerHTML=h;calcP()}
+function syncStock(p){
+ data.smoves=data.smoves.filter(m=>m.ref!=="p"+p.id);
+ if(p.status==="prod")return;
+ [...p.metal,...p.stones].forEach(x=>{const q=parse(x.qty);if(x.sid&&q)data.smoves.push({id:uid(),sid:x.sid,qty:-q,date:today(),note:"Fertigung "+p.code,ref:"p"+p.id})})}
+function pSave(quiet){const d=ui.pd;calcP();d.code=d.code.trim();
+ if(!d.code){toast("Nummer fehlt");return false}
+ if(data.prods.some(x=>x.code===d.code&&x.id!==d.id)){toast("Diese Nummer gibt es schon");return false}
+ const c=JSON.parse(JSON.stringify(d)),i=data.prods.findIndex(x=>x.id===d.id);
+ if(i<0)data.prods.push(c);else data.prods[i]=c;
+ ui.pnew=false;d.code0=d.code;ui.lastCur=d.cur;syncStock(c);
+ if(!quiet)toast("Gespeichert");return true}
+act.psave=()=>{if(pSave(false))render()};
+act.pfin=()=>{const d=ui.pd,old=d.status;d.status=old==="prod"?"done":"prod";
+ if(pSave(true)){toast(d.status==="done"?"Fertig – Lager abgebucht":"Wieder in Fertigung – Lager zurückgebucht")}else d.status=old;render()};
+act.pdel=()=>{if(!confirmTap("pdel"))return;const d=ui.pd,p=data.prods.find(x=>x.id===d.id);
+ if(p&&p.status==="sold"){toast("Verkauft – erst den Verkauf löschen");return}
+ data.prods=data.prods.filter(x=>x.id!==d.id);data.smoves=data.smoves.filter(m=>m.ref!=="p"+d.id);ui.pd=null;render()};
+act.pnav=d=>{const l=plist(),i=l.findIndex(p=>p.id===ui.pd.id);if(i<0)return;const j=i+Number(d.v);if(j<0||j>=l.length)return;ui.pd=openP(l[j]);ui.pnew=false;render()};
+
+/* ---------- Verkauf ---------- */
+const newSale=()=>({pid:(data.people.find(p=>p.walk)||{}).id||0,date:today(),cur:"EUR",lines:[],note:"",lf:null});
+function rV(){const s=ui.sv||(ui.sv=newSale());
+ const no=Math.max(0,...data.sales.map(x=>x.no))+1;
+ const tot=s.lines.reduce((a,l)=>a+(OP[l.k][1]==="out"?l.amount:-l.amount),0);
+ let h=`<div class="card"><div class="lbl"><b>Verkauf Nr. ${no}</b></div>
+ ${F("Person suchen",I("ui.pq2",ui.pq2,"Name, Stadt, Land …",'data-u="uK" autocorrect="off" autocomplete="off" spellcheck="false"'))}
+ ${F("Kunde / Händler",S("ui.sv.pid",s.pid,pOpts(s.pid),'data-n="1" data-r="1" id="vpsel"'))}
+ <div class="row"><input id="pNew2" placeholder="Neue Person"><button class="sec" data-a="addP2" style="flex:0 0 36%">Anlegen</button></div>
+ <div class="g2">${F("Datum",`<input type="date" data-f="ui.sv.date" value="${s.date}">`)}${F("Währung",S("ui.sv.cur",s.cur,CUR,s.lines.length?"disabled":'data-r="1"'))}</div>
+ <div class="row" style="margin:0"><button class="sec" data-a="vkonto">Konto &amp; Verlauf</button><button class="sec" data-a="vlist">Verkaufsliste</button></div></div>`;
+ if(s.pid){const pp=data.people.find(x=>x.id===s.pid);if(pp)h+=`<div class="card"><b>${esc(pp.name)}</b>${pinfo(pp)}</div>`;h+=balHTML(s.pid)}
+ h+=`<div class="card"><div class="tg" style="margin-bottom:10px">${TG("vdir",ui.vdir,[["in","Eingänge"],["out","Ausgänge"]])}</div>
+ ${tiles(ui.vdir==="in"?["NT","KK","EO","RB","RA"]:["VB","VO","NO","GH"],"vop")}${s.lf?lfHTML(s):""}</div>
+ <div class="card"><b>Zeilen</b>${s.lines.map((l,i)=>`<div class="it"><div>${OP[l.k][0]}<small>${esc(l.desc||"")}${l.qty?" · "+f3(parse(l.qty))+" g":""}</small></div><div class="r"><b>${OP[l.k][1]==="out"?"+":"−"}${f2(l.amount)} ${s.cur}</b><br><button class="sec sm" data-a="vldel" data-i="${i}">Entfernen</button></div></div>`).join("")||'<p class="mu">Noch keine Zeilen.</p>'}
+ ${s.lines.length?`<div class="it"><b>Offen aus diesem Vorgang</b><b>${f2(tot)} ${s.cur}</b></div>${F("Beschreibung",I("ui.sv.note",s.note))}<div class="row"><button data-a="vsave">Verkauf speichern</button><button class="sec" data-a="vdisc">${dl("vdisc","Verwerfen")}</button></div>`:""}</div>`;
+ if(ui.svl)h+=`<div class="card"><b>Verkaufsliste</b>${data.sales.slice().sort((a,b)=>b.no-a.no).map(x=>{const p=data.people.find(y=>y.id===x.pid),t=x.lines.reduce((a,l)=>a+(OP[l.k][1]==="out"?l.amount:-l.amount),0);
+  return `<div class="it"><div><b>Nr. ${x.no}</b> ${esc(p?p.name:"?")}<small>${dt(x.date)} · ${x.lines.length} Zeilen${x.note?" · "+esc(x.note):""}</small></div><div class="r"><b>${f2(t)} ${x.cur}</b><br><button class="sec sm" data-a="vsdel" data-id="${x.id}">${dl("vs"+x.id,"Löschen")}</button></div></div>`}).join("")||'<p class="mu">Noch keine Verkäufe.</p>'}</div>`;
+ $("s-verkauf").innerHTML=h}
+function lfHTML(s){const l=s.lf,k=l.k,isP=k==="VB"||k==="RB",free=k==="VO"||k==="EO";
+ const inCart=s.lines.map(x=>x.prod),ps=data.prods.filter(p=>p.status===(k==="VB"?"done":"sold")&&!inCart.includes(p.id)&&pMatch(p,l.q));
+ return `<div class="bar">${OP[k][0]}</div>
+ ${isP?F("Nummer suchen",I("ui.sv.lf.q",l.q||"","z. B. YZD178",'data-u="uV" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))+F("Ware",S("ui.sv.lf.prod",l.prod,[[0,ps.length?"– wählen –":"keine passende Ware"],...ps.map(p=>[p.id,p.code+" · "+p.name+" · "+f3(p.w||0)+" g"])],'data-n="1" data-r="1" id="vsel"')):F("Beschreibung",I("ui.sv.lf.desc",l.desc,free?"z. B. Ring 14K":"optional"))}
+ ${free?F("Gewicht g (optional)",N("ui.sv.lf.qty",l.qty)):""}
+ ${F("Betrag ("+s.cur+")",N("ui.sv.lf.amount",l.amount))}
+ <div class="row"><button data-a="vadd">Zeile hinzufügen</button><button class="sec" data-a="vcancel">Abbrechen</button></div>`}
+function uV(){const s=ui.sv,l=s&&s.lf;if(!l)return;const e=$("vsel");if(!e)return;
+ const inCart=s.lines.map(x=>x.prod),ps=data.prods.filter(p=>p.status===(l.k==="VB"?"done":"sold")&&!inCart.includes(p.id)&&pMatch(p,l.q));
+ if(ps.length===1&&l.prod!==ps[0].id){l.prod=ps[0].id;vProd();setV("ui.sv.lf.amount",l.amount)}
+ else if(!ps.some(p=>p.id===l.prod))l.prod=0;
+ e.innerHTML=[[0,ps.length?"– wählen –":"keine passende Ware"],...ps.map(p=>[p.id,p.code+" · "+p.name+" · "+f3(p.w||0)+" g"])].map(([a,b])=>`<option value="${a}"${String(a)===String(l.prod)?" selected":""}>${esc(b)}</option>`).join("")}
+function vProd(){const s=ui.sv,l=s.lf,p=data.prods.find(x=>x.id===l.prod);
+ if(p){const a=parse(p.p1)||parse(p.p2);l.amount=a?fx(fromEUR(toEUR(a,p.cur),s.cur)):"";if(p.cur===s.cur&&a)l.amount=fx(a)}}
+act.addP2=()=>{const p=addPerson("pNew2");if(p){ui.sv.pid=p.id;render()}};
+act.vdir=d=>{ui.vdir=d.v;ui.sv.lf=null;render()};
+act.vop=d=>{ui.sv.lf={k:d.k,prod:0,amount:"",desc:"",qty:"",q:""};render()};
+act.vcancel=()=>{ui.sv.lf=null;render()};
+act.vadd=()=>{const s=ui.sv,l=s.lf,a=parse(l.amount),isP=l.k==="VB"||l.k==="RB";
+ if(!(a>0)){toast("Betrag eingeben");return}
+ let desc=l.desc.trim();
+ if(isP){const p=data.prods.find(x=>x.id===l.prod);if(!p){toast("Bitte Ware wählen");return}desc=p.code+" "+p.name}
+ s.lines.push({k:l.k,prod:isP?l.prod:0,desc,qty:l.qty,amount:a});s.lf=null;render()};
+act.vldel=d=>{ui.sv.lines.splice(Number(d.i),1);render()};
+act.vdisc=()=>{if(!confirmTap("vdisc"))return;ui.sv=newSale();render()};
+act.vsave=()=>{const s=ui.sv;if(!s.lines.length||!s.pid){toast("Keine Zeilen oder keine Person");return}
+ const no=Math.max(0,...data.sales.map(x=>x.no))+1,sid=uid();
+ data.sales.push({id:sid,no,pid:s.pid,date:s.date,cur:s.cur,lines:s.lines.map(l=>({...l})),note:s.note});
+ s.lines.forEach(l=>{
+  data.moves.push({id:uid(),pid:s.pid,type:l.k,dir:OP[l.k][1],unit:s.cur,amount:l.amount,note:(l.desc?l.desc+" · ":"")+"Verkauf Nr. "+no+(s.note?" · "+s.note:""),date:s.date,saleId:sid});
+  const p=l.prod?data.prods.find(x=>x.id===l.prod):null;
+  if(p&&l.k==="VB"){p.status="sold";p.saleId=sid;p.soldTo=s.pid;p.soldDate=s.date}
+  if(p&&l.k==="RB"){p.status="done";p.saleId=null;delete p.soldTo;delete p.soldDate}});
+ ui.sv=Object.assign(newSale(),{pid:s.pid,cur:s.cur});render();toast("Verkauf Nr. "+no+" gespeichert")};
+act.vlist=()=>{ui.svl=!ui.svl;render()};
+act.vkonto=()=>{ui.pid=ui.sv.pid;go("konten")};
+act.vsdel=d=>{const id=Number(d.id);if(!confirmTap("vs"+id))return;const x=data.sales.find(y=>y.id===id);if(!x)return;
+ x.lines.forEach(l=>{const p=l.prod?data.prods.find(y=>y.id===l.prod):null;
+  if(p&&l.k==="VB"&&p.saleId===id){p.status="done";p.saleId=null;delete p.soldTo;delete p.soldDate}
+  if(p&&l.k==="RB")p.status="sold"});
+ data.moves=data.moves.filter(m=>m.saleId!==id);data.sales=data.sales.filter(y=>y.id!==id);render();toast("Verkauf gelöscht")};
+
+/* ---------- Übersicht ---------- */
+const TB=(head,rows)=>{const c=`style="grid-template-columns:${head.map((_,i)=>i?"1fr":"1.4fr").join(" ")}"`;
+ return `<div class="tbl"><div class="th" ${c}>${head.map(x=>`<span>${x}</span>`).join("")}</div>${rows.map(r=>`<div class="tr" ${c}>${r.map(x=>`<span>${x}</span>`).join("")}</div>`).join("")||'<p class="mu">Keine Daten.</p>'}</div>`};
+const box=(t,i,h,to)=>`<div class="card"><div class="bar"${to?` data-a="bgo" data-v="${to}" style="cursor:pointer"`:""}><span>${t}</span><span>${to?"›&nbsp;":""}${i}</span></div>${h}</div>`;
+act.bgo=d=>{const[s,st]=d.v.split(":");ui.ps=st||"";ui.pg="";go(s)};
+function cashBy(types){const c={};data.moves.forEach(m=>{const o=types[m.type];if(o)c[m.unit]=(c[m.unit]||0)+(o>0?m.amount:-m.amount)});return c}
+function pStart(k){const d=new Date();if(k==="y")return d.getFullYear()+"-01-01";if(k!=="t")d.setDate(d.getDate()-(Number(k)-1));return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+const PERS=[["t","Heute"],["7","7 Tage"],["30","30 Tage"],["90","90 Tage"],["y","Dieses Jahr"]];
+function rHome(){
+ const cash=cashBy({NT:1,NO:-1});data.entries.forEach(e=>{cash.EUR=(cash.EUR||0)+(e.type==="in"?e.amount:-e.amount)});
+ const bank=cashBy({KK:1,GH:-1});
+ const bl=o=>Object.keys(o).filter(u=>Math.abs(o[u])>1e-9).map(u=>[UN[u],`<b class="${o[u]<0?"out":""}">${fn(o[u],u)}</b>`]);
+ const rec={},owe={};
+ data.people.forEach(p=>{const b=balOf(p.id);for(const u in b){if(u==="Stk")continue;if(b[u]>0)rec[u]=(rec[u]||0)+b[u];else if(b[u]<0)owe[u]=(owe[u]||0)-b[u]}});
+ const us=[...new Set([...Object.keys(rec),...Object.keys(owe)])];
+ const pos=us.map(u=>{const a=rec[u]||0,b=owe[u]||0,d=a-b;return[UN[u],fn(a,u),fn(b,u),`<b class="${d<0?"out":"in"}">${fn(d,u)}</b>`]});
+ const stR=data.stock.map(s=>({s,q:qtyOf(s.id)})).filter(x=>Math.abs(x.q)>1e-9).map(x=>[esc(x.s.name),f3(x.q)+" "+UL[x.s.unit],x.s.fine&&x.s.group!=="Stein"?x.s.fine+" ‰":"–"]);
+ const done=data.prods.filter(p=>p.status==="done"),gold={},spec={};
+ done.forEach(p=>{p.metal.forEach(m=>{const k=parse(m.fine);if(k)gold[k]=(gold[k]||0)+parse(m.qty)});
+  const e=spec[p.name||p.grp]||(spec[p.name||p.grp]={n:0,c:{}});e.n++;e.c[p.cur]=(e.c[p.cur]||0)+(p.cost||0)});
+ const gR=Object.keys(gold).sort((a,b)=>a-b).map(k=>[k+" ‰",f3(gold[k])+" g"]);
+ const spR=Object.keys(spec).map(n=>[esc(n),String(spec[n].n),Object.keys(spec[n].c).map(c=>f2(spec[n].c[c])+" "+c).join(" + ")]);
+ const from=pStart(ui.hp),ss=data.sales.filter(x=>x.date>=from),rev={},days={};let items=0;
+ ss.forEach(x=>{const dd=days[x.date]||(days[x.date]={n:0,r:{}});dd.n++;
+  x.lines.forEach(l=>{const sg=l.k==="VB"||l.k==="VO"?1:l.k==="RB"||l.k==="RA"?-1:0;if(!sg)return;
+   rev[x.cur]=(rev[x.cur]||0)+sg*l.amount;dd.r[x.cur]=(dd.r[x.cur]||0)+sg*l.amount;if(l.k==="VB")items++;if(l.k==="RB")items--})});
+ const dR=Object.keys(days).sort().reverse().slice(0,10).map(k=>[dt(k),String(days[k].n),Object.keys(days[k].r).map(c=>f2(days[k].r[c])+" "+c).join(" + ")||"–"]);
+ $("s-home").innerHTML=
+  box("Offene Position","⚖️",TB(["Währung","Forderung","Schuld","Differenz"],pos),"konten")+
+  ocBox()+ocOrd()+
+  box("Kasse","💶",TB(["Währung","Bestand"],bl(cash)),"kasse")+
+  box("Bank","🏦",TB(["Währung","Bestand"],bl(bank)),"kasse")+
+  box("Lager ohne Barcode","📦",TB(["Artikel","Menge","Feingehalt"],stR),"lager")+
+  box("Fertige Ware: Gold","🥇",TB(["Feingehalt","Gewicht"],gR),"prod:done")+
+  box("Fertige Ware: Sonderware","💍",TB(["Bezeichnung","Stück","Kosten"],spR),"prod:done")+
+  box("Verkäufe","📈",`<div class="chips">${PERS.map(([v,l])=>`<button class="${ui.hp===v?"":"sec"}" data-a="hp" data-v="${v}">${l}</button>`).join("")}</div>
+   <div class="sum" style="margin-bottom:8px"><div><span class="mu">Verkäufe</span><b>${ss.length}</b></div><div><span class="mu">Stück (Barcode)</span><b>${items}</b></div><div><span class="mu">Umsatz</span><b>${Object.keys(rev).map(c=>f2(rev[c])+" "+c).join(" + ")||"–"}</b></div></div>
+   ${TB(["Tag","Anzahl","Umsatz"],dR)}`)}
+act.hp=d=>{ui.hp=d.v;render()};
+function ocBox(){
+ const oc=data.people.map(p=>({p,b:balOf(p.id)})).filter(x=>Object.keys(x.b).some(u=>Math.abs(x.b[u])>1e-9)).sort((a,b)=>a.p.name.localeCompare(b.p.name));
+ const rows=oc.map(x=>`<div class="it click" data-a="gop" data-id="${x.p.id}"><div><b>${esc(x.p.name)}</b><small>${esc([x.p.city,x.p.country].filter(Boolean).join(", "))}</small></div><div class="r">${Object.keys(x.b).filter(u=>Math.abs(x.b[u])>1e-9).map(u=>`<div class="${x.b[u]>0?"in":"out"}"><b>${x.b[u]>0?"+":"−"}${fn(Math.abs(x.b[u]),u)} ${UN[u]}</b></div>`).join("")}</div></div>`).join("")||'<p class="mu">Keine Daten.</p>';
+ return box("Offene Konten","👥",`<p class="mu" style="margin:0 0 6px">+ schuldet mir · − ich schulde</p>`+rows,"konten")}
+
+/* ---------- Einstellungen ---------- */
+/* ---------- Excel-Export (echte .xlsx, ohne Fremdbibliothek) ---------- */
+const CRC=(()=>{const t=new Uint32Array(256);for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return b=>{let c=-1;for(let i=0;i<b.length;i++)c=t[(c^b[i])&255]^(c>>>8);return(c^-1)>>>0}})();
+function zipStore(files){const enc=new TextEncoder(),parts=[],cen=[];let off=0;
+ const u16=n=>[n&255,(n>>8)&255],u32=n=>[n&255,(n>>8)&255,(n>>16)&255,(n>>>24)&255];
+ files.forEach(([name,text])=>{const nb=enc.encode(name),d=enc.encode(text),c=CRC(d);
+  const lh=Uint8Array.from([0x50,0x4b,3,4,...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(d.length),...u32(d.length),...u16(nb.length),...u16(0)]);
+  parts.push(lh,nb,d);
+  cen.push(Uint8Array.from([0x50,0x4b,1,2,...u16(20),...u16(20),...u16(0x0800),...u16(0),...u16(0),...u16(0x21),...u32(c),...u32(d.length),...u32(d.length),...u16(nb.length),...u16(0),...u16(0),...u16(0),...u16(0),...u32(0),...u32(off)]),nb);
+  off+=lh.length+nb.length+d.length});
+ let cl=0;cen.forEach(x=>cl+=x.length);
+ const end=Uint8Array.from([0x50,0x4b,5,6,...u16(0),...u16(0),...u16(files.length),...u16(files.length),...u32(cl),...u32(off),...u16(0)]);
+ return new Blob([...parts,...cen,end],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"})}
+const xcol=i=>{let s="";i++;while(i>0){const m=(i-1)%26;s=String.fromCharCode(65+m)+s;i=Math.floor((i-1)/26)}return s};
+const xesc=s=>String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c])).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g,"");
+function xlsx(sheets){const sh=sheets.map(([n,rows])=>`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews><cols><col min="1" max="30" width="18" customWidth="1"/></cols><sheetData>${rows.map((r,ri)=>`<row r="${ri+1}">${r.map((v,ci)=>{const ref=xcol(ci)+(ri+1);
+  if(v===null||v===undefined||v==="")return"";
+  if(typeof v==="number"&&isFinite(v))return`<c r="${ref}"><v>${v}</v></c>`;
+  return`<c r="${ref}" t="inlineStr"${ri===0?' s="1"':""}><is><t xml:space="preserve">${xesc(v)}</t></is></c>`}).join("")}</row>`).join("")}</sheetData></worksheet>`);
+ const F=[["[Content_Types].xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((_,i)=>`<Override PartName="/xl/worksheets/sheet${i+1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join("")}</Types>`],
+ ["_rels/.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`],
+ ["xl/workbook.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map(([n],i)=>`<sheet name="${xesc(n).slice(0,31)}" sheetId="${i+1}" r:id="rId${i+1}"/>`).join("")}</sheets></workbook>`],
+ ["xl/_rels/workbook.xml.rels",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((_,i)=>`<Relationship Id="rId${i+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i+1}.xml"/>`).join("")}<Relationship Id="rId${sheets.length+1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`],
+ ["xl/styles.xml",`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="11"/><name val="Calibri"/></font><font><b/><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="2"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="0" borderId="0" xfId="0" applyFont="1"/></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>`],
+ ...sh.map((x,i)=>[`xl/worksheets/sheet${i+1}.xml`,x])];
+ return zipStore(F)}
+const ST={prod:"In Fertigung",done:"Fertig (Lager)",sold:"Verkauft"};
+const pnm=id=>{const p=data.people.find(x=>x.id===id);return p?p.name:""};
+function xLager(){return["Lager",[["Gruppe","Nummer","Bezeichnung","Einheit","Feingehalt","Bestand","Notiz"],...data.stock.map(s=>[s.group,s.code||"",s.name,UL[s.unit]||s.unit,Number(s.fine)||"",Math.round(qtyOf(s.id)*1000)/1000,s.note||""])]]}
+function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status","Gewicht g","Kosten €"],...data.prods.map(p=>[p.code,p.grp,p.name,ST[p.status]||p.status,Number(p.w)||"",Math.round((Number(p.cost)||0)*100)/100])]]}
+function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
+ data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
+function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Betrag","Notiz"],...data.moves.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(m=>[m.date,pnm(m.pid),m.dir==="out"?"Ich gebe":"Ich erhalte",UN[m.unit]||m.unit,m.amount,m.note||""])]]}
+function xOrd(){return["Bestellungen",[["Nummer","Datum","Person","Bestellung","Anzahl","Status","Notiz"],...data.orders.map(o=>[o.no||"",o.date,pnm(o.pid),ordTxt(o),o.qty,o.done?"Erledigt":"Aktiv",o.note||""])]]}
+function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.note||""])]]}
+async function xSave(kind){
+ const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd()];
+ const name=(data.user||"Export")+(kind==="lager"?"_Lager":"_Alles")+".xlsx";
+ try{const blob=xlsx(sheets),d=await claude.use("downloads");
+  if(d)await d.save({filename:name,data:blob});
+  else{const f=new File([blob],name),a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}
+  toast("Excel bereit")}catch(e){toast("Nicht gespeichert")}}
+act.xl=d=>xSave(d.v);
+
+function rSet(){
+ $("s-set").innerHTML=`<div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
+ <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
+ <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
+ <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div></div>
+ <div class="card"><b>Excel-Export</b><p class="mu" style="margin:4px 0 10px">Erstellt eine Excel-Datei (.xlsx) zum Speichern. Kein Passwortschutz – Datei sicher aufbewahren.</p><div class="row" style="margin:0"><button data-a="xl" data-v="lager">Lagertabelle</button><button class="sec" data-a="xl" data-v="alles">Alles</button></div></div>
+ <div class="card"><b>Version ${VER}</b><p class="mu">Datei verschlüsselt mit deinem Passwort · ${data.people.length} Personen · ${data.stock.length} Lagerkarten · ${data.prods.length} Waren · ${data.sales.length} Verkäufe</p></div>
+ <div class="card"><b>Update-Historie</b>${HIST.map(h=>`<p style="margin:10px 0 2px"><b>${h[0]}</b> <span class="mu">${h[1]}</span></p><ul style="margin:0;padding-left:18px">${h[2].map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`).join("")}</div>`}
+if("serviceWorker"in navigator)window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+</script></body></html>
