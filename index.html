@@ -124,8 +124,10 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.26";
+const VER="0.28";
 const HIST=[
+ ["0.28","10.11.2026",["Steine nach 4C-Tabelle: Farbe D–Z mit Gruppen, Reinheit IF bis I3, Schliff mit Ideal (Hearts & Arrows), Standard-Karat 0,05–3,00 als Vorschlag; ungefährer Durchmesser (rund) wird angezeigt"]],
+ ["0.27","10.11.2026",["Lager: Steinkarten mit Art/Form (z. B. Radiant), Farbe (z. B. F), Reinheit (z. B. VVS2), Schliff und Karat je Stein, mit Auswahlvorschlägen; in der Fertigung werden diese Werte beim Auswählen des Steins automatisch übernommen; Excel-Export erweitert"]],
  ["0.26","10.11.2026",["Hauptwährung Euro oder US-Dollar (bei neuem Benutzer wählbar, danach in den Einstellungen, solange keine Daten); Gold und zweite Währung werden entsprechend gerechnet","Kursabruf: „Abgleich“ (+/− je g) wird beim Abruf zum Goldkurs addiert, zum Angleichen an den eigenen Vergleichskurs"]],
  ["0.25","10.11.2026",["Einstellungen: Passwort ändern (aktuelles Passwort prüfen, neues zweimal eingeben)"]],
  ["0.24","10.11.2026",["App heißt jetzt „Pusula Mobile“ (Titel, Startbildschirm, Symbolname)"]],
@@ -581,6 +583,24 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Farblos ~ Colourless ~ Renksiz
+Fast farblos ~ Near colourless ~ Neredeyse renksiz
+Leicht getönt ~ Slightly tinted ~ Hafif renkli
+Sehr leicht gelblich ~ Very light yellow ~ Çok hafif sarımsı
+Leicht gelblich ~ Light yellow ~ Hafif sarımsı
+Farbdiamant ~ Fancy colour ~ Renkli pırlanta
+Flawless – lupenrein ~ Flawless ~ Kusursuz (FL)
+Internally Flawless – innen lupenrein ~ Internally flawless ~ İçten kusursuz (IF)
+Included – Piqué ~ Included ~ Belirgin inklüzyonlu
+z. B. 1,07 ~ e.g. 1.07 ~ örn. 1,07
+Steine nach 4C-Tabelle: Farbe D–Z mit Gruppen, Reinheit IF bis I3, Schliff mit Ideal (Hearts & Arrows), Standard-Karat 0,05–3,00 als Vorschlag; ungefährer Durchmesser (rund) wird angezeigt ~ Stones per 4C chart: colour D–Z with groups, clarity IF to I3, cut incl. Ideal (Hearts & Arrows), standard carats 0.05–3.00 as suggestions; approximate diameter (round) is shown ~ 4C tablosuna göre taşlar: gruplu D–Z renk, IF–I3 berraklık, Ideal (Hearts & Arrows) dahil kesim, öneri olarak standart 0,05–3,00 karat; yaklaşık çap (yuvarlak) gösterilir
+Art / Form ~ Type / shape ~ Tür / form
+z. B. Radiant ~ e.g. Radiant ~ örn. Radiant
+Karat je Stein (ct) ~ Carat per stone (ct) ~ Taş başına karat (ct)
+z. B. F ~ e.g. F ~ örn. F
+z. B. VVS2 ~ e.g. VVS2 ~ örn. VVS2
+z. B. Excellent ~ e.g. Excellent ~ örn. Excellent
+Lager: Steinkarten mit Art/Form (z. B. Radiant), Farbe (z. B. F), Reinheit (z. B. VVS2), Schliff und Karat je Stein, mit Auswahlvorschlägen; in der Fertigung werden diese Werte beim Auswählen des Steins automatisch übernommen; Excel-Export erweitert ~ Stock: stone cards with type/shape (e.g. radiant), colour (e.g. F), clarity (e.g. VVS2), cut and carat per stone, with suggestions; in production these values are filled in automatically when the stone is selected; Excel export extended ~ Depo: taş kartlarında form (örn. radiant), renk (örn. F), berraklık (örn. VVS2), kesim ve taş başına karat, öneri listesiyle; üretimde taş seçilince bu değerler otomatik doldurulur; Excel dışa aktarımı genişletildi
 Hauptwährung ~ Main currency ~ Ana para birimi
 Hauptwährung (nur bei neuem Benutzer) ~ Main currency (new user only) ~ Ana para birimi (sadece yeni kullanıcı)
 Euro (€) ~ Euro (€) ~ Euro (€)
@@ -1024,13 +1044,33 @@ function uL(){const q=ui.lq.toLowerCase();
  const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
   .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
  $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
-  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}</small></div><div class="r ${q<0?"out":""}"><b>${f3(q)} ${UL[s.unit]}</b></div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small></div><div class="r ${q<0?"out":""}"><b>${f3(q)} ${UL[s.unit]}</b></div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+/* 4C: Standard-Karat mit ungefährem Durchmesser (Rund, Brillantschliff) */
+const CTD=[[0.05,2.5],[0.10,3.0],[0.20,3.8],[0.25,4.1],[0.30,4.5],[0.40,4.8],[0.50,5.2],[0.70,5.8],[0.90,6.3],[1.00,6.5],[1.25,6.9],[1.50,7.4],[1.75,7.8],[2.00,8.2],[2.50,8.8],[3.00,9.4]];
+function ctDiam(ct){if(!(ct>0))return 0;const t=CTD;
+ if(ct<=t[0][0])return t[0][1]*Math.cbrt(ct/t[0][0]);
+ for(let i=1;i<t.length;i++)if(ct<=t[i][0]){const[a,da]=t[i-1],[b,db]=t[i];return da+(db-da)*(ct-a)/(b-a)}
+ const[l,dl]=t[t.length-1];return dl*Math.cbrt(ct/l)}
+const diaTxt=ct=>{const d=ctDiam(ct);return d?"≈ Ø "+f2(Math.round(d*10)/10).replace(/,?0+$/,"").replace(/,$/,"")+" mm (rund)":""};
+function DLSf(){const o=(v,l)=>`<option value="${v}"${l?` label="${esc(tx(l))}"`:""}>`;
+ const col=[["D","Farblos"],["E","Farblos"],["F","Farblos"],["G","Fast farblos"],["H","Fast farblos"],["I","Fast farblos"],["J","Fast farblos"],["K","Leicht getönt"],["L","Leicht getönt"],["M","Leicht getönt"],
+  ...["N","O","P","Q","R"].map(x=>[x,"Sehr leicht gelblich"]),...["S","T","U","V","W","X","Y","Z"].map(x=>[x,"Leicht gelblich"]),["Fancy","Farbdiamant"]];
+ const cl=[["FL","Flawless – lupenrein"],["IF","Internally Flawless – innen lupenrein"],["VVS1","Very Very Slightly Included"],["VVS2","Very Very Slightly Included"],["VS1","Very Slightly Included"],["VS2","Very Slightly Included"],["SI1","Slightly Included"],["SI2","Slightly Included"],["I1","Included – Piqué"],["I2","Included – Piqué"],["I3","Included – Piqué"]];
+ const cu=[["Ideal","Hearts & Arrows"],["Excellent",""],["Very Good",""],["Good",""],["Fair",""],["Poor",""]];
+ const fo=["Rund (Brillant)","Radiant","Prinzess","Oval","Marquise","Birne","Herz","Smaragd","Kissen (Cushion)","Baguette","Ascher"];
+ return `<datalist id="dlForm">${fo.map(x=>o(x)).join("")}</datalist><datalist id="dlCol">${col.map(([v,l])=>o(v,l)).join("")}</datalist><datalist id="dlClar">${cl.map(([v,l])=>o(v,l)).join("")}</datalist><datalist id="dlCut">${cu.map(([v,l])=>o(v,l)).join("")}</datalist><datalist id="dlCt">${CTD.map(([c,d])=>o(f2(c),"≈ Ø "+String(d).replace(".",",")+" mm")).join("")}</datalist>`}
+function uCt(){const e=$("ctd");if(e&&ui.se)e.textContent=diaTxt(parse(ui.se.ct))}
+const DX='autocorrect="off" autocomplete="off" spellcheck="false"';
 function rLE(){const s=ui.se,isNew=!data.stock.some(x=>x.id===s.id);
  let h=`<div class="nav"><b>${isNew?"Neue Lagerkarte":"Lagerkarte"}</b><button class="sec sm" data-a="sback">Zurück</button></div>
  <div class="card">${F("Name",I("ui.se.name",s.name,"z. B. 14K oder Steinnummer"))}
  <div class="g2">${F("Gruppe",S("ui.se.group",s.group,SG,'data-r="1"'))}${F("Einheit",S("ui.se.unit",s.unit,[["GR","Gramm"],["CT","Karat (ct)"],["AD","Stück"]]))}</div>
  <div class="g2">${F("Feingehalt ‰ (z. B. 585)",N("ui.se.fine",s.fine))}${F("Nummer / Barcode",I("ui.se.code",s.code))}</div>
  <div class="f"><span>Status</span><div class="tg">${TG("sact",s.active===false?"p":"a",[["p","Passiv"],["a","Aktiv"]])}</div></div>
+ ${s.group==="Stein"?`<div class="g2">${F("Art / Form",I("ui.se.type",s.type||"","z. B. Radiant",DX+' list="dlForm"'))}${F("Karat je Stein (ct)",I("ui.se.ct",s.ct||"","z. B. 1,07",'inputmode="decimal" list="dlCt" data-u="uCt" autocomplete="off"'))}</div>
+ <p class="mu" id="ctd" style="margin:-4px 0 8px">${diaTxt(parse(s.ct))}</p>
+ <div class="g2">${F("Farbe",I("ui.se.color",s.color||"","z. B. F",DX+' list="dlCol"'))}${F("Reinheit",I("ui.se.clar",s.clar||"","z. B. VVS2",DX+' list="dlClar"'))}</div>
+ ${F("Schliff",I("ui.se.cut",s.cut||"","z. B. Excellent",DX+' list="dlCut"'))}${DLSf()}`:""}
  ${F("Notiz",I("ui.se.note",s.note))}
  <div class="row"><button data-a="ssave">Speichern</button>${isNew?"":`<button class="sec" data-a="sdel">${dl("sdel","Löschen")}</button>`}</div></div>`;
  if(!isNew){
@@ -1108,6 +1148,10 @@ function pEdit(p){const d=ui.pd,k=p.slice(6);
  if(k==="f1")d.m1="f";if(k==="p1")d.m1="p";if(k==="f2")d.m2="f";if(k==="p2")d.m2="p";
  const mm=p.match(/^ui\.pd\.metal\.(\d+)\.sid$/);
  if(mm){const m=d.metal[mm[1]],s=data.stock.find(x=>x.id===m.sid);if(s)m.fine=String(s.fine||"")}
+ const sm=p.match(/^ui\.pd\.stones\.(\d+)\.sid$/);
+ if(sm){const t=d.stones[sm[1]],s=data.stock.find(x=>x.id===t.sid);
+  if(s){if(s.type)t.type=s.type;if(s.color)t.color=s.color;if(s.clar)t.clar=s.clar;if(s.cut)t.cut=s.cut;
+   if(parse(s.ct)>0)t.qty=String(s.ct).replace(".",",");if(!String(t.pcs||"").trim())t.pcs="1"}}
  calcP()}
 function setV(path,val){const e=document.querySelector(`[data-f="${path}"]`);if(e&&document.activeElement!==e)e.value=val}
 const pm=v=>{const n=parse(v||"");return n>0&&n<=1.5?n*1000:n};
@@ -1117,7 +1161,7 @@ function calcP(){
  const cu=c=>{if(c==="USD")usd=true};cu(d.cur);
  d.metal.forEach((m,i)=>{const q=parse(m.qty),fe=pm(m.fine)+pm(m.wg),hv=q*fe/1000;w+=q;has+=hv;cu(m.lc);
   const t=hv*g+toEUR(q*parse(m.lab),m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g · je g ${f2(fromEUR(fe/1000*g,m.lc)+parse(m.lab))} ${m.lc} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
- d.stones.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.qty)*parse(s.price),s.cur);eu+=t;sT("tt_"+i,`Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
+ d.stones.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.qty)*parse(s.price),s.cur);eu+=t;const pc=parse(s.pcs)||1,dd=diaTxt(parse(s.qty)/pc);sT("tt_"+i,`Summe ${f2(fromEUR(t,d.cur))} ${d.cur}${dd?" · "+dd+(pc>1?" je Stein":""):""}`)});
  d.steps.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.amt),s.cur),fr=parse(s.out)-parse(s.in);eu+=t;fire+=fr;sT("st_"+i,`Verlust ${f3(fr)} g · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
  const cost=fromEUR(eu,d.cur);
  d.cost=cost;d.w=w;
@@ -1152,13 +1196,13 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
   <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="metal">+ Metall-Zeile</button></div>
  <div class="bar"><span>Steine</span><span>💎</span></div><div class="card">`;
- d.stones.forEach((s,i)=>{h+=`<div class="rowc">${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1"'))}
-  <div class="g2">${F("Karat ct",N(`ui.pd.stones.${i}.qty`,s.qty))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
+ d.stones.forEach((s,i)=>{h+=`<div class="rowc">${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1" data-r="1"'))}
+  <div class="g2">${F("Karat ct",I(`ui.pd.stones.${i}.qty`,s.qty,"",'inputmode="decimal" list="dlCt" autocomplete="off"'))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
   <div class="g2">${F("Preis pro ct",N(`ui.pd.stones.${i}.price`,s.price))}${F("Währung",S(`ui.pd.stones.${i}.cur`,s.cur,CUR))}</div>
-  <div class="g2">${F("Art",I(`ui.pd.stones.${i}.type`,s.type))}${F("Farbe",I(`ui.pd.stones.${i}.color`,s.color))}</div>
-  <div class="g2">${F("Reinheit",I(`ui.pd.stones.${i}.clar`,s.clar))}${F("Schliff",I(`ui.pd.stones.${i}.cut`,s.cut))}</div>
+  <div class="g2">${F("Art",I(`ui.pd.stones.${i}.type`,s.type,"",DX+' list="dlForm"'))}${F("Farbe",I(`ui.pd.stones.${i}.color`,s.color,"",DX+' list="dlCol"'))}</div>
+  <div class="g2">${F("Reinheit",I(`ui.pd.stones.${i}.clar`,s.clar,"",DX+' list="dlClar"'))}${F("Schliff",I(`ui.pd.stones.${i}.cut`,s.cut,"",DX+' list="dlCut"'))}</div>
   <div class="rf"><span id="tt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="stones" data-i="${i}">Entfernen</button></div></div>`});
- h+=`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
+ h+=DLSf()+`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
  <div class="bar"><span>Fertigung (Arbeit, Politur …)</span><span>🔧</span></div><div class="card"><datalist id="stepl"><option>Arbeit</option><option>Politur</option><option>Fassen</option><option>Guss</option><option>Gravur</option></datalist>`;
  d.steps.forEach((s,i)=>{h+=`<div class="rowc"><div class="g2">${F("Vorgang",I(`ui.pd.steps.${i}.type`,s.type,"",'list="stepl"'))}${F("Atelier",I(`ui.pd.steps.${i}.atelier`,s.atelier))}</div>
   <div class="g2">${F("Betrag",N(`ui.pd.steps.${i}.amt`,s.amt))}${F("Währung",S(`ui.pd.steps.${i}.cur`,s.cur,CUR))}</div>
@@ -1330,7 +1374,7 @@ function xlsx(sheets){const sh=sheets.map(([n,rows])=>`<?xml version="1.0" encod
  return zipStore(F)}
 const ST={prod:"In Fertigung",done:"Fertig (Lager)",sold:"Verkauft"};
 const pnm=id=>{const p=data.people.find(x=>x.id===id);return p?p.name:""};
-function xLager(){return["Lager",[["Gruppe","Nummer","Bezeichnung","Einheit","Feingehalt","Bestand","Notiz"],...data.stock.map(s=>[s.group,s.code||"",s.name,UL[s.unit]||s.unit,Number(s.fine)||"",Math.round(qtyOf(s.id)*1000)/1000,s.note||""])]]}
+function xLager(){return["Lager",[["Gruppe","Nummer","Bezeichnung","Einheit","Feingehalt","Bestand","Art","Farbe","Reinheit","Schliff","Karat je Stein","Notiz"],...data.stock.map(s=>[s.group,s.code||"",s.name,UL[s.unit]||s.unit,Number(s.fine)||"",Math.round(qtyOf(s.id)*1000)/1000,s.type||"",s.color||"",s.clar||"",s.cut||"",Number(parse(s.ct))||"",s.note||""])]]}
 function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status","Gewicht g","Kosten","Währung"],...data.prods.map(p=>[p.code,p.grp,p.name,ST[p.status]||p.status,Number(p.w)||"",Math.round((Number(p.cost)||0)*100)/100,p.cur||""])]]}
 function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
  data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
