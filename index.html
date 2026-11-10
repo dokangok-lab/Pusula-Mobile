@@ -124,8 +124,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.30";
+const VER="0.31";
 const HIST=[
+ ["0.31","10.11.2026",["Steine: Art/Form, Farbe, Reinheit, Schliff und Karat als iPhone-Auswahl (mit „Andere … selbst eingeben“)","Einzelstein: Bestand kommt automatisch aus „Karat je Stein“; nach dem Verbauen steht „Verbaut in …“ statt Minusbestand; verbaute Einzelsteine erscheinen nicht mehr zur Auswahl","Bestellung mit mehreren Positionen (z. B. 10× 1 ct + 2× 2 ct), Menge gesamt; Bestellung antippen zeigt alle Positionen","Neuer Artikel „Ring mit Seitensteinen“"]],
  ["0.30","10.11.2026",["Steinart kurz: nur noch Echt, CVD oder HPHT (alte Einträge werden automatisch umbenannt)"]],
  ["0.29","10.11.2026",["Steinart / Herkunft: Natürlich, Labor (CVD), Labor (HPHT), Moissanit, Zirkonia, Farbstein u. a. – im Lager, in der Fertigung (automatisch übernommen) und in Bestellungen"]],
  ["0.28","10.11.2026",["Steine nach 4C-Tabelle: Farbe D–Z mit Gruppen, Reinheit IF bis I3, Schliff mit Ideal (Hearts & Arrows), Standard-Karat 0,05–3,00 als Vorschlag; ungefährer Durchmesser (rund) wird angezeigt"]],
@@ -161,7 +162,7 @@ const HIST=[
 /* ---------- Grundlagen ---------- */
 const $=id=>document.getElementById(id);
 let data=null,pw="",_u=0;
-const ui={s:"home",pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
+const ui={s:"home",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
 const uid=()=>Date.now()*1000+(_u++%1000);
 const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -215,7 +216,9 @@ function show(on){$("start").classList.toggle("hide",on);$("main").classList.tog
 function open(d){
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],prefix:{},base:"EUR"},d);
  ui.lastCur=data.base;
- {const mn=o=>{if(o&&NATM[o.nat])o.nat=NATM[o.nat]};data.stock.forEach(mn);data.orders.forEach(mn);data.prods.forEach(p=>(p.stones||[]).forEach(mn))}
+ data.stock.forEach(s=>{if(isSingle(s)&&parse(s.ct)>0&&!data.smoves.some(m=>m.sid===s.id&&m.qty>0))data.smoves.push({id:uid(),sid:s.id,qty:parse(s.ct),date:today(),note:"Einzelstein",ref:"init"})});
+ data.orders.forEach(o=>{if(!Array.isArray(o.items)){o.items=[{art:o.art||"Ring",own:o.own||"",met:o.met||"Gold",col:o.col||"",cy:o.cy||"",fein:o.fein||"",ct:o.ct||"",ctc:o.ctc||"",nat:o.nat||"",qty:Number(o.qty)||1}];["art","own","met","col","cy","fein","ct","ctc","nat","qty"].forEach(k=>delete o[k])}});
+ {const mn=o=>{if(o&&NATM[o.nat])o.nat=NATM[o.nat]};data.stock.forEach(mn);data.orders.forEach(o=>o.items.forEach(mn));data.prods.forEach(p=>(p.stones||[]).forEach(mn))}
  const r=data.rates;
  if(typeof r.gold==="string"||typeof r.usd==="string"){r.gold=[r.gold||"",r.gold||""];r.usd=[r.usd||"",r.usd||""]}
  r.gold=r.gold||["",""];r.usd=r.usd||["",""];
@@ -225,7 +228,7 @@ function open(d){
  if(!data.people.some(p=>p.walk))data.people.unshift({id:uid(),name:"Laufkunde (bar)",walk:true});
  data.ver=VER;
  if(!picked&&LOC[data.lang])lang=data.lang;data.lang=lang;document.documentElement.lang=lang;langBtns();
- Object.assign(ui,{pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
+ Object.assign(ui,{oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
  $("who").textContent=data.user;$("date").value=today();$("rEd").classList.add("hide");
  rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
@@ -262,13 +265,15 @@ document.addEventListener("change",e=>{const el=e.target;if(!el.dataset||!el.dat
 function apply(el,ch){
  const p=el.dataset.f;let v=el.type==="checkbox"?el.checked:el.value;if(el.dataset.n)v=Number(v)||0;
  if(el.dataset.up){v=String(v).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);if(el.value!==v)el.value=v}
+ if(el.tagName==="SELECT"){if(!ui.oth)ui.oth={};if(v===OTH){v="";ui.oth[p]=true}else ui.oth[p]=false}
  setPath(p,v);hook(p);
  if(!ch&&el.dataset.u)window[el.dataset.u]();
  if(ch&&el.dataset.r)render()}
 function hook(p){
+ if(p.startsWith("ui.of.cur.")&&ui.of)ui.of.dirty=true;
  if(p==="ui.kf.prod")kProd();
  if(p==="ui.pid"){ui.pe=false;ui.pf=null;ui.nv=false;ui.ptxt=""}
- else if(p==="ui.se.group")ui.se.unit=SU[ui.se.group];
+ else if(p==="ui.se.group"){ui.se.unit=SU[ui.se.group];if(ui.se.group==="Stein"&&ui.se.single===undefined)ui.se.single=true}
  else if(p.startsWith("data.rates")){if(p!=="data.rates.auto"&&!p.startsWith("data.rates.adj")){data.rates.at=now();data.rates.net=""}rRates();if(ui.pd&&ui.s==="prod")calcP()}
  else if(p==="data.base"){const r=data.rates;
   const cv=(g,x)=>{const gg=parse(g),xx=parse(x);return[gg&&xx?f2c(gg/xx,2):"",xx?f2c(1/xx,4):""]};
@@ -586,6 +591,28 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Andere … (selbst eingeben) ~ Other … (enter yourself) ~ Diğer … (kendiniz girin)
+selbst eingeben ~ enter yourself ~ kendiniz girin
+Einzelstein (Bestand = Karat je Stein) ~ Single stone (stock = carat per stone) ~ Tek taş (stok = taş başına karat)
+Einzelstein: ~ Single stone: ~ Tek taş:
+Der Bestand ergibt sich aus „Karat je Stein“. Wird der Stein in einer Ware verbaut, ist er nicht mehr im Lager. ~ Stock comes from “carat per stone”. Once the stone is set in an item, it is no longer in stock. ~ Stok “taş başına karat”tan gelir. Taş bir ürüne takılınca artık depoda değildir.
+verbaut ~ set ~ takıldı
+nicht im Lager ~ not in stock ~ depoda değil
+Nicht im Lager ~ Not in stock ~ Depoda değil
+Ring mit Seitensteinen ~ Ring with side stones ~ Yan taşlı yüzük
+Positionen ~ Positions ~ Kalemler
+Position ~ Position ~ Kalem
+Weitere Position ~ Next position ~ Sonraki kalem
+Menge gesamt ~ Total quantity ~ Toplam adet
++ Position hinzufügen ~ + Add position ~ + Kalem ekle
+Position hinzugefügt ~ Position added ~ Kalem eklendi
+Bitte Steingröße eingeben ~ Please enter stone size ~ Lütfen taş boyutunu girin
+Keine Person gewählt ~ No person selected ~ Kişi seçilmedi
+Mehrere Positionen: jede mit „+ Position hinzufügen“ übernehmen. Eine ausgefüllte, noch nicht übernommene Position wird beim Speichern mitgenommen. ~ Several positions: add each with “+ Add position”. A filled-in position not yet added is included when saving. ~ Birden fazla kalem: her birini “+ Kalem ekle” ile ekleyin. Doldurulmuş ama eklenmemiş kalem kaydederken dahil edilir.
+Steine: Art/Form, Farbe, Reinheit, Schliff und Karat als iPhone-Auswahl (mit „Andere … selbst eingeben“) ~ Stones: shape, colour, clarity, cut and carat as iPhone pickers (with “Other … enter yourself”) ~ Taşlar: form, renk, berraklık, kesim ve karat iPhone seçicisiyle (“Diğer … kendiniz girin” dahil)
+Einzelstein: Bestand kommt automatisch aus „Karat je Stein“; nach dem Verbauen steht „Verbaut in …“ statt Minusbestand; verbaute Einzelsteine erscheinen nicht mehr zur Auswahl ~ Single stone: stock comes automatically from “carat per stone”; once set it shows “Set in …” instead of negative stock; set single stones are no longer offered ~ Tek taş: stok otomatik olarak “taş başına karat”tan; takıldıktan sonra eksi stok yerine “… içinde takılı” yazar; takılmış tek taşlar artık seçenek olarak çıkmaz
+Bestellung mit mehreren Positionen (z. B. 10× 1 ct + 2× 2 ct), Menge gesamt; Bestellung antippen zeigt alle Positionen ~ Orders with several positions (e.g. 10× 1 ct + 2× 2 ct), total quantity; tapping an order shows all positions ~ Birden fazla kalemli sipariş (örn. 10× 1 ct + 2× 2 ct), toplam adet; siparişe dokunmak tüm kalemleri gösterir
+Neuer Artikel „Ring mit Seitensteinen“ ~ New item “Ring with side stones” ~ Yeni ürün “Yan taşlı yüzük”
 Echt ~ Natural ~ Doğal
 Steinart kurz: nur noch Echt, CVD oder HPHT (alte Einträge werden automatisch umbenannt) ~ Short stone type: only natural, CVD or HPHT (old entries are renamed automatically) ~ Kısa taş türü: sadece doğal, CVD veya HPHT (eski kayıtlar otomatik yeniden adlandırılır)
 Steinart / Herkunft ~ Stone type / origin ~ Taş türü / menşei
@@ -896,42 +923,65 @@ function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:
 
 /* ---------- Bestellungen ---------- */
 const SNAT=[["","– wählen –"],"Echt","CVD","HPHT"],NATM={"Natürlich":"Echt","Labor (CVD)":"CVD","Labor (HPHT)":"HPHT"};
-const OART=["Ring","Diamantring","Armband","Diamantarmband","Kette","Ohrringe","Anhänger","Anderes (selbst eingeben)"],OMET=["Gold","Roségold","Silber","Platin"],OCOL=[["y","Nur Gelb"],["w","Nur Weiß"],["h","50 : 50"],["c","Eigene Angabe"]],
+const OART=["Ring","Ring mit Seitensteinen","Diamantring","Armband","Diamantarmband","Kette","Ohrringe","Anhänger","Anderes (selbst eingeben)"],OMET=["Gold","Roségold","Silber","Platin"],OCOL=[["y","Nur Gelb"],["w","Nur Weiß"],["h","50 : 50"],["c","Eigene Angabe"]],
  OFEIN=[["","– egal –"],["333","8K (333)"],["585","14K (585)"],["750","18K (750)"],["875","21K (875)"],["916","22K (916)"],["999","24K (999)"]],
  OCT=[["","– ohne Stein –"],"0,5","0,6","0,7","0,8","0,9","1","1,5","2",["x","Eigene Eingabe"]];
 const pfxO=()=>(data.prefix&&data.prefix.Bestellung)||"B";
 function nextOrdNo(date){const d=String(date||today()),pre=pfxO()+d.slice(2,4)+d.slice(5,7);let mx=0;
  data.orders.forEach(o=>{if(o.no&&o.no.startsWith(pre)){const r=o.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});
  return pre+String(mx+1).padStart(3,"0")}
-const newOf=()=>({no:nextOrdNo(today()),ov:false,art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",qty:"1",note:"",date:today()});
-function colSplit(o){const q=Number(o.qty)||0,c=o.col||"y";let y=q;
+const newPos=(k)=>Object.assign({art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",qty:"1"},k||{});
+const newOf=()=>({no:nextOrdNo(today()),ov:false,note:"",date:today(),items:[],cur:newPos(),dirty:false});
+const oItems=o=>Array.isArray(o.items)?o.items:[o];
+const oQty=o=>oItems(o).reduce((a,x)=>a+(Number(x.qty)||0),0);
+function colSplit(o){const q=Number(parse(o.qty))||0,c=o.col||"y";let y=q;
  if(c==="w")y=0;else if(c==="h")y=Math.ceil(q/2);else if(c==="c")y=Math.min(q,Math.max(0,Math.round(parse(o.cy))));return[y,q-y]}
 function colTxt(o){if(o.met!=="Gold"||!o.col)return o.met;const[y,w]=colSplit(o);
  if(!w)return"Gelbgold";if(!y)return"Weißgold";return y+"× Gelb + "+w+"× Weiß"}
-function uOf(){const e=$("ofw");if(e&&ui.of){const[y,w]=colSplit(ui.of);e.textContent="Gelb: "+y+" · Weiß: "+w}}
-function ordTxt(o){const ct=o.ct==="x"?o.ctc:o.ct,fe=o.fein?(OFEIN.find(x=>x[0]===o.fein)||[0,o.fein])[1].split(" ")[0]:"";
+function uOf(){const e=$("ofw");if(e&&ui.of&&ui.of.cur){const[y,w]=colSplit(ui.of.cur);e.textContent="Gelb: "+y+" · Weiß: "+w}}
+function itemTxt(o){const ct=o.ct==="x"?o.ctc:o.ct,fe=o.fein?(OFEIN.find(x=>x[0]===o.fein)||[0,o.fein])[1].split(" ")[0]:"";
  return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,colTxt(o),fe,ct?ct+" ct":"",o.nat||""].filter(Boolean).join(" · ")}
-function ordForm(){const f=ui.of=ui.of||newOf();
+const ordTxt=o=>oItems(o).map(x=>x.qty+"× "+itemTxt(x)).join(" | ");
+function posFrom(c){const q=Math.round(parse(c.qty));if(!(q>0)){toast("Bitte Anzahl eingeben");return null}
+ if(c.art==="Anderes (selbst eingeben)"&&!String(c.own).trim()){toast("Bitte Bezeichnung eingeben");return null}
+ if(c.ct==="x"&&!(parse(c.ctc)>0)){toast("Bitte Steingröße eingeben");return null}
+ return{art:c.art,own:String(c.own||"").trim(),met:c.met,col:c.met==="Gold"?c.col:"",cy:c.cy,fein:c.fein,ct:c.ct,ctc:c.ctc,nat:c.nat||"",qty:q}}
+function ordForm(){const f=ui.of=(ui.of&&ui.of.cur)?ui.of:newOf(),c=f.cur,n=f.items.reduce((a,x)=>a+x.qty,0);
  return `<div class="bar">Neue Bestellung</div>
  <div class="g2">${F("Bestellnummer",`<input data-f="ui.of.no" value="${esc(f.no)}"${f.ov?"":" readonly"} autocapitalize="characters" autocorrect="off" spellcheck="false">`)}${F("Kürzel",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}</div>
- ${CB("ui.of.ov",f.ov,"Nummer überschreiben",'data-r="1"')}${F("Artikel",S("ui.of.art",f.art,OART,'data-r="1"'))}
- ${f.art==="Anderes (selbst eingeben)"?F("Bezeichnung",I("ui.of.own",f.own,"z. B. Collier",'autocorrect="off"')):""}
- <div class="g2">${F("Metall",S("ui.of.met",f.met,OMET,'data-r="1"'))}${F("Feingehalt",S("ui.of.fein",f.fein,OFEIN))}</div>
- ${F("Steinart / Herkunft",S("ui.of.nat",f.nat||"",SNAT))}
- <div class="g2">${F("Steingröße (ct)",S("ui.of.ct",f.ct,OCT,'data-r="1"'))}${F("Anzahl",I("ui.of.qty",f.qty,"",'inputmode="decimal" data-u="uOf"'))}</div>
- ${f.met==="Gold"?F("Goldfarbe",S("ui.of.col",f.col,OCOL,'data-r="1"'))+(f.col==="c"?F("Davon Gelb (Rest ist Weiß)",I("ui.of.cy",f.cy,"",'inputmode="decimal" data-u="uOf"')):"")+'<p class="mu" id="ofw" style="margin:0 0 8px"></p>':""}
- ${f.ct==="x"?F("Steingröße selbst (ct)",N("ui.of.ctc",f.ctc)):""}
+ ${CB("ui.of.ov",f.ov,"Nummer überschreiben",'data-r="1"')}
+ ${f.items.length?`<div class="card" style="margin:6px 0 10px"><b>Positionen</b>${f.items.map((x,i)=>`<div class="it"><div><b>${x.qty}×</b> ${esc(itemTxt(x))}</div><button class="sec sm" data-a="oposdel" data-i="${i}">Entfernen</button></div>`).join("")}<div class="it"><b>Menge gesamt</b><b>${n} Stück</b></div></div>`:""}
+ <div class="lbl" style="margin:4px 0 6px"><b>${f.items.length?"Weitere Position":"Position"}</b></div>
+ ${F("Artikel",S("ui.of.cur.art",c.art,OART,'data-r="1"'))}
+ ${c.art==="Anderes (selbst eingeben)"?F("Bezeichnung",I("ui.of.cur.own",c.own,"z. B. Collier",'autocorrect="off"')):""}
+ <div class="g2">${F("Metall",S("ui.of.cur.met",c.met,OMET,'data-r="1"'))}${F("Feingehalt",S("ui.of.cur.fein",c.fein,OFEIN))}</div>
+ ${F("Steinart / Herkunft",S("ui.of.cur.nat",c.nat||"",SNAT))}
+ <div class="g2">${F("Steingröße (ct)",S("ui.of.cur.ct",c.ct,OCT,'data-r="1"'))}${F("Anzahl",I("ui.of.cur.qty",c.qty,"",'inputmode="decimal" data-u="uOf"'))}</div>
+ ${c.ct==="x"?F("Steingröße selbst (ct)",N("ui.of.cur.ctc",c.ctc)):""}
+ ${c.met==="Gold"?F("Goldfarbe",S("ui.of.cur.col",c.col,OCOL,'data-r="1"'))+(c.col==="c"?F("Davon Gelb (Rest ist Weiß)",I("ui.of.cur.cy",c.cy,"",'inputmode="decimal" data-u="uOf"')):"")+'<p class="mu" id="ofw" style="margin:0 0 8px"></p>':""}
+ <button class="sec" data-a="oadd">+ Position hinzufügen</button>
+ <div style="height:10px"></div>
  ${F("Notiz",I("ui.of.note",f.note,"z. B. Größe 54, bis Freitag"))}${F("Datum",`<input type="date" data-f="ui.of.date" value="${f.date}">`)}
- <button data-a="osave">Bestellung speichern</button>`}
-act.osave=()=>{const f=ui.of,q=Math.round(parse(f.qty));if(!ui.pid||!(q>0)){toast("Bitte Anzahl eingeben");return}
- if(f.art==="Anderes (selbst eingeben)"&&!String(f.own).trim()){toast("Bitte Bezeichnung eingeben");return}
+ <button data-a="osave">Bestellung speichern</button>
+ <p class="mu" style="margin:6px 0 0">Mehrere Positionen: jede mit „+ Position hinzufügen“ übernehmen. Eine ausgefüllte, noch nicht übernommene Position wird beim Speichern mitgenommen.</p>`}
+act.oadd=()=>{const f=ui.of,x=posFrom(f.cur);if(!x)return;f.items.push(x);
+ f.cur=newPos({art:x.art,own:x.own,met:x.met,fein:x.fein,nat:x.nat,col:x.col||"y"});f.dirty=false;render();toast("Position hinzugefügt")};
+act.oposdel=d=>{ui.of.items.splice(Number(d.i),1);render()};
+act.osave=()=>{const f=ui.of;if(!ui.pid){toast("Keine Person gewählt");return}
+ let items=f.items.slice();
+ if(!items.length||f.dirty){const x=posFrom(f.cur);if(!x)return;items.push(x)}
  const no=String(f.no).trim();if(!no){toast("Nummer fehlt");return}
  if(data.orders.some(o=>o.no===no)){toast("Diese Nummer gibt es schon");return}
- data.orders.push({id:uid(),no,pid:ui.pid,art:f.art,own:String(f.own).trim(),met:f.met,col:f.met==="Gold"?f.col:"",cy:f.cy,fein:f.fein,ct:f.ct,ctc:f.ctc,nat:f.nat||"",qty:q,note:String(f.note).trim(),date:f.date||today(),done:false});
+ data.orders.push({id:uid(),no,pid:ui.pid,items,note:String(f.note||"").trim(),date:f.date||today(),done:false});
  ui.of=newOf();render();toast("Bestellung gespeichert")};
-function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid);
- return `<div class="it" style="border-left:4px solid ${o.done?"var(--out)":"var(--in)"};padding-left:10px"><div><b>${esc(o.no||"")} · ${o.qty}× ${esc(ordTxt(o))}</b><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}${o.note?" · "+esc(o.note):""}</small></div>
- <div class="r"><span class="${o.done?"out":"in"}"><b>${o.done?"Erledigt":"Aktiv"}</b></span><br><button class="sec sm" data-a="odone" data-id="${o.id}">${o.done?"Wieder aktiv":"Erledigt"}</button> <button class="sec sm" data-a="odel" data-id="${o.id}">${dl("od"+o.id,"Löschen")}</button></div></div>`}
+act.oex=d=>{const id=Number(d.id);ui.oex=ui.oex===id?0:id;render()};
+function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid),it=oItems(o),n=oQty(o),open=ui.oex===o.id;
+ const sub=it.length===1?it[0].qty+"× "+itemTxt(it[0]):it.length+" Positionen";
+ return `<div style="border-left:4px solid ${o.done?"var(--out)":"var(--in)"};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0">
+ <div data-a="oex" data-id="${o.id}" style="flex:1;min-width:0"><b>${esc(o.no||"")} · ${n} Stück ${open?"▴":"▾"}</b><small>${esc(sub)}</small><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}</small></div>
+ <div class="r"><span class="${o.done?"out":"in"}"><b>${o.done?"Erledigt":"Aktiv"}</b></span><br><button class="sec sm" data-a="odone" data-id="${o.id}">${o.done?"Wieder aktiv":"Erledigt"}</button> <button class="sec sm" data-a="odel" data-id="${o.id}">${dl("od"+o.id,"Löschen")}</button></div></div>
+ ${open?`<div style="padding:0 0 10px">${it.map(x=>{const[y,w]=x.met==="Gold"&&x.col?colSplit(x):[0,0];return `<div class="it" style="padding:6px 0"><div><b>${x.qty}×</b> ${esc(itemTxt(x))}${y&&w?`<small>Gelb ${y} · Weiß ${w}</small>`:""}</div></div>`}).join("")}
+ <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div>${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
 const ordSort=l=>l.slice().sort((a,b)=>(a.done-b.done)||String(b.date).localeCompare(a.date)||b.id-a.id);
 function ordList(pid){const l=ordSort(data.orders.filter(o=>o.pid===pid));
  return `</div><div class="card"><b>Bestellungen dieser Person</b>${l.map(o=>ordRow(o,false)).join("")||'<p class="mu">Noch keine Bestellungen.</p>'}`}
@@ -1060,7 +1110,7 @@ function uL(){const q=ui.lq.toLowerCase();
  const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
   .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
  $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
-  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small></div><div class="r ${q<0?"out":""}"><b>${f3(q)} ${UL[s.unit]}</b></div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small></div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?'<span class="pill">'+esc(singleUse(s)?"verbaut":"nicht im Lager")+'</span>':`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
 /* 4C: Standard-Karat mit ungefährem Durchmesser (Rund, Brillantschliff) */
 const CTD=[[0.05,2.5],[0.10,3.0],[0.20,3.8],[0.25,4.1],[0.30,4.5],[0.40,4.8],[0.50,5.2],[0.70,5.8],[0.90,6.3],[1.00,6.5],[1.25,6.9],[1.50,7.4],[1.75,7.8],[2.00,8.2],[2.50,8.8],[3.00,9.4]];
 function ctDiam(ct){if(!(ct>0))return 0;const t=CTD;
@@ -1077,22 +1127,41 @@ function DLSf(){const o=(v,l)=>`<option value="${v}"${l?` label="${esc(tx(l))}"`
  return `<datalist id="dlForm">${fo.map(x=>o(x)).join("")}</datalist><datalist id="dlCol">${col.map(([v,l])=>o(v,l)).join("")}</datalist><datalist id="dlClar">${cl.map(([v,l])=>o(v,l)).join("")}</datalist><datalist id="dlCut">${cu.map(([v,l])=>o(v,l)).join("")}</datalist><datalist id="dlCt">${CTD.map(([c,d])=>o(f2(c),"≈ Ø "+String(d).replace(".",",")+" mm")).join("")}</datalist>`}
 function uCt(){const e=$("ctd");if(e&&ui.se)e.textContent=diaTxt(parse(ui.se.ct))}
 const DX='autocorrect="off" autocomplete="off" spellcheck="false"';
+const OTH="✎";
+const L_FORM=["Rund (Brillant)","Radiant","Prinzess","Oval","Marquise","Birne","Herz","Smaragd","Kissen (Cushion)","Baguette","Ascher"];
+const L_COL=[..."DEF"].map(x=>[x,x+" – Farblos"]).concat([..."GHIJ"].map(x=>[x,x+" – Fast farblos"]),[..."KLM"].map(x=>[x,x+" – Leicht getönt"]),[..."NOPQR"].map(x=>[x,x+" – Sehr leicht gelblich"]),[..."STUVWXYZ"].map(x=>[x,x+" – Leicht gelblich"]),[["Fancy","Fancy – Farbdiamant"]]);
+const L_CLAR=[["FL","FL – Flawless"],["IF","IF – Internally Flawless"],["VVS1","VVS1"],["VVS2","VVS2"],["VS1","VS1"],["VS2","VS2"],["SI1","SI1"],["SI2","SI2"],["I1","I1 – Piqué"],["I2","I2 – Piqué"],["I3","I3 – Piqué"]];
+const L_CUT=[["Ideal","Ideal (Hearts & Arrows)"],"Excellent","Very Good","Good","Fair","Poor"];
+const L_CT=()=>CTD.map(([c,d])=>[f2(c),f2(c)+" ct · Ø "+String(d).replace(".",",")+" mm"]);
+/* Auswahl mit Rad (iPhone) + "Andere … selbst eingeben" */
+function SX(p,v,list,o={}){const L=list.map(x=>Array.isArray(x)?x:[x,x]),s=String(v??"").trim();
+ const m=s?L.find(([a])=>o.num?Math.abs(parse(a)-parse(s))<1e-9:a.toLowerCase()===s.toLowerCase()):null;
+ const other=(ui.oth&&ui.oth[p])||(s&&!m);
+ return S(p,other?OTH:(m?m[0]:""),[["","– wählen –"],...L,[OTH,"Andere … (selbst eingeben)"]],'data-r="1"')+(other?I(p,s,"selbst eingeben",DX+' style="margin-top:6px" '+(o.iex||"")):"")}
+const isSingle=s=>s&&s.group==="Stein"&&s.single!==false;
+function singleUse(s){const m=data.smoves.find(x=>x.sid===s.id&&x.qty<0&&x.ref&&x.ref[0]==="p");return m?data.prods.find(p=>"p"+p.id===m.ref):null}
+function singleTxt(s){if(qtyOf(s.id)>1e-9)return"Im Lager ("+f3(qtyOf(s.id))+" ct)";const p=singleUse(s);return p?"Verbaut in "+p.code+(p.status==="sold"?" (verkauft)":""):"Nicht im Lager"}
+function syncInit(s){if(!isSingle(s))return;const c=parse(s.ct),m=data.smoves.find(x=>x.sid===s.id&&x.ref==="init");
+ if(c>0){if(m)m.qty=c;else data.smoves.push({id:uid(),sid:s.id,qty:c,date:today(),note:"Einzelstein",ref:"init"})}else if(m)data.smoves=data.smoves.filter(x=>x!==m)}
 function rLE(){const s=ui.se,isNew=!data.stock.some(x=>x.id===s.id);
  let h=`<div class="nav"><b>${isNew?"Neue Lagerkarte":"Lagerkarte"}</b><button class="sec sm" data-a="sback">Zurück</button></div>
  <div class="card">${F("Name",I("ui.se.name",s.name,"z. B. 14K oder Steinnummer"))}
  <div class="g2">${F("Gruppe",S("ui.se.group",s.group,SG,'data-r="1"'))}${F("Einheit",S("ui.se.unit",s.unit,[["GR","Gramm"],["CT","Karat (ct)"],["AD","Stück"]]))}</div>
  <div class="g2">${F("Feingehalt ‰ (z. B. 585)",N("ui.se.fine",s.fine))}${F("Nummer / Barcode",I("ui.se.code",s.code))}</div>
  <div class="f"><span>Status</span><div class="tg">${TG("sact",s.active===false?"p":"a",[["p","Passiv"],["a","Aktiv"]])}</div></div>
- ${s.group==="Stein"?`${F("Steinart / Herkunft",S("ui.se.nat",s.nat||"",SNAT))}<div class="g2">${F("Art / Form",I("ui.se.type",s.type||"","z. B. Radiant",DX+' list="dlForm"'))}${F("Karat je Stein (ct)",I("ui.se.ct",s.ct||"","z. B. 1,07",'inputmode="decimal" list="dlCt" data-u="uCt" autocomplete="off"'))}</div>
+ ${s.group==="Stein"?`${CB("ui.se.single",s.single!==false,"Einzelstein (Bestand = Karat je Stein)",'data-r="1"')}
+ ${F("Steinart / Herkunft",S("ui.se.nat",s.nat||"",SNAT))}
+ <div class="g2">${F("Art / Form",SX("ui.se.type",s.type,L_FORM))}${F("Karat je Stein (ct)",SX("ui.se.ct",s.ct,L_CT(),{num:1,iex:'inputmode="decimal" data-u="uCt"'}))}</div>
  <p class="mu" id="ctd" style="margin:-4px 0 8px">${diaTxt(parse(s.ct))}</p>
- <div class="g2">${F("Farbe",I("ui.se.color",s.color||"","z. B. F",DX+' list="dlCol"'))}${F("Reinheit",I("ui.se.clar",s.clar||"","z. B. VVS2",DX+' list="dlClar"'))}</div>
- ${F("Schliff",I("ui.se.cut",s.cut||"","z. B. Excellent",DX+' list="dlCut"'))}${DLSf()}`:""}
+ <div class="g2">${F("Farbe",SX("ui.se.color",s.color,L_COL))}${F("Reinheit",SX("ui.se.clar",s.clar,L_CLAR))}</div>
+ ${F("Schliff",SX("ui.se.cut",s.cut,L_CUT))}`:""}
  ${F("Notiz",I("ui.se.note",s.note))}
  <div class="row"><button data-a="ssave">Speichern</button>${isNew?"":`<button class="sec" data-a="sdel">${dl("sdel","Löschen")}</button>`}</div></div>`;
  if(!isNew){
-  h+=`<div class="card"><div class="lbl">Bestand: <b>${f3(qtyOf(s.id))} ${UL[s.unit]}</b></div>
+  h+=isSingle(s)?`<div class="card"><div class="lbl">Einzelstein: <b>${esc(singleTxt(s))}</b></div><p class="mu" style="margin:6px 0 0">Der Bestand ergibt sich aus „Karat je Stein“. Wird der Stein in einer Ware verbaut, ist er nicht mehr im Lager.</p></div>`:`<div class="card"><div class="lbl">Bestand: <b>${f3(qtyOf(s.id))} ${UL[s.unit]}</b></div>
   <div class="g2">${F("Menge",N("ui.sb.qty",ui.sb.qty))}${F("Notiz",I("ui.sb.note",ui.sb.note))}</div>
-  <div class="row" style="margin:0"><button data-a="sin">+ Zugang</button><button class="sec" data-a="sout">− Abgang</button></div></div>
+  <div class="row" style="margin:0"><button data-a="sin">+ Zugang</button><button class="sec" data-a="sout">− Abgang</button></div></div>`;
+  h+=`
   <div class="card"><b>Bestandsverlauf</b>${data.smoves.filter(m=>m.sid===s.id).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(m=>
    `<div class="it"><div>${m.qty>=0?"Zugang":"Abgang"}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><b class="${m.qty<0?"out":"in"}">${m.qty>0?"+":""}${f3(m.qty)} ${UL[s.unit]}</b>${m.ref?"":`<br><button class="sec sm" data-a="smdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch keine Bewegungen.</p>'}</div>`}
  return h}
@@ -1103,7 +1172,7 @@ act.sback=()=>{ui.se=null;render()};
 act.sact=d=>{ui.se.active=d.v==="a";render()};
 act.ssave=()=>{const s=ui.se;if(!s.name.trim()){toast("Name fehlt");return}
  const o={...s,name:s.name.trim(),fine:parse(s.fine),code:s.code.trim()},i=data.stock.findIndex(x=>x.id===s.id);
- if(i<0)data.stock.push(o);else data.stock[i]=o;ui.se=null;render();toast("Gespeichert")};
+ if(i<0)data.stock.push(o);else data.stock[i]=o;syncInit(o);ui.se=null;render();toast("Gespeichert")};
 act.sdel=()=>{if(!confirmTap("sdel"))return;const id=ui.se.id;data.stock=data.stock.filter(x=>x.id!==id);data.smoves=data.smoves.filter(m=>m.sid!==id);ui.se=null;render()};
 function sBook(sign){const q=parse(ui.sb.qty);if(!(q>0)){toast("Menge eingeben");return}
  data.smoves.push({id:uid(),sid:ui.se.id,qty:sign*q,date:today(),note:ui.sb.note.trim()});ui.sb={qty:"",note:""};render();toast("Gebucht")}
@@ -1191,7 +1260,7 @@ function calcP(){
 function rPE(){const d=ui.pd;
  const gold=data.stock.filter(s=>(s.group==="Gold"||s.group==="Altgold")&&s.active!==false);
  const stn=data.stock.filter(s=>s.group==="Stein"&&s.active!==false);
- const gOpt=[[0,"– wählen –"],...gold.map(s=>[s.id,s.name])],sOpt=[[0,"– wählen –"],...stn.map(s=>[s.id,s.name])];
+ const gOpt=[[0,"– wählen –"],...gold.map(s=>[s.id,s.name])],sOpt=[[0,"– wählen –"],...stn.filter(s=>!isSingle(s)||qtyOf(s.id)>1e-9||d.stones.some(x=>x.sid===s.id)).map(s=>[s.id,s.name+(isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":"",s.color,s.clar].filter(Boolean).join(" "):"")])];
  const idx=plist().findIndex(p=>p.id===d.id);
  let h=`<div class="nav"><b>${ui.pnew?"Neue Ware":"Ware"} <span class="pill">${SL[d.status]}</span></b><button class="sec sm" data-a="pback">Liste</button></div>
 <div class="card"><b>Foto</b>${d.img?`<img src="${d.img}" alt="" style="display:block;width:100%;max-height:260px;object-fit:contain;margin:10px 0;border-radius:12px;background:var(--fld)">`:'<p class="mu" style="margin:6px 0">Noch kein Foto.</p>'}<div class="row" style="margin:0"><label class="btn" style="flex:1;text-align:center;cursor:pointer;padding:12px;border-radius:12px;background:var(--ac);color:#fff;font-weight:600"><input id="pimg" type="file" accept="image/*" style="display:none">${d.img?"Foto ändern":"Foto hinzufügen"}</label>${d.img?'<button class="sec" data-a="pimgdel" style="flex:0 0 36%">Entfernen</button>':""}</div></div>
@@ -1214,12 +1283,12 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  <div class="bar"><span>Steine</span><span>💎</span></div><div class="card">`;
  d.stones.forEach((s,i)=>{h+=`<div class="rowc">${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1" data-r="1"'))}
   ${F("Steinart / Herkunft",S(`ui.pd.stones.${i}.nat`,s.nat||"",SNAT))}
-  <div class="g2">${F("Karat ct",I(`ui.pd.stones.${i}.qty`,s.qty,"",'inputmode="decimal" list="dlCt" autocomplete="off"'))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
+  <div class="g2">${F("Karat ct",SX(`ui.pd.stones.${i}.qty`,s.qty,L_CT(),{num:1,iex:'inputmode="decimal"'}))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
   <div class="g2">${F("Preis pro ct",N(`ui.pd.stones.${i}.price`,s.price))}${F("Währung",S(`ui.pd.stones.${i}.cur`,s.cur,CUR))}</div>
-  <div class="g2">${F("Art",I(`ui.pd.stones.${i}.type`,s.type,"",DX+' list="dlForm"'))}${F("Farbe",I(`ui.pd.stones.${i}.color`,s.color,"",DX+' list="dlCol"'))}</div>
-  <div class="g2">${F("Reinheit",I(`ui.pd.stones.${i}.clar`,s.clar,"",DX+' list="dlClar"'))}${F("Schliff",I(`ui.pd.stones.${i}.cut`,s.cut,"",DX+' list="dlCut"'))}</div>
+  <div class="g2">${F("Art / Form",SX(`ui.pd.stones.${i}.type`,s.type,L_FORM))}${F("Farbe",SX(`ui.pd.stones.${i}.color`,s.color,L_COL))}</div>
+  <div class="g2">${F("Reinheit",SX(`ui.pd.stones.${i}.clar`,s.clar,L_CLAR))}${F("Schliff",SX(`ui.pd.stones.${i}.cut`,s.cut,L_CUT))}</div>
   <div class="rf"><span id="tt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="stones" data-i="${i}">Entfernen</button></div></div>`});
- h+=DLSf()+`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
+ h+=`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
  <div class="bar"><span>Fertigung (Arbeit, Politur …)</span><span>🔧</span></div><div class="card"><datalist id="stepl"><option>Arbeit</option><option>Politur</option><option>Fassen</option><option>Guss</option><option>Gravur</option></datalist>`;
  d.steps.forEach((s,i)=>{h+=`<div class="rowc"><div class="g2">${F("Vorgang",I(`ui.pd.steps.${i}.type`,s.type,"",'list="stepl"'))}${F("Atelier",I(`ui.pd.steps.${i}.atelier`,s.atelier))}</div>
   <div class="g2">${F("Betrag",N(`ui.pd.steps.${i}.amt`,s.amt))}${F("Währung",S(`ui.pd.steps.${i}.cur`,s.cur,CUR))}</div>
@@ -1396,7 +1465,7 @@ function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status
 function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
  data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
 function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Betrag","Notiz"],...data.moves.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(m=>[m.date,pnm(m.pid),m.dir==="out"?"Ich gebe":"Ich erhalte",UN[m.unit]||m.unit,m.amount,m.note||""])]]}
-function xOrd(){return["Bestellungen",[["Nummer","Datum","Person","Bestellung","Anzahl","Status","Notiz"],...data.orders.map(o=>[o.no||"",o.date,pnm(o.pid),ordTxt(o),o.qty,o.done?"Erledigt":"Aktiv",o.note||""])]]}
+function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Status","Notiz"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,o.done?"Erledigt":"Aktiv",o.note||""])));return["Bestellungen",r]}
 function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.note||""])]]}
 async function xSave(kind){
  const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd()];
