@@ -130,8 +130,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.50";
+const VER="0.51";
 const HIST=[
+ ["0.51","11.11.2026",["Kontobuch: Einnahmen, Ausgaben und Saldo getrennt in USD und EUR; Gesamtsaldo umgerechnet darunter"]],
  ["0.50","11.11.2026",["Bestellung teilen: „💬 WhatsApp“ (Text), „💬 WhatsApp an Kunde“ (wenn Telefon hinterlegt), „📤 Teilen + Fotos“ über das iPhone-Teilen-Menü; Option „Ohne Kundendaten“ für die Werkstatt"]],
  ["0.49","11.11.2026",["Bestellung: Lieferung je Position eintragen – fertige Ware wählen oder ohne Barcode mit Stückzahl und Notiz; „Geliefert X von Y · noch Z offen“","Eigene Notiz je Position (z. B. Ringgröße, Gravur)"]],
  ["0.48","11.11.2026",["Bestellung: Feld „Modell“ (z. B. Tiffany Style) als Auswahl; eigene Modelle direkt in der Bestellung (➕ Neues Modell) oder in den Einstellungen hinzufügen und entfernen"]],
@@ -620,6 +621,7 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Kontobuch: Einnahmen, Ausgaben und Saldo getrennt in USD und EUR; Gesamtsaldo umgerechnet darunter ~ Cash book: income, expenses and balance separately in USD and EUR; total balance converted below ~ Kasa defteri: gelir, gider ve bakiye USD ve EUR ayrı; altında çevrilmiş toplam bakiye
 💬 WhatsApp ~ 💬 WhatsApp ~ 💬 WhatsApp
 📤 Teilen ~ 📤 Share ~ 📤 Paylaş
 📤 Teilen + Fotos ~ 📤 Share + photos ~ 📤 Paylaş + fotoğraflar
@@ -1158,10 +1160,13 @@ function rKasse(){
  kbRender();
  const m=ym(ui.view),es=data.entries.filter(e=>(!ui.kb||(e.book||0)===ui.kb)&&e.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
  let i=0,o=0;const c={};
- es.forEach(e=>{if(e.tr&&!ui.kb)return;const a=eBase(e);e.type==="in"?i+=a:o+=a;const k=e.type+"|"+e.cat;c[k]=(c[k]||0)+a});
+ const pc={EUR:{i:0,o:0},USD:{i:0,o:0}};
+ es.forEach(e=>{if(e.tr&&!ui.kb)return;const a=eBase(e),cu=(e.cur||BC())==="USD"?"USD":"EUR";e.type==="in"?(i+=a,pc[cu].i+=e.amount):(o+=a,pc[cu].o+=e.amount);const k=e.type+"|"+e.cat;c[k]=(c[k]||0)+a});
  const fx=es.some(e=>(e.cur||BC())!==BC());
- $("sIn").textContent=eur(i);$("sOut").textContent=eur(o);$("sBal").textContent=eur(i-o);$("sBal").className=i-o<0?"out":"in";
- {const n=$("sNote");if(n)n.textContent=fx?"Summen in "+BC()+", Fremdwährung zum Kurs am Buchungstag umgerechnet":""}
+ {const cs=[BC(),FC()],L=(v,cu,cl)=>`<span style="display:block"${cl?` class="${cl}"`:""}>${f2(v)} ${SYM(cu)}</span>`;
+  $("sIn").innerHTML=cs.map(cu=>L(pc[cu].i,cu)).join("");$("sOut").innerHTML=cs.map(cu=>L(pc[cu].o,cu)).join("");
+  $("sBal").innerHTML=cs.map(cu=>{const b=pc[cu].i-pc[cu].o;return L(b,cu,b<0?"out":"in")}).join("");$("sBal").className="";
+  const n=$("sNote");if(n)n.textContent=fx?"Gesamt umgerechnet in "+BC()+": Saldo ≈ "+eur(i-o)+" (Kurs am Buchungstag)":""}
  $("bycat").innerHTML=Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const t=k.split("|")[0],n=k.slice(t.length+1);
   return `<div class="it"><span>${esc(n)}</span><span class="${t==="in"?"in":"out"}">${eur(v)}</span></div>`}).join("")||'<p class="mu">Noch nichts in diesem Monat.</p>';
  $("list").innerHTML=es.map(e=>`<div class="it"><div>${e.mref?"🔗 ":""}${esc(e.cat)}<small>${dt(e.date)}${e.note?" · "+esc(e.note):""}${!ui.kb&&e.book?" · 📒 "+esc(bkName(e.book)):""}</small></div>
