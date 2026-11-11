@@ -91,11 +91,12 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
   <div class="card">
    <div class="nav"><button class="sec sm" id="prev">‹</button><b id="mon"></b><button class="sec sm" id="next">›</button></div>
    <div class="sum"><div><span class="mu">Einnahmen</span><b class="in" id="sIn"></b></div><div><span class="mu">Ausgaben</span><b class="out" id="sOut"></b></div><div><span class="mu">Saldo</span><b id="sBal"></b></div></div>
+   <p class="mu" id="sNote" style="margin:6px 0 0;text-align:center;font-size:12px"></p>
   </div>
   <div class="card">
    <div class="row"><select id="kbk"></select></div>
    <div class="row"><select id="type"><option value="in">Einnahme</option><option value="out" selected>Ausgabe</option></select>
-   <input id="amt" type="text" inputmode="decimal" placeholder="Betrag"></div>
+   <input id="amt" type="text" inputmode="decimal" placeholder="Betrag"><select id="ecur" style="flex:0 0 26%"><option value="EUR">EUR €</option><option value="USD">USD $</option></select></div>
    <div class="row"><input id="cat" list="cats" placeholder="Kategorie (z. B. Miete)"><datalist id="cats"></datalist></div>
    <div class="row"><input id="note" placeholder="Notiz (optional)"></div>
    <div class="row"><input id="date" type="date"></div>
@@ -124,8 +125,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.38";
+const VER="0.39";
 const HIST=[
+ ["0.39","11.11.2026",["Kontobuch: Währung je Eintrag wählbar (EUR oder USD); Summen in der Hauptwährung, Fremdwährung zum Kurs am Buchungstag; Kasse in der Übersicht getrennt nach Währung"]],
  ["0.38","11.11.2026",["Personenauswahl: neben dem Namen steht die Firma (Juwelier), sonst die Stadt"]],
  ["0.37","11.11.2026",["Fertigung: nach „Fertigstellen“ springt die App zur Warenliste, die fertige Ware ist grün markiert"]],
  ["0.36","11.11.2026",["Warenliste, Lager und Verkauf zeigen das Gesamtgewicht (Gold + Steine); Goldgewicht steht in Klammern; Excel mit beiden Spalten"]],
@@ -598,6 +600,8 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Kurs fehlt – Betrag zählt erst mit Kurs in der Summe ~ Rate missing – amount counts in the total once a rate is set ~ Kur eksik – tutar kur girilince toplama katılır
+Kontobuch: Währung je Eintrag wählbar (EUR oder USD); Summen in der Hauptwährung, Fremdwährung zum Kurs am Buchungstag; Kasse in der Übersicht getrennt nach Währung ~ Cash book: currency per entry (EUR or USD); totals in the main currency, foreign currency at the rate of the posting day; cash in the overview split by currency ~ Kasa defteri: kayıt başına para birimi (EUR veya USD); toplamlar ana para biriminde, döviz kayıt günü kuruyla; ana ekranda kasa para birimine göre ayrı
 Personenauswahl: neben dem Namen steht die Firma (Juwelier), sonst die Stadt ~ Person picker: the company (jeweller) is shown next to the name, otherwise the city ~ Kişi seçimi: adın yanında firma (kuyumcu), yoksa şehir yazar
 Fertigung: nach „Fertigstellen“ springt die App zur Warenliste, die fertige Ware ist grün markiert ~ Production: after “Finish” the app jumps to the item list, the finished item is highlighted in green ~ Üretim: “Tamamla”dan sonra uygulama ürün listesine geçer, tamamlanan ürün yeşil işaretlenir
 g gesamt ~ g total ~ g toplam
@@ -906,7 +910,8 @@ act.rtog=()=>{const e=$("rEd"),r=data.rates;e.classList.toggle("hide");
 $("prev").onclick=()=>{ui.view=new Date(ui.view.getFullYear(),ui.view.getMonth()-1,1);rKasse()};
 $("next").onclick=()=>{ui.view=new Date(ui.view.getFullYear(),ui.view.getMonth()+1,1);rKasse()};
 $("bAdd").onclick=()=>{const a=parse($("amt").value);if(!(a>0)){$("amt").focus();return}
- data.entries.push({id:uid(),type:$("type").value,amount:Math.round(a*100)/100,cat:$("cat").value.trim()||"Sonstiges",note:$("note").value.trim(),date:$("date").value||today(),book:Number($("kbk").value)||0});
+ data.entries.push({id:uid(),type:$("type").value,amount:Math.round(a*100)/100,cat:$("cat").value.trim()||"Sonstiges",note:$("note").value.trim(),date:$("date").value||today(),book:Number($("kbk").value)||0,cur:$("ecur").value==="USD"?"USD":"EUR",rate:($("ecur").value||BC())===BC()?1:R("usd")});
+ if(data.entries[data.entries.length-1].rate===0)toast("Kurs fehlt – Betrag zählt erst mit Kurs in der Summe");
  $("amt").value="";$("note").value="";ui.view=new Date(($("date").value||today())+"T12:00:00");rKasse()};
 function del(id){data.entries=data.entries.filter(e=>e.id!==id);rKasse()}
 const bkName=id=>{const b=(data.books||[]).find(x=>x.id===id);return b?b.name:""};
@@ -922,17 +927,21 @@ act.kbsel=d=>{ui.kb=Number(d.id);rKasse()};
 act.kbnew=()=>{const n=$("kbNew").value.trim();if(!n)return;const b={id:uid(),name:n};data.books.push(b);ui.kb=b.id;rKasse()};
 act.kbdel=()=>{const id=ui.kb;if(data.entries.some(e=>(e.book||0)===id)){toast("Kontobuch hat Einträge – kann nicht gelöscht werden");return}
  if(!confirmTap("kbdel"))return;data.books=data.books.filter(b=>b.id!==id);ui.kb=0;rKasse()};
+const eBase=e=>{const c=e.cur||BC();if(c===BC())return e.amount;const r=e.rate||R("usd");return r?e.amount*r:0};
 function rKasse(){
+ {const s=$("ecur");if(s&&!s.dataset.init){s.value=BC();s.dataset.init="1"}}
  $("mon").textContent=ui.view.toLocaleDateString(LOC[lang]||"de-DE",{month:"long",year:"numeric"});
  kbRender();
  const m=ym(ui.view),es=data.entries.filter(e=>(!ui.kb||(e.book||0)===ui.kb)&&e.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
  let i=0,o=0;const c={};
- es.forEach(e=>{e.type==="in"?i+=e.amount:o+=e.amount;const k=e.type+"|"+e.cat;c[k]=(c[k]||0)+e.amount});
+ es.forEach(e=>{const a=eBase(e);e.type==="in"?i+=a:o+=a;const k=e.type+"|"+e.cat;c[k]=(c[k]||0)+a});
+ const fx=es.some(e=>(e.cur||BC())!==BC());
  $("sIn").textContent=eur(i);$("sOut").textContent=eur(o);$("sBal").textContent=eur(i-o);$("sBal").className=i-o<0?"out":"in";
+ {const n=$("sNote");if(n)n.textContent=fx?"Summen in "+BC()+", Fremdwährung zum Kurs am Buchungstag umgerechnet":""}
  $("bycat").innerHTML=Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const t=k.split("|")[0],n=k.slice(t.length+1);
   return `<div class="it"><span>${esc(n)}</span><span class="${t==="in"?"in":"out"}">${eur(v)}</span></div>`}).join("")||'<p class="mu">Noch nichts in diesem Monat.</p>';
  $("list").innerHTML=es.map(e=>`<div class="it"><div>${esc(e.cat)}<small>${dt(e.date)}${e.note?" · "+esc(e.note):""}${!ui.kb&&e.book?" · 📒 "+esc(bkName(e.book)):""}</small></div>
-  <div class="r ${e.type==="in"?"in":"out"}">${e.type==="in"?"+":"−"}${eur(e.amount)}<br><button class="sec sm" onclick="del(${e.id})">Löschen</button></div></div>`).join("")||'<p class="mu">Keine Einträge.</p>';
+  <div class="r ${e.type==="in"?"in":"out"}">${e.type==="in"?"+":"−"}${f2(e.amount)} ${SYM(e.cur||BC())}${(e.cur||BC())!==BC()?`<small>≈ ${eur(eBase(e))}</small>`:""}<br><button class="sec sm" onclick="del(${e.id})">Löschen</button></div></div>`).join("")||'<p class="mu">Keine Einträge.</p>';
  $("cats").innerHTML=[...new Set(data.entries.map(e=>e.cat))].map(x=>`<option value="${esc(x)}">`).join("")}
 
 /* ---------- Vorgänge (gemeinsam für Konten und Verkauf) ---------- */
@@ -1440,7 +1449,7 @@ function cashBy(types){const c={};data.moves.forEach(m=>{const o=types[m.type];i
 function pStart(k){const d=new Date();if(k==="y")return d.getFullYear()+"-01-01";if(k!=="t")d.setDate(d.getDate()-(Number(k)-1));return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 const PERS=[["t","Heute"],["7","7 Tage"],["30","30 Tage"],["90","90 Tage"],["y","Dieses Jahr"]];
 function rHome(){
- const cash=cashBy({NT:1,NO:-1});data.entries.forEach(e=>{cash[BC()]=(cash[BC()]||0)+(e.type==="in"?e.amount:-e.amount)});
+ const cash=cashBy({NT:1,NO:-1});data.entries.forEach(e=>{const c=e.cur||BC();cash[c]=(cash[c]||0)+(e.type==="in"?e.amount:-e.amount)});
  const bank=cashBy({KK:1,GH:-1});
  const bl=o=>Object.keys(o).filter(u=>Math.abs(o[u])>1e-9).map(u=>[UN[u],`<b class="${o[u]<0?"out":""}">${fn(o[u],u)}</b>`]);
  const rec={},owe={};
@@ -1509,7 +1518,7 @@ function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Tele
  data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
 function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Betrag","Notiz"],...data.moves.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(m=>[m.date,pnm(m.pid),m.dir==="out"?"Ich gebe":"Ich erhalte",UN[m.unit]||m.unit,m.amount,m.note||""])]]}
 function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Status","Notiz"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,o.done?"Erledigt":"Aktiv",o.note||""])));return["Bestellungen",r]}
-function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.note||""])]]}
+function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Währung","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.cur||BC(),e.note||""])]]}
 async function xSave(kind){
  const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd()];
  const name=(data.user||"Export")+(kind==="lager"?"_Lager":"_Alles")+".xlsx";
