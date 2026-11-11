@@ -130,8 +130,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.44";
+const VER="0.45";
 const HIST=[
+ ["0.45","11.11.2026",["Bar- und Überweisungsbuchungen in Konten und Verkauf landen automatisch im Kontobuch (Ziel-Kontobuch für Bar und Überweisung einstellbar, 🔗 markiert)","Kontobuch: Übertragung zwischen Kontobüchern (z. B. Hauptbuch → SAFE); zählt im Hauptbuch (alle) nicht als Einnahme/Ausgabe"]],
  ["0.44","11.11.2026",["Fahrzeuge: Termine TÜV/HU, Inspektion, Ölwechsel (Datum/km), Kfz-Steuer und Versicherung (Betrag + Fälligkeit); Kosten direkt am Fahrzeug buchen – ins Hauptbuch, ein bestehendes oder ein eigenes Kontobuch; nächster Termin wird automatisch gesetzt; Fahrzeugtermine in „Fristen“","Knopf-Leisten (Kontobücher, Lager-Gruppen) brechen um statt seitlich zu wischen"]],
  ["0.43","11.11.2026",["Neu unter „Mehr“: Fahrtenbuch – Fahrzeuge mit Kennzeichen, Kraftstoff, Ø-Verbrauch und Preis pro Liter; Fahrten mit Start/Ziel (aktueller Standort, Adresse oder gespeicherte Person), Route in Karten öffnen, km, Hin und zurück; Liter und Kosten werden berechnet; Monatssumme; Excel-Blatt"]],
  ["0.42","11.11.2026",["Bestellung: Steinform (Radiant, Oval …) als Auswahl","Fristen: 2 Wochen, 3 Wochen, 1 Monat oder eigenes Datum – bei Bestellungen und bei Geld-Buchungen in Konten; Anzeige „in X Tg.“ / „überfällig“, Box „Fristen“ in der Übersicht; aktive Bestellungen nach Frist sortiert"]],
@@ -233,7 +234,8 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){
- data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],prefix:{},base:"EUR"},d);
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
+ if(!data.ab)data.ab={on:true,cash:0,bank:0};
  ui.lastCur=data.base;
  data.stock.forEach(s=>{if(isSingle(s)&&parse(s.ct)>0&&!data.smoves.some(m=>m.sid===s.id&&m.qty>0))data.smoves.push({id:uid(),sid:s.id,qty:parse(s.ct),date:today(),note:"Einzelstein",ref:"init"})});
  data.orders.forEach(o=>{if(!Array.isArray(o.items)){o.items=[{art:o.art||"Ring",own:o.own||"",met:o.met||"Gold",col:o.col||"",cy:o.cy||"",fein:o.fein||"",ct:o.ct||"",ctc:o.ctc||"",nat:o.nat||"",qty:Number(o.qty)||1}];["art","own","met","col","cy","fein","ct","ctc","nat","qty"].forEach(k=>delete o[k])}});
@@ -612,6 +614,21 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Gebucht – auch im Kontobuch ~ Posted – also in the cash book ~ Kaydedildi – kasa defterinde de
+Zahlungen aus Konten ins Kontobuch ~ Payments from accounts into the cash book ~ Hesaplardaki ödemeler kasa defterine
+Bar- und Überweisungsbuchungen von Personen automatisch ins Kontobuch ~ Post cash and transfer bookings of people automatically into the cash book ~ Kişilerin nakit ve havale kayıtlarını otomatik kasa defterine işle
+Bar (Bareinzug / Barzahlung) in ~ Cash (received / paid) into ~ Nakit (tahsilat / ödeme) şuraya
+Überweisung in ~ Transfers into ~ Havaleler şuraya
+Gilt für neue Buchungen in Konten und Verkauf. Im Kontobuch mit 🔗 markiert; löschst du die Buchung in Konten, verschwindet sie auch im Kontobuch. ~ Applies to new postings in accounts and sales. Marked 🔗 in the cash book; deleting the posting in accounts also removes it from the cash book. ~ Hesaplar ve satıştaki yeni kayıtlar için geçerli. Kasa defterinde 🔗 ile işaretli; hesaplarda kaydı silerseniz kasa defterinden de silinir.
+⇄ Übertragung zwischen Kontobüchern ~ ⇄ Transfer between cash books ~ ⇄ Defterler arası aktarım
+⇄ Übertragung ~ ⇄ Transfer ~ ⇄ Aktarım
+Von ~ From ~ Kimden
+Nach ~ To ~ Kime
+z. B. in den Safe ~ e.g. into the safe ~ örn. kasaya
+Übertragen ~ Transfer ~ Aktar
+Von und Nach sind gleich ~ From and to are the same ~ Kaynak ve hedef aynı
+Bar- und Überweisungsbuchungen in Konten und Verkauf landen automatisch im Kontobuch (Ziel-Kontobuch für Bar und Überweisung einstellbar, 🔗 markiert) ~ Cash and transfer postings in accounts and sales automatically go into the cash book (target book for cash and transfers adjustable, marked 🔗) ~ Hesaplar ve satıştaki nakit ve havale kayıtları otomatik kasa defterine gider (nakit ve havale için hedef defter seçilebilir, 🔗 işaretli)
+Kontobuch: Übertragung zwischen Kontobüchern (z. B. Hauptbuch → SAFE); zählt im Hauptbuch (alle) nicht als Einnahme/Ausgabe ~ Cash book: transfer between cash books (e.g. main book → SAFE); not counted as income/expense in the main book (all) ~ Kasa defteri: defterler arası aktarım (örn. ana defter → KASA); ana defterde (hepsi) gelir/gider sayılmaz
 Termine ~ Dates ~ Tarihler
 TÜV / HU fällig ~ MOT due ~ Muayene tarihi
 Inspektion fällig ~ Service due ~ Bakım tarihi
@@ -1055,13 +1072,27 @@ $("bAdd").onclick=()=>{const a=parse($("amt").value);if(!(a>0)){$("amt").focus()
  data.entries.push({id:uid(),type:$("type").value,amount:Math.round(a*100)/100,cat:$("cat").value.trim()||"Sonstiges",note:$("note").value.trim(),date:$("date").value||today(),book:Number($("kbk").value)||0,cur:$("ecur").value==="USD"?"USD":"EUR",rate:($("ecur").value||BC())===BC()?1:R("usd")});
  if(data.entries[data.entries.length-1].rate===0)toast("Kurs fehlt – Betrag zählt erst mit Kurs in der Summe");
  $("amt").value="";$("note").value="";ui.view=new Date(($("date").value||today())+"T12:00:00");rKasse()};
-function del(id){data.entries=data.entries.filter(e=>e.id!==id);rKasse()}
+function del(id){const e=data.entries.find(x=>x.id===id);data.entries=data.entries.filter(x=>x.id!==id&&!(e&&e.tr&&x.tr===e.tr));rKasse()}
 const bkName=id=>{const b=(data.books||[]).find(x=>x.id===id);return b?b.name:""};
+function trHTML(){const bs=[[0,"Hauptbuch"],...(data.books||[]).map(b=>[b.id,b.name])];
+ if(!ui.tro)return bs.length>1?'<button class="sec" data-a="trtog" style="margin-top:10px">⇄ Übertragung zwischen Kontobüchern</button>':"";
+ const t=ui.tr||(ui.tr={from:ui.kb||0,to:(data.books[0]||{}).id||0,amt:"",cur:BC(),date:today(),note:""});
+ return `<div class="card" style="margin:10px 0 0"><b>⇄ Übertragung</b>
+ <div class="g2">${F("Von",S("ui.tr.from",t.from,bs,'data-n="1"'))}${F("Nach",S("ui.tr.to",t.to,bs,'data-n="1"'))}</div>
+ <div class="g2">${F("Betrag",I("ui.tr.amt",t.amt,"",'inputmode="decimal"'))}${F("Währung",S("ui.tr.cur",t.cur,[["EUR","EUR €"],["USD","USD $"]]))}</div>
+ <div class="g2">${F("Datum",`<input type="date" data-f="ui.tr.date" value="${t.date}">`)}${F("Notiz",I("ui.tr.note",t.note,"z. B. in den Safe"))}</div>
+ <div class="row" style="margin:0"><button data-a="trsave">Übertragen</button><button class="sec" data-a="trtog">Abbrechen</button></div></div>`}
+act.trtog=()=>{ui.tro=!ui.tro;if(!ui.tro)ui.tr=null;rKasse()};
+act.trsave=()=>{const t=ui.tr,a=parse(t.amt);if(!(a>0)){toast("Bitte Betrag eingeben");return}if(Number(t.from)===Number(t.to)){toast("Von und Nach sind gleich");return}
+ const fn=t.from?bkName(t.from):"Hauptbuch",tn=t.to?bkName(t.to):"Hauptbuch",id=uid(),cur=t.cur||BC(),rate=cur===BC()?1:R("usd"),note=String(t.note||"").trim();
+ data.entries.push({id:uid(),type:"out",amount:a,cat:"⇄ Übertrag → "+tn,note,date:t.date||today(),book:Number(t.from)||0,cur,rate,tr:id},{id:uid(),type:"in",amount:a,cat:"⇄ Übertrag ← "+fn,note,date:t.date||today(),book:Number(t.to)||0,cur,rate,tr:id});
+ ui.tro=false;ui.tr=null;rKasse();toast("Übertragen: "+f2(a)+" "+SYM(cur)+" → "+tn)};
 function kbRender(){
  if(ui.kb&&!bkName(ui.kb))ui.kb=0;
  const bs=data.books||[],i=bs.findIndex(b=>b.id===ui.kb);
  $("kbooks").innerHTML=`<div class="chips"><button class="${ui.kb?"sec":""}" data-a="kbsel" data-id="0">📒 Hauptbuch (alle)</button>${bs.map(b=>`<button class="${ui.kb===b.id?"":"sec"}" data-a="kbsel" data-id="${b.id}">${esc(b.name)}</button>`).join("")}</div>
  ${i>=0?`<p class="mu" style="margin:8px 0 4px">Eigenes Kontobuch – alles davon erscheint auch im Hauptbuch.</p>${F("Name",I("data.books."+i+".name",bs[i].name,"",'data-u="kbName" autocorrect="off" autocomplete="off"'))}<button class="sec" data-a="kbdel">${dl("kbdel","Kontobuch löschen")}</button>`:""}
+ ${trHTML()}
  <div class="row" style="margin:10px 0 0"><input id="kbNew" placeholder="Neues Kontobuch (z. B. Personalkosten)" autocorrect="off"><button class="sec" data-a="kbnew" style="flex:0 0 30%">Anlegen</button></div>`;
  const s=$("kbk");if(s)s.innerHTML=[[0,"Hauptbuch"],...bs.map(b=>[b.id,b.name])].map(([a,b])=>`<option value="${a}"${a===ui.kb?" selected":""}>${esc(b)}</option>`).join("")}
 function kbName(){const b=data.books.find(x=>x.id===ui.kb);const s=$("kbk");if(b&&s){const o=[...s.options].find(x=>Number(x.value)===b.id);if(o)o.textContent=b.name}}
@@ -1076,13 +1107,13 @@ function rKasse(){
  kbRender();
  const m=ym(ui.view),es=data.entries.filter(e=>(!ui.kb||(e.book||0)===ui.kb)&&e.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
  let i=0,o=0;const c={};
- es.forEach(e=>{const a=eBase(e);e.type==="in"?i+=a:o+=a;const k=e.type+"|"+e.cat;c[k]=(c[k]||0)+a});
+ es.forEach(e=>{if(e.tr&&!ui.kb)return;const a=eBase(e);e.type==="in"?i+=a:o+=a;const k=e.type+"|"+e.cat;c[k]=(c[k]||0)+a});
  const fx=es.some(e=>(e.cur||BC())!==BC());
  $("sIn").textContent=eur(i);$("sOut").textContent=eur(o);$("sBal").textContent=eur(i-o);$("sBal").className=i-o<0?"out":"in";
  {const n=$("sNote");if(n)n.textContent=fx?"Summen in "+BC()+", Fremdwährung zum Kurs am Buchungstag umgerechnet":""}
  $("bycat").innerHTML=Object.entries(c).sort((a,b)=>b[1]-a[1]).map(([k,v])=>{const t=k.split("|")[0],n=k.slice(t.length+1);
   return `<div class="it"><span>${esc(n)}</span><span class="${t==="in"?"in":"out"}">${eur(v)}</span></div>`}).join("")||'<p class="mu">Noch nichts in diesem Monat.</p>';
- $("list").innerHTML=es.map(e=>`<div class="it"><div>${esc(e.cat)}<small>${dt(e.date)}${e.note?" · "+esc(e.note):""}${!ui.kb&&e.book?" · 📒 "+esc(bkName(e.book)):""}</small></div>
+ $("list").innerHTML=es.map(e=>`<div class="it"><div>${e.mref?"🔗 ":""}${esc(e.cat)}<small>${dt(e.date)}${e.note?" · "+esc(e.note):""}${!ui.kb&&e.book?" · 📒 "+esc(bkName(e.book)):""}</small></div>
   <div class="r ${e.type==="in"?"in":"out"}">${e.type==="in"?"+":"−"}${f2(e.amount)} ${SYM(e.cur||BC())}${(e.cur||BC())!==BC()?`<small>≈ ${eur(eBase(e))}</small>`:""}<br><button class="sec sm" onclick="del(${e.id})">Löschen</button></div></div>`).join("")||'<p class="mu">Keine Einträge.</p>';
  $("cats").innerHTML=[...new Set(data.entries.map(e=>e.cat))].map(x=>`<option value="${esc(x)}">`).join("")}
 
@@ -1091,6 +1122,10 @@ const OP={
  AG:["Goldeingang","in","HAS"],NT:["Bareinzug","in","EUR"],KK:["Banküberweisung","in","EUR"],MG:["Wareneingang","in","EUR"],AL:["Gutschrift","in","EUR"],
  HC:["Altgold-Ausgang","out","HAS"],NO:["Barzahlung","out","EUR"],GH:["Überweisung aus","out","EUR"],MC:["Warenausgang","out","EUR"],BR:["Belastung","out","EUR"],
  VB:["Verkauf mit Barcode","out","EUR"],VO:["Verkauf ohne Barcode","out","EUR"],EO:["Einkauf ohne Barcode","in","EUR"],RB:["Rückgabe mit Barcode","in","EUR"],RA:["Rabatt","in","EUR"]};
+const MONEY={NT:"cash",NO:"cash",KK:"bank",GH:"bank"};
+function autoBook(m){const ab=data.ab||{};if(!ab.on||!MONEY[m.type]||!["EUR","USD"].includes(m.unit))return;
+ const p=data.people.find(x=>x.id===m.pid),inc=m.dir==="in",bk=Number(ab[MONEY[m.type]])||0;
+ data.entries.push({id:uid(),type:inc?"in":"out",amount:m.amount,cat:(inc?"Zahlung von ":"Zahlung an ")+(p?p.name:"?"),note:[OP[m.type][0],m.note].filter(Boolean).join(" · "),date:m.date,book:bk&&data.books.some(b=>b.id===bk)?bk:0,cur:m.unit,rate:m.unit===BC()?1:R("usd"),mref:m.id})}
 const opName=m=>OP[m.type]?OP[m.type][0]:(m.dir==="out"?"Ich gab":"Ich nahm");
 const tiles=(keys,a)=>`<div class="tiles">${keys.map(k=>`<button data-a="${a}" data-k="${k}"><b>${k}</b><span>${OP[k][0]}</span></button>`).join("")}</div>`;
 const balOf=pid=>{const b={};data.moves.filter(m=>m.pid===pid).forEach(m=>b[m.unit]=(b[m.unit]||0)+(m.dir==="out"?m.amount:-m.amount));return b};
@@ -1431,8 +1466,8 @@ act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte 
  const mv={id:uid(),pid:ui.pid,type:f.k,dir:OP[f.k][1],unit:f.unit,amount:a,note:f.note.trim(),date:f.date||today(),due:dueOf(f.date,f.dk,f.due)},date=mv.date;
  if(f.k==="VB"){const p=data.prods.find(x=>x.id===f.prod);if(p){p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prod=p.id}}
  if(f.k==="VO"&&f.sid){const q=parse(f.qty);if(q>0){const s=data.stock.find(x=>x.id===f.sid);data.smoves.push({id:uid(),sid:f.sid,qty:-q,date,note:"Verkauf an "+pnm(ui.pid),ref:"m"+mv.id});mv.ref="m"+mv.id;if(s&&!mv.note)mv.note=s.name}}
- data.moves.push(mv);ui.kf=null;render();toast("Gebucht")};
-act.kdel=d=>{const id=Number(d.id),m=data.moves.find(x=>x.id===id);
+ data.moves.push(mv);autoBook(mv);ui.kf=null;render();toast(MONEY[mv.type]&&data.ab&&data.ab.on?"Gebucht – auch im Kontobuch":"Gebucht")};
+act.kdel=d=>{const id=Number(d.id),m=data.moves.find(x=>x.id===id);data.entries=data.entries.filter(e=>e.mref!==id);
  if(m&&m.prod){const p=data.prods.find(x=>x.id===m.prod);if(p&&p.status==="sold"&&!p.saleId){p.status="done";delete p.soldTo;delete p.soldDate}}
  if(m&&m.ref)data.smoves=data.smoves.filter(x=>x.ref!==m.ref);
  data.moves=data.moves.filter(x=>x.id!==id);render()};
@@ -1732,7 +1767,7 @@ act.vsave=()=>{const s=ui.sv;if(!s.lines.length||!s.pid){toast("Keine Zeilen ode
  const no=Math.max(0,...data.sales.map(x=>x.no))+1,sid=uid();
  data.sales.push({id:sid,no,pid:s.pid,date:s.date,cur:s.cur,lines:s.lines.map(l=>({...l})),note:s.note});
  s.lines.forEach(l=>{
-  data.moves.push({id:uid(),pid:s.pid,type:l.k,dir:OP[l.k][1],unit:s.cur,amount:l.amount,note:(l.desc?l.desc+" · ":"")+"Verkauf Nr. "+no+(s.note?" · "+s.note:""),date:s.date,saleId:sid});
+  {const mv={id:uid(),pid:s.pid,type:l.k,dir:OP[l.k][1],unit:s.cur,amount:l.amount,note:(l.desc?l.desc+" · ":"")+"Verkauf Nr. "+no+(s.note?" · "+s.note:""),date:s.date,saleId:sid};data.moves.push(mv);autoBook(mv)}
   const p=l.prod?data.prods.find(x=>x.id===l.prod):null;
   if(p&&l.k==="VB"){p.status="sold";p.saleId=sid;p.soldTo=s.pid;p.soldDate=s.date}
   if(p&&l.k==="RB"){p.status="done";p.saleId=null;delete p.soldTo;delete p.soldDate}});
@@ -1743,6 +1778,7 @@ act.vsdel=d=>{const id=Number(d.id);if(!confirmTap("vs"+id))return;const x=data.
  x.lines.forEach(l=>{const p=l.prod?data.prods.find(y=>y.id===l.prod):null;
   if(p&&l.k==="VB"&&p.saleId===id){p.status="done";p.saleId=null;delete p.soldTo;delete p.soldDate}
   if(p&&l.k==="RB")p.status="sold"});
+ {const ids=new Set(data.moves.filter(m=>m.saleId===id).map(m=>m.id));data.entries=data.entries.filter(e=>!ids.has(e.mref))}
  data.moves=data.moves.filter(m=>m.saleId!==id);data.sales=data.sales.filter(y=>y.id!==id);render();toast("Verkauf gelöscht")};
 
 /* ---------- Übersicht ---------- */
@@ -1854,6 +1890,10 @@ function rSet(){
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div></div>
  <div class="card"><b>Hauptwährung</b>${(data.entries.length||data.moves.length||data.prods.length||data.sales.length)?`<p style="margin:6px 0">${data.base==="USD"?"US-Dollar ($)":"Euro (€)"}</p><p class="mu" style="margin:0">Nur änderbar, solange es noch keine Buchungen, Waren oder Verkäufe gibt.</p>`:F("Hauptwährung",S("data.base",data.base,[["EUR","Euro (€)"],["USD","US-Dollar ($)"]]))+'<p class="mu" style="margin:0">Gold und die andere Währung werden danach in dieser Währung gerechnet.</p>'}</div>
+ <div class="card"><b>Zahlungen aus Konten ins Kontobuch</b>
+ ${CB("data.ab.on",data.ab&&data.ab.on,"Bar- und Überweisungsbuchungen von Personen automatisch ins Kontobuch",'data-r="1"')}
+ ${data.ab&&data.ab.on?`<div class="g2">${F("Bar (Bareinzug / Barzahlung) in",S("data.ab.cash",String(data.ab.cash||0),[["0","Hauptbuch"],...data.books.map(b=>[String(b.id),b.name])]))}${F("Überweisung in",S("data.ab.bank",String(data.ab.bank||0),[["0","Hauptbuch"],...data.books.map(b=>[String(b.id),b.name])]))}</div>`:""}
+ <p class="mu" style="margin:0">Gilt für neue Buchungen in Konten und Verkauf. Im Kontobuch mit 🔗 markiert; löschst du die Buchung in Konten, verschwindet sie auch im Kontobuch.</p></div>
  <div class="card"><b>Passwort ändern</b>
  ${F("Aktuelles Passwort",`<input type="password" data-f="ui.pwf.a" value="${esc(ui.pwf.a)}" autocomplete="off" autocapitalize="off" autocorrect="off">`)}
  ${F("Neues Passwort (mind. 6 Zeichen)",`<input type="password" data-f="ui.pwf.b" value="${esc(ui.pwf.b)}" autocomplete="new-password" autocapitalize="off" autocorrect="off">`)}
