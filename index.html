@@ -114,6 +114,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
  <section id="s-orders" class="hide"></section>
  <section id="s-more" class="hide"></section>
  <section id="s-notes" class="hide"></section>
+ <section id="s-trips" class="hide"></section>
  <section id="s-set" class="hide"></section>
 
  <nav class="nb">
@@ -129,8 +130,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.42";
+const VER="0.43";
 const HIST=[
+ ["0.43","11.11.2026",["Neu unter „Mehr“: Fahrtenbuch – Fahrzeuge mit Kennzeichen, Kraftstoff, Ø-Verbrauch und Preis pro Liter; Fahrten mit Start/Ziel (aktueller Standort, Adresse oder gespeicherte Person), Route in Karten öffnen, km, Hin und zurück; Liter und Kosten werden berechnet; Monatssumme; Excel-Blatt"]],
  ["0.42","11.11.2026",["Bestellung: Steinform (Radiant, Oval …) als Auswahl","Fristen: 2 Wochen, 3 Wochen, 1 Monat oder eigenes Datum – bei Bestellungen und bei Geld-Buchungen in Konten; Anzeige „in X Tg.“ / „überfällig“, Box „Fristen“ in der Übersicht; aktive Bestellungen nach Frist sortiert"]],
  ["0.41","11.11.2026",["Bestellungen: Anhänge – Foto mit Kamera, Bilder oder PDF (z. B. gescannte Dokumente); auch nachträglich in der aufgeklappten Bestellung; antippen zum Ansehen"]],
  ["0.40","11.11.2026",["Untere Leiste: „☰ Mehr“ statt Kontobuch – dort Kontobuch, Notizen, Bestellungen, Einstellungen","Neu: Notizen (Titel, Text, anheften, suchen); im Excel-Export als eigenes Blatt"]],
@@ -178,7 +180,7 @@ const HIST=[
 /* ---------- Grundlagen ---------- */
 const $=id=>document.getElementById(id);
 let data=null,pw="",_u=0;
-const ui={s:"home",ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
+const ui={s:"home",tv:"trips",te:null,ce:null,tcar:0,ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
 const uid=()=>Date.now()*1000+(_u++%1000);
 const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -230,7 +232,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){
- data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],prefix:{},base:"EUR"},d);
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],prefix:{},base:"EUR"},d);
  ui.lastCur=data.base;
  data.stock.forEach(s=>{if(isSingle(s)&&parse(s.ct)>0&&!data.smoves.some(m=>m.sid===s.id&&m.qty>0))data.smoves.push({id:uid(),sid:s.id,qty:parse(s.ct),date:today(),note:"Einzelstein",ref:"init"})});
  data.orders.forEach(o=>{if(!Array.isArray(o.items)){o.items=[{art:o.art||"Ring",own:o.own||"",met:o.met||"Gold",col:o.col||"",cy:o.cy||"",fein:o.fein||"",ct:o.ct||"",ctc:o.ctc||"",nat:o.nat||"",qty:Number(o.qty)||1}];["art","own","met","col","cy","fein","ct","ctc","nat","qty"].forEach(k=>delete o[k])}});
@@ -244,7 +246,7 @@ function open(d){
  if(!data.people.some(p=>p.walk))data.people.unshift({id:uid(),name:"Laufkunde (bar)",walk:true});
  data.ver=VER;
  if(!picked&&LOC[data.lang])lang=data.lang;data.lang=lang;document.documentElement.lang=lang;langBtns();
- Object.assign(ui,{ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
+ Object.assign(ui,{tv:"trips",te:null,ce:null,tcar:0,ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
  $("who").textContent=data.user;$("date").value=today();$("rEd").classList.add("hide");
  rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
@@ -270,10 +272,10 @@ $("bSave").onclick=async()=>{
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
-function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
- const nv=["kasse","orders","set","more","notes"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
+function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
+ const nv=["kasse","orders","set","more","notes","trips"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
 act.go=d=>go(d.v);
-function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes})[ui.s]()}
+function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips})[ui.s]()}
 function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
@@ -287,6 +289,7 @@ function apply(el,ch){
  if(!ch&&el.dataset.u)window[el.dataset.u]();
  if(ch&&el.dataset.r)render()}
 function hook(p){
+ if(p==="ui.te.car"&&ui.te){const c=carOf(ui.te.car);if(c){ui.te.cons=String(c.cons||"");ui.te.price=String(c.price||"")}}
  if(p.startsWith("ui.of.cur.")&&ui.of)ui.of.dirty=true;
  if(p==="ui.kf.prod")kProd();
  if(p==="ui.pid"){ui.pe=false;ui.pf=null;ui.nv=false;ui.ptxt=""}
@@ -608,6 +611,59 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Fahrtenbuch ~ Logbook ~ Yol defteri
+Fahrten ~ Trips ~ Seferler
+Fahrzeuge ~ Vehicles ~ Araçlar
+Fahrzeug ~ Vehicle ~ Araç
+Neues Fahrzeug ~ New vehicle ~ Yeni araç
++ Neues Fahrzeug ~ + New vehicle ~ + Yeni araç
++ Fahrzeug anlegen ~ + Add vehicle ~ + Araç ekle
+Erst ein Fahrzeug anlegen. ~ Add a vehicle first. ~ Önce bir araç ekleyin.
+Erst ein Fahrzeug anlegen ~ Add a vehicle first ~ Önce bir araç ekleyin
+Bezeichnung ~ Name ~ Ad
+z. B. Mercedes C-Klasse ~ e.g. Mercedes C-Class ~ örn. Mercedes C-Serisi
+Kennzeichen ~ Number plate ~ Plaka
+Kraftstoff ~ Fuel ~ Yakıt
+Fahrt ~ Trip ~ Sefer
+Neue Fahrt ~ New trip ~ Yeni sefer
++ Neue Fahrt ~ + New trip ~ + Yeni sefer
+Start ~ Start ~ Başlangıç
+Ziel ~ Destination ~ Varış
+📍 Aktueller Standort ~ 📍 Current location ~ 📍 Mevcut konum
+✏️ Adresse eingeben ~ ✏️ Enter address ~ ✏️ Adres gir
+Straße, Ort ~ Street, city ~ Sokak, şehir
+📍 Standort ermitteln ~ 📍 Get location ~ 📍 Konumu bul
+Noch nicht ermittelt ~ Not determined yet ~ Henüz belirlenmedi
+Keine Adresse hinterlegt ~ No address stored ~ Kayıtlı adres yok
+Route öffnen, Kilometer ablesen und unten eintragen. ~ Open the route, read the kilometres and enter them below. ~ Rotayı açın, kilometreyi okuyup aşağıya girin.
+Strecke (km) ~ Distance (km) ~ Mesafe (km)
+z. B. 42 ~ e.g. 42 ~ örn. 42
+Hin und zurück ~ Round trip ~ Gidiş-dönüş
+Art ~ Type ~ Tür
+Geschäftlich ~ Business ~ İş
+Privat ~ Private ~ Özel
+Arbeitsweg ~ Commute ~ İşe gidiş
+Zweck / Notiz ~ Purpose / note ~ Amaç / not
+z. B. Ware abholen ~ e.g. pick up goods ~ örn. mal almak
+Alle Fahrzeuge ~ All vehicles ~ Tüm araçlar
+km (Monat) ~ km (month) ~ km (ay)
+Verbrauch ~ Consumption ~ Tüketim
+Kosten ~ Costs ~ Maliyet
+Noch keine Fahrten. ~ No trips yet. ~ Henüz sefer yok.
+Noch keine Fahrzeuge. ~ No vehicles yet. ~ Henüz araç yok.
+Bitte Kennzeichen oder Bezeichnung eingeben ~ Please enter plate or name ~ Lütfen plaka veya ad girin
+Fahrzeug hat Fahrten – kann nicht gelöscht werden ~ Vehicle has trips – cannot be deleted ~ Aracın seferleri var – silinemez
+Standort nicht verfügbar ~ Location not available ~ Konum kullanılamıyor
+Standort wird ermittelt … ~ Getting location … ~ Konum alınıyor …
+Standort übernommen ~ Location taken over ~ Konum alındı
+Standort nicht erlaubt oder nicht gefunden ~ Location not allowed or not found ~ Konum izni yok veya bulunamadı
+Bitte ein Fahrzeug wählen ~ Please select a vehicle ~ Lütfen bir araç seçin
+Bitte Strecke (km) eingeben ~ Please enter distance (km) ~ Lütfen mesafe (km) girin
+Fahrt gespeichert ~ Trip saved ~ Sefer kaydedildi
+Bitte Start angeben ~ Please enter a start ~ Lütfen başlangıç girin
+Bitte Ziel angeben ~ Please enter a destination ~ Lütfen varış girin
+Aktueller Standort ~ Current location ~ Mevcut konum
+Neu unter „Mehr“: Fahrtenbuch – Fahrzeuge mit Kennzeichen, Kraftstoff, Ø-Verbrauch und Preis pro Liter; Fahrten mit Start/Ziel (aktueller Standort, Adresse oder gespeicherte Person), Route in Karten öffnen, km, Hin und zurück; Liter und Kosten werden berechnet; Monatssumme; Excel-Blatt ~ New under “More”: logbook – vehicles with plate, fuel, average consumption and price per litre; trips with start/destination (current location, address or saved person), open route in maps, km, round trip; litres and costs calculated; monthly total; Excel sheet ~ “Daha fazla” altında yeni: yol defteri – plaka, yakıt, ortalama tüketim ve litre fiyatıyla araçlar; başlangıç/varış (mevcut konum, adres veya kayıtlı kişi) ile seferler, haritada rota, km, gidiş-dönüş; litre ve maliyet hesaplanır; aylık toplam; Excel sayfası
 Steinform ~ Stone shape ~ Taş şekli
 Frist ~ Deadline ~ Vade
 Frist bis ~ Deadline on ~ Vade tarihi
@@ -1109,7 +1165,7 @@ function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
 function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.length;
  const T=(v,i,t,s)=>`<button class="sec tile" data-a="go" data-v="${v}" style="text-align:left;padding:16px;display:flex;gap:14px;align-items:center"><span style="font-size:26px">${i}</span><span><b>${t}</b><br><small class="mu">${s}</small></span></button>`;
  $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><div class="card" style="display:grid;gap:10px">
- ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
+ ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
 const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
  return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
@@ -1158,6 +1214,75 @@ act.aopen=d=>{const l=attList(d.oid),a=l&&l.find(x=>x.id===Number(d.aid));if(!a)
  try{const b=atob(a.data.split(",")[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
   const url=URL.createObjectURL(new Blob([u],{type:a.type})),x=document.createElement("a");x.href=url;x.target="_blank";x.rel="noopener";x.download=a.name||"Dokument.pdf";document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(_){toast("Konnte nicht geöffnet werden")}};
 act.aclose=()=>{const ov=$("ov");if(ov){ov.style.display="none";ov.innerHTML=""}};
+
+
+/* ---------- Fahrtenbuch ---------- */
+const FUEL=["Super E5","Super E10","Super Plus","Diesel","LPG (Autogas)","Elektro","Hybrid (Benzin)"];
+const fuelU=f=>f==="Elektro"?"kWh":"L";
+const carOf=id=>data.cars.find(c=>c.id===Number(id));
+const carLbl=c=>c?[c.plate,c.name].filter(x=>String(x||"").trim()).join(" · "):"";
+function locOpts(withCur){return [...(withCur?[["cur","📍 Aktueller Standort"]]:[]),["addr","✏️ Adresse eingeben"],...data.people.filter(p=>!p.walk).map(p=>["p"+p.id,"👤 "+plabel(p)])]}
+function locTxt(k,txt,lat,lon){if(k==="cur")return"Aktueller Standort"+(lat?` (${lat.toFixed(4)}, ${lon.toFixed(4)})`:"");
+ if(String(k).startsWith("p")){const p=data.people.find(x=>"p"+x.id===k);return p?p.name+(padr(p)?", "+padr(p):""):"?"}return txt||""}
+function locQ(k,txt,lat,lon){if(k==="cur")return lat?lat+","+lon:"";if(String(k).startsWith("p")){const p=data.people.find(x=>"p"+x.id===k);return p?(padr(p)||p.name):""}return txt||""}
+function tCalc(t){const km=parse(t.km)*(t.rt?2:1),l=km*parse(t.cons)/100,c=l*parse(t.price);return{km,l,c}}
+function uTrip(){const e=$("tcalc"),t=ui.te,c=t&&carOf(t.car);if(!e||!t)return;const r=tCalc(t),u=fuelU(c&&c.fuel);
+ e.innerHTML=`<b>${f2(r.km).replace(/,00$/,"")} km</b> · <b>${f2(r.l)} ${u}</b> · <b>${f2(r.c)} ${SYM(BC())}</b>`}
+function newTrip(){const c=data.cars.find(x=>x.id===ui.tcar)||data.cars[0];
+ return{id:0,date:today(),car:c?c.id:0,fk:"cur",ftxt:"",flat:0,flon:0,tk:"addr",ttxt:"",km:"",rt:false,cons:c?String(c.cons||""):"",price:c?String(c.price||""):"",kind:"Geschäftlich",purpose:""}}
+function rTrips(){const e=$("s-trips");
+ if(ui.ce){const c=ui.ce;e.innerHTML=`<div class="nav"><b>${c.id?"Fahrzeug":"Neues Fahrzeug"}</b><button class="sec sm" data-a="cback">Liste</button></div><div class="card">
+  ${F("Bezeichnung",I("ui.ce.name",c.name,"z. B. Mercedes C-Klasse"))}${F("Kennzeichen",I("ui.ce.plate",c.plate,"z. B. B-AB 1234",'autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}
+  ${F("Kraftstoff",S("ui.ce.fuel",c.fuel,FUEL,'data-r="1"'))}
+  <div class="g2">${F("Ø Verbrauch ("+fuelU(c.fuel)+"/100 km)",I("ui.ce.cons",c.cons,"z. B. 6,5",'inputmode="decimal"'))}${F("Preis pro "+(fuelU(c.fuel)==="kWh"?"kWh":"Liter")+" ("+SYM(BC())+")",I("ui.ce.price",c.price,"z. B. 1,79",'inputmode="decimal"'))}</div>
+  <div class="row"><button data-a="csave">Speichern</button>${c.id?`<button class="sec" data-a="cdel">${dl("cdel","Löschen")}</button>`:""}</div></div>`;return}
+ if(ui.te){const t=ui.te,c=carOf(t.car),u=fuelU(c&&c.fuel);
+  const side=(s,lab)=>{const k=t[s+"k"];return F(lab,S("ui.te."+s+"k",k,locOpts(true),'data-r="1"'))+(k==="addr"?F("Adresse",I("ui.te."+s+"txt",t[s+"txt"],"Straße, Ort",'autocorrect="off"')):"")+
+   (k==="cur"?`<div class="row" style="margin:0 0 8px"><button class="sec" data-a="tloc" data-s="${s}">📍 Standort ermitteln</button></div><p class="mu" style="margin:-4px 0 8px">${t[s+"lat"]?"✅ "+esc(locTxt("cur","",t[s+"lat"],t[s+"lon"])):"Noch nicht ermittelt"}</p>`:"")+
+   (String(k).startsWith("p")?`<p class="mu" style="margin:-4px 0 8px">${esc(locTxt(k))||"Keine Adresse hinterlegt"}</p>`:"")};
+  const fq=encodeURIComponent(locQ(t.fk,t.ftxt,t.flat,t.flon)),tq=encodeURIComponent(locQ(t.tk,t.ttxt,t.tlat,t.tlon));
+  e.innerHTML=`<div class="nav"><b>${t.id?"Fahrt":"Neue Fahrt"}</b><button class="sec sm" data-a="tback">Liste</button></div><div class="card">
+  ${data.cars.length?F("Fahrzeug",S("ui.te.car",t.car,data.cars.map(c=>[c.id,carLbl(c)+" · "+c.fuel]),'data-n="1" data-r="1"')):'<p class="mu">Erst ein Fahrzeug anlegen.</p><button class="sec" data-a="cnew">+ Fahrzeug anlegen</button>'}
+  ${F("Datum",`<input type="date" data-f="ui.te.date" value="${t.date}">`)}
+  ${side("f","Start")}${side("t","Ziel")}
+  ${fq&&tq?`<div class="row" style="margin:0 0 8px"><a class="sec navb" href="https://maps.apple.com/?saddr=${fq}&daddr=${tq}" target="_blank" rel="noopener">🍎 Route</a><a class="sec navb" href="https://www.google.com/maps/dir/?api=1&origin=${fq}&destination=${tq}" target="_blank" rel="noopener">🗺️ Route</a></div><p class="mu" style="margin:-4px 0 8px">Route öffnen, Kilometer ablesen und unten eintragen.</p>`:""}
+  <div class="g2">${F("Strecke (km)",I("ui.te.km",t.km,"z. B. 42",'inputmode="decimal" data-u="uTrip"'))}<div style="align-self:end">${CB("ui.te.rt",t.rt,"Hin und zurück",'data-r="1"')}</div></div>
+  <div class="g2">${F("Ø Verbrauch ("+u+"/100 km)",I("ui.te.cons",t.cons,"",'inputmode="decimal" data-u="uTrip"'))}${F("Preis pro "+(u==="kWh"?"kWh":"Liter"),I("ui.te.price",t.price,"",'inputmode="decimal" data-u="uTrip"'))}</div>
+  <div class="card" style="margin:4px 0 10px;text-align:center" id="tcalc"></div>
+  <div class="g2">${F("Art",S("ui.te.kind",t.kind,["Geschäftlich","Privat","Arbeitsweg"]))}${F("Zweck / Notiz",I("ui.te.purpose",t.purpose,"z. B. Ware abholen"))}</div>
+  <div class="row"><button data-a="tsave">Speichern</button>${t.id?`<button class="sec" data-a="tdel">${dl("tdel","Löschen")}</button>`:""}</div></div>`;uTrip();return}
+ const head=`<div class="bar"><span>Fahrtenbuch</span><span>🚗</span></div><div class="card"><div class="tg">${TG("tv",ui.tv,[["trips","Fahrten"],["cars","Fahrzeuge"]])}</div></div>`;
+ if(ui.tv==="cars"){e.innerHTML=head+`<button data-a="cnew">+ Neues Fahrzeug</button><div class="card" style="margin-top:10px">${data.cars.map(c=>`<div class="it click" data-a="cedit" data-id="${c.id}"><div><b>${esc(c.plate||"–")}</b><small>${esc(c.name||"")} · ${esc(c.fuel)}</small></div><div class="r"><small>${f2(parse(c.cons))} ${fuelU(c.fuel)}/100 km<br>${f2(parse(c.price))} ${SYM(BC())}/${fuelU(c.fuel)}</small></div></div>`).join("")||'<p class="mu">Noch keine Fahrzeuge.</p>'}</div>`;return}
+ const m=ym(new Date()),L=data.trips.filter(t=>!ui.tcar||t.car===ui.tcar).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id),M=L.filter(t=>t.date.startsWith(m));
+ const sum=a=>a.reduce((s,t)=>({km:s.km+t.kmT,l:s.l+t.liters,c:s.c+t.cost}),{km:0,l:0,c:0}),S1=sum(M);
+ e.innerHTML=head+`<button data-a="tnew">+ Neue Fahrt</button>
+ <div class="card" style="margin-top:10px">${F("Fahrzeug",S("ui.tcar",ui.tcar,[[0,"Alle Fahrzeuge"],...data.cars.map(c=>[c.id,carLbl(c)])],'data-n="1" data-r="1"'))}
+ <div class="sum"><div><span class="mu">km (Monat)</span><b>${f2(S1.km).replace(/,00$/,"")}</b></div><div><span class="mu">Verbrauch</span><b>${f2(S1.l)}</b></div><div><span class="mu">Kosten</span><b>${f2(S1.c)} ${SYM(BC())}</b></div></div></div>
+ <div class="card">${L.map(t=>{const c=carOf(t.car);return `<div class="it click" data-a="tedit" data-id="${t.id}"><div style="flex:1;min-width:0"><b>${esc(t.fromT)} → ${esc(t.toT)}</b><small>${[dt(t.date),esc(carLbl(c)),esc(t.kind)].filter(Boolean).join(" · ")}${t.purpose?" · "+esc(t.purpose):""}</small></div><div class="r"><b>${f2(t.kmT).replace(/,00$/,"")} km</b><br><small>${f2(t.liters)} ${fuelU(c&&c.fuel)} · ${f2(t.cost)} ${SYM(t.cur||BC())}</small></div></div>`}).join("")||'<p class="mu">Noch keine Fahrten.</p>'}</div>`}
+act.tv=d=>{ui.tv=d.v;rTrips()};
+act.cnew=()=>{ui.ce={id:0,name:"",plate:"",fuel:"Diesel",cons:"",price:""};ui.te=null;rTrips()};
+act.cedit=d=>{const c=carOf(d.id);if(c){ui.ce={...c};rTrips()}};
+act.cback=()=>{ui.ce=null;rTrips()};
+act.csave=()=>{const c=ui.ce;if(!String(c.plate).trim()&&!String(c.name).trim()){toast("Bitte Kennzeichen oder Bezeichnung eingeben");return}
+ const o={id:c.id||uid(),name:String(c.name||"").trim(),plate:String(c.plate||"").trim().toUpperCase(),fuel:c.fuel,cons:c.cons,price:c.price};
+ const i=data.cars.findIndex(x=>x.id===o.id);if(i<0)data.cars.push(o);else data.cars[i]=o;ui.ce=null;
+ if(ui.tpend){ui.tpend=false;ui.tv="trips";ui.te=newTrip();ui.te.car=o.id;ui.te.cons=String(o.cons||"");ui.te.price=String(o.price||"")}else ui.tv="cars";rTrips();toast("Gespeichert")};
+act.cdel=()=>{const id=ui.ce.id;if(data.trips.some(t=>t.car===id)){toast("Fahrzeug hat Fahrten – kann nicht gelöscht werden");return}
+ if(!confirmTap("cdel"))return;data.cars=data.cars.filter(c=>c.id!==id);ui.ce=null;rTrips()};
+act.tnew=()=>{ui.tv="trips";if(!data.cars.length){act.cnew();ui.tpend=true;toast("Erst ein Fahrzeug anlegen");return}ui.te=newTrip();rTrips()};
+act.tedit=d=>{const t=data.trips.find(x=>x.id===Number(d.id));if(t){ui.te={...t};rTrips();window.scrollTo(0,0)}};
+act.tback=()=>{ui.te=null;rTrips()};
+act.tloc=d=>{const s=d.s;if(!navigator.geolocation){toast("Standort nicht verfügbar");return}toast("Standort wird ermittelt …");
+ navigator.geolocation.getCurrentPosition(p=>{if(!ui.te)return;ui.te[s+"lat"]=p.coords.latitude;ui.te[s+"lon"]=p.coords.longitude;rTrips();toast("Standort übernommen")},
+  ()=>toast("Standort nicht erlaubt oder nicht gefunden"),{enableHighAccuracy:true,timeout:15000,maximumAge:60000})};
+act.tsave=()=>{const t=ui.te;if(!carOf(t.car)){toast("Bitte ein Fahrzeug wählen");return}const r=tCalc(t);if(!(r.km>0)){toast("Bitte Strecke (km) eingeben");return}
+ const fT=t.fk==="cur"?"Aktueller Standort":locTxt(t.fk,t.ftxt),tT=t.tk==="cur"?"Aktueller Standort":locTxt(t.tk,t.ttxt);
+ if(!String(fT).trim()){toast("Bitte Start angeben");return}if(!String(tT).trim()){toast("Bitte Ziel angeben");return}
+ const o={...t,id:t.id||uid(),kmT:r.km,liters:r.l,cost:r.c,cur:BC(),fromT:fT,toT:tT};
+ const i=data.trips.findIndex(x=>x.id===o.id);if(i<0)data.trips.push(o);else data.trips[i]=o;
+ const c=carOf(t.car);if(c){if(parse(t.price)>0)c.price=t.price;}ui.te=null;ui.tv="trips";rTrips();toast("Fahrt gespeichert")};
+act.tdel=()=>{if(!confirmTap("tdel"))return;data.trips=data.trips.filter(x=>x.id!==ui.te.id);ui.te=null;rTrips()};
+function xTrips(){return["Fahrtenbuch",[["Datum","Kennzeichen","Fahrzeug","Start","Ziel","km","Hin und zurück","Verbrauch /100 km","Liter/kWh","Preis","Kosten","Währung","Art","Zweck"],...data.trips.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(t=>{const c=carOf(t.car)||{};return[t.date,c.plate||"",c.name||"",locTxt(t.fk,t.ftxt,t.flat,t.flon)||t.fromT,locTxt(t.tk,t.ttxt,t.tlat,t.tlon)||t.toT,Math.round(t.kmT*10)/10,t.rt?"ja":"",parse(t.cons),Math.round(t.liters*100)/100,parse(t.price),Math.round(t.cost*100)/100,t.cur||BC(),t.kind,t.purpose||""]})]]}
 
 /* ---------- Konten ---------- */
 /* Personen: Details, Suche */
@@ -1646,7 +1771,7 @@ function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Bet
 function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Status","Notiz","Anhänge"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,o.done?"Erledigt":"Aktiv",o.note||"",(o.att||[]).length||""])));return["Bestellungen",r]}
 function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Währung","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.cur||BC(),e.note||""])]]}
 async function xSave(kind){
- const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd(),xNotes()];
+ const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd(),xNotes(),xTrips()];
  const name=(data.user||"Export")+(kind==="lager"?"_Lager":"_Alles")+".xlsx";
  try{const blob=xlsx(sheets),d=await claude.use("downloads");
   if(d)await d.save({filename:name,data:blob});
