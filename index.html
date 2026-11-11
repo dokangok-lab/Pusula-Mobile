@@ -124,8 +124,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.37";
+const VER="0.38";
 const HIST=[
+ ["0.38","11.11.2026",["Personenauswahl: neben dem Namen steht die Firma (Juwelier), sonst die Stadt"]],
  ["0.37","11.11.2026",["Fertigung: nach „Fertigstellen“ springt die App zur Warenliste, die fertige Ware ist grün markiert"]],
  ["0.36","11.11.2026",["Warenliste, Lager und Verkauf zeigen das Gesamtgewicht (Gold + Steine); Goldgewicht steht in Klammern; Excel mit beiden Spalten"]],
  ["0.35","11.11.2026",["Fertigung: Gesamtgewicht (Gold + Steine); Steingewicht = Karat × 0,2 g. Goldgewicht eingetragen → Gesamtgewicht rechnet sich; Gesamtgewicht eingetragen → Goldgewicht rechnet sich"]],
@@ -597,6 +598,7 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Personenauswahl: neben dem Namen steht die Firma (Juwelier), sonst die Stadt ~ Person picker: the company (jeweller) is shown next to the name, otherwise the city ~ Kişi seçimi: adın yanında firma (kuyumcu), yoksa şehir yazar
 Fertigung: nach „Fertigstellen“ springt die App zur Warenliste, die fertige Ware ist grün markiert ~ Production: after “Finish” the app jumps to the item list, the finished item is highlighted in green ~ Üretim: “Tamamla”dan sonra uygulama ürün listesine geçer, tamamlanan ürün yeşil işaretlenir
 g gesamt ~ g total ~ g toplam
 Warenliste, Lager und Verkauf zeigen das Gesamtgewicht (Gold + Steine); Goldgewicht steht in Klammern; Excel mit beiden Spalten ~ Item list, stock and sales show the total weight (gold + stones); gold weight in brackets; Excel with both columns ~ Ürün listesi, depo ve satış toplam ağırlığı gösterir (altın + taşlar); altın ağırlığı parantez içinde; Excel’de iki sütun
@@ -1031,7 +1033,7 @@ function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
 
 /* ---------- Konten ---------- */
 /* Personen: Details, Suche */
-const plabel=p=>p.name+(p.city?" · "+p.city:"");
+const plabel=p=>{const x=String(p.company||"").trim()||String(p.city||"").trim();return p.name+(x?" · "+x:"")};
 const pOpts=sel=>{const q=String(ui.pq2||"").trim().toLowerCase();
  return [[0,"Person wählen …"],...data.people.filter(p=>p.id===sel||!q||[p.name,p.company,p.city,p.country,p.addr,p.phone,p.type,p.note].join(" ").toLowerCase().includes(q)).map(p=>[p.id,plabel(p)])]};
 function uK(){[["psel",ui.pid],["vpsel",ui.sv?ui.sv.pid:0]].forEach(([id,sel])=>{const e=$(id);
