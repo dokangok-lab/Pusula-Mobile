@@ -59,6 +59,8 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 .nb button span{font-size:18px}.nb button.on{background:rgba(255,255,255,.18);color:#fff}
 #toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 14px;border-radius:20px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9;max-width:90%;text-align:center}
 #toast.on{opacity:1}
+#ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:16px}#ov img{max-width:100%;max-height:85vh;object-fit:contain;border-radius:10px}#ov .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px}
+.att{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.att .a{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;background:var(--fld);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:4px}.att .a img{width:100%;height:100%;object-fit:cover}.att .d{position:absolute;top:2px;right:2px;min-width:22px;height:22px;padding:0 4px;border-radius:11px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;border:0}.attbtn{display:block;text-align:center;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--fld);font-weight:600;cursor:pointer;margin:6px 0}
 </style></head><body>
 
 <div id="start">
@@ -127,8 +129,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.40";
+const VER="0.41";
 const HIST=[
+ ["0.41","11.11.2026",["Bestellungen: Anhänge – Foto mit Kamera, Bilder oder PDF (z. B. gescannte Dokumente); auch nachträglich in der aufgeklappten Bestellung; antippen zum Ansehen"]],
  ["0.40","11.11.2026",["Untere Leiste: „☰ Mehr“ statt Kontobuch – dort Kontobuch, Notizen, Bestellungen, Einstellungen","Neu: Notizen (Titel, Text, anheften, suchen); im Excel-Export als eigenes Blatt"]],
  ["0.39","11.11.2026",["Kontobuch: Währung je Eintrag wählbar (EUR oder USD); Summen in der Hauptwährung, Fremdwährung zum Kurs am Buchungstag; Kasse in der Übersicht getrennt nach Währung"]],
  ["0.38","11.11.2026",["Personenauswahl: neben dem Namen steht die Firma (Juwelier), sonst die Stadt"]],
@@ -603,6 +606,20 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Anhänge ~ Attachments ~ Ekler
+(Fotos, Skizzen, Scans, PDF) ~ (photos, sketches, scans, PDF) ~ (fotoğraf, çizim, tarama, PDF)
+📷 Kamera ~ 📷 Camera ~ 📷 Kamera
+🖼️ Foto / Datei ~ 🖼️ Photo / file ~ 🖼️ Fotoğraf / dosya
+Anhang hinzugefügt ~ Attachment added ~ Ek eklendi
+Anhang hinzugefügt – mit „Bestellung speichern“ übernehmen ~ Attachment added – keep it with “Save order” ~ Ek eklendi – “Siparişi kaydet” ile onaylayın
+Bild konnte nicht gelesen werden ~ Image could not be read ~ Resim okunamadı
+PDF zu groß (max. 5 MB) ~ PDF too large (max. 5 MB) ~ PDF çok büyük (en fazla 5 MB)
+Nur Bilder oder PDF ~ Images or PDF only ~ Sadece resim veya PDF
+Datei konnte nicht gelesen werden ~ File could not be read ~ Dosya okunamadı
+Konnte nicht geöffnet werden ~ Could not be opened ~ Açılamadı
+Schließen ~ Close ~ Kapat
+Weg? ~ Remove? ~ Sil?
+Bestellungen: Anhänge – Foto mit Kamera, Bilder oder PDF (z. B. gescannte Dokumente); auch nachträglich in der aufgeklappten Bestellung; antippen zum Ansehen ~ Orders: attachments – camera photo, images or PDF (e.g. scanned documents); also later in the expanded order; tap to view ~ Siparişler: ekler – kamera fotoğrafı, resim veya PDF (örn. taranmış belgeler); açılmış siparişte sonradan da; görmek için dokunun
 Mehr ~ More ~ Daha fazla
 Notizen ~ Notes ~ Notlar
 Notiz ~ Note ~ Not
@@ -992,7 +1009,7 @@ function nextOrdNo(date){const d=String(date||today()),pre=pfxO()+d.slice(2,4)+d
  data.orders.forEach(o=>{if(o.no&&o.no.startsWith(pre)){const r=o.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});
  return pre+String(mx+1).padStart(3,"0")}
 const newPos=(k)=>Object.assign({art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",qty:"1"},k||{});
-const newOf=()=>({no:nextOrdNo(today()),ov:false,note:"",date:today(),items:[],cur:newPos(),dirty:false});
+const newOf=()=>({no:nextOrdNo(today()),ov:false,note:"",date:today(),items:[],cur:newPos(),dirty:false,att:[]});
 const oItems=o=>Array.isArray(o.items)?o.items:[o];
 const oQty=o=>oItems(o).reduce((a,x)=>a+(Number(x.qty)||0),0);
 function colSplit(o){const q=Number(parse(o.qty))||0,c=o.col||"y";let y=q;
@@ -1023,6 +1040,7 @@ function ordForm(){const f=ui.of=(ui.of&&ui.of.cur)?ui.of:newOf(),c=f.cur,n=f.it
  <button class="sec" data-a="oadd">+ Position hinzufügen</button>
  <div style="height:10px"></div>
  ${F("Notiz",I("ui.of.note",f.note,"z. B. Größe 54, bis Freitag"))}${F("Datum",`<input type="date" data-f="ui.of.date" value="${f.date}">`)}
+ <div class="lbl"><b>Anhänge</b> <small class="mu">(Fotos, Skizzen, Scans, PDF)</small></div>${attHTML(f.att||[],"")}
  <button data-a="osave">Bestellung speichern</button>
  <p class="mu" style="margin:6px 0 0">Mehrere Positionen: jede mit „+ Position hinzufügen“ übernehmen. Eine ausgefüllte, noch nicht übernommene Position wird beim Speichern mitgenommen.</p>`}
 act.oadd=()=>{const f=ui.of,x=posFrom(f.cur);if(!x)return;f.items.push(x);
@@ -1033,16 +1051,16 @@ act.osave=()=>{const f=ui.of;if(!ui.pid){toast("Keine Person gewählt");return}
  if(!items.length||f.dirty){const x=posFrom(f.cur);if(!x)return;items.push(x)}
  const no=String(f.no).trim();if(!no){toast("Nummer fehlt");return}
  if(data.orders.some(o=>o.no===no)){toast("Diese Nummer gibt es schon");return}
- data.orders.push({id:uid(),no,pid:ui.pid,items,note:String(f.note||"").trim(),date:f.date||today(),done:false});
+ data.orders.push({id:uid(),no,pid:ui.pid,items,note:String(f.note||"").trim(),date:f.date||today(),done:false,att:(f.att||[]).slice()});
  ui.of=newOf();render();toast("Bestellung gespeichert")};
 act.oex=d=>{const id=Number(d.id);ui.oex=ui.oex===id?0:id;render()};
 function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid),it=oItems(o),n=oQty(o),open=ui.oex===o.id;
  const sub=it.length===1?it[0].qty+"× "+itemTxt(it[0]):it.length+" Positionen";
  return `<div style="border-left:4px solid ${o.done?"var(--out)":"var(--in)"};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0">
- <div data-a="oex" data-id="${o.id}" style="flex:1;min-width:0"><b>${esc(o.no||"")} · ${n} Stück ${open?"▴":"▾"}</b><small>${esc(sub)}</small><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}</small></div>
+ <div data-a="oex" data-id="${o.id}" style="flex:1;min-width:0"><b>${esc(o.no||"")} · ${n} Stück${(o.att||[]).length?" · 📎 "+o.att.length:""} ${open?"▴":"▾"}</b><small>${esc(sub)}</small><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}</small></div>
  <div class="r"><span class="${o.done?"out":"in"}"><b>${o.done?"Erledigt":"Aktiv"}</b></span><br><button class="sec sm" data-a="odone" data-id="${o.id}">${o.done?"Wieder aktiv":"Erledigt"}</button> <button class="sec sm" data-a="odel" data-id="${o.id}">${dl("od"+o.id,"Löschen")}</button></div></div>
  ${open?`<div style="padding:0 0 10px">${it.map(x=>{const[y,w]=x.met==="Gold"&&x.col?colSplit(x):[0,0];return `<div class="it" style="padding:6px 0"><div><b>${x.qty}×</b> ${esc(itemTxt(x))}${y&&w?`<small>Gelb ${y} · Weiß ${w}</small>`:""}</div></div>`}).join("")}
- <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div>${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
+ <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div><div class="lbl" style="margin-top:6px"><b>Anhänge</b></div>${attHTML(o.att||[],String(o.id))}${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
 const ordSort=l=>l.slice().sort((a,b)=>(a.done-b.done)||String(b.date).localeCompare(a.date)||b.id-a.id);
 function ordList(pid){const l=ordSort(data.orders.filter(o=>o.pid===pid));
  return `</div><div class="card"><b>Bestellungen dieser Person</b>${l.map(o=>ordRow(o,false)).join("")||'<p class="mu">Noch keine Bestellungen.</p>'}`}
@@ -1091,6 +1109,31 @@ act.nsave=()=>{const n=ui.ne;if(!n)return;if(!String(n.title).trim()&&!String(n.
  const i=data.notes.findIndex(x=>x.id===o.id);if(i<0)data.notes.push(o);else data.notes[i]=o;ui.ne=null;rNotes();toast("Gespeichert")};
 act.ndel=()=>{if(!confirmTap("ndel"))return;data.notes=data.notes.filter(x=>x.id!==ui.ne.id);ui.ne=null;rNotes()};
 function xNotes(){return["Notizen",[["Titel","Text","Angeheftet","Geändert"],...data.notes.map(n=>[n.title,n.text,n.pin?"ja":"",String(n.upd).replace("T"," ")])]]}
+
+
+/* ---------- Anhänge (Bestellungen) ---------- */
+function attHTML(list,oid){
+ return `<div class="att">${list.map(a=>`<div class="a">${a.type.startsWith("image/")?`<img src="${a.data}" alt="" data-a="aopen" data-oid="${oid}" data-aid="${a.id}" style="pointer-events:auto">`:`<span data-a="aopen" data-oid="${oid}" data-aid="${a.id}" style="pointer-events:auto">📄<br>${esc(String(a.name||"Datei").slice(0,18))}</span>`}<button class="d" data-a="adel" data-oid="${oid}" data-aid="${a.id}">${armed("ad"+a.id)?"Weg?":"×"}</button></div>`).join("")}</div>
+ <div class="row" style="margin:0"><label class="attbtn" style="flex:1">📷 Kamera<input class="attin" data-oid="${oid}" type="file" accept="image/*" capture="environment" style="display:none"></label><label class="attbtn" style="flex:1">🖼️ Foto / Datei<input class="attin" data-oid="${oid}" type="file" accept="image/*,application/pdf" multiple style="display:none"></label></div>`}
+const attList=oid=>oid?((data.orders.find(o=>o.id===Number(oid))||{}).att||null):(ui.of?(ui.of.att=ui.of.att||[]):null);
+function attAdd(oid,a){if(oid){const o=data.orders.find(x=>x.id===Number(oid));if(!o)return;(o.att=o.att||[]).push(a)}else{ui.of.att=ui.of.att||[];ui.of.att.push(a)}}
+function imgShrink(src,cb){const im=new Image();im.onload=()=>{try{const sc=Math.min(1,1400/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*sc)),hh=Math.max(1,Math.round(im.height*sc)),c=document.createElement("canvas");c.width=w;c.height=hh;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,hh);x.drawImage(im,0,0,w,hh);cb(c.toDataURL("image/jpeg",.78))}catch(_){cb(null)}};im.onerror=()=>cb(null);im.src=src}
+document.addEventListener("change",e=>{const el=e.target;if(!el||!el.classList||!el.classList.contains("attin")||!el.files||!el.files.length)return;
+ const oid=el.dataset.oid||"",files=[...el.files];let left=files.length;
+ const done=()=>{if(--left<=0){render();toast("Anhang hinzugefügt"+(oid?"":" – mit „Bestellung speichern“ übernehmen"))}};
+ files.forEach(f=>{const fr=new FileReader();fr.onload=()=>{
+  if(String(f.type).startsWith("image/"))imgShrink(fr.result,u=>{if(u)attAdd(oid,{id:uid(),name:f.name||"Foto",type:"image/jpeg",data:u,added:today()});else toast("Bild konnte nicht gelesen werden");done()});
+  else if(f.type==="application/pdf"){if(f.size>5*1024*1024){toast("PDF zu groß (max. 5 MB)");done();return}attAdd(oid,{id:uid(),name:f.name||"Dokument.pdf",type:"application/pdf",data:fr.result,added:today()});done()}
+  else{toast("Nur Bilder oder PDF");done()}};fr.onerror=()=>{toast("Datei konnte nicht gelesen werden");done()};fr.readAsDataURL(f)});
+ el.value=""});
+act.adel=d=>{const k="ad"+d.aid;if(!armed(k)){ui.arm={k,t:Date.now()};render();setTimeout(()=>{if(!armed(k))render()},5200);return}
+ ui.arm=null;const l=attList(d.oid);if(l){const i=l.findIndex(a=>a.id===Number(d.aid));if(i>=0)l.splice(i,1)}render()};
+act.aopen=d=>{const l=attList(d.oid),a=l&&l.find(x=>x.id===Number(d.aid));if(!a)return;
+ if(a.type.startsWith("image/")){let ov=$("ov");if(!ov){ov=document.createElement("div");ov.id="ov";document.body.appendChild(ov)}
+  ov.innerHTML=`<img src="${a.data}" alt=""><button class="sec sm x" data-a="aclose">Schließen</button>`;ov.style.display="flex";return}
+ try{const b=atob(a.data.split(",")[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+  const url=URL.createObjectURL(new Blob([u],{type:a.type})),x=document.createElement("a");x.href=url;x.target="_blank";x.rel="noopener";x.download=a.name||"Dokument.pdf";document.body.appendChild(x);x.click();x.remove();setTimeout(()=>URL.revokeObjectURL(url),60000)}catch(_){toast("Konnte nicht geöffnet werden")}};
+act.aclose=()=>{const ov=$("ov");if(ov){ov.style.display="none";ov.innerHTML=""}};
 
 /* ---------- Konten ---------- */
 /* Personen: Details, Suche */
@@ -1569,7 +1612,7 @@ function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status
 function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
  data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
 function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Betrag","Notiz"],...data.moves.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(m=>[m.date,pnm(m.pid),m.dir==="out"?"Ich gebe":"Ich erhalte",UN[m.unit]||m.unit,m.amount,m.note||""])]]}
-function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Status","Notiz"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,o.done?"Erledigt":"Aktiv",o.note||""])));return["Bestellungen",r]}
+function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Status","Notiz","Anhänge"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,o.done?"Erledigt":"Aktiv",o.note||"",(o.att||[]).length||""])));return["Bestellungen",r]}
 function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Währung","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.cur||BC(),e.note||""])]]}
 async function xSave(kind){
  const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd(),xNotes()];
