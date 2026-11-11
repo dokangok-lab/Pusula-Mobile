@@ -51,7 +51,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 .rowc{border:1px solid var(--bd);border-radius:12px;padding:10px;margin-bottom:10px}
 .rf{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px;color:var(--mu)}
 .navb{flex:1;text-align:center;padding:12px 6px;border-radius:12px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--bd);color:var(--tx);background:var(--fld)}
-.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:10px}.chips button{width:auto;white-space:nowrap;padding:7px 12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.chips button{width:auto;white-space:nowrap;padding:7px 12px}
 .pill{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--fld);border:1px solid var(--bd);color:var(--mu)}
 [data-a]{cursor:pointer;-webkit-tap-highlight-color:transparent}[data-a] *{pointer-events:none}
 .nb{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom,0px)*.25 + 2px);display:flex;gap:2px;background:var(--hd);padding:6px;border-radius:20px;z-index:5;box-shadow:0 4px 16px rgba(0,0,0,.35)}
@@ -130,8 +130,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.43";
+const VER="0.44";
 const HIST=[
+ ["0.44","11.11.2026",["Fahrzeuge: Termine TÜV/HU, Inspektion, Ölwechsel (Datum/km), Kfz-Steuer und Versicherung (Betrag + Fälligkeit); Kosten direkt am Fahrzeug buchen – ins Hauptbuch, ein bestehendes oder ein eigenes Kontobuch; nächster Termin wird automatisch gesetzt; Fahrzeugtermine in „Fristen“","Knopf-Leisten (Kontobücher, Lager-Gruppen) brechen um statt seitlich zu wischen"]],
  ["0.43","11.11.2026",["Neu unter „Mehr“: Fahrtenbuch – Fahrzeuge mit Kennzeichen, Kraftstoff, Ø-Verbrauch und Preis pro Liter; Fahrten mit Start/Ziel (aktueller Standort, Adresse oder gespeicherte Person), Route in Karten öffnen, km, Hin und zurück; Liter und Kosten werden berechnet; Monatssumme; Excel-Blatt"]],
  ["0.42","11.11.2026",["Bestellung: Steinform (Radiant, Oval …) als Auswahl","Fristen: 2 Wochen, 3 Wochen, 1 Monat oder eigenes Datum – bei Bestellungen und bei Geld-Buchungen in Konten; Anzeige „in X Tg.“ / „überfällig“, Box „Fristen“ in der Übersicht; aktive Bestellungen nach Frist sortiert"]],
  ["0.41","11.11.2026",["Bestellungen: Anhänge – Foto mit Kamera, Bilder oder PDF (z. B. gescannte Dokumente); auch nachträglich in der aufgeklappten Bestellung; antippen zum Ansehen"]],
@@ -611,6 +612,38 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Termine ~ Dates ~ Tarihler
+TÜV / HU fällig ~ MOT due ~ Muayene tarihi
+Inspektion fällig ~ Service due ~ Bakım tarihi
+Ölwechsel fällig ~ Oil change due ~ Yağ değişimi tarihi
+Ölwechsel bei km ~ Oil change at km ~ Yağ değişimi km
+z. B. 120000 ~ e.g. 120000 ~ örn. 120000
+Jährliche Kosten ~ Annual costs ~ Yıllık giderler
+Kfz-Steuer pro Jahr ~ Vehicle tax per year ~ Yıllık araç vergisi
+Steuer fällig ~ Tax due ~ Vergi tarihi
+Versicherung pro Jahr ~ Insurance per year ~ Yıllık sigorta
+Versicherung fällig ~ Insurance due ~ Sigorta tarihi
+z. B. 280 ~ e.g. 280 ~ örn. 280
+z. B. 760 ~ e.g. 760 ~ örn. 760
+Kosten buchen in ~ Book costs in ~ Giderleri şuraya kaydet
+➕ Eigenes Kontobuch für dieses Fahrzeug ~ ➕ Own cash book for this vehicle ~ ➕ Bu araç için ayrı defter
+Kosten buchen ~ Book costs ~ Gider kaydet
+Keine Termine eingetragen. ~ No dates entered. ~ Tarih girilmedi.
+Fixkosten pro Jahr (Steuer + Versicherung) ~ Fixed costs per year (tax + insurance) ~ Yıllık sabit giderler (vergi + sigorta)
+z. B. Werkstatt Müller ~ e.g. Müller garage ~ örn. Müller servis
+Bei TÜV, Inspektion, Ölwechsel, Steuer und Versicherung wird der nächste Termin automatisch gesetzt. ~ For MOT, service, oil change, tax and insurance the next date is set automatically. ~ Muayene, bakım, yağ değişimi, vergi ve sigortada bir sonraki tarih otomatik ayarlanır.
+Noch keine Kosten. ~ No costs yet. ~ Henüz gider yok.
+Tanken ~ Fuel ~ Yakıt
+TÜV / HU ~ MOT ~ Muayene
+Inspektion ~ Service ~ Bakım
+Ölwechsel ~ Oil change ~ Yağ değişimi
+Reifen ~ Tyres ~ Lastik
+Wäsche / Pflege ~ Wash / care ~ Yıkama / bakım
+Kfz-Steuer ~ Vehicle tax ~ Araç vergisi
+Versicherung ~ Insurance ~ Sigorta
+Parken / Maut ~ Parking / tolls ~ Otopark / otoyol
+Fahrzeuge: Termine TÜV/HU, Inspektion, Ölwechsel (Datum/km), Kfz-Steuer und Versicherung (Betrag + Fälligkeit); Kosten direkt am Fahrzeug buchen – ins Hauptbuch, ein bestehendes oder ein eigenes Kontobuch; nächster Termin wird automatisch gesetzt; Fahrzeugtermine in „Fristen“ ~ Vehicles: dates for MOT, service, oil change (date/km), vehicle tax and insurance (amount + due date); book costs directly on the vehicle – into the main book, an existing or an own cash book; next date set automatically; vehicle dates in “Deadlines” ~ Araçlar: muayene, bakım, yağ değişimi (tarih/km), araç vergisi ve sigorta (tutar + tarih); giderler doğrudan araçta – ana deftere, mevcut veya ayrı deftere; sonraki tarih otomatik; araç tarihleri “Vadeler”de
+Knopf-Leisten (Kontobücher, Lager-Gruppen) brechen um statt seitlich zu wischen ~ Button rows (cash books, stock groups) wrap instead of scrolling sideways ~ Düğme satırları (defterler, depo grupları) yana kaydırmak yerine alt satıra geçer
 Fahrtenbuch ~ Logbook ~ Yol defteri
 Fahrten ~ Trips ~ Seferler
 Fahrzeuge ~ Vehicles ~ Araçlar
@@ -1217,6 +1250,25 @@ act.aclose=()=>{const ov=$("ov");if(ov){ov.style.display="none";ov.innerHTML=""}
 
 
 /* ---------- Fahrtenbuch ---------- */
+const CDUE=[["tuev","TÜV / HU"],["insp","Inspektion"],["oil","Ölwechsel"],["taxd","Kfz-Steuer"],["insd","Versicherung"]];
+const CART=["Tanken","TÜV / HU","Inspektion","Ölwechsel","Reparatur","Reifen","Wäsche / Pflege","Kfz-Steuer","Versicherung","Parken / Maut","Sonstiges"];
+const CNEXT={"TÜV / HU":["tuev",24],"Inspektion":["insp",12],"Ölwechsel":["oil",12],"Kfz-Steuer":["taxd",12],"Versicherung":["insd",12]};
+const addM=(s,m)=>{const d=new Date(String(s||today())+"T12:00:00");d.setMonth(d.getMonth()+m);const z=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())};
+function carCostsHTML(c){if(!ui.ck)ui.ck={art:"Tanken",amt:"",date:today(),cur:BC(),note:""};const k=ui.ck,y=String(new Date().getFullYear());
+ const L=data.entries.filter(e=>e.car===c.id).sort((a,b)=>b.date.localeCompare(a.date)),sy=L.filter(e=>e.date.startsWith(y)).reduce((a,e)=>a+eBase(e),0);
+ const fix=parse(c.tax)+parse(c.ins);
+ return `<div class="card"><b>Termine</b>${CDUE.map(([f,l])=>c[f]?`<div class="it"><span>${l}</span><small>${dueTag(c[f])}</small></div>`:"").join("")||'<p class="mu">Keine Termine eingetragen.</p>'}
+ ${fix?`<div class="it"><span>Fixkosten pro Jahr (Steuer + Versicherung)</span><b>${eur(fix)}</b></div>`:""}</div>
+ <div class="card"><b>Kosten buchen</b><p class="mu" style="margin:4px 0 8px">Wird im Kontobuch „${esc(c.book?bkName(c.book)||"Hauptbuch":"Hauptbuch")}“ als Ausgabe gebucht.</p>
+ <div class="g2">${F("Art",S("ui.ck.art",k.art,CART))}${F("Datum",`<input type="date" data-f="ui.ck.date" value="${k.date}">`)}</div>
+ <div class="g2">${F("Betrag",I("ui.ck.amt",k.amt,"",'inputmode="decimal"'))}${F("Währung",S("ui.ck.cur",k.cur,[["EUR","EUR €"],["USD","USD $"]]))}</div>
+ ${F("Notiz",I("ui.ck.note",k.note,"z. B. Werkstatt Müller"))}<button data-a="ckadd">Kosten buchen</button>
+ <p class="mu" style="margin:6px 0 0">Bei TÜV, Inspektion, Ölwechsel, Steuer und Versicherung wird der nächste Termin automatisch gesetzt.</p></div>
+ <div class="card"><div class="it"><b>Kosten ${y}</b><b>${eur(sy)}</b></div>${L.map(e=>`<div class="it"><div>${esc(e.cat.replace(/^🚗 [^·]*· /,""))}<small>${dt(e.date)}${e.note?" · "+esc(e.note):""}</small></div><div class="r out">−${f2(e.amount)} ${SYM(e.cur||BC())}</div></div>`).join("")||'<p class="mu">Noch keine Kosten.</p>'}</div>`}
+act.ckadd=()=>{const c=carOf(ui.ce&&ui.ce.id);if(!c)return;const k=ui.ck||{art:"Tanken",amt:"",date:today(),cur:BC(),note:""},a=parse(k.amt);if(!(a>0)){toast("Bitte Betrag eingeben");return}
+ const cur=k.cur||BC();data.entries.push({id:uid(),type:"out",amount:a,cat:"🚗 "+(c.plate||c.name)+" · "+k.art,note:String(k.note||"").trim(),date:k.date||today(),book:c.book||0,cur,rate:cur===BC()?1:R("usd"),car:c.id});
+ const nx=CNEXT[k.art];let msg="Gebucht";if(nx){c[nx[0]]=addM(k.date,nx[1]);ui.ce[nx[0]]=c[nx[0]];msg+=" – nächster Termin "+dt(c[nx[0]])}
+ ui.ck={art:k.art,amt:"",date:today(),cur,note:""};rTrips();toast(msg)};
 const FUEL=["Super E5","Super E10","Super Plus","Diesel","LPG (Autogas)","Elektro","Hybrid (Benzin)"];
 const fuelU=f=>f==="Elektro"?"kWh":"L";
 const carOf=id=>data.cars.find(c=>c.id===Number(id));
@@ -1235,7 +1287,15 @@ function rTrips(){const e=$("s-trips");
   ${F("Bezeichnung",I("ui.ce.name",c.name,"z. B. Mercedes C-Klasse"))}${F("Kennzeichen",I("ui.ce.plate",c.plate,"z. B. B-AB 1234",'autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}
   ${F("Kraftstoff",S("ui.ce.fuel",c.fuel,FUEL,'data-r="1"'))}
   <div class="g2">${F("Ø Verbrauch ("+fuelU(c.fuel)+"/100 km)",I("ui.ce.cons",c.cons,"z. B. 6,5",'inputmode="decimal"'))}${F("Preis pro "+(fuelU(c.fuel)==="kWh"?"kWh":"Liter")+" ("+SYM(BC())+")",I("ui.ce.price",c.price,"z. B. 1,79",'inputmode="decimal"'))}</div>
-  <div class="row"><button data-a="csave">Speichern</button>${c.id?`<button class="sec" data-a="cdel">${dl("cdel","Löschen")}</button>`:""}</div></div>`;return}
+  <div class="lbl" style="margin-top:6px"><b>Termine</b></div>
+  <div class="g2">${F("TÜV / HU fällig",`<input type="date" data-f="ui.ce.tuev" value="${c.tuev||""}">`)}${F("Inspektion fällig",`<input type="date" data-f="ui.ce.insp" value="${c.insp||""}">`)}</div>
+  <div class="g2">${F("Ölwechsel fällig",`<input type="date" data-f="ui.ce.oil" value="${c.oil||""}">`)}${F("Ölwechsel bei km",I("ui.ce.oilkm",c.oilkm||"","z. B. 120000",'inputmode="numeric"'))}</div>
+  <div class="lbl" style="margin-top:6px"><b>Jährliche Kosten</b></div>
+  <div class="g2">${F("Kfz-Steuer pro Jahr",I("ui.ce.tax",c.tax||"","z. B. 280",'inputmode="decimal"'))}${F("Steuer fällig",`<input type="date" data-f="ui.ce.taxd" value="${c.taxd||""}">`)}</div>
+  <div class="g2">${F("Versicherung pro Jahr",I("ui.ce.ins",c.ins||"","z. B. 760",'inputmode="decimal"'))}${F("Versicherung fällig",`<input type="date" data-f="ui.ce.insd" value="${c.insd||""}">`)}</div>
+  ${F("Kosten buchen in",S("ui.ce.book",String(c.book??0),[["0","Hauptbuch"],...data.books.map(b=>[String(b.id),b.name]),["new","➕ Eigenes Kontobuch für dieses Fahrzeug"]]))}
+  <div class="row"><button data-a="csave">Speichern</button>${c.id?`<button class="sec" data-a="cdel">${dl("cdel","Löschen")}</button>`:""}</div></div>
+  ${c.id?carCostsHTML(c):""}`;return}
  if(ui.te){const t=ui.te,c=carOf(t.car),u=fuelU(c&&c.fuel);
   const side=(s,lab)=>{const k=t[s+"k"];return F(lab,S("ui.te."+s+"k",k,locOpts(true),'data-r="1"'))+(k==="addr"?F("Adresse",I("ui.te."+s+"txt",t[s+"txt"],"Straße, Ort",'autocorrect="off"')):"")+
    (k==="cur"?`<div class="row" style="margin:0 0 8px"><button class="sec" data-a="tloc" data-s="${s}">📍 Standort ermitteln</button></div><p class="mu" style="margin:-4px 0 8px">${t[s+"lat"]?"✅ "+esc(locTxt("cur","",t[s+"lat"],t[s+"lon"])):"Noch nicht ermittelt"}</p>`:"")+
@@ -1252,7 +1312,7 @@ function rTrips(){const e=$("s-trips");
   <div class="g2">${F("Art",S("ui.te.kind",t.kind,["Geschäftlich","Privat","Arbeitsweg"]))}${F("Zweck / Notiz",I("ui.te.purpose",t.purpose,"z. B. Ware abholen"))}</div>
   <div class="row"><button data-a="tsave">Speichern</button>${t.id?`<button class="sec" data-a="tdel">${dl("tdel","Löschen")}</button>`:""}</div></div>`;uTrip();return}
  const head=`<div class="bar"><span>Fahrtenbuch</span><span>🚗</span></div><div class="card"><div class="tg">${TG("tv",ui.tv,[["trips","Fahrten"],["cars","Fahrzeuge"]])}</div></div>`;
- if(ui.tv==="cars"){e.innerHTML=head+`<button data-a="cnew">+ Neues Fahrzeug</button><div class="card" style="margin-top:10px">${data.cars.map(c=>`<div class="it click" data-a="cedit" data-id="${c.id}"><div><b>${esc(c.plate||"–")}</b><small>${esc(c.name||"")} · ${esc(c.fuel)}</small></div><div class="r"><small>${f2(parse(c.cons))} ${fuelU(c.fuel)}/100 km<br>${f2(parse(c.price))} ${SYM(BC())}/${fuelU(c.fuel)}</small></div></div>`).join("")||'<p class="mu">Noch keine Fahrzeuge.</p>'}</div>`;return}
+ if(ui.tv==="cars"){e.innerHTML=head+`<button data-a="cnew">+ Neues Fahrzeug</button><div class="card" style="margin-top:10px">${data.cars.map(c=>`<div class="it click" data-a="cedit" data-id="${c.id}"><div><b>${esc(c.plate||"–")}</b><small>${[esc(c.name||""),esc(c.fuel)].filter(Boolean).join(" · ")}</small>${(n=>n?`<small>${n[1]}: ${dueTag(n[0])}</small>`:"")(CDUE.map(([f,l])=>[c[f],l]).filter(x=>x[0]).sort((a,b)=>a[0].localeCompare(b[0]))[0])}</div><div class="r"><small>${f2(parse(c.cons))} ${fuelU(c.fuel)}/100 km<br>${f2(parse(c.price))} ${SYM(BC())}/${fuelU(c.fuel)}</small></div></div>`).join("")||'<p class="mu">Noch keine Fahrzeuge.</p>'}</div>`;return}
  const m=ym(new Date()),L=data.trips.filter(t=>!ui.tcar||t.car===ui.tcar).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id),M=L.filter(t=>t.date.startsWith(m));
  const sum=a=>a.reduce((s,t)=>({km:s.km+t.kmT,l:s.l+t.liters,c:s.c+t.cost}),{km:0,l:0,c:0}),S1=sum(M);
  e.innerHTML=head+`<button data-a="tnew">+ Neue Fahrt</button>
@@ -1261,12 +1321,13 @@ function rTrips(){const e=$("s-trips");
  <div class="card">${L.map(t=>{const c=carOf(t.car);return `<div class="it click" data-a="tedit" data-id="${t.id}"><div style="flex:1;min-width:0"><b>${esc(t.fromT)} → ${esc(t.toT)}</b><small>${[dt(t.date),esc(carLbl(c)),esc(t.kind)].filter(Boolean).join(" · ")}${t.purpose?" · "+esc(t.purpose):""}</small></div><div class="r"><b>${f2(t.kmT).replace(/,00$/,"")} km</b><br><small>${f2(t.liters)} ${fuelU(c&&c.fuel)} · ${f2(t.cost)} ${SYM(t.cur||BC())}</small></div></div>`}).join("")||'<p class="mu">Noch keine Fahrten.</p>'}</div>`}
 act.tv=d=>{ui.tv=d.v;rTrips()};
 act.cnew=()=>{ui.ce={id:0,name:"",plate:"",fuel:"Diesel",cons:"",price:""};ui.te=null;rTrips()};
-act.cedit=d=>{const c=carOf(d.id);if(c){ui.ce={...c};rTrips()}};
+act.cedit=d=>{const c=carOf(d.id);if(c){ui.ce={...c};ui.ck={art:"Tanken",amt:"",date:today(),cur:BC(),note:""};rTrips();window.scrollTo(0,0)}};
 act.cback=()=>{ui.ce=null;rTrips()};
 act.csave=()=>{const c=ui.ce;if(!String(c.plate).trim()&&!String(c.name).trim()){toast("Bitte Kennzeichen oder Bezeichnung eingeben");return}
- const o={id:c.id||uid(),name:String(c.name||"").trim(),plate:String(c.plate||"").trim().toUpperCase(),fuel:c.fuel,cons:c.cons,price:c.price};
+ const o={id:c.id||uid(),name:String(c.name||"").trim(),plate:String(c.plate||"").trim().toUpperCase(),fuel:c.fuel,cons:c.cons,price:c.price,tuev:c.tuev||"",insp:c.insp||"",oil:c.oil||"",oilkm:c.oilkm||"",tax:c.tax||"",taxd:c.taxd||"",ins:c.ins||"",insd:c.insd||"",book:0};
+ if(c.book==="new"){const b={id:uid(),name:"Fahrzeug "+(o.plate||o.name)};data.books.push(b);o.book=b.id}else o.book=Number(c.book)||0;
  const i=data.cars.findIndex(x=>x.id===o.id);if(i<0)data.cars.push(o);else data.cars[i]=o;ui.ce=null;
- if(ui.tpend){ui.tpend=false;ui.tv="trips";ui.te=newTrip();ui.te.car=o.id;ui.te.cons=String(o.cons||"");ui.te.price=String(o.price||"")}else ui.tv="cars";rTrips();toast("Gespeichert")};
+ if(ui.tpend){ui.tpend=false;ui.tv="trips";ui.te=newTrip();ui.te.car=o.id;ui.te.cons=String(o.cons||"");ui.te.price=String(o.price||"")}else ui.tv="cars";if(!ui.tpend&&c.id){ui.ce={...o};}rTrips();toast("Gespeichert")};
 act.cdel=()=>{const id=ui.ce.id;if(data.trips.some(t=>t.car===id)){toast("Fahrzeug hat Fahrten – kann nicht gelöscht werden");return}
  if(!confirmTap("cdel"))return;data.cars=data.cars.filter(c=>c.id!==id);ui.ce=null;rTrips()};
 act.tnew=()=>{ui.tv="trips";if(!data.cars.length){act.cnew();ui.tpend=true;toast("Erst ein Fahrzeug anlegen");return}ui.te=newTrip();rTrips()};
@@ -1693,10 +1754,12 @@ function cashBy(types){const c={};data.moves.forEach(m=>{const o=types[m.type];i
 function pStart(k){const d=new Date();if(k==="y")return d.getFullYear()+"-01-01";if(k!=="t")d.setDate(d.getDate()-(Number(k)-1));return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 const PERS=[["t","Heute"],["7","7 Tage"],["30","30 Tage"],["90","90 Tage"],["y","Dieses Jahr"]];
 act.mpaid=d=>{const m=data.moves.find(x=>x.id===Number(d.id));if(m){m.paid=!m.paid;render()}};
+act.gocar=d=>{ui.te=null;go("trips");act.cedit({id:d.id})};
 act.gom=d=>{ui.pid=Number(d.id);ui.kdir="in";go("konten")};
 function ocDue(){const L=[];
  data.orders.forEach(o=>{if(o.due&&!o.done)L.push({d:o.due,h:`<div class="it click" data-a="go" data-v="orders"><div><b>📋 ${esc(o.no||"")} · ${oQty(o)} Stück</b><small>${esc(pnm(o.pid))}</small></div><div class="r"><small>${dueTag(o.due)}</small></div></div>`})});
  data.moves.forEach(m=>{if(m.due&&!m.paid)L.push({d:m.due,h:`<div class="it click" data-a="gom" data-id="${m.pid}"><div><b>💶 ${esc(pnm(m.pid))}</b><small>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><small>${dueTag(m.due)}</small></div></div>`})});
+ data.cars.forEach(c=>CDUE.forEach(([f,l])=>{if(c[f]&&daysTo(c[f])<=30)L.push({d:c[f],h:`<div class="it click" data-a="gocar" data-id="${c.id}"><div><b>🚗 ${esc(c.plate||c.name)}</b><small>${l}</small></div><div class="r"><small>${dueTag(c[f])}</small></div></div>`})}));
  L.sort((a,b)=>a.d.localeCompare(b.d));
  return L.length?box("Fristen","⏰",L.slice(0,8).map(x=>x.h).join("")):""}
 function rHome(){
