@@ -129,8 +129,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.41";
+const VER="0.42";
 const HIST=[
+ ["0.42","11.11.2026",["Bestellung: Steinform (Radiant, Oval …) als Auswahl","Fristen: 2 Wochen, 3 Wochen, 1 Monat oder eigenes Datum – bei Bestellungen und bei Geld-Buchungen in Konten; Anzeige „in X Tg.“ / „überfällig“, Box „Fristen“ in der Übersicht; aktive Bestellungen nach Frist sortiert"]],
  ["0.41","11.11.2026",["Bestellungen: Anhänge – Foto mit Kamera, Bilder oder PDF (z. B. gescannte Dokumente); auch nachträglich in der aufgeklappten Bestellung; antippen zum Ansehen"]],
  ["0.40","11.11.2026",["Untere Leiste: „☰ Mehr“ statt Kontobuch – dort Kontobuch, Notizen, Bestellungen, Einstellungen","Neu: Notizen (Titel, Text, anheften, suchen); im Excel-Export als eigenes Blatt"]],
  ["0.39","11.11.2026",["Kontobuch: Währung je Eintrag wählbar (EUR oder USD); Summen in der Hauptwährung, Fremdwährung zum Kurs am Buchungstag; Kasse in der Übersicht getrennt nach Währung"]],
@@ -273,6 +274,7 @@ function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders"
  const nv=["kasse","orders","set","more","notes"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
 act.go=d=>go(d.v);
 function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes})[ui.s]()}
+function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
 document.addEventListener("input",e=>{const el=e.target;if(!el.dataset||!el.dataset.f||el.tagName==="SELECT"||el.type==="checkbox")return;apply(el,false)});
@@ -606,6 +608,18 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Steinform ~ Stone shape ~ Taş şekli
+Frist ~ Deadline ~ Vade
+Frist bis ~ Deadline on ~ Vade tarihi
+Frist bis: ~ Deadline: ~ Vade:
+– keine Frist – ~ – no deadline – ~ – vade yok –
+2 Wochen ~ 2 weeks ~ 2 hafta
+3 Wochen ~ 3 weeks ~ 3 hafta
+1 Monat ~ 1 month ~ 1 ay
+Fristen ~ Deadlines ~ Vadeler
+Wieder offen ~ Open again ~ Tekrar açık
+Bestellung: Steinform (Radiant, Oval …) als Auswahl ~ Order: stone shape (radiant, oval …) as a picker ~ Sipariş: taş şekli (radiant, oval …) seçimle
+Fristen: 2 Wochen, 3 Wochen, 1 Monat oder eigenes Datum – bei Bestellungen und bei Geld-Buchungen in Konten; Anzeige „in X Tg.“ / „überfällig“, Box „Fristen“ in der Übersicht; aktive Bestellungen nach Frist sortiert ~ Deadlines: 2 weeks, 3 weeks, 1 month or own date – for orders and money postings in accounts; shown as “in X days” / “overdue”, “Deadlines” box in the overview; active orders sorted by deadline ~ Vadeler: 2 hafta, 3 hafta, 1 ay veya özel tarih – siparişlerde ve hesaplardaki para kayıtlarında; “X gün içinde” / “gecikmiş” gösterimi, ana ekranda “Vadeler” kutusu; aktif siparişler vadeye göre sıralı
 Anhänge ~ Attachments ~ Ekler
 (Fotos, Skizzen, Scans, PDF) ~ (photos, sketches, scans, PDF) ~ (fotoğraf, çizim, tarama, PDF)
 📷 Kamera ~ 📷 Camera ~ 📷 Kamera
@@ -1000,6 +1014,16 @@ function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:
 
 
 /* ---------- Bestellungen ---------- */
+/* ---------- Fristen ---------- */
+const DK=[["","– keine Frist –"],["14","2 Wochen"],["21","3 Wochen"],["1m","1 Monat"],["x","Eigene Angabe"]];
+function dueOf(date,dk,own){if(!dk)return"";if(dk==="x")return own||"";const d=new Date(String(date||today())+"T12:00:00");
+ if(dk==="1m")d.setMonth(d.getMonth()+1);else d.setDate(d.getDate()+Number(dk));const z=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())}
+const daysTo=s=>Math.round((new Date(s+"T12:00:00")-new Date(today()+"T12:00:00"))/864e5);
+function dueTag(s,done){if(!s)return"";const n=daysTo(s),c=done?"var(--mu)":n<0?"var(--out)":n<=3?"#f0a020":"var(--in)";
+ return `<span style="color:${c};font-weight:600">⏰ ${dt(s)}${done?"":n<0?" · "+(-n)+" Tg. überfällig":n===0?" · heute":" · in "+n+" Tg."}</span>`}
+function dueForm(base){const o=getPath(base)||{};
+ return F("Frist",S(base+".dk",o.dk||"",DK,'data-r="1"'))+(o.dk==="x"?F("Frist bis",`<input type="date" data-f="${base}.due" value="${o.due||""}">`):"")+
+  (o.dk?`<p class="mu" style="margin:-4px 0 8px">Frist bis: ${o.dk==="x"?(o.due?dt(o.due):"–"):dt(dueOf(o.date,o.dk))}</p>`:"")}
 const SNAT=[["","– wählen –"],"Echt","CVD","HPHT"],NATM={"Natürlich":"Echt","Labor (CVD)":"CVD","Labor (HPHT)":"HPHT"};
 const OART=["Ring","Ring mit Seitensteinen","Diamantring","Armband","Diamantarmband","Kette","Ohrringe","Anhänger","Anderes (selbst eingeben)"],OMET=["Gold","Roségold","Silber","Platin"],OCOL=[["y","Nur Gelb"],["w","Nur Weiß"],["h","50 : 50"],["c","Eigene Angabe"]],
  OFEIN=[["","– egal –"],["333","8K (333)"],["585","14K (585)"],["750","18K (750)"],["875","21K (875)"],["916","22K (916)"],["999","24K (999)"]],
@@ -1008,8 +1032,8 @@ const pfxO=()=>(data.prefix&&data.prefix.Bestellung)||"B";
 function nextOrdNo(date){const d=String(date||today()),pre=pfxO()+d.slice(2,4)+d.slice(5,7);let mx=0;
  data.orders.forEach(o=>{if(o.no&&o.no.startsWith(pre)){const r=o.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});
  return pre+String(mx+1).padStart(3,"0")}
-const newPos=(k)=>Object.assign({art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",qty:"1"},k||{});
-const newOf=()=>({no:nextOrdNo(today()),ov:false,note:"",date:today(),items:[],cur:newPos(),dirty:false,att:[]});
+const newPos=(k)=>Object.assign({art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",form:"",qty:"1"},k||{});
+const newOf=()=>({no:nextOrdNo(today()),ov:false,note:"",date:today(),dk:"",due:"",items:[],cur:newPos(),dirty:false,att:[]});
 const oItems=o=>Array.isArray(o.items)?o.items:[o];
 const oQty=o=>oItems(o).reduce((a,x)=>a+(Number(x.qty)||0),0);
 function colSplit(o){const q=Number(parse(o.qty))||0,c=o.col||"y";let y=q;
@@ -1018,12 +1042,12 @@ function colTxt(o){if(o.met!=="Gold"||!o.col)return o.met;const[y,w]=colSplit(o)
  if(!w)return"Gelbgold";if(!y)return"Weißgold";return y+"× Gelb + "+w+"× Weiß"}
 function uOf(){const e=$("ofw");if(e&&ui.of&&ui.of.cur){const[y,w]=colSplit(ui.of.cur);e.textContent="Gelb: "+y+" · Weiß: "+w}}
 function itemTxt(o){const ct=o.ct==="x"?o.ctc:o.ct,fe=o.fein?(OFEIN.find(x=>x[0]===o.fein)||[0,o.fein])[1].split(" ")[0]:"";
- return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,colTxt(o),fe,ct?ct+" ct":"",o.nat||""].filter(Boolean).join(" · ")}
+ return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,colTxt(o),fe,ct?ct+" ct":"",o.form||"",o.nat||""].filter(Boolean).join(" · ")}
 const ordTxt=o=>oItems(o).map(x=>x.qty+"× "+itemTxt(x)).join(" | ");
 function posFrom(c){const q=Math.round(parse(c.qty));if(!(q>0)){toast("Bitte Anzahl eingeben");return null}
  if(c.art==="Anderes (selbst eingeben)"&&!String(c.own).trim()){toast("Bitte Bezeichnung eingeben");return null}
  if(c.ct==="x"&&!(parse(c.ctc)>0)){toast("Bitte Steingröße eingeben");return null}
- return{art:c.art,own:String(c.own||"").trim(),met:c.met,col:c.met==="Gold"?c.col:"",cy:c.cy,fein:c.fein,ct:c.ct,ctc:c.ctc,nat:c.nat||"",qty:q}}
+ return{art:c.art,own:String(c.own||"").trim(),met:c.met,col:c.met==="Gold"?c.col:"",cy:c.cy,fein:c.fein,ct:c.ct,ctc:c.ctc,nat:c.nat||"",form:c.form||"",qty:q}}
 function ordForm(){const f=ui.of=(ui.of&&ui.of.cur)?ui.of:newOf(),c=f.cur,n=f.items.reduce((a,x)=>a+x.qty,0);
  return `<div class="bar">Neue Bestellung</div>
  <div class="g2">${F("Bestellnummer",`<input data-f="ui.of.no" value="${esc(f.no)}"${f.ov?"":" readonly"} autocapitalize="characters" autocorrect="off" spellcheck="false">`)}${F("Kürzel",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}</div>
@@ -1033,35 +1057,35 @@ function ordForm(){const f=ui.of=(ui.of&&ui.of.cur)?ui.of:newOf(),c=f.cur,n=f.it
  ${F("Artikel",S("ui.of.cur.art",c.art,OART,'data-r="1"'))}
  ${c.art==="Anderes (selbst eingeben)"?F("Bezeichnung",I("ui.of.cur.own",c.own,"z. B. Collier",'autocorrect="off"')):""}
  <div class="g2">${F("Metall",S("ui.of.cur.met",c.met,OMET,'data-r="1"'))}${F("Feingehalt",S("ui.of.cur.fein",c.fein,OFEIN))}</div>
- ${F("Steinart / Herkunft",S("ui.of.cur.nat",c.nat||"",SNAT))}
+ <div class="g2">${F("Steinart / Herkunft",S("ui.of.cur.nat",c.nat||"",SNAT))}${F("Steinform",S("ui.of.cur.form",c.form||"",[["","– wählen –"],...L_FORM]))}</div>
  <div class="g2">${F("Steingröße (ct)",S("ui.of.cur.ct",c.ct,OCT,'data-r="1"'))}${F("Anzahl",I("ui.of.cur.qty",c.qty,"",'inputmode="decimal" data-u="uOf"'))}</div>
  ${c.ct==="x"?F("Steingröße selbst (ct)",N("ui.of.cur.ctc",c.ctc)):""}
  ${c.met==="Gold"?F("Goldfarbe",S("ui.of.cur.col",c.col,OCOL,'data-r="1"'))+(c.col==="c"?F("Davon Gelb (Rest ist Weiß)",I("ui.of.cur.cy",c.cy,"",'inputmode="decimal" data-u="uOf"')):"")+'<p class="mu" id="ofw" style="margin:0 0 8px"></p>':""}
  <button class="sec" data-a="oadd">+ Position hinzufügen</button>
  <div style="height:10px"></div>
- ${F("Notiz",I("ui.of.note",f.note,"z. B. Größe 54, bis Freitag"))}${F("Datum",`<input type="date" data-f="ui.of.date" value="${f.date}">`)}
+ ${F("Notiz",I("ui.of.note",f.note,"z. B. Größe 54, bis Freitag"))}${F("Datum",`<input type="date" data-f="ui.of.date" value="${f.date}" data-r="1">`)}${dueForm("ui.of")}
  <div class="lbl"><b>Anhänge</b> <small class="mu">(Fotos, Skizzen, Scans, PDF)</small></div>${attHTML(f.att||[],"")}
  <button data-a="osave">Bestellung speichern</button>
  <p class="mu" style="margin:6px 0 0">Mehrere Positionen: jede mit „+ Position hinzufügen“ übernehmen. Eine ausgefüllte, noch nicht übernommene Position wird beim Speichern mitgenommen.</p>`}
 act.oadd=()=>{const f=ui.of,x=posFrom(f.cur);if(!x)return;f.items.push(x);
- f.cur=newPos({art:x.art,own:x.own,met:x.met,fein:x.fein,nat:x.nat,col:x.col||"y"});f.dirty=false;render();toast("Position hinzugefügt")};
+ f.cur=newPos({art:x.art,own:x.own,met:x.met,fein:x.fein,nat:x.nat,form:x.form,col:x.col||"y"});f.dirty=false;render();toast("Position hinzugefügt")};
 act.oposdel=d=>{ui.of.items.splice(Number(d.i),1);render()};
 act.osave=()=>{const f=ui.of;if(!ui.pid){toast("Keine Person gewählt");return}
  let items=f.items.slice();
  if(!items.length||f.dirty){const x=posFrom(f.cur);if(!x)return;items.push(x)}
  const no=String(f.no).trim();if(!no){toast("Nummer fehlt");return}
  if(data.orders.some(o=>o.no===no)){toast("Diese Nummer gibt es schon");return}
- data.orders.push({id:uid(),no,pid:ui.pid,items,note:String(f.note||"").trim(),date:f.date||today(),done:false,att:(f.att||[]).slice()});
+ data.orders.push({id:uid(),no,pid:ui.pid,items,note:String(f.note||"").trim(),date:f.date||today(),due:dueOf(f.date,f.dk,f.due),done:false,att:(f.att||[]).slice()});
  ui.of=newOf();render();toast("Bestellung gespeichert")};
 act.oex=d=>{const id=Number(d.id);ui.oex=ui.oex===id?0:id;render()};
 function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid),it=oItems(o),n=oQty(o),open=ui.oex===o.id;
  const sub=it.length===1?it[0].qty+"× "+itemTxt(it[0]):it.length+" Positionen";
  return `<div style="border-left:4px solid ${o.done?"var(--out)":"var(--in)"};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0">
- <div data-a="oex" data-id="${o.id}" style="flex:1;min-width:0"><b>${esc(o.no||"")} · ${n} Stück${(o.att||[]).length?" · 📎 "+o.att.length:""} ${open?"▴":"▾"}</b><small>${esc(sub)}</small><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}</small></div>
+ <div data-a="oex" data-id="${o.id}" style="flex:1;min-width:0"><b>${esc(o.no||"")} · ${n} Stück${(o.att||[]).length?" · 📎 "+o.att.length:""} ${open?"▴":"▾"}</b><small>${esc(sub)}</small><small>${showP&&p?esc(plabel(p))+" · ":""}${dt(o.date)}</small>${o.due?`<small>${dueTag(o.due,o.done)}</small>`:""}</div>
  <div class="r"><span class="${o.done?"out":"in"}"><b>${o.done?"Erledigt":"Aktiv"}</b></span><br><button class="sec sm" data-a="odone" data-id="${o.id}">${o.done?"Wieder aktiv":"Erledigt"}</button> <button class="sec sm" data-a="odel" data-id="${o.id}">${dl("od"+o.id,"Löschen")}</button></div></div>
  ${open?`<div style="padding:0 0 10px">${it.map(x=>{const[y,w]=x.met==="Gold"&&x.col?colSplit(x):[0,0];return `<div class="it" style="padding:6px 0"><div><b>${x.qty}×</b> ${esc(itemTxt(x))}${y&&w?`<small>Gelb ${y} · Weiß ${w}</small>`:""}</div></div>`}).join("")}
  <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div><div class="lbl" style="margin-top:6px"><b>Anhänge</b></div>${attHTML(o.att||[],String(o.id))}${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
-const ordSort=l=>l.slice().sort((a,b)=>(a.done-b.done)||String(b.date).localeCompare(a.date)||b.id-a.id);
+const ordSort=l=>l.slice().sort((a,b)=>(a.done-b.done)||(!a.done?String(a.due||"9999").localeCompare(String(b.due||"9999")):0)||String(b.date).localeCompare(a.date)||b.id-a.id);
 function ordList(pid){const l=ordSort(data.orders.filter(o=>o.pid===pid));
  return `</div><div class="card"><b>Bestellungen dieser Person</b>${l.map(o=>ordRow(o,false)).join("")||'<p class="mu">Noch keine Bestellungen.</p>'}`}
 act.odone=d=>{const o=data.orders.find(x=>x.id===Number(d.id));if(o){o.done=!o.done;o.doneDate=o.done?today():"";render()}};
@@ -1205,20 +1229,20 @@ function rKo(){
   if(ui.kdir==="ord")h+=ordForm()+ordList(ui.pid);
   if(ui.kf&&ui.kdir!=="ord"){const f=ui.kf;
    h+=`<div class="bar">${OP[f.k][0]}</div>${kExtra(f)}<div class="g2">${F("Betrag / Menge",N("ui.kf.amount",f.amount))}${F("Einheit",S("ui.kf.unit",f.unit,Object.keys(UN).map(u=>[u,UN[u]])))}</div>
-   ${F("Notiz (z. B. Ring, 14K)",I("ui.kf.note",f.note))}${F("Datum",`<input type="date" data-f="ui.kf.date" value="${f.date}">`)}
+   ${F("Notiz (z. B. Ring, 14K)",I("ui.kf.note",f.note))}${F("Datum",`<input type="date" data-f="ui.kf.date" value="${f.date}" data-r="1">`)}${dueForm("ui.kf")}
    <div class="row"><button data-a="kbook">Buchen</button><button class="sec" data-a="kcancel">Abbrechen</button></div>`}
   h+=`</div><div class="card"><b>Verlauf</b>${histHTML(ui.pid)}</div>`}
  $("s-konten").innerHTML=h;uOf()}
 function histHTML(pid){
  return data.moves.filter(m=>m.pid===pid).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(m=>
-  `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
+  `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small>${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
 act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=true;render()}};
 act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
 act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,sid:0,qty:"",q:""};render()};
 act.kcancel=()=>{ui.kf=null;render()};
 act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte Betrag eingeben");return}
  if(f.k==="VB"&&!f.prod){toast("Bitte eine Ware wählen");return}
- const mv={id:uid(),pid:ui.pid,type:f.k,dir:OP[f.k][1],unit:f.unit,amount:a,note:f.note.trim(),date:f.date||today()},date=mv.date;
+ const mv={id:uid(),pid:ui.pid,type:f.k,dir:OP[f.k][1],unit:f.unit,amount:a,note:f.note.trim(),date:f.date||today(),due:dueOf(f.date,f.dk,f.due)},date=mv.date;
  if(f.k==="VB"){const p=data.prods.find(x=>x.id===f.prod);if(p){p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prod=p.id}}
  if(f.k==="VO"&&f.sid){const q=parse(f.qty);if(q>0){const s=data.stock.find(x=>x.id===f.sid);data.smoves.push({id:uid(),sid:f.sid,qty:-q,date,note:"Verkauf an "+pnm(ui.pid),ref:"m"+mv.id});mv.ref="m"+mv.id;if(s&&!mv.note)mv.note=s.name}}
  data.moves.push(mv);ui.kf=null;render();toast("Gebucht")};
@@ -1543,6 +1567,13 @@ act.bgo=d=>{const[s,st]=d.v.split(":");ui.ps=st||"";ui.pg="";go(s)};
 function cashBy(types){const c={};data.moves.forEach(m=>{const o=types[m.type];if(o)c[m.unit]=(c[m.unit]||0)+(o>0?m.amount:-m.amount)});return c}
 function pStart(k){const d=new Date();if(k==="y")return d.getFullYear()+"-01-01";if(k!=="t")d.setDate(d.getDate()-(Number(k)-1));return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
 const PERS=[["t","Heute"],["7","7 Tage"],["30","30 Tage"],["90","90 Tage"],["y","Dieses Jahr"]];
+act.mpaid=d=>{const m=data.moves.find(x=>x.id===Number(d.id));if(m){m.paid=!m.paid;render()}};
+act.gom=d=>{ui.pid=Number(d.id);ui.kdir="in";go("konten")};
+function ocDue(){const L=[];
+ data.orders.forEach(o=>{if(o.due&&!o.done)L.push({d:o.due,h:`<div class="it click" data-a="go" data-v="orders"><div><b>📋 ${esc(o.no||"")} · ${oQty(o)} Stück</b><small>${esc(pnm(o.pid))}</small></div><div class="r"><small>${dueTag(o.due)}</small></div></div>`})});
+ data.moves.forEach(m=>{if(m.due&&!m.paid)L.push({d:m.due,h:`<div class="it click" data-a="gom" data-id="${m.pid}"><div><b>💶 ${esc(pnm(m.pid))}</b><small>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><small>${dueTag(m.due)}</small></div></div>`})});
+ L.sort((a,b)=>a.d.localeCompare(b.d));
+ return L.length?box("Fristen","⏰",L.slice(0,8).map(x=>x.h).join("")):""}
 function rHome(){
  const cash=cashBy({NT:1,NO:-1});data.entries.forEach(e=>{const c=e.cur||BC();cash[c]=(cash[c]||0)+(e.type==="in"?e.amount:-e.amount)});
  const bank=cashBy({KK:1,GH:-1});
@@ -1564,7 +1595,7 @@ function rHome(){
  const dR=Object.keys(days).sort().reverse().slice(0,10).map(k=>[dt(k),String(days[k].n),Object.keys(days[k].r).map(c=>f2(days[k].r[c])+" "+c).join(" + ")||"–"]);
  $("s-home").innerHTML=
   box("Offene Position","⚖️",TB(["Währung","Forderung","Schuld","Differenz"],pos),"konten")+
-  ocBox()+ocOrd()+
+  ocDue()+ocBox()+ocOrd()+
   box("Kasse","💶",TB(["Währung","Bestand"],bl(cash)),"kasse")+
   box("Bank","🏦",TB(["Währung","Bestand"],bl(bank)),"kasse")+
   box("Lager ohne Barcode","📦",TB(["Artikel","Menge","Feingehalt"],stR),"lager")+
