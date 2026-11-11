@@ -130,8 +130,11 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.47";
+const VER="0.50";
 const HIST=[
+ ["0.50","11.11.2026",["Bestellung teilen: „💬 WhatsApp“ (Text), „💬 WhatsApp an Kunde“ (wenn Telefon hinterlegt), „📤 Teilen + Fotos“ über das iPhone-Teilen-Menü; Option „Ohne Kundendaten“ für die Werkstatt"]],
+ ["0.49","11.11.2026",["Bestellung: Lieferung je Position eintragen – fertige Ware wählen oder ohne Barcode mit Stückzahl und Notiz; „Geliefert X von Y · noch Z offen“","Eigene Notiz je Position (z. B. Ringgröße, Gravur)"]],
+ ["0.48","11.11.2026",["Bestellung: Feld „Modell“ (z. B. Tiffany Style) als Auswahl; eigene Modelle direkt in der Bestellung (➕ Neues Modell) oder in den Einstellungen hinzufügen und entfernen"]],
  ["0.47","11.11.2026",["Bestellungen bearbeiten: Positionen ändern, hinzufügen oder entfernen, Anzahl, Notiz, Datum, Frist, Anhänge und Person nachträglich anpassen; Zuordnungen bleiben erhalten"]],
  ["0.46","11.11.2026",["Bestellungen: fertige Ware je Position zuordnen (in der aufgeklappten Bestellung oder beim „Verkauf mit Barcode“ in Konten); Anzeige „noch X Stück offen“; vollständige Bestellung wird automatisch erledigt; Warenliste zeigt 📋 Bestellnummer"]],
  ["0.45","11.11.2026",["Bar- und Überweisungsbuchungen in Konten und Verkauf landen automatisch im Kontobuch (Ziel-Kontobuch für Bar und Überweisung einstellbar, 🔗 markiert)","Kontobuch: Übertragung zwischen Kontobüchern (z. B. Hauptbuch → SAFE); zählt im Hauptbuch (alle) nicht als Einnahme/Ausgabe"]],
@@ -238,6 +241,7 @@ function show(on){$("start").classList.toggle("hide",on);$("main").classList.tog
 function open(d){
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
+ if(!Array.isArray(data.models))data.models=["Solitär","Tiffany Style","Halo","Trilogy","Memoire / Eternity","Tennis","Vintage","Toi et Moi"];
  ui.lastCur=data.base;
  data.stock.forEach(s=>{if(isSingle(s)&&parse(s.ct)>0&&!data.smoves.some(m=>m.sid===s.id&&m.qty>0))data.smoves.push({id:uid(),sid:s.id,qty:parse(s.ct),date:today(),note:"Einzelstein",ref:"init"})});
  data.orders.forEach(o=>{if(!Array.isArray(o.items)){o.items=[{art:o.art||"Ring",own:o.own||"",met:o.met||"Gold",col:o.col||"",cy:o.cy||"",fein:o.fein||"",ct:o.ct||"",ctc:o.ctc||"",nat:o.nat||"",qty:Number(o.qty)||1}];["art","own","met","col","cy","fein","ct","ctc","nat","qty"].forEach(k=>delete o[k])}});
@@ -616,6 +620,35 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+💬 WhatsApp ~ 💬 WhatsApp ~ 💬 WhatsApp
+📤 Teilen ~ 📤 Share ~ 📤 Paylaş
+📤 Teilen + Fotos ~ 📤 Share + photos ~ 📤 Paylaş + fotoğraflar
+Ohne Kundendaten senden (z. B. an die Werkstatt) ~ Send without customer data (e.g. to the workshop) ~ Müşteri bilgisi olmadan gönder (örn. atölyeye)
+Text kopiert – in WhatsApp einfügen ~ Text copied – paste into WhatsApp ~ Metin kopyalandı – WhatsApp’a yapıştırın
+Teilen nicht möglich ~ Sharing not possible ~ Paylaşım mümkün değil
+Bestellung teilen: „💬 WhatsApp“ (Text), „💬 WhatsApp an Kunde“ (wenn Telefon hinterlegt), „📤 Teilen + Fotos“ über das iPhone-Teilen-Menü; Option „Ohne Kundendaten“ für die Werkstatt ~ Share order: “💬 WhatsApp” (text), “💬 WhatsApp to customer” (if phone stored), “📤 Share + photos” via the iPhone share sheet; option “without customer data” for the workshop ~ Siparişi paylaş: “💬 WhatsApp” (metin), “💬 müşteriye WhatsApp” (telefon kayıtlıysa), iPhone paylaşım menüsüyle “📤 Paylaş + fotoğraflar”; atölye için “müşteri bilgisi olmadan” seçeneği
+✍️ Ohne Barcode / manuell eintragen ~ ✍️ Without barcode / enter manually ~ ✍️ Barkodsuz / elle gir
+Notiz, z. B. Ring 2,8 g übergeben ~ Note, e.g. ring 2.8 g handed over ~ Not, örn. yüzük 2,8 g teslim edildi
+Eintragen ~ Enter ~ Kaydet
+Eingetragen ~ Entered ~ Kaydedildi
+Fertige Ware wählen oder ohne Barcode mit Stückzahl eintragen. ~ Pick a finished item or enter without barcode with quantity. ~ Hazır ürün seçin veya barkodsuz adetle girin.
+Keine fertige Ware im Lager – mit Stückzahl und Notiz eintragen. ~ No finished items in stock – enter with quantity and note. ~ Depoda hazır ürün yok – adet ve notla girin.
+ohne Barcode ~ without barcode ~ barkodsuz
+Notiz zu dieser Position ~ Note for this position ~ Bu kalem için not
+z. B. Ringgröße 54, Gravur „A & M“ ~ e.g. ring size 54, engraving “A & M” ~ örn. yüzük ölçüsü 54, gravür “A & M”
+Bestellung: Lieferung je Position eintragen – fertige Ware wählen oder ohne Barcode mit Stückzahl und Notiz; „Geliefert X von Y · noch Z offen“ ~ Order: enter delivery per position – pick a finished item or without barcode with quantity and note; “delivered X of Y · Z still open” ~ Sipariş: kalem başına teslimat – hazır ürün seçin veya barkodsuz adet ve notla; “Y’den X teslim · Z açık”
+Eigene Notiz je Position (z. B. Ringgröße, Gravur) ~ Own note per position (e.g. ring size, engraving) ~ Kalem başına not (örn. yüzük ölçüsü, gravür)
+Modell ~ Model ~ Model
+– kein Modell – ~ – no model – ~ – model yok –
+➕ Neues Modell … ~ ➕ New model … ~ ➕ Yeni model …
+z. B. Tiffany Style ~ e.g. Tiffany style ~ örn. Tiffany stili
+Hinzufügen ~ Add ~ Ekle
+Bitte Modellnamen eingeben ~ Please enter a model name ~ Lütfen model adı girin
+Modelle (Bestellung) ~ Models (orders) ~ Modeller (sipariş)
+Diese Modelle stehen bei Bestellungen zur Auswahl. Antippen zum Entfernen. ~ These models are offered in orders. Tap to remove. ~ Bu modeller siparişlerde seçilebilir. Kaldırmak için dokunun.
+Keine Modelle. ~ No models. ~ Model yok.
+Neues Modell, z. B. Tiffany Style ~ New model, e.g. Tiffany style ~ Yeni model, örn. Tiffany stili
+Bestellung: Feld „Modell“ (z. B. Tiffany Style) als Auswahl; eigene Modelle direkt in der Bestellung (➕ Neues Modell) oder in den Einstellungen hinzufügen und entfernen ~ Order: “model” field (e.g. Tiffany style) as a picker; add and remove own models directly in the order (➕ New model) or in settings ~ Sipariş: seçimli “model” alanı (örn. Tiffany stili); kendi modellerinizi siparişte (➕ Yeni model) veya ayarlarda ekleyip kaldırın
 ✏️ Bestellung bearbeiten ~ ✏️ Edit order ~ ✏️ Siparişi düzenle
 Änderungen speichern ~ Save changes ~ Değişiklikleri kaydet
 Bestellung geändert ~ Order changed ~ Sipariş değiştirildi
@@ -1174,7 +1207,7 @@ const pfxO=()=>(data.prefix&&data.prefix.Bestellung)||"B";
 function nextOrdNo(date){const d=String(date||today()),pre=pfxO()+d.slice(2,4)+d.slice(5,7);let mx=0;
  data.orders.forEach(o=>{if(o.no&&o.no.startsWith(pre)){const r=o.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});
  return pre+String(mx+1).padStart(3,"0")}
-const newPos=(k)=>Object.assign({art:"Ring",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",form:"",qty:"1"},k||{});
+const newPos=(k)=>Object.assign({art:"Ring",model:"",pnote:"",own:"",met:"Gold",col:"y",cy:"",fein:"",ct:"",ctc:"",nat:"",form:"",qty:"1"},k||{});
 const newOf=()=>({no:nextOrdNo(today()),ov:false,note:"",date:today(),dk:"",due:"",items:[],cur:newPos(),dirty:false,att:[]});
 const oItems=o=>Array.isArray(o.items)?o.items:[o];
 const oQty=o=>oItems(o).reduce((a,x)=>a+(Number(x.qty)||0),0);
@@ -1184,37 +1217,47 @@ function colTxt(o){if(o.met!=="Gold"||!o.col)return o.met;const[y,w]=colSplit(o)
  if(!w)return"Gelbgold";if(!y)return"Weißgold";return y+"× Gelb + "+w+"× Weiß"}
 function uOf(){const e=$("ofw");if(e&&ui.of&&ui.of.cur){const[y,w]=colSplit(ui.of.cur);e.textContent="Gelb: "+y+" · Weiß: "+w}}
 function itemTxt(o){const ct=o.ct==="x"?o.ctc:o.ct,fe=o.fein?(OFEIN.find(x=>x[0]===o.fein)||[0,o.fein])[1].split(" ")[0]:"";
- return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,colTxt(o),fe,ct?ct+" ct":"",o.form||"",o.nat||""].filter(Boolean).join(" · ")}
-const ordTxt=o=>oItems(o).map(x=>x.qty+"× "+itemTxt(x)).join(" | ");
+ return [o.art==="Anderes (selbst eingeben)"?(o.own||"Artikel"):o.art,o.model||"",colTxt(o),fe,ct?ct+" ct":"",o.form||"",o.nat||""].filter(Boolean).join(" · ")}
+const ordTxt=o=>oItems(o).map(x=>x.qty+"× "+itemTxt(x)+(x.pnote?" ("+x.pnote+")":"")).join(" | ");
 /* Ware ↔ Bestellung */
 const itPids=x=>(x.pids||[]).filter(id=>data.prods.some(p=>p.id===id));
-const itOpen=x=>Math.max(0,(Number(x.qty)||0)-itPids(x).length);
+const itDel=x=>x.del||[];
+const itGot=x=>itPids(x).length+itDel(x).reduce((a,d)=>a+(Number(d.qty)||0),0);
+const itOpen=x=>Math.max(0,(Number(x.qty)||0)-itGot(x));
 const oOpen=o=>oItems(o).reduce((a,x)=>a+itOpen(x),0);
 function prodOrd(id){for(const o of data.orders){const it=oItems(o);for(let i=0;i<it.length;i++)if((it[i].pids||[]).includes(id))return{o,i}}return null}
 const oCand=o=>data.prods.filter(p=>!prodOrd(p.id)&&(p.status==="done"||(p.status==="sold"&&p.soldTo===o.pid)));
 function oAssign(oid,i,pid){const o=data.orders.find(x=>x.id===Number(oid)),x=o&&oItems(o)[i],p=data.prods.find(y=>y.id===Number(pid));if(!x||!p)return false;
  if(prodOrd(p.id)){toast("Ware ist schon einer Bestellung zugeordnet");return false}if(!itOpen(x)){toast("Position ist schon vollständig");return false}
- (x.pids=x.pids||[]).push(p.id);let m="Zugeordnet – noch "+oOpen(o)+" Stück offen";
- if(!oOpen(o)&&!o.done){o.done=true;o.autoDone=true;o.doneDate=today();m="Bestellung vollständig – als erledigt markiert"}toast(m);return true}
-act.oas=d=>{const s=$("oas-"+d.o+"-"+d.i);if(!s||!Number(s.value)){toast("Bitte eine Ware wählen");return}if(oAssign(d.o,Number(d.i),s.value))render()};
+ (x.pids=x.pids||[]).push(p.id);oAfter(o,"Zugeordnet");return true}
+function oAfter(o,w){let m=w+" – noch "+oOpen(o)+" Stück offen";if(!oOpen(o)&&!o.done){o.done=true;o.autoDone=true;o.doneDate=today();m="Bestellung vollständig – als erledigt markiert"}toast(m)}
+act.oas=d=>{const k=d.o+"-"+d.i,s=$("oas-"+k),pid=s?Number(s.value):0;
+ if(pid){if(oAssign(d.o,Number(d.i),pid))render();return}
+ const o=data.orders.find(x=>x.id===Number(d.o)),x=o&&oItems(o)[Number(d.i)];if(!x)return;
+ const op=itOpen(x),q=Math.min(op,Math.max(1,Math.round(parse(($("oaq-"+k)||{}).value)||1))),note=String(($("oan-"+k)||{}).value||"").trim();
+ if(!op){toast("Position ist schon vollständig");return}(x.del=x.del||[]).push({id:uid(),qty:q,note,date:today()});oAfter(o,"Eingetragen");render()};
+act.odelv=d=>{const o=data.orders.find(x=>x.id===Number(d.o)),x=o&&oItems(o)[Number(d.i)];if(!x)return;x.del=itDel(x).filter(v=>v.id!==Number(d.id));render()};
 act.ounas=d=>{const o=data.orders.find(x=>x.id===Number(d.o)),x=o&&oItems(o)[Number(d.i)];if(!x)return;x.pids=(x.pids||[]).filter(id=>id!==Number(d.p));render()};
 function posFrom(c){const q=Math.round(parse(c.qty));if(!(q>0)){toast("Bitte Anzahl eingeben");return null}
  if(c.art==="Anderes (selbst eingeben)"&&!String(c.own).trim()){toast("Bitte Bezeichnung eingeben");return null}
  if(c.ct==="x"&&!(parse(c.ctc)>0)){toast("Bitte Steingröße eingeben");return null}
- return{art:c.art,own:String(c.own||"").trim(),met:c.met,col:c.met==="Gold"?c.col:"",cy:c.cy,fein:c.fein,ct:c.ct,ctc:c.ctc,nat:c.nat||"",form:c.form||"",qty:q,pids:(c.pids||[]).slice(0,q)}}
+ return{art:c.art,model:c.model==="__new"?"":(c.model||""),own:String(c.own||"").trim(),met:c.met,col:c.met==="Gold"?c.col:"",cy:c.cy,fein:c.fein,ct:c.ct,ctc:c.ctc,nat:c.nat||"",form:c.form||"",pnote:String(c.pnote||"").trim(),qty:q,pids:(c.pids||[]).slice(0,q),del:(c.del||[]).slice()}}
 function ordForm(){const f=ui.of=(ui.of&&ui.of.cur)?ui.of:newOf(),c=f.cur,n=f.items.reduce((a,x)=>a+x.qty,0);
  return `<div class="bar">${f.eid?"✏️ Bestellung bearbeiten":"Neue Bestellung"}</div>
  <div class="g2">${F("Bestellnummer",`<input data-f="ui.of.no" value="${esc(f.no)}"${f.ov?"":" readonly"} autocapitalize="characters" autocorrect="off" spellcheck="false">`)}${F("Kürzel",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}</div>
  ${CB("ui.of.ov",f.ov,"Nummer überschreiben",'data-r="1"')}
- ${f.items.length?`<div class="card" style="margin:6px 0 10px"><b>Positionen</b>${f.items.map((x,i)=>`<div class="it"><div><b>${x.qty}×</b> ${esc(itemTxt(x))}</div><div class="r" style="white-space:nowrap"><button class="sec sm" data-a="oposedit" data-i="${i}">Ändern</button> <button class="sec sm" data-a="oposdel" data-i="${i}">Entfernen</button></div></div>`).join("")}<div class="it"><b>Menge gesamt</b><b>${n} Stück</b></div></div>`:""}
+ ${f.items.length?`<div class="card" style="margin:6px 0 10px"><b>Positionen</b>${f.items.map((x,i)=>`<div class="it"><div><b>${x.qty}×</b> ${esc(itemTxt(x))}${x.pnote?`<small>📝 ${esc(x.pnote)}</small>`:""}</div><div class="r" style="white-space:nowrap"><button class="sec sm" data-a="oposedit" data-i="${i}">Ändern</button> <button class="sec sm" data-a="oposdel" data-i="${i}">Entfernen</button></div></div>`).join("")}<div class="it"><b>Menge gesamt</b><b>${n} Stück</b></div></div>`:""}
  <div class="lbl" style="margin:4px 0 6px"><b>${f.items.length?"Weitere Position":"Position"}</b></div>
  ${F("Artikel",S("ui.of.cur.art",c.art,OART,'data-r="1"'))}
+ ${F("Modell",S("ui.of.cur.model",c.model||"",[["","– kein Modell –"],...data.models,...(c.model&&c.model!=="__new"&&!data.models.includes(c.model)?[c.model]:[]),["__new","➕ Neues Modell …"]],'data-r="1"'))}
+ ${c.model==="__new"?`<div class="row" style="margin:-4px 0 10px"><input id="mNew" placeholder="z. B. Tiffany Style" autocorrect="off"><button class="sec" data-a="madd" style="flex:0 0 34%">Hinzufügen</button></div>`:""}
  ${c.art==="Anderes (selbst eingeben)"?F("Bezeichnung",I("ui.of.cur.own",c.own,"z. B. Collier",'autocorrect="off"')):""}
  <div class="g2">${F("Metall",S("ui.of.cur.met",c.met,OMET,'data-r="1"'))}${F("Feingehalt",S("ui.of.cur.fein",c.fein,OFEIN))}</div>
  <div class="g2">${F("Steinart / Herkunft",S("ui.of.cur.nat",c.nat||"",SNAT))}${F("Steinform",S("ui.of.cur.form",c.form||"",[["","– wählen –"],...L_FORM]))}</div>
  <div class="g2">${F("Steingröße (ct)",S("ui.of.cur.ct",c.ct,OCT,'data-r="1"'))}${F("Anzahl",I("ui.of.cur.qty",c.qty,"",'inputmode="decimal" data-u="uOf"'))}</div>
  ${c.ct==="x"?F("Steingröße selbst (ct)",N("ui.of.cur.ctc",c.ctc)):""}
  ${c.met==="Gold"?F("Goldfarbe",S("ui.of.cur.col",c.col,OCOL,'data-r="1"'))+(c.col==="c"?F("Davon Gelb (Rest ist Weiß)",I("ui.of.cur.cy",c.cy,"",'inputmode="decimal" data-u="uOf"')):"")+'<p class="mu" id="ofw" style="margin:0 0 8px"></p>':""}
+ ${F("Notiz zu dieser Position",I("ui.of.cur.pnote",c.pnote||"","z. B. Ringgröße 54, Gravur „A & M“"))}
  <button class="sec" data-a="oadd">+ Position hinzufügen</button>
  <div style="height:10px"></div>
  ${F("Notiz",I("ui.of.note",f.note,"z. B. Größe 54, bis Freitag"))}${F("Datum",`<input type="date" data-f="ui.of.date" value="${f.date}" data-r="1">`)}${dueForm("ui.of")}
@@ -1222,9 +1265,14 @@ function ordForm(){const f=ui.of=(ui.of&&ui.of.cur)?ui.of:newOf(),c=f.cur,n=f.it
  <div class="row" style="margin:0"><button data-a="osave">${f.eid?"Änderungen speichern":"Bestellung speichern"}</button>${f.eid?'<button class="sec" data-a="ocancel">Abbrechen</button>':""}</div>
  <p class="mu" style="margin:6px 0 0">Mehrere Positionen: jede mit „+ Position hinzufügen“ übernehmen. Eine ausgefüllte, noch nicht übernommene Position wird beim Speichern mitgenommen.</p>`}
 act.oadd=()=>{const f=ui.of,x=posFrom(f.cur);if(!x)return;f.items.push(x);
- f.cur=newPos({art:x.art,own:x.own,met:x.met,fein:x.fein,nat:x.nat,form:x.form,col:x.col||"y"});f.dirty=false;render();toast("Position hinzugefügt")};
+ f.cur=newPos({art:x.art,model:x.model,own:x.own,met:x.met,fein:x.fein,nat:x.nat,form:x.form,col:x.col||"y"});f.dirty=false;render();toast("Position hinzugefügt")};
 act.oposdel=d=>{ui.of.items.splice(Number(d.i),1);render()};
 act.oposedit=d=>{const f=ui.of,x=f.items.splice(Number(d.i),1)[0];if(!x)return;f.cur=newPos({...x,qty:String(x.qty)});f.dirty=true;render();toast("Position geladen – ändern und mit „+ Position hinzufügen“ übernehmen")};
+function addModel(id){const e=$(id),n=e&&String(e.value).trim();if(!n){toast("Bitte Modellnamen eingeben");return null}
+ if(!data.models.some(m=>m.toLowerCase()===n.toLowerCase()))data.models.push(n);return data.models.find(m=>m.toLowerCase()===n.toLowerCase())}
+act.madd=()=>{const m=addModel("mNew");if(m&&ui.of){ui.of.cur.model=m;render();toast("Modell „"+m+"“ hinzugefügt")}};
+act.madd2=()=>{const m=addModel("mNew2");if(m){render();toast("Modell „"+m+"“ hinzugefügt")}};
+act.mdel=d=>{const i=Number(d.i),k="md"+i;if(!armed(k)){ui.arm={k,t:Date.now()};render();setTimeout(()=>{if(!armed(k))render()},5200);return}ui.arm=null;data.models.splice(i,1);render()};
 act.ocancel=()=>{ui.of=newOf();render()};
 act.oedit=d=>{const o=data.orders.find(x=>x.id===Number(d.id));if(!o)return;
  ui.of={no:o.no,ov:true,note:o.note||"",date:o.date,dk:o.due?"x":"",due:o.due||"",items:JSON.parse(JSON.stringify(oItems(o))),cur:newPos(),dirty:false,att:(o.att||[]).slice(),eid:o.id};
@@ -1239,6 +1287,23 @@ act.osave=()=>{const f=ui.of;if(!ui.pid){toast("Keine Person gewählt");return}
  data.orders.push({id:uid(),no,pid:ui.pid,items,note:String(f.note||"").trim(),date:f.date||today(),due:dueOf(f.date,f.dk,f.due),done:false,att:(f.att||[]).slice()});
  ui.of=newOf();render();toast("Bestellung gespeichert")};
 act.oex=d=>{const id=Number(d.id);ui.oex=ui.oex===id?0:id;render()};
+function ordShareTxt(o){const p=data.people.find(x=>x.id===o.pid),L=[];
+ L.push("*Bestellung "+(o.no||"")+"* – "+dt(o.date));
+ if(!ui.oanon&&p)L.push("Kunde: "+plabel(p));
+ if(o.due)L.push("Frist: "+dt(o.due));
+ L.push("");oItems(o).forEach((x,i)=>{
+  L.push((i+1)+") "+x.qty+"× "+itemTxt(x));if(x.pnote)L.push("   📝 "+x.pnote);
+  const op=itOpen(x);if(itGot(x))L.push("   "+(op?"noch "+op+" offen":"✓ geliefert"))});
+ L.push("","Menge gesamt: "+oQty(o)+" Stück");if(o.note)L.push("Notiz: "+o.note);
+ const n=(o.att||[]).length;if(n)L.push("📎 "+n+" Anhang"+(n===1?"":"e"));
+ return L.join("\n")}
+act.oshare=async d=>{const o=data.orders.find(x=>x.id===Number(d.id));if(!o)return;const t=ordShareTxt(o);
+ try{const files=[];for(const a of (o.att||[])){if(!a.type.startsWith("image/")&&a.type!=="application/pdf")continue;
+   const b=atob(a.data.split(",")[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);
+   files.push(new File([u],(a.name||"Anhang").replace(/\.[^.]+$/,"")+(a.type==="application/pdf"?".pdf":".jpg"),{type:a.type}))}
+  if(files.length&&navigator.canShare&&navigator.canShare({files})){await navigator.share({files,text:t,title:"Bestellung "+o.no});return}
+  if(navigator.share){await navigator.share({text:t,title:"Bestellung "+o.no});return}}catch(e){if(e&&e.name==="AbortError")return}
+ try{await navigator.clipboard.writeText(t);toast("Text kopiert – in WhatsApp einfügen")}catch(_){toast("Teilen nicht möglich")}};
 function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid),it=oItems(o),n=oQty(o),open=ui.oex===o.id;
  const sub=it.length===1?it[0].qty+"× "+itemTxt(it[0]):it.length+" Positionen";
  return `<div style="border-left:4px solid ${o.done?"var(--out)":"var(--in)"};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0">
@@ -1246,10 +1311,16 @@ function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid),it=oItems(o),
  <div class="r"><span class="${o.done?"out":"in"}"><b>${o.done?"Erledigt":"Aktiv"}</b></span><br><button class="sec sm" data-a="odone" data-id="${o.id}">${o.done?"Wieder aktiv":"Erledigt"}</button> <button class="sec sm" data-a="odel" data-id="${o.id}">${dl("od"+o.id,"Löschen")}</button></div></div>
  ${open?`<div style="padding:0 0 10px">${it.map((x,i)=>{const[y,w]=x.met==="Gold"&&x.col?colSplit(x):[0,0],pl=itPids(x),op=itOpen(x),cand=oCand(o);
   return `<div style="padding:6px 0;border-bottom:1px dashed var(--bd)"><div><b>${x.qty}×</b> ${esc(itemTxt(x))}${y&&w?`<small>Gelb ${y} · Weiß ${w}</small>`:""}</div>
-  <small class="${op?"":"in"}">${pl.length?"Zugeordnet "+pl.length+" von "+x.qty+" · ":""}${op?"noch <b>"+op+" Stück</b> offen":"✓ vollständig"}</small>
-  ${pl.length?`<div class="chips" style="margin:6px 0 0">${pl.map(id=>{const p=data.prods.find(z=>z.id===id);return `<button class="sec" data-a="ounas" data-o="${o.id}" data-i="${i}" data-p="${id}">${esc(shortCode(p.code))} ✕</button>`}).join("")}</div>`:""}
-  ${op&&cand.length?`<div class="row" style="margin:6px 0 0"><select id="oas-${o.id}-${i}"><option value="0">– fertige Ware wählen –</option>${cand.map(p=>`<option value="${p.id}">${esc(shortCode(p.code)+" · "+(p.name||p.grp)+" · "+f3(pTW(p))+" g"+(p.status==="sold"?" · verkauft":""))}</option>`).join("")}</select><button class="sec" data-a="oas" data-o="${o.id}" data-i="${i}" style="flex:0 0 32%">Zuordnen</button></div>`:""}</div>`}).join("")}
- <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div><button class="sec" data-a="oedit" data-id="${o.id}" style="margin:6px 0">✏️ Bestellung bearbeiten</button><div class="lbl" style="margin-top:6px"><b>Anhänge</b></div>${attHTML(o.att||[],String(o.id))}${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
+  ${x.pnote?`<small>📝 ${esc(x.pnote)}</small>`:""}
+  <small class="${op?"":"in"}">${itGot(x)?"Geliefert "+itGot(x)+" von "+x.qty+" · ":""}${op?"noch <b>"+op+" Stück</b> offen":"✓ vollständig"}</small>
+  ${pl.length||itDel(x).length?`<div class="chips" style="margin:6px 0 0">${pl.map(id=>{const p=data.prods.find(z=>z.id===id);return `<button class="sec" data-a="ounas" data-o="${o.id}" data-i="${i}" data-p="${id}">${esc(shortCode(p.code))} ✕</button>`}).join("")}${itDel(x).map(v=>`<button class="sec" data-a="odelv" data-o="${o.id}" data-i="${i}" data-id="${v.id}">${v.qty}× ${esc(v.note||"ohne Barcode")} · ${dt(v.date)} ✕</button>`).join("")}</div>`:""}
+  ${op?`<div style="margin:6px 0 0"><select id="oas-${o.id}-${i}"><option value="0">✍️ Ohne Barcode / manuell eintragen</option>${cand.map(p=>`<option value="${p.id}">${esc(shortCode(p.code)+" · "+(p.name||p.grp)+" · "+f3(pTW(p))+" g"+(p.status==="sold"?" · verkauft":""))}</option>`).join("")}</select>
+   <div class="row" style="margin:6px 0 0"><input id="oaq-${o.id}-${i}" inputmode="numeric" value="1" style="flex:0 0 22%" aria-label="Stück"><input id="oan-${o.id}-${i}" placeholder="Notiz, z. B. Ring 2,8 g übergeben" autocorrect="off"><button class="sec" data-a="oas" data-o="${o.id}" data-i="${i}" style="flex:0 0 28%">Eintragen</button></div>
+   <small class="mu">${cand.length?"Fertige Ware wählen oder ohne Barcode mit Stückzahl eintragen.":"Keine fertige Ware im Lager – mit Stückzahl und Notiz eintragen."}</small></div>`:""}</div>`}).join("")}
+ <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div><button class="sec" data-a="oedit" data-id="${o.id}" style="margin:6px 0">✏️ Bestellung bearbeiten</button>
+ <div class="row" style="margin:0 0 4px"><a class="sec navb" href="https://wa.me/?text=${encodeURIComponent(ordShareTxt(o))}" target="_blank" rel="noopener">💬 WhatsApp</a><button class="sec" data-a="oshare" data-id="${o.id}">📤 Teilen${(o.att||[]).some(a=>a.type.startsWith("image/"))?" + Fotos":""}</button></div>
+ ${(p=>p&&p.phone?`<a class="sec navb" style="display:block;margin:0 0 4px" href="https://wa.me/${String(p.phone).replace(/[^\d]/g,"").replace(/^00/,"")}?text=${encodeURIComponent(ordShareTxt(o))}" target="_blank" rel="noopener">💬 WhatsApp an ${esc(p.name)}</a>`:"")(ui.oanon?null:data.people.find(x=>x.id===o.pid))}
+ ${CB("ui.oanon",!!ui.oanon,"Ohne Kundendaten senden (z. B. an die Werkstatt)",'data-r="1"')}<div class="lbl" style="margin-top:6px"><b>Anhänge</b></div>${attHTML(o.att||[],String(o.id))}${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
 const ordSort=l=>l.slice().sort((a,b)=>(a.done-b.done)||(!a.done?String(a.due||"9999").localeCompare(String(b.due||"9999")):0)||String(b.date).localeCompare(a.date)||b.id-a.id);
 function ordList(pid){const l=ordSort(data.orders.filter(o=>o.pid===pid));
  return `</div><div class="card"><b>Bestellungen dieser Person</b>${l.map(o=>ordRow(o,false)).join("")||'<p class="mu">Noch keine Bestellungen.</p>'}`}
@@ -1910,7 +1981,7 @@ function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status
 function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
  data.people.forEach(p=>{const b=balOf(p.id),R=(u,d)=>b[u]?Math.round(b[u]*d)/d:"";r.push([p.name,p.type||"",p.company||"",p.country||"",p.city||"",p.addr||"",p.phone||"",p.note||"",R("EUR",100),R("USD",100),R("HAS",1000)])});return["Konten",r]}
 function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Betrag","Notiz"],...data.moves.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(m=>[m.date,pnm(m.pid),m.dir==="out"?"Ich gebe":"Ich erhalte",UN[m.unit]||m.unit,m.amount,m.note||""])]]}
-function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Status","Notiz","Anhänge"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,o.done?"Erledigt":"Aktiv",o.note||"",(o.att||[]).length||""])));return["Bestellungen",r]}
+function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Geliefert","Offen","Notiz Position","Status","Notiz","Anhänge"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,itGot(x),itOpen(x),x.pnote||"",o.done?"Erledigt":"Aktiv",o.note||"",(o.att||[]).length||""])));return["Bestellungen",r]}
 function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Währung","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.cur||BC(),e.note||""])]]}
 async function xSave(kind){
  const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd(),xNotes(),xTrips()];
@@ -1933,6 +2004,9 @@ function rSet(){
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div></div>
  <div class="card"><b>Hauptwährung</b>${(data.entries.length||data.moves.length||data.prods.length||data.sales.length)?`<p style="margin:6px 0">${data.base==="USD"?"US-Dollar ($)":"Euro (€)"}</p><p class="mu" style="margin:0">Nur änderbar, solange es noch keine Buchungen, Waren oder Verkäufe gibt.</p>`:F("Hauptwährung",S("data.base",data.base,[["EUR","Euro (€)"],["USD","US-Dollar ($)"]]))+'<p class="mu" style="margin:0">Gold und die andere Währung werden danach in dieser Währung gerechnet.</p>'}</div>
+ <div class="card"><b>Modelle (Bestellung)</b><p class="mu" style="margin:4px 0 8px">Diese Modelle stehen bei Bestellungen zur Auswahl. Antippen zum Entfernen.</p>
+ <div class="chips">${data.models.map((m,i)=>`<button class="sec" data-a="mdel" data-i="${i}">${esc(m)} ${armed("md"+i)?"– weg?":"✕"}</button>`).join("")||'<span class="mu">Keine Modelle.</span>'}</div>
+ <div class="row" style="margin:0"><input id="mNew2" placeholder="Neues Modell, z. B. Tiffany Style" autocorrect="off"><button class="sec" data-a="madd2" style="flex:0 0 34%">Hinzufügen</button></div></div>
  <div class="card"><b>Zahlungen aus Konten ins Kontobuch</b>
  ${CB("data.ab.on",data.ab&&data.ab.on,"Bar- und Überweisungsbuchungen von Personen automatisch ins Kontobuch",'data-r="1"')}
  ${data.ab&&data.ab.on?`<div class="g2">${F("Bar (Bareinzug / Barzahlung) in",S("data.ab.cash",String(data.ab.cash||0),[["0","Hauptbuch"],...data.books.map(b=>[String(b.id),b.name])]))}${F("Überweisung in",S("data.ab.bank",String(data.ab.bank||0),[["0","Hauptbuch"],...data.books.map(b=>[String(b.id),b.name])]))}</div>`:""}
