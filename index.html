@@ -110,6 +110,8 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
  <section id="s-prod" class="hide"></section>
  <section id="s-verkauf" class="hide"></section>
  <section id="s-orders" class="hide"></section>
+ <section id="s-more" class="hide"></section>
+ <section id="s-notes" class="hide"></section>
  <section id="s-set" class="hide"></section>
 
  <nav class="nb">
@@ -118,15 +120,16 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
   <button data-a="go" data-v="lager"><span>📦</span>Lager</button>
   <button data-a="go" data-v="prod"><span>💍</span>Fertigung</button>
   <button data-a="go" data-v="verkauf"><span>🏷️</span>Verkauf</button>
-  <button data-a="go" data-v="kasse"><span>📒</span>Kontobuch</button>
+  <button data-a="go" data-v="more"><span>☰</span>Mehr</button>
  </nav>
 </div>
 <div id="toast"></div>
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.39";
+const VER="0.40";
 const HIST=[
+ ["0.40","11.11.2026",["Untere Leiste: „☰ Mehr“ statt Kontobuch – dort Kontobuch, Notizen, Bestellungen, Einstellungen","Neu: Notizen (Titel, Text, anheften, suchen); im Excel-Export als eigenes Blatt"]],
  ["0.39","11.11.2026",["Kontobuch: Währung je Eintrag wählbar (EUR oder USD); Summen in der Hauptwährung, Fremdwährung zum Kurs am Buchungstag; Kasse in der Übersicht getrennt nach Währung"]],
  ["0.38","11.11.2026",["Personenauswahl: neben dem Namen steht die Firma (Juwelier), sonst die Stadt"]],
  ["0.37","11.11.2026",["Fertigung: nach „Fertigstellen“ springt die App zur Warenliste, die fertige Ware ist grün markiert"]],
@@ -171,7 +174,7 @@ const HIST=[
 /* ---------- Grundlagen ---------- */
 const $=id=>document.getElementById(id);
 let data=null,pw="",_u=0;
-const ui={s:"home",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
+const ui={s:"home",ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
 const uid=()=>Date.now()*1000+(_u++%1000);
 const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -223,7 +226,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){
- data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],prefix:{},base:"EUR"},d);
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],prefix:{},base:"EUR"},d);
  ui.lastCur=data.base;
  data.stock.forEach(s=>{if(isSingle(s)&&parse(s.ct)>0&&!data.smoves.some(m=>m.sid===s.id&&m.qty>0))data.smoves.push({id:uid(),sid:s.id,qty:parse(s.ct),date:today(),note:"Einzelstein",ref:"init"})});
  data.orders.forEach(o=>{if(!Array.isArray(o.items)){o.items=[{art:o.art||"Ring",own:o.own||"",met:o.met||"Gold",col:o.col||"",cy:o.cy||"",fein:o.fein||"",ct:o.ct||"",ctc:o.ctc||"",nat:o.nat||"",qty:Number(o.qty)||1}];["art","own","met","col","cy","fein","ct","ctc","nat","qty"].forEach(k=>delete o[k])}});
@@ -237,7 +240,7 @@ function open(d){
  if(!data.people.some(p=>p.walk))data.people.unshift({id:uid(),name:"Laufkunde (bar)",walk:true});
  data.ver=VER;
  if(!picked&&LOC[data.lang])lang=data.lang;data.lang=lang;document.documentElement.lang=lang;langBtns();
- Object.assign(ui,{oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
+ Object.assign(ui,{ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
  $("who").textContent=data.user;$("date").value=today();$("rEd").classList.add("hide");
  rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
@@ -263,10 +266,10 @@ $("bSave").onclick=async()=>{
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
-function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
- document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===s));render();window.scrollTo(0,0)}
+function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
+ const nv=["kasse","orders","set","more","notes"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
 act.go=d=>go(d.v);
-function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet})[ui.s]()}
+function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes})[ui.s]()}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
 document.addEventListener("input",e=>{const el=e.target;if(!el.dataset||!el.dataset.f||el.tagName==="SELECT"||el.type==="checkbox")return;apply(el,false)});
@@ -600,6 +603,25 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Mehr ~ More ~ Daha fazla
+Notizen ~ Notes ~ Notlar
+Notiz ~ Note ~ Not
+Neue Notiz ~ New note ~ Yeni not
++ Neue Notiz ~ + New note ~ + Yeni not
+Titel ~ Title ~ Başlık
+Text ~ Text ~ Metin
+z. B. Werkstatt Freitag ~ e.g. workshop Friday ~ örn. atölye cuma
+Oben anheften 📌 ~ Pin to top 📌 ~ Üste sabitle 📌
+Keine Notizen. ~ No notes. ~ Not yok.
+Titel oder Text … ~ Title or text … ~ Başlık veya metin …
+Notiz ist leer ~ Note is empty ~ Not boş
+Zuletzt geändert: ~ Last changed: ~ Son değişiklik:
+(ohne Titel) ~ (untitled) ~ (başlıksız)
+Einnahmen und Ausgaben ~ Income and expenses ~ Gelir ve giderler
+Sprache, Kürzel, Export, Passwort ~ Language, prefixes, export, password ~ Dil, kısaltmalar, dışa aktarma, şifre
+Liste ~ List ~ Liste
+Untere Leiste: „☰ Mehr“ statt Kontobuch – dort Kontobuch, Notizen, Bestellungen, Einstellungen ~ Bottom bar: “☰ More” instead of cash book – with cash book, notes, orders, settings ~ Alt çubuk: kasa defteri yerine “☰ Daha fazla” – kasa defteri, notlar, siparişler, ayarlar
+Neu: Notizen (Titel, Text, anheften, suchen); im Excel-Export als eigenes Blatt ~ New: notes (title, text, pin, search); separate sheet in the Excel export ~ Yeni: notlar (başlık, metin, sabitleme, arama); Excel’de ayrı sayfa
 Kurs fehlt – Betrag zählt erst mit Kurs in der Summe ~ Rate missing – amount counts in the total once a rate is set ~ Kur eksik – tutar kur girilince toplama katılır
 Kontobuch: Währung je Eintrag wählbar (EUR oder USD); Summen in der Hauptwährung, Fremdwährung zum Kurs am Buchungstag; Kasse in der Übersicht getrennt nach Währung ~ Cash book: currency per entry (EUR or USD); totals in the main currency, foreign currency at the rate of the posting day; cash in the overview split by currency ~ Kasa defteri: kayıt başına para birimi (EUR veya USD); toplamlar ana para biriminde, döviz kayıt günü kuruyla; ana ekranda kasa para birimine göre ayrı
 Personenauswahl: neben dem Namen steht die Firma (Juwelier), sonst die Stadt ~ Person picker: the company (jeweller) is shown next to the name, otherwise the city ~ Kişi seçimi: adın yanında firma (kuyumcu), yoksa şehir yazar
@@ -1039,6 +1061,36 @@ function uOq(){const q=String(ui.oq||"").trim().toLowerCase();let l=data.orders.
  if(q)l=l.filter(o=>((o.no||"")+" "+ordTxt(o)+" "+pnm(o.pid)+" "+o.note).toLowerCase().includes(q));$("orows").innerHTML=ordRowsHTML(l)}
 function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
  return box("Aktive Bestellungen","📋",l.map(o=>ordRow(o,true)).join("")||'<p class="mu">Keine aktiven Bestellungen.</p>',"orders")}
+
+
+/* ---------- Mehr + Notizen ---------- */
+function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.length;
+ const T=(v,i,t,s)=>`<button class="sec tile" data-a="go" data-v="${v}" style="text-align:left;padding:16px;display:flex;gap:14px;align-items:center"><span style="font-size:26px">${i}</span><span><b>${t}</b><br><small class="mu">${s}</small></span></button>`;
+ $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><div class="card" style="display:grid;gap:10px">
+ ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
+const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
+function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
+ return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
+function uNq(){const e=$("nrows");if(e)e.innerHTML=noteRows()}
+function rNotes(){const e=$("s-notes");
+ if(ui.ne){const n=ui.ne;e.innerHTML=`<div class="nav"><b>${n.id?"Notiz":"Neue Notiz"}</b><button class="sec sm" data-a="nback">Liste</button></div>
+  <div class="card">${F("Titel",I("ui.ne.title",n.title,"z. B. Werkstatt Freitag"))}
+  ${F("Text",`<textarea data-f="ui.ne.text" rows="10" style="width:100%" placeholder="Notiz …">${esc(n.text||"")}</textarea>`)}
+  ${CB("ui.ne.pin",!!n.pin,"Oben anheften 📌")}
+  <div class="row"><button data-a="nsave">Speichern</button>${n.id?`<button class="sec" data-a="ndel">${dl("ndel","Löschen")}</button>`:""}</div>
+  ${n.id?`<p class="mu" style="margin:8px 0 0">Zuletzt geändert: ${dt(String(n.upd).slice(0,10))} ${String(n.upd).slice(11,16)}</p>`:""}</div>`;return}
+ e.innerHTML=`<div class="bar"><span>Notizen</span><span>📝</span></div><button data-a="nnew">+ Neue Notiz</button>
+ <div class="card" style="margin-top:10px">${F("Suchen",I("ui.nq",ui.nq,"Titel oder Text …",'data-u="uNq" autocomplete="off"'))}</div>
+ <div class="card" id="nrows">${noteRows()}</div>`}
+const nowIso=()=>{const d=new Date(),z=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+"T"+z(d.getHours())+":"+z(d.getMinutes())};
+act.nnew=()=>{ui.ne={id:0,title:"",text:"",pin:false};rNotes()};
+act.nedit=d=>{const x=data.notes.find(n=>n.id===Number(d.id));if(x){ui.ne={...x};rNotes();window.scrollTo(0,0)}};
+act.nback=()=>{ui.ne=null;rNotes()};
+act.nsave=()=>{const n=ui.ne;if(!n)return;if(!String(n.title).trim()&&!String(n.text).trim()){toast("Notiz ist leer");return}
+ const o={id:n.id||uid(),title:String(n.title||"").trim(),text:String(n.text||""),pin:!!n.pin,upd:nowIso()};
+ const i=data.notes.findIndex(x=>x.id===o.id);if(i<0)data.notes.push(o);else data.notes[i]=o;ui.ne=null;rNotes();toast("Gespeichert")};
+act.ndel=()=>{if(!confirmTap("ndel"))return;data.notes=data.notes.filter(x=>x.id!==ui.ne.id);ui.ne=null;rNotes()};
+function xNotes(){return["Notizen",[["Titel","Text","Angeheftet","Geändert"],...data.notes.map(n=>[n.title,n.text,n.pin?"ja":"",String(n.upd).replace("T"," ")])]]}
 
 /* ---------- Konten ---------- */
 /* Personen: Details, Suche */
@@ -1520,7 +1572,7 @@ function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Bet
 function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Status","Notiz"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,o.done?"Erledigt":"Aktiv",o.note||""])));return["Bestellungen",r]}
 function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Währung","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.cur||BC(),e.note||""])]]}
 async function xSave(kind){
- const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd()];
+ const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd(),xNotes()];
  const name=(data.user||"Export")+(kind==="lager"?"_Lager":"_Alles")+".xlsx";
  try{const blob=xlsx(sheets),d=await claude.use("downloads");
   if(d)await d.save({filename:name,data:blob});
