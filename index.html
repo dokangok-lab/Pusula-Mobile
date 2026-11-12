@@ -135,8 +135,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.59";
+const VER="0.60";
 const HIST=[
+ ["0.60","12.11.2026",["Zwischenspeichern: Datei speichern, ohne die App zu leeren (in den Einstellungen und unter „Mehr“), mit Zeitpunkt der letzten Sicherung"]],
  ["0.59","12.11.2026",["Werkstatt: Zwischenschritte (z. B. „Etikett muss gedruckt werden“, „Wird gerade gemacht“) frei wählbar und erweiterbar, mit Notiz; Verlauf mit Datum und Uhrzeit für jede Änderung; Optionen in den Einstellungen verwalten"]],
  ["0.58","12.11.2026",["Werkstatt: neuer Status „📦 Abholbereit“ mit eigenem Knopf (dann „✓ Abgeholt“ oder „Wieder in Arbeit“); eigener Filter; abholbereite Pakete oben in „Fristen“ der Übersicht; Anzeige im Lager und in der Fertigung"]],
  ["0.57","12.11.2026",["Übersicht „Verkäufe“: auch Verkäufe aus Konten (Verkauf mit/ohne Barcode) werden gezählt","„Fertige Ware: Gold“: Feingehalt 0,585 wird erkannt, Ware ohne Feingehalt steht unter „ohne Angabe“"]],
@@ -294,6 +295,12 @@ $("bOpen3").onclick=async()=>{if(!pend3)return;const a=$("pw").value,b=$("pwB").
  if(!a||!b||!c){$("msg").textContent=Array.isArray(pend3.q)?"Bitte Passwort und beide Antworten eingeben.":"Bitte alle drei Passwörter eingeben.";return}
  try{pw=Array.isArray(pend3.q)?pwJoin(a,ansN(b),ansN(c)):pwJoin(a,b,c);const d=await dec(pend3,pw);pend3=null;$("pw3box").classList.add("hide");$("pwB").value="";$("pwC").value="";open(d)}
  catch(_){pw="";$("msg").textContent=Array.isArray(pend3.q)?"Passwort oder Antwort falsch.":"Mindestens ein Passwort ist falsch."}};
+async function saveFile(){const name=data.user+".json",text=await enc(data,pw);
+ const dlc=await claude.use("downloads");
+ if(dlc){await dlc.save({filename:name,data:text})}
+ else{const f=new File([text],name,{type:"application/json"});
+  if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f]});
+  else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}}}
 $("bSave").onclick=async()=>{
  const name=data.user+".json";let text;
  try{text=await enc(data,pw);
@@ -648,6 +655,12 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+💾 Zwischenspeichern ~ 💾 Save in between ~ 💾 Ara kaydet
+💾 Jetzt zwischenspeichern ~ 💾 Save now ~ 💾 Şimdi ara kaydet
+💾 Zwischenspeichern (App bleibt offen) ~ 💾 Save (app stays open) ~ 💾 Ara kaydet (uygulama açık kalır)
+Zwischengespeichert – du kannst weiterarbeiten ~ Saved – you can keep working ~ Kaydedildi – çalışmaya devam edebilirsiniz
+Nicht gespeichert ~ Not saved ~ Kaydedilmedi
+Zwischenspeichern: Datei speichern, ohne die App zu leeren (in den Einstellungen und unter „Mehr“), mit Zeitpunkt der letzten Sicherung ~ Save in between: save the file without clearing the app (in settings and under “More”), with time of the last backup ~ Ara kaydet: uygulamayı boşaltmadan dosyayı kaydet (ayarlarda ve “Daha fazla” altında), son yedekleme zamanıyla
 Zwischenschritt eintragen ~ Enter intermediate step ~ Ara adım gir
 – Option wählen – ~ – choose option – ~ – seçenek seçin –
 oder neue Option eintippen ~ or type a new option ~ veya yeni seçenek yazın
@@ -1513,7 +1526,7 @@ function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
 /* ---------- Mehr + Notizen ---------- */
 function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.length;
  const T=(v,i,t,s)=>`<button class="sec tile" data-a="go" data-v="${v}" style="text-align:left;padding:16px;display:flex;gap:14px;align-items:center"><span style="font-size:26px">${i}</span><span><b>${t}</b><br><small class="mu">${s}</small></span></button>`;
- $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><div class="card" style="display:grid;gap:10px">
+ $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><button data-a="savekeep" style="margin-bottom:10px">💾 Zwischenspeichern (App bleibt offen)</button><div class="card" style="display:grid;gap:10px">
  ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
 const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
@@ -2272,6 +2285,7 @@ act.p3on=()=>{const f=ui.p3;if(f.a!==pw){toast("Aktuelles Passwort stimmt nicht"
  pw=pwJoin(f.a,ansN(f.b),ansN(f.c));data.sec=3;data.secq=q;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aktiv – jetzt „Speichern & Beenden“")};
 act.p3off=()=>{const f=ui.p3,qa=Array.isArray(data.secq);if((qa?pwJoin(f.a,ansN(f.b),ansN(f.c)):pwJoin(f.a,f.b,f.c))!==pw){toast("Passwort oder Antwort falsch");return}
  pw=f.a;data.sec=1;delete data.secq;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aus – es gilt wieder nur das Passwort")};
+act.savekeep=async()=>{try{await saveFile();data.savedAt=nowIso();toast("Zwischengespeichert – du kannst weiterarbeiten");render()}catch(e){if(e&&e.name==="AbortError"){toast("Nicht gespeichert");return}toast("Nicht gespeichert")}};
 act.pwchg=()=>{const f=ui.pwf;
  const tri=data.sec===3,cur=tri?pwParts()[0]:pw;
  if(f.a!==cur){toast("Aktuelles Passwort stimmt nicht");return}
@@ -2281,7 +2295,8 @@ act.pwchg=()=>{const f=ui.pwf;
  if(tri){const q=pwParts();q[0]=f.b;pw=pwJoin(...q)}else pw=f.b;ui.pwf={a:"",b:"",c:""};render();toast("Passwort geändert – jetzt „Speichern & Beenden“")};
 
 function rSet(){
- $("s-set").innerHTML=`<div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
+ $("s-set").innerHTML=`<div class="card"><b>💾 Zwischenspeichern</b><p class="mu" style="margin:4px 0 8px">Speichert deine Datei (verschlüsselt), ohne die App zu leeren – du kannst danach direkt weiterarbeiten.${data.savedAt?" Zuletzt: "+dt(String(data.savedAt).slice(0,10))+" "+String(data.savedAt).slice(11,16):""}</p><button data-a="savekeep">💾 Jetzt zwischenspeichern</button></div>
+ <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div>
