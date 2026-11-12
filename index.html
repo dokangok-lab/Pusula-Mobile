@@ -135,8 +135,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.58";
+const VER="0.59";
 const HIST=[
+ ["0.59","12.11.2026",["Werkstatt: Zwischenschritte (z. B. „Etikett muss gedruckt werden“, „Wird gerade gemacht“) frei wählbar und erweiterbar, mit Notiz; Verlauf mit Datum und Uhrzeit für jede Änderung; Optionen in den Einstellungen verwalten"]],
  ["0.58","12.11.2026",["Werkstatt: neuer Status „📦 Abholbereit“ mit eigenem Knopf (dann „✓ Abgeholt“ oder „Wieder in Arbeit“); eigener Filter; abholbereite Pakete oben in „Fristen“ der Übersicht; Anzeige im Lager und in der Fertigung"]],
  ["0.57","12.11.2026",["Übersicht „Verkäufe“: auch Verkäufe aus Konten (Verkauf mit/ohne Barcode) werden gezählt","„Fertige Ware: Gold“: Feingehalt 0,585 wird erkannt, Ware ohne Feingehalt steht unter „ohne Angabe“"]],
  ["0.56","12.11.2026",["Warenliste zeigt die Steine mit voller Steinnummer (z. B. 💎 Oval 1,07 ct CVD LG82923732); Auswahllisten in Bestellung, Verkauf und Werkstatt zeigen Steinform, Karat und Nummer; Suche findet Ware auch über die Steinnummer"]],
@@ -255,6 +256,7 @@ function show(on){$("start").classList.toggle("hide",on);$("main").classList.tog
 function open(d){
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
+ if(!Array.isArray(data.pkSt))data.pkSt=["Wird gerade gemacht","Wartet auf Steine","Wartet auf Gold","Etikett muss gedruckt werden","Gravur fehlt","Qualitätskontrolle","Rückfrage an Werkstatt"];
  if(!Array.isArray(data.models))data.models=["Solitär","Tiffany Style","Halo","Trilogy","Memoire / Eternity","Tennis","Vintage","Toi et Moi"];
  ui.lastCur=data.base;
  data.stock.forEach(s=>{if(isSingle(s)&&parse(s.ct)>0&&!data.smoves.some(m=>m.sid===s.id&&m.qty>0))data.smoves.push({id:uid(),sid:s.id,qty:parse(s.ct),date:today(),note:"Einzelstein",ref:"init"})});
@@ -646,6 +648,25 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zwischenschritt eintragen ~ Enter intermediate step ~ Ara adım gir
+– Option wählen – ~ – choose option – ~ – seçenek seçin –
+oder neue Option eintippen ~ or type a new option ~ veya yeni seçenek yazın
+Schritt erledigt ~ Step done ~ Adım tamam
+Verlauf ~ History ~ Geçmiş
+Paket angelegt ~ Package created ~ Paket oluşturuldu
+Bitte Option wählen oder eintippen ~ Please choose or type an option ~ Lütfen bir seçenek seçin veya yazın
+Option hinzugefügt ~ Option added ~ Seçenek eklendi
+🔧 Werkstatt-Zwischenschritte ~ 🔧 Workshop intermediate steps ~ 🔧 Atölye ara adımları
+Diese Optionen stehen bei Werkstatt-Paketen zur Auswahl. Zweimal antippen zum Entfernen. ~ These options are offered for workshop packages. Tap twice to remove. ~ Bu seçenekler atölye paketlerinde sunulur. Kaldırmak için iki kez dokunun.
+Neue Option, z. B. Etikett muss gedruckt werden ~ New option, e.g. label must be printed ~ Yeni seçenek, örn. etiket basılmalı
+Wird gerade gemacht ~ In progress right now ~ Şu an yapılıyor
+Wartet auf Steine ~ Waiting for stones ~ Taş bekleniyor
+Wartet auf Gold ~ Waiting for gold ~ Altın bekleniyor
+Etikett muss gedruckt werden ~ Label must be printed ~ Etiket basılmalı
+Gravur fehlt ~ Engraving missing ~ Gravür eksik
+Qualitätskontrolle ~ Quality check ~ Kalite kontrol
+Rückfrage an Werkstatt ~ Question to workshop ~ Atölyeye soru
+Werkstatt: Zwischenschritte (z. B. „Etikett muss gedruckt werden“, „Wird gerade gemacht“) frei wählbar und erweiterbar, mit Notiz; Verlauf mit Datum und Uhrzeit für jede Änderung; Optionen in den Einstellungen verwalten ~ Workshop: intermediate steps (e.g. “label must be printed”, “in progress right now”) freely selectable and extendable, with note; history with date and time for every change; manage options in settings ~ Atölye: ara adımlar (örn. “etiket basılmalı”, “şu an yapılıyor”) serbestçe seçilebilir ve genişletilebilir, notlu; her değişiklik için tarih ve saatli geçmiş; seçenekleri ayarlardan yönetin
 📦 Abholbereit ~ 📦 Ready for pickup ~ 📦 Teslime hazır
 Abholbereit ~ Ready for pickup ~ Teslime hazır
 abholbereit ~ ready for pickup ~ teslime hazır
@@ -1645,6 +1666,8 @@ function xTrips(){return["Fahrtenbuch",[["Datum","Kennzeichen","Fahrzeug","Start
 const PKK=[["stone","💎 Stein (Lager)"],["prod","💍 Ware (Fertigung)"],["mat","🟡 Gold / Material (Lager)"],["free","✍️ Sonstiges"]];
 const pfxK=()=>(data.prefix&&data.prefix.Paket)||"P";
 function nextPkg(){const pre=pfxK();let mx=0;data.pkgs.forEach(k=>{if(k.no&&k.no.startsWith(pre)){const r=k.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});return pre+String(mx+1).padStart(4,"0")}
+const PKB={out:"In Werkstatt",ready:"📦 Abholbereit",back:"Zurück"};
+function pkLog(g,s,note){(g.log=g.log||[]).push({t:nowIso(),s,note:String(note||"").trim()})}
 function pkgOf(k,id){for(const g of data.pkgs){if(g.status==="back")continue;if((g.items||[]).some(x=>x.k===k&&x.ref===id))return g}return null}
 function pkItemTxt(x){if(x.k==="stone"){const s=data.stock.find(y=>y.id===x.ref);return s?s.name+(isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":"",s.color,s.clar].filter(Boolean).join(" "):" · "+f3(parse(x.qty))+" "+(UL[s.unit]||"")):"?"}
  if(x.k==="prod"){const p=data.prods.find(y=>y.id===x.ref);return p?pLbl(p):"?"}
@@ -1661,7 +1684,7 @@ function pkCand(g,k){const ids=new Set(g.items.filter(x=>x.k===k).map(x=>x.ref))
  if(k==="mat")return data.stock.filter(s=>s.group!=="Stein"&&s.active!==false);return[]}
 function pkShareTxt(g){const w=data.people.find(x=>x.id===g.pid),f=data.people.find(x=>x.id===g.fpid),o=data.orders.find(x=>x.id===g.oid),L=["*Werkstatt-Paket "+g.no+"* – "+dt(g.date)];
  if(w)L.push("Werkstatt: "+w.name);if(g.step)L.push("Arbeit: "+g.step);if(f)L.push("Für: "+(ui.oanon?(f.cc||"–"):f.name+(f.cc?" ("+f.cc+")":"")));if(o)L.push("Bestellung: "+o.no);if(g.due)L.push("Frist: "+dt(g.due));
- L.push("");(g.items||[]).forEach((x,i)=>L.push((i+1)+") "+pkItemTxt(x)+(x.note?" – "+x.note:"")));L.push("","Insgesamt: "+pkSum(g).txt);if(g.note)L.push("Notiz: "+g.note);if(g.status==="ready")L.push("Status: abholbereit");return L.join("\n")}
+ L.push("");(g.items||[]).forEach((x,i)=>L.push((i+1)+") "+pkItemTxt(x)+(x.note?" – "+x.note:"")));L.push("","Insgesamt: "+pkSum(g).txt);if(g.note)L.push("Notiz: "+g.note);if(g.status==="ready")L.push("Status: abholbereit");else if(g.sub)L.push("Stand: "+g.sub);return L.join("\n")}
 function rPkg(){const e=$("s-pkg");
  if(ui.pk){const g=ui.pk,a=g.add,cand=pkCand(g,a.k),sm=pkSum(g);
   const ws=[[0,"– Werkstatt wählen –"],...data.people.filter(p=>!p.walk).sort((x,y)=>(y.type==="Werkstatt")-(x.type==="Werkstatt")).map(p=>[p.id,(p.type==="Werkstatt"?"🔧 ":"")+plabel(p)])];
@@ -1691,9 +1714,15 @@ function rPkg(){const e=$("s-pkg");
  <div class="card" style="margin-top:10px"><div class="tg">${TG("pkf",ui.pkf,[["out","Unterwegs ("+nOut+")"],["ready","Abholbereit ("+nRdy+")"],["back","Zurück"],["all","Alle"]])}</div>${F("Suchen",I("ui.pkq",ui.pkq,"Nummer, Werkstatt, Stein …",'data-r="1" autocomplete="off"'))}</div>
  <div class="card">${L.map(g=>{const op=ui.pkx===g.id,sm=pkSum(g),back=g.status==="back",rdy=g.status==="ready",col=back?"var(--mu)":rdy?"var(--in)":"#f0a020";
   return `<div style="border-left:4px solid ${col};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0"><div data-a="pkx" data-id="${g.id}" style="flex:1;min-width:0"><b>${esc(g.no)} · ${esc(pnm(g.pid)||"–")} ${op?"▴":"▾"}</b><small>${esc([g.step,sm.txt].filter(Boolean).join(" · "))}</small><small>${dt(g.date)}${g.fpid?" · für "+esc(pnm(g.fpid)):""}${back&&g.backDate?" · zurück "+dt(g.backDate):""}${rdy&&g.readyDate?" · abholbereit seit "+dt(g.readyDate):""}</small>${g.due&&!back&&!rdy?`<small>${dueTag(g.due)}</small>`:""}</div>
-  <div class="r"><span style="color:${col}"><b>${back?"Zurück":rdy?"📦 Abholbereit":"In Werkstatt"}</b></span><br>
+  <div class="r"><span style="color:${col}"><b>${back?"Zurück":rdy?"📦 Abholbereit":"In Werkstatt"}</b></span>${g.sub?`<br><small style="color:${col}">• ${esc(g.sub)}</small>`:""}<br>
   ${back?`<button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="out">Wieder raus</button>`:rdy?`<button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="back">✓ Abgeholt</button><br><button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="out" style="margin-top:4px">Wieder in Arbeit</button>`:`<button class="sm" data-a="pkst" data-id="${g.id}" data-v="ready">📦 Abholbereit</button><br><button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="back" style="margin-top:4px">✓ Zurück</button>`}</div></div>
   ${op?`<div style="padding:0 0 10px">${(g.items||[]).map((x,i)=>`<div class="it" style="padding:6px 0"><div>${i+1}) ${esc(pkItemTxt(x))}${x.note?`<small>${esc(x.note)}</small>`:""}</div></div>`).join("")}<div class="it" style="padding:6px 0"><b>Insgesamt</b><b>${esc(sm.txt)}</b></div>${g.note?`<p class="mu">📝 ${esc(g.note)}</p>`:""}
+  <div class="card" style="margin:8px 0"><b>Zwischenschritt eintragen</b>
+  <select id="pks-${g.id}" style="margin-top:6px"><option value="">– Option wählen –</option>${data.pkSt.map(s=>`<option${g.sub===s?" selected":""}>${esc(s)}</option>`).join("")}</select>
+  <input id="pkno-${g.id}" placeholder="oder neue Option eintippen" autocorrect="off" style="margin-top:6px">
+  <input id="pkn-${g.id}" placeholder="Notiz (optional)" style="margin-top:6px">
+  <div class="row" style="margin:6px 0 0"><button data-a="pksub" data-id="${g.id}">Eintragen</button>${g.sub?`<button class="sec" data-a="pksubx" data-id="${g.id}">Schritt erledigt</button>`:""}</div></div>
+  ${(g.log||[]).length?`<div class="lbl"><b>Verlauf</b></div>${g.log.slice().reverse().map(l=>`<div class="it" style="padding:5px 0"><div><b>${esc(l.s)}</b>${l.note?`<small>${esc(l.note)}</small>`:""}</div><small class="mu" style="white-space:nowrap">${dt(String(l.t).slice(0,10))} ${String(l.t).slice(11,16)}</small></div>`).join("")}`:""}
   ${CB("ui.oanon",!!ui.oanon,"Nur Chiffre statt Kundendaten senden",'data-r="1"')}<div class="row" style="margin:6px 0 0"><button class="sec" data-a="pkedit" data-id="${g.id}">✏️ Bearbeiten</button><a class="sec navb" href="https://wa.me/${(p=>p&&p.phone?String(p.phone).replace(/[^\d]/g,"").replace(/^00/,""):"")(data.people.find(x=>x.id===g.pid))}?text=${encodeURIComponent(pkShareTxt(g))}" target="_blank" rel="noopener">💬 WhatsApp</a></div></div>`:""}</div>`}).join("")||'<p class="mu">Keine Pakete.</p>'}</div>`}
 act.pkf=d=>{ui.pkf=d.v;rPkg()};
 act.pkx=d=>{const id=Number(d.id);ui.pkx=ui.pkx===id?0:id;rPkg()};
@@ -1710,13 +1739,21 @@ act.pkdel=d=>{ui.pk.items.splice(Number(d.i),1);rPkg()};
 act.pksave=()=>{const g=ui.pk;if(!g.pid){toast("Bitte eine Werkstatt wählen (Person mit Typ „Werkstatt“ anlegen)");return}if(!g.items.length){toast("Paket ist leer");return}
  const no=String(g.no).trim();if(!no){toast("Nummer fehlt");return}if(data.pkgs.some(x=>x.no===no&&x.id!==g.id)){toast("Diese Nummer gibt es schon");return}
  const o={id:g.id||uid(),no,pid:g.pid,fpid:g.fpid||0,oid:g.oid||0,step:g.step||"",date:g.date||today(),due:dueOf(g.date,g.dk,g.due),note:String(g.note||"").trim(),items:g.items,status:g.status||"out",backDate:g.backDate||""};
+ o.log=g.log||[];o.sub=g.sub||"";if(!g.id)pkLog(o,"Paket angelegt",g.step?"Arbeit: "+g.step:"");
  const i=data.pkgs.findIndex(x=>x.id===o.id);if(i<0)data.pkgs.push(o);else data.pkgs[i]=o;ui.pk=null;ui.pkx=o.id;rPkg();toast("Paket "+no+" gespeichert")};
+act.pksub=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;const nw=String(($("pkno-"+g.id)||{}).value||"").trim(),sv=String(($("pks-"+g.id)||{}).value||""),s=nw||sv,n=($("pkn-"+g.id)||{}).value;
+ if(!s){toast("Bitte Option wählen oder eintippen");return}if(nw&&!data.pkSt.includes(nw))data.pkSt.push(nw);
+ g.sub=s;if(g.status==="back"){g.status="out";g.backDate=""}pkLog(g,s,n);rPkg();toast("Eingetragen: "+s)};
+act.pksubx=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;pkLog(g,"✓ "+g.sub+" erledigt",($("pkn-"+g.id)||{}).value);g.sub="";rPkg()};
+act.pkstdel=d=>{const i=Number(d.i),k="ps"+i;if(!armed(k)){ui.arm={k,t:Date.now()};render();setTimeout(()=>{if(!armed(k))render()},5200);return}ui.arm=null;data.pkSt.splice(i,1);render()};
+act.pkstadd=()=>{const e=$("pkStNew"),n=e&&String(e.value).trim();if(!n)return;if(!data.pkSt.includes(n))data.pkSt.push(n);render();toast("Option hinzugefügt")};
 act.pkrm=()=>{if(!confirmTap("pkrm"))return;data.pkgs=data.pkgs.filter(x=>x.id!==ui.pk.id);ui.pk=null;rPkg()};
 act.pkst=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;const v=d.v||(g.status==="back"?"out":"back");g.status=v;
  if(v==="back")g.backDate=today();else g.backDate="";if(v==="ready")g.readyDate=today();else if(v==="out")g.readyDate="";
+ if(v!=="out"||g.sub)g.sub="";pkLog(g,PKB[v]);
  rPkg();toast(v==="back"?"Paket "+g.no+" zurück erhalten":v==="ready"?"Paket "+g.no+" ist abholbereit":"Paket "+g.no+" wieder in der Werkstatt")};
-function xPkg(){const r=[["Paket","Datum","Werkstatt","Arbeit","Für","Bestellung","Teil","Notiz Teil","Frist","Status","Abholbereit seit","Zurück am","Notiz"]];
- data.pkgs.forEach(g=>(g.items||[]).forEach(x=>r.push([g.no,g.date,pnm(g.pid),g.step||"",pnm(g.fpid),(data.orders.find(o=>o.id===g.oid)||{}).no||"",pkItemTxt(x),x.note||"",g.due||"",g.status==="back"?"Zurück":g.status==="ready"?"Abholbereit":"In Werkstatt",g.readyDate||"",g.backDate||"",g.note||""])));return["Werkstatt",r]}
+function xPkg(){const r=[["Paket","Datum","Werkstatt","Arbeit","Für","Bestellung","Teil","Notiz Teil","Frist","Status","Zwischenschritt","Abholbereit seit","Zurück am","Notiz","Verlauf"]];
+ data.pkgs.forEach(g=>(g.items||[]).forEach(x=>r.push([g.no,g.date,pnm(g.pid),g.step||"",pnm(g.fpid),(data.orders.find(o=>o.id===g.oid)||{}).no||"",pkItemTxt(x),x.note||"",g.due||"",g.status==="back"?"Zurück":g.status==="ready"?"Abholbereit":"In Werkstatt",g.sub||"",g.readyDate||"",g.backDate||"",g.note||"",(g.log||[]).map(l=>String(l.t).replace("T"," ")+" "+l.s+(l.note?" ("+l.note+")":"")).join(" | ")])));return["Werkstatt",r]}
 
 
 /* ---------- Konten ---------- */
@@ -1831,7 +1868,7 @@ function uL(){const q=ui.lq.toLowerCase();
  const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
   .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
  $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
-  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small>${(g=>g?`<small style="color:${g.status==="ready"?"var(--in)":"#f0a020"}">${g.status==="ready"?"📦":"🔧"} ${esc(g.no)} · ${esc(pnm(g.pid))}${g.status==="ready"?" · abholbereit":g.step?" · "+esc(g.step):""}</small>`:"")(pkgOf("stone",s.id)||pkgOf("mat",s.id))}</div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small>${(g=>g?`<small style="color:${g.status==="ready"?"var(--in)":"#f0a020"}">${g.status==="ready"?"📦":"🔧"} ${esc(g.no)} · ${esc(pnm(g.pid))}${g.status==="ready"?" · abholbereit":g.sub?" · "+esc(g.sub):g.step?" · "+esc(g.step):""}</small>`:"")(pkgOf("stone",s.id)||pkgOf("mat",s.id))}</div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
 /* 4C: Standard-Karat mit ungefährem Durchmesser (Rund, Brillantschliff) */
 const CTD=[[0.05,2.5],[0.10,3.0],[0.20,3.8],[0.25,4.1],[0.30,4.5],[0.40,4.8],[0.50,5.2],[0.70,5.8],[0.90,6.3],[1.00,6.5],[1.25,6.9],[1.50,7.4],[1.75,7.8],[2.00,8.2],[2.50,8.8],[3.00,9.4]];
 function ctDiam(ct){if(!(ct>0))return 0;const t=CTD;
@@ -2253,6 +2290,9 @@ function rSet(){
  <div class="card"><b>🔑 Kunden-Chiffre</b><p class="mu" style="margin:4px 0 8px">Jede Person bekommt automatisch eine Chiffre (z. B. K0001). Die kannst du auf Zettel, Tüten oder Etiketten schreiben, statt Name und Adresse. Suche findet Personen auch über die Chiffre.</p>
  <div class="g2">${F("Kürzel",I("data.prefix.Kunde",pfxC(),"K",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off"'))}<p class="mu" style="margin:0;align-self:end">z. B. ${esc(pfxC())}0001</p></div>
  ${CB("ui.anon",!!ui.anon,"Diskret-Modus: in Listen nur Chiffre statt Namen zeigen",'data-r="1"')}</div>
+ <div class="card"><b>🔧 Werkstatt-Zwischenschritte</b><p class="mu" style="margin:4px 0 8px">Diese Optionen stehen bei Werkstatt-Paketen zur Auswahl. Zweimal antippen zum Entfernen.</p>
+ <div class="chips">${data.pkSt.map((s,i)=>`<button class="sec" data-a="pkstdel" data-i="${i}">${esc(s)} ${armed("ps"+i)?"– weg?":"✕"}</button>`).join("")}</div>
+ <div class="row" style="margin:0"><input id="pkStNew" placeholder="Neue Option, z. B. Etikett muss gedruckt werden" autocorrect="off"><button class="sec" data-a="pkstadd" style="flex:0 0 34%">Hinzufügen</button></div></div>
  <div class="card"><b>Modelle (Bestellung)</b><p class="mu" style="margin:4px 0 8px">Diese Modelle stehen bei Bestellungen zur Auswahl. Antippen zum Entfernen.</p>
  <div class="chips">${data.models.map((m,i)=>`<button class="sec" data-a="mdel" data-i="${i}">${esc(m)} ${armed("md"+i)?"– weg?":"✕"}</button>`).join("")||'<span class="mu">Keine Modelle.</span>'}</div>
  <div class="row" style="margin:0"><input id="mNew2" placeholder="Neues Modell, z. B. Tiffany Style" autocorrect="off"><button class="sec" data-a="madd2" style="flex:0 0 34%">Hinzufügen</button></div></div>
