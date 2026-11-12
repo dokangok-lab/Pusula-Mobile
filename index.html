@@ -135,8 +135,10 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.55";
+const VER="0.57";
 const HIST=[
+ ["0.57","12.11.2026",["Übersicht „Verkäufe“: auch Verkäufe aus Konten (Verkauf mit/ohne Barcode) werden gezählt","„Fertige Ware: Gold“: Feingehalt 0,585 wird erkannt, Ware ohne Feingehalt steht unter „ohne Angabe“"]],
+ ["0.56","12.11.2026",["Warenliste zeigt die Steine mit voller Steinnummer (z. B. 💎 Oval 1,07 ct CVD LG82923732); Auswahllisten in Bestellung, Verkauf und Werkstatt zeigen Steinform, Karat und Nummer; Suche findet Ware auch über die Steinnummer"]],
  ["0.55","12.11.2026",["Kunden-Chiffre: jede Person bekommt automatisch eine Nummer (K0001 …, Kürzel änderbar, Chiffre auch selbst änderbar); groß in der Personenkarte, in Auswahllisten und Suche; beim Teilen „Nur Chiffre statt Kundendaten“; Diskret-Modus zeigt in Listen nur die Chiffre"]],
  ["0.54","12.11.2026",["Neu unter „Mehr“: Werkstatt – Pakete mit fortlaufender Nummer (P0001, Kürzel änderbar), Werkstatt, Arbeit (Montage, Polieren …), für wen / Bestellung, Frist; Inhalt aus Steinen, Waren, Gold/Material oder Sonstigem mit Summe; Status „In Werkstatt“ / „Zurück“; Anzeige 🔧 im Lager und in der Fertigung; WhatsApp an die Werkstatt; Excel-Blatt"]],
  ["0.53","11.11.2026",["Statt 3-fach Passwort: zwei Sicherheitsfragen (z. B. „Wie heißt dein Vater?“, auch eigene Fragen) – beim Öffnen werden Passwort und beide Antworten verlangt; Groß-/Kleinschreibung egal"]],
@@ -643,6 +645,10 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+ohne Angabe ~ not specified ~ belirtilmemiş
+Übersicht „Verkäufe“: auch Verkäufe aus Konten (Verkauf mit/ohne Barcode) werden gezählt ~ Overview “Sales”: sales from accounts (sale with/without barcode) are counted too ~ Ana ekran “Satışlar”: hesaplardaki satışlar (barkodlu/barkodsuz) da sayılır
+„Fertige Ware: Gold“: Feingehalt 0,585 wird erkannt, Ware ohne Feingehalt steht unter „ohne Angabe“ ~ “Finished goods: gold”: fineness 0.585 is recognised, items without fineness are listed as “not specified” ~ “Hazır mal: altın”: 0,585 milyem tanınır, milyemsiz ürünler “belirtilmemiş” altında
+Warenliste zeigt die Steine mit voller Steinnummer (z. B. 💎 Oval 1,07 ct CVD LG82923732); Auswahllisten in Bestellung, Verkauf und Werkstatt zeigen Steinform, Karat und Nummer; Suche findet Ware auch über die Steinnummer ~ Item list shows stones with full stone number (e.g. 💎 oval 1.07 ct CVD LG82923732); pickers in orders, sales and workshop show shape, carat and number; search also finds items by stone number ~ Ürün listesi taşları tam numarasıyla gösterir (örn. 💎 Oval 1,07 ct CVD LG82923732); sipariş, satış ve atölyedeki seçim listeleri şekil, karat ve numarayı gösterir; arama ürünü taş numarasıyla da bulur
 Chiffre ~ Code ~ Kod
 🔑 Kunden-Chiffre ~ 🔑 Customer code ~ 🔑 Müşteri kodu
 Diese Chiffre gibt es schon ~ This code already exists ~ Bu kod zaten var
@@ -1449,7 +1455,7 @@ function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid),it=oItems(o),
   ${x.pnote?`<small>📝 ${esc(x.pnote)}</small>`:""}
   <small class="${op?"":"in"}">${itGot(x)?"Geliefert "+itGot(x)+" von "+x.qty+" · ":""}${op?"noch <b>"+op+" Stück</b> offen":"✓ vollständig"}</small>
   ${pl.length||itDel(x).length?`<div class="chips" style="margin:6px 0 0">${pl.map(id=>{const p=data.prods.find(z=>z.id===id);return `<button class="sec" data-a="ounas" data-o="${o.id}" data-i="${i}" data-p="${id}">${esc(shortCode(p.code))} ✕</button>`}).join("")}${itDel(x).map(v=>`<button class="sec" data-a="odelv" data-o="${o.id}" data-i="${i}" data-id="${v.id}">${v.qty}× ${esc(v.note||"ohne Barcode")} · ${dt(v.date)} ✕</button>`).join("")}</div>`:""}
-  ${op?`<div style="margin:6px 0 0"><select id="oas-${o.id}-${i}"><option value="0">✍️ Ohne Barcode / manuell eintragen</option>${cand.map(p=>`<option value="${p.id}">${esc(shortCode(p.code)+" · "+(p.name||p.grp)+" · "+f3(pTW(p))+" g"+(p.status==="sold"?" · verkauft":""))}</option>`).join("")}</select>
+  ${op?`<div style="margin:6px 0 0"><select id="oas-${o.id}-${i}"><option value="0">✍️ Ohne Barcode / manuell eintragen</option>${cand.map(p=>`<option value="${p.id}">${esc(pLbl(p)+(p.status==="sold"?" · verkauft":""))}</option>`).join("")}</select>
    <div class="row" style="margin:6px 0 0"><input id="oaq-${o.id}-${i}" inputmode="numeric" value="1" style="flex:0 0 22%" aria-label="Stück"><input id="oan-${o.id}-${i}" placeholder="Notiz, z. B. Ring 2,8 g übergeben" autocorrect="off"><button class="sec" data-a="oas" data-o="${o.id}" data-i="${i}" style="flex:0 0 28%">Eintragen</button></div>
    <small class="mu">${cand.length?"Fertige Ware wählen oder ohne Barcode mit Stückzahl eintragen.":"Keine fertige Ware im Lager – mit Stückzahl und Notiz eintragen."}</small></div>`:""}</div>`}).join("")}
  <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div><button class="sec" data-a="oedit" data-id="${o.id}" style="margin:6px 0">✏️ Bestellung bearbeiten</button>
@@ -1634,7 +1640,7 @@ const pfxK=()=>(data.prefix&&data.prefix.Paket)||"P";
 function nextPkg(){const pre=pfxK();let mx=0;data.pkgs.forEach(k=>{if(k.no&&k.no.startsWith(pre)){const r=k.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});return pre+String(mx+1).padStart(4,"0")}
 function pkgOf(k,id){for(const g of data.pkgs){if(g.status==="back")continue;if((g.items||[]).some(x=>x.k===k&&x.ref===id))return g}return null}
 function pkItemTxt(x){if(x.k==="stone"){const s=data.stock.find(y=>y.id===x.ref);return s?s.name+(isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":"",s.color,s.clar].filter(Boolean).join(" "):" · "+f3(parse(x.qty))+" "+(UL[s.unit]||"")):"?"}
- if(x.k==="prod"){const p=data.prods.find(y=>y.id===x.ref);return p?shortCode(p.code)+" · "+(p.name||p.grp)+" · "+f3(pTW(p))+" g":"?"}
+ if(x.k==="prod"){const p=data.prods.find(y=>y.id===x.ref);return p?pLbl(p):"?"}
  if(x.k==="mat"){const s=data.stock.find(y=>y.id===x.ref);return s?f3(parse(x.qty))+" "+(UL[s.unit]||"")+" "+s.name:"?"}
  return (parse(x.qty)||1)+"× "+(x.txt||"")}
 function pkSum(g){const it=g.items||[];let st=0,pr=0,fr=0;const mat={};
@@ -1665,7 +1671,7 @@ function rPkg(){const e=$("s-pkg");
   <div class="lbl" style="margin-top:8px"><b>Hinzufügen</b></div>
   ${F("Art",S("ui.pk.add.k",a.k,PKK,'data-r="1"'))}
   ${a.k==="free"?`<div class="g2">${F("Bezeichnung",I("ui.pk.add.txt",a.txt,"z. B. Kette 45 cm"))}${F("Stück",I("ui.pk.add.qty",a.qty,"1",'inputmode="numeric"'))}</div>`:
-   F(a.k==="stone"?"Stein":a.k==="prod"?"Ware":"Material",S("ui.pk.add.ref",a.ref,[[0,cand.length?"– wählen –":"– nichts verfügbar –"],...cand.map(s=>[s.id,a.k==="prod"?shortCode(s.code)+" · "+(s.name||s.grp)+" · "+f3(pTW(s))+" g":s.name+(s.group==="Stein"&&isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":""].filter(Boolean).join(" "):" ("+f3(qtyOf(s.id))+" "+(UL[s.unit]||"")+")")])],'data-n="1" data-r="1"'))+
+   F(a.k==="stone"?"Stein":a.k==="prod"?"Ware":"Material",S("ui.pk.add.ref",a.ref,[[0,cand.length?"– wählen –":"– nichts verfügbar –"],...cand.map(s=>[s.id,a.k==="prod"?pLbl(s):s.name+(s.group==="Stein"&&isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":""].filter(Boolean).join(" "):" ("+f3(qtyOf(s.id))+" "+(UL[s.unit]||"")+")")])],'data-n="1" data-r="1"'))+
    ((a.k==="mat"||(a.k==="stone"&&a.ref&&!isSingle(data.stock.find(s=>s.id===a.ref))))?`<div class="g2">${F("Menge ("+(UL[(data.stock.find(s=>s.id===a.ref)||{}).unit]||"")+")",I("ui.pk.add.qty",a.qty,"",'inputmode="decimal"'))}${a.k==="stone"?F("Stück",I("ui.pk.add.pcs",a.pcs,"",'inputmode="numeric"')):"<div></div>"}</div>`:"")}
   ${F("Notiz zum Teil (optional)",I("ui.pk.add.note",a.note||"",""))}
   <button class="sec" data-a="pkadd">+ Hinzufügen</button></div>
@@ -1760,7 +1766,7 @@ function kExtra(f){
  if(f.k==="VO"){const st=data.stock.filter(s=>s.active!==false);
   return F("Lagerware ohne Barcode (optional)",S("ui.kf.sid",f.sid,[[0,"– keine –"],...st.map(s=>[s.id,s.name+" ("+f3(qtyOf(s.id))+" "+(UL[s.unit]||"")+")"])],'data-n="1" data-r="1"'))+(f.sid?F("Menge aus dem Lager",N("ui.kf.qty",f.qty)):"")}
  return""}
-const kPopts=f=>[[0,"– wählen –"],...kProds(f.q).map(p=>[p.id,p.code+" · "+p.name])].map(([a,b])=>`<option value="${a}"${String(a)===String(f.prod)?" selected":""}>${esc(b)}</option>`).join("");
+const kPopts=f=>[[0,"– wählen –"],...kProds(f.q).map(p=>[p.id,pLbl(p)])].map(([a,b])=>`<option value="${a}"${String(a)===String(f.prod)?" selected":""}>${esc(b)}</option>`).join("");
 function uKp(){const e=$("kpsel");if(e&&ui.kf){const l=kProds(ui.kf.q);if(l.length===1&&ui.kf.prod!==l[0].id){ui.kf.prod=l[0].id;kProd();render();return}e.innerHTML=kPopts(ui.kf)}}
 function kProd(){const f=ui.kf,p=data.prods.find(x=>x.id===f.prod);if(!p)return;
  f.unit=(p.cur==="USD"?"USD":"EUR");const pr=parse(p.p1);if(pr>0)f.amount=String(pr).replace(".",",");f.note=p.code+" "+p.name}
@@ -1916,7 +1922,7 @@ function codeMatch(code,q){const c=String(code).toLowerCase();if(c.includes(q))r
  const pre=seven?c.slice(0,-7):mm[1],num=seven?c.slice(-7):mm[2];
  if(q.replace(/\s/g,"")===pre+String(parseInt(num,10)))return true;
  return parseInt(num,10)===parseInt(m[2],10)&&(!m[1]||pre===m[1])}
-const pMatch=(p,q)=>{q=String(q||"").trim().toLowerCase();return !q||codeMatch(p.code,q)||(p.code+" "+p.name).toLowerCase().includes(q)};
+const pMatch=(p,q)=>{q=String(q||"").trim().toLowerCase();return !q||codeMatch(p.code,q)||(p.code+" "+p.name+" "+pStn(p)).toLowerCase().includes(q)};
 function plist(){
  return data.prods.filter(p=>(!ui.pg||p.grp===ui.pg)&&(!ui.ps||p.status===ui.ps)&&pMatch(p,ui.pq)).sort((a,b)=>b.id-a.id)}
 function rP(){
@@ -1925,9 +1931,12 @@ function rP(){
  <div class="card"><div class="g2">${F("Gruppe",S("ui.pg",ui.pg,[["","Alle"],...Object.keys(PG)],'data-r="1"'))}${F("Status",S("ui.ps",ui.ps,[["","Alle"],["prod","In Fertigung"],["done","Fertig (Lager)"],["sold","Verkauft"]],'data-r="1"'))}</div>
  <input data-f="ui.pq" data-u="uP" value="${esc(ui.pq)}" placeholder="Suchen (Nummer oder Name)"></div>
  <div class="card" id="prows"></div>`;uP()}
+function pStn(p,withNo=true){return (p.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type).map(s=>{const st=data.stock.find(x=>x.id===s.sid);
+ const ct=parse(s.qty);return [s.type||(st&&st.type)||"",ct?f2(ct).replace(/0$/,"")+" ct":"",s.nat||(st&&st.nat)||"",withNo&&st?st.name:""].filter(Boolean).join(" ")}).filter(Boolean).join(" + ")}
+const pLbl=p=>{const st=pStn(p);return shortCode(p.code)+" · "+(p.name||p.grp)+(st?" · 💎 "+st:"")+" · "+f3(pTW(p))+" g"};
 const soldTxt=p=>((g=>g?" · 🔧 "+g.no+" ("+pnm(g.pid)+")":"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
 function uP(){const l=plist();
- $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small></div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
+ $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""}${(st=>st?"</small><small>💎 "+esc(st)+"</small><small>":"")(pStn(p))} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small></div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
  $("prows").innerHTML+=l.length?`<div class="it"><b>${l.length} Stück</b><b>${f3(l.reduce((a,p)=>a+pTW(p),0))} g gesamt</b></div>`:""}
 act.pnew=()=>{ui.pd=newP();ui.pnew=true;render()};
 act.pedit=d=>{ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
@@ -2067,7 +2076,7 @@ function rV(){const s=ui.sv||(ui.sv=newSale());
 function lfHTML(s){const l=s.lf,k=l.k,isP=k==="VB"||k==="RB",free=k==="VO"||k==="EO";
  const inCart=s.lines.map(x=>x.prod),ps=data.prods.filter(p=>p.status===(k==="VB"?"done":"sold")&&!inCart.includes(p.id)&&pMatch(p,l.q));
  return `<div class="bar">${OP[k][0]}</div>
- ${isP?F("Nummer suchen",I("ui.sv.lf.q",l.q||"","z. B. YZD178",'data-u="uV" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))+F("Ware",S("ui.sv.lf.prod",l.prod,[[0,ps.length?"– wählen –":"keine passende Ware"],...ps.map(p=>[p.id,p.code+" · "+p.name+" · "+f3(pTW(p))+" g"])],'data-n="1" data-r="1" id="vsel"')):F("Beschreibung",I("ui.sv.lf.desc",l.desc,free?"z. B. Ring 14K":"optional"))}
+ ${isP?F("Nummer suchen",I("ui.sv.lf.q",l.q||"","z. B. YZD178",'data-u="uV" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))+F("Ware",S("ui.sv.lf.prod",l.prod,[[0,ps.length?"– wählen –":"keine passende Ware"],...ps.map(p=>[p.id,pLbl(p)])],'data-n="1" data-r="1" id="vsel"')):F("Beschreibung",I("ui.sv.lf.desc",l.desc,free?"z. B. Ring 14K":"optional"))}
  ${free?F("Gewicht g (optional)",N("ui.sv.lf.qty",l.qty)):""}
  ${F("Betrag ("+s.cur+")",N("ui.sv.lf.amount",l.amount))}
  <div class="row"><button data-a="vadd">Zeile hinzufügen</button><button class="sec" data-a="vcancel">Abbrechen</button></div>`}
@@ -2075,7 +2084,7 @@ function uV(){const s=ui.sv,l=s&&s.lf;if(!l)return;const e=$("vsel");if(!e)retur
  const inCart=s.lines.map(x=>x.prod),ps=data.prods.filter(p=>p.status===(l.k==="VB"?"done":"sold")&&!inCart.includes(p.id)&&pMatch(p,l.q));
  if(ps.length===1&&l.prod!==ps[0].id){l.prod=ps[0].id;vProd();setV("ui.sv.lf.amount",l.amount)}
  else if(!ps.some(p=>p.id===l.prod))l.prod=0;
- e.innerHTML=[[0,ps.length?"– wählen –":"keine passende Ware"],...ps.map(p=>[p.id,p.code+" · "+p.name+" · "+f3(pTW(p))+" g"])].map(([a,b])=>`<option value="${a}"${String(a)===String(l.prod)?" selected":""}>${esc(b)}</option>`).join("")}
+ e.innerHTML=[[0,ps.length?"– wählen –":"keine passende Ware"],...ps.map(p=>[p.id,pLbl(p)])].map(([a,b])=>`<option value="${a}"${String(a)===String(l.prod)?" selected":""}>${esc(b)}</option>`).join("")}
 function vProd(){const s=ui.sv,l=s.lf,p=data.prods.find(x=>x.id===l.prod);
  if(p){const a=parse(p.p1)||parse(p.p2);l.amount=a?fx(fromEUR(toEUR(a,p.cur),s.cur)):"";if(p.cur===s.cur&&a)l.amount=fx(a)}}
 act.addP2=()=>{const p=addPerson("pNew2");if(p){ui.sv.pid=p.id;render()}};
@@ -2135,14 +2144,17 @@ function rHome(){
  const pos=us.map(u=>{const a=rec[u]||0,b=owe[u]||0,d=a-b;return[UN[u],fn(a,u),fn(b,u),`<b class="${d<0?"out":"in"}">${fn(d,u)}</b>`]});
  const stR=data.stock.map(s=>({s,q:qtyOf(s.id)})).filter(x=>Math.abs(x.q)>1e-9).map(x=>[esc(x.s.name),f3(x.q)+" "+UL[x.s.unit],x.s.fine&&x.s.group!=="Stein"?x.s.fine+" ‰":"–"]);
  const done=data.prods.filter(p=>p.status==="done"),gold={},spec={};
- done.forEach(p=>{p.metal.forEach(m=>{const k=parse(m.fine);if(k)gold[k]=(gold[k]||0)+parse(m.qty)});
+ done.forEach(p=>{p.metal.forEach(m=>{const q=parse(m.qty);if(!q)return;const k=pm(m.fine)||"?";gold[k]=(gold[k]||0)+q});
   const e=spec[p.name||p.grp]||(spec[p.name||p.grp]={n:0,c:{}});e.n++;e.c[p.cur]=(e.c[p.cur]||0)+(p.cost||0)});
- const gR=Object.keys(gold).sort((a,b)=>a-b).map(k=>[k+" ‰",f3(gold[k])+" g"]);
+ const gR=Object.keys(gold).sort((a,b)=>(a==="?")-(b==="?")||a-b).map(k=>[k==="?"?"ohne Angabe":f3(Number(k))+" ‰",f3(gold[k])+" g"]);
  const spR=Object.keys(spec).map(n=>[esc(n),String(spec[n].n),Object.keys(spec[n].c).map(c=>f2(spec[n].c[c])+" "+c).join(" + ")]);
  const from=pStart(ui.hp),ss=data.sales.filter(x=>x.date>=from),rev={},days={};let items=0;
  ss.forEach(x=>{const dd=days[x.date]||(days[x.date]={n:0,r:{}});dd.n++;
   x.lines.forEach(l=>{const sg=l.k==="VB"||l.k==="VO"?1:l.k==="RB"||l.k==="RA"?-1:0;if(!sg)return;
    rev[x.cur]=(rev[x.cur]||0)+sg*l.amount;dd.r[x.cur]=(dd.r[x.cur]||0)+sg*l.amount;if(l.k==="VB")items++;if(l.k==="RB")items--})});
+ data.moves.filter(m=>!m.saleId&&["VB","VO","RB","RA"].includes(m.type)&&m.date>=from&&["EUR","USD"].includes(m.unit)).forEach(m=>{const sg=m.type==="VB"||m.type==="VO"?1:-1,dd=days[m.date]||(days[m.date]={n:0,r:{}});
+  if(sg>0)dd.n++;rev[m.unit]=(rev[m.unit]||0)+sg*m.amount;dd.r[m.unit]=(dd.r[m.unit]||0)+sg*m.amount;if(m.type==="VB")items++;if(m.type==="RB")items--});
+ const nS=Object.values(days).reduce((a,d)=>a+d.n,0);
  const dR=Object.keys(days).sort().reverse().slice(0,10).map(k=>[dt(k),String(days[k].n),Object.keys(days[k].r).map(c=>f2(days[k].r[c])+" "+c).join(" + ")||"–"]);
  $("s-home").innerHTML=
   box("Offene Position","⚖️",TB(["Währung","Forderung","Schuld","Differenz"],pos),"konten")+
@@ -2153,7 +2165,7 @@ function rHome(){
   box("Fertige Ware: Gold","🥇",TB(["Feingehalt","Gewicht"],gR),"prod:done")+
   box("Fertige Ware: Sonderware","💍",TB(["Bezeichnung","Stück","Kosten"],spR),"prod:done")+
   box("Verkäufe","📈",`<div class="chips">${PERS.map(([v,l])=>`<button class="${ui.hp===v?"":"sec"}" data-a="hp" data-v="${v}">${l}</button>`).join("")}</div>
-   <div class="sum" style="margin-bottom:8px"><div><span class="mu">Verkäufe</span><b>${ss.length}</b></div><div><span class="mu">Stück (Barcode)</span><b>${items}</b></div><div><span class="mu">Umsatz</span><b>${Object.keys(rev).map(c=>f2(rev[c])+" "+c).join(" + ")||"–"}</b></div></div>
+   <div class="sum" style="margin-bottom:8px"><div><span class="mu">Verkäufe</span><b>${nS}</b></div><div><span class="mu">Stück (Barcode)</span><b>${items}</b></div><div><span class="mu">Umsatz</span><b>${Object.keys(rev).map(c=>f2(rev[c])+" "+c).join(" + ")||"–"}</b></div></div>
    ${TB(["Tag","Anzahl","Umsatz"],dR)}`)}
 act.hp=d=>{ui.hp=d.v;render()};
 function ocBox(){
