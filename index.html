@@ -71,6 +71,10 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
   <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password" style="margin-bottom:8px">
   <button id="bLoad">Datei laden (.json)</button>
   <input type="file" id="file" accept=".json,application/json" class="hide">
+  <div id="pw3box" class="hide" style="margin-top:10px"><p class="mu" id="pw3t" style="margin:0 0 6px"></p>
+   <div class="lbl" id="pwBl"></div><input id="pwB" type="password" placeholder="Passwort 2" autocomplete="off" autocorrect="off" autocapitalize="off" style="margin-bottom:8px">
+   <div class="lbl" id="pwCl"></div><input id="pwC" type="password" placeholder="Passwort 3" autocomplete="off" autocorrect="off" autocapitalize="off" style="margin-bottom:8px">
+   <button id="bOpen3">Öffnen</button></div>
  </div>
  <div class="card">
   <input id="newName" placeholder="Neuer Benutzer, z. B. Ahmet" autocomplete="off" style="margin-bottom:8px">
@@ -115,6 +119,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
  <section id="s-more" class="hide"></section>
  <section id="s-notes" class="hide"></section>
  <section id="s-trips" class="hide"></section>
+ <section id="s-pkg" class="hide"></section>
  <section id="s-set" class="hide"></section>
 
  <nav class="nb">
@@ -130,8 +135,12 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.51";
+const VER="0.55";
 const HIST=[
+ ["0.55","12.11.2026",["Kunden-Chiffre: jede Person bekommt automatisch eine Nummer (K0001 …, Kürzel änderbar, Chiffre auch selbst änderbar); groß in der Personenkarte, in Auswahllisten und Suche; beim Teilen „Nur Chiffre statt Kundendaten“; Diskret-Modus zeigt in Listen nur die Chiffre"]],
+ ["0.54","12.11.2026",["Neu unter „Mehr“: Werkstatt – Pakete mit fortlaufender Nummer (P0001, Kürzel änderbar), Werkstatt, Arbeit (Montage, Polieren …), für wen / Bestellung, Frist; Inhalt aus Steinen, Waren, Gold/Material oder Sonstigem mit Summe; Status „In Werkstatt“ / „Zurück“; Anzeige 🔧 im Lager und in der Fertigung; WhatsApp an die Werkstatt; Excel-Blatt"]],
+ ["0.53","11.11.2026",["Statt 3-fach Passwort: zwei Sicherheitsfragen (z. B. „Wie heißt dein Vater?“, auch eigene Fragen) – beim Öffnen werden Passwort und beide Antworten verlangt; Groß-/Kleinschreibung egal"]],
+ ["0.52","11.11.2026",["Einstellungen: 3-fach Passwort (ein-/ausschaltbar) – die Datei öffnet sich nur mit allen drei Passwörtern; beim Laden werden Passwort 2 und 3 abgefragt"]],
  ["0.51","11.11.2026",["Kontobuch: Einnahmen, Ausgaben und Saldo getrennt in USD und EUR; Gesamtsaldo umgerechnet darunter"]],
  ["0.50","11.11.2026",["Bestellung teilen: „💬 WhatsApp“ (Text), „💬 WhatsApp an Kunde“ (wenn Telefon hinterlegt), „📤 Teilen + Fotos“ über das iPhone-Teilen-Menü; Option „Ohne Kundendaten“ für die Werkstatt"]],
  ["0.49","11.11.2026",["Bestellung: Lieferung je Position eintragen – fertige Ware wählen oder ohne Barcode mit Stückzahl und Notiz; „Geliefert X von Y · noch Z offen“","Eigene Notiz je Position (z. B. Ringgröße, Gravur)"]],
@@ -188,7 +197,7 @@ const HIST=[
 /* ---------- Grundlagen ---------- */
 const $=id=>document.getElementById(id);
 let data=null,pw="",_u=0;
-const ui={s:"home",tv:"trips",te:null,ce:null,tcar:0,ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
+const ui={s:"home",pk:null,pkf:"out",pkq:"",pkx:0,p3:{a:"",b:"",c:""},tv:"trips",te:null,ce:null,tcar:0,ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,hp:"7",pe:false,pf:null,pq2:"",view:new Date(),pid:0,kdir:"out",kf:null,lg:"",lq:"",se:null,sb:{qty:"",note:""},pg:"",ps:"",pq:"",pd:null,pnew:false,sv:null,vdir:"out",svl:false,arm:null,lastCur:""};
 const uid=()=>Date.now()*1000+(_u++%1000);
 const pad=n=>String(n).padStart(2,"0");
 const today=()=>{const d=new Date();return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())};
@@ -232,7 +241,8 @@ async function mkKey(p,salt){const m=await crypto.subtle.importKey("raw",new Tex
  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},m,{name:"AES-GCM",length:256},false,["encrypt","decrypt"])}
 async function enc(obj,p){const salt=crypto.getRandomValues(new Uint8Array(16)),iv=crypto.getRandomValues(new Uint8Array(12));
  const c=await crypto.subtle.encrypt({name:"AES-GCM",iv},await mkKey(p,salt),new TextEncoder().encode(JSON.stringify(obj)));
- return JSON.stringify({app:"kasse",v:2,salt:b64(salt),iv:b64(iv),data:b64(c)})}
+ return JSON.stringify({app:"kasse",v:2,n:obj&&obj.sec===3?3:1,...(obj&&obj.sec===3&&Array.isArray(obj.secq)?{q:obj.secq}:{}),salt:b64(salt),iv:b64(iv),data:b64(c)})}
+const PSEP="\u241E",pwJoin=(a,b,c)=>[a,b,c].join(PSEP),pwParts=()=>String(pw).split(PSEP),ansN=s=>String(s||"").trim().toLowerCase().replace(/\s+/g," ");
 async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:unb64(f.iv)},await mkKey(p,unb64(f.salt)),unb64(f.data));
  return JSON.parse(new TextDecoder().decode(c))}
 
@@ -240,7 +250,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){
- data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
  if(!Array.isArray(data.models))data.models=["Solitär","Tiffany Style","Halo","Trilogy","Memoire / Eternity","Tennis","Vintage","Toi et Moi"];
  ui.lastCur=data.base;
@@ -254,9 +264,10 @@ function open(d){
   m.unit=({"€":"EUR","Gold g":"HAS","Stück":"Stk"})[m.unit]||m.unit;m.type=m.type||"MN"});
  data.orders.slice().sort((a,b)=>String(a.date).localeCompare(b.date)||a.id-b.id).forEach(o=>{if(!o.no)o.no=nextOrdNo(o.date)});
  if(!data.people.some(p=>p.walk))data.people.unshift({id:uid(),name:"Laufkunde (bar)",walk:true});
+ data.people.forEach(p=>{if(!p.walk&&!p.cc)p.cc=nextCC()});
  data.ver=VER;
  if(!picked&&LOC[data.lang])lang=data.lang;data.lang=lang;document.documentElement.lang=lang;langBtns();
- Object.assign(ui,{tv:"trips",te:null,ce:null,tcar:0,ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
+ Object.assign(ui,{pk:null,pkf:"out",pkq:"",pkx:0,p3:{a:"",b:"",c:""},tv:"trips",te:null,ce:null,tcar:0,ne:null,nq:"",oth:{},oex:0,pwf:{a:"",b:"",c:""},rs:"",nv:false,ptxt:"",of:null,of2:"act",oq:"",kb:0,view:new Date(),pe:false,pf:null,pq2:"",pid:0,kf:null,se:null,pd:null,sv:null,lg:"",lq:"",pg:"",ps:"",pq:"",svl:false,arm:null});
  $("who").textContent=data.user;$("date").value=today();$("rEd").classList.add("hide");
  rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
@@ -265,10 +276,19 @@ $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"")
 $("bLoad").onclick=()=>{if(!$("pw").value){$("msg").textContent="Bitte zuerst das Passwort eingeben.";return}$("file").click()};
 $("file").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
  try{const j=JSON.parse(await f.text());pw=$("pw").value;
+  if(j.v===2&&j.n===3){pend3=j;const q=Array.isArray(j.q)?j.q:null;
+   $("pw3t").textContent=q?"🔐 Bitte die Sicherheitsfragen beantworten.":"🔐 Diese Datei ist 3-fach geschützt. Bitte Passwort 2 und 3 eingeben.";
+   $("pwBl").textContent=q?q[0]:"";$("pwCl").textContent=q?q[1]:"";["pwB","pwC"].forEach((id,i)=>{const e=$(id);e.type=q?"text":"password";e.placeholder=q?"Antwort":"Passwort "+(i+2);e.value=""});
+   $("pw3box").classList.remove("hide");$("msg").textContent="";$("pwB").focus();return}
   if(j.v===2)open(await dec(j,pw));
   else if(j.app==="kasse"&&Array.isArray(j.entries))open(j);
   else throw 0}
  catch(_){$("msg").textContent="Datei nicht lesbar oder Passwort falsch."}};
+let pend3=null;
+$("bOpen3").onclick=async()=>{if(!pend3)return;const a=$("pw").value,b=$("pwB").value,c=$("pwC").value;
+ if(!a||!b||!c){$("msg").textContent=Array.isArray(pend3.q)?"Bitte Passwort und beide Antworten eingeben.":"Bitte alle drei Passwörter eingeben.";return}
+ try{pw=Array.isArray(pend3.q)?pwJoin(a,ansN(b),ansN(c)):pwJoin(a,b,c);const d=await dec(pend3,pw);pend3=null;$("pw3box").classList.add("hide");$("pwB").value="";$("pwC").value="";open(d)}
+ catch(_){pw="";$("msg").textContent=Array.isArray(pend3.q)?"Passwort oder Antwort falsch.":"Mindestens ein Passwort ist falsch."}};
 $("bSave").onclick=async()=>{
  const name=data.user+".json";let text;
  try{text=await enc(data,pw);
@@ -278,14 +298,14 @@ $("bSave").onclick=async()=>{
    if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f]});
    else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}}
  }catch(e){alert(tx("Nicht gespeichert – die Daten bleiben noch in der App."));return}
- data=null;pw="";$("pw").value="";$("msg").textContent="Gespeichert. Die App ist jetzt leer.";show(false)};
+ data=null;pw="";pend3=null;$("pw").value="";$("pw3box").classList.add("hide");$("msg").textContent="Gespeichert. Die App ist jetzt leer.";show(false)};
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
-function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
- const nv=["kasse","orders","set","more","notes","trips"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
+function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
+ const nv=["kasse","orders","set","more","notes","trips","pkg"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
 act.go=d=>go(d.v);
-function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips})[ui.s]()}
+function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg})[ui.s]()}
 function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
@@ -293,7 +313,7 @@ document.addEventListener("input",e=>{const el=e.target;if(!el.dataset||!el.data
 document.addEventListener("change",e=>{const el=e.target;if(!el.dataset||!el.dataset.f)return;apply(el,true)});
 function apply(el,ch){
  const p=el.dataset.f;let v=el.type==="checkbox"?el.checked:el.value;if(el.dataset.n)v=Number(v)||0;
- if(el.dataset.up){v=String(v).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);if(el.value!==v)el.value=v}
+ if(el.dataset.up){v=String(v).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,Number(el.dataset.up)>1?Number(el.dataset.up):5);if(el.value!==v)el.value=v}
  if(el.tagName==="SELECT"){if(!ui.oth)ui.oth={};if(v===OTH){v="";ui.oth[p]=true}else ui.oth[p]=false}
  setPath(p,v);hook(p);
  if(!ch&&el.dataset.u)window[el.dataset.u]();
@@ -308,6 +328,8 @@ function hook(p){
  else if(p==="data.base"){const r=data.rates;
   const cv=(g,x)=>{const gg=parse(g),xx=parse(x);return[gg&&xx?f2c(gg/xx,2):"",xx?f2c(1/xx,4):""]};
   const a=cv(r.gold[0],r.usd[0]),b=cv(r.gold[1],r.usd[1]);r.gold=[a[0],b[0]];r.usd=[a[1],b[1]];r.net="";r.adj=["",""];ui.lastCur=data.base;rRates();render()}
+ else if(p==="data.prefix.Paket"||p==="ui.pk.ov"){const g=ui.pk;if(g&&!g.ov){g.no=nextPkg();setV("ui.pk.no",g.no)}}
+ else if(p==="ui.pk.add.k"&&ui.pk){ui.pk.add.ref=0;ui.pk.add.qty="";ui.pk.add.pcs=""}
  else if(p==="data.prefix.Bestellung"||p==="ui.of.date"||p==="ui.of.ov"){const f=ui.of;if(f&&!f.ov){f.no=nextOrdNo(f.date);setV("ui.of.no",f.no)}}
  else if(p.startsWith("data.prefix.")){const d=ui.pd;if(d&&ui.pnew&&!d.ov&&p==="data.prefix."+d.grp){d.code=nextCode(d.grp);setV("ui.pd.code",d.code)}}
  else if(p.startsWith("ui.pd."))pEdit(p);
@@ -621,6 +643,111 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Chiffre ~ Code ~ Kod
+🔑 Kunden-Chiffre ~ 🔑 Customer code ~ 🔑 Müşteri kodu
+Diese Chiffre gibt es schon ~ This code already exists ~ Bu kod zaten var
+Nur Chiffre statt Kundendaten senden (z. B. an die Werkstatt) ~ Send only the code instead of customer data (e.g. to the workshop) ~ Müşteri bilgisi yerine sadece kod gönder (örn. atölyeye)
+Nur Chiffre statt Kundendaten senden ~ Send only the code instead of customer data ~ Müşteri bilgisi yerine sadece kod gönder
+Jede Person bekommt automatisch eine Chiffre (z. B. K0001). Die kannst du auf Zettel, Tüten oder Etiketten schreiben, statt Name und Adresse. Suche findet Personen auch über die Chiffre. ~ Every person automatically gets a code (e.g. K0001). Write it on notes, bags or labels instead of name and address. Search also finds people by code. ~ Her kişiye otomatik bir kod verilir (örn. K0001). Ad ve adres yerine bunu kağıda, poşete veya etikete yazın. Arama kişileri koda göre de bulur.
+Diskret-Modus: in Listen nur Chiffre statt Namen zeigen ~ Discreet mode: show only the code instead of names in lists ~ Gizli mod: listelerde isim yerine sadece kod göster
+Kunden-Chiffre: jede Person bekommt automatisch eine Nummer (K0001 …, Kürzel änderbar, Chiffre auch selbst änderbar); groß in der Personenkarte, in Auswahllisten und Suche; beim Teilen „Nur Chiffre statt Kundendaten“; Diskret-Modus zeigt in Listen nur die Chiffre ~ Customer code: every person automatically gets a number (K0001 …, prefix changeable, code editable too); large on the person card, in pickers and search; when sharing “only code instead of customer data”; discreet mode shows only the code in lists ~ Müşteri kodu: her kişiye otomatik numara (K0001 …, ön ek ve kod değiştirilebilir); kişi kartında büyük, seçim listelerinde ve aramada; paylaşırken “sadece kod”; gizli mod listelerde sadece kodu gösterir
+Werkstatt ~ Workshop ~ Atölye
+Neues Paket ~ New package ~ Yeni paket
++ Neues Paket ~ + New package ~ + Yeni paket
+Paketnummer ~ Package number ~ Paket numarası
+– Werkstatt wählen – ~ – select workshop – ~ – atölye seçin –
+Arbeit ~ Work ~ İşlem
+Für (Kunde, optional) ~ For (customer, optional) ~ Kimin için (müşteri, isteğe bağlı)
+Bestellung (optional) ~ Order (optional) ~ Sipariş (isteğe bağlı)
+– niemand – ~ – nobody – ~ – kimse –
+– keine – ~ – none – ~ – yok –
+z. B. vorsichtig polieren ~ e.g. polish carefully ~ örn. dikkatli cilala
+Inhalt ~ Contents ~ İçerik
+Noch leer. ~ Still empty. ~ Henüz boş.
+Insgesamt ~ Total ~ Toplam
+💎 Stein (Lager) ~ 💎 Stone (stock) ~ 💎 Taş (depo)
+💍 Ware (Fertigung) ~ 💍 Item (production) ~ 💍 Ürün (üretim)
+🟡 Gold / Material (Lager) ~ 🟡 Gold / material (stock) ~ 🟡 Altın / malzeme (depo)
+✍️ Sonstiges ~ ✍️ Other ~ ✍️ Diğer
+Stein ~ Stone ~ Taş
+Ware ~ Item ~ Ürün
+Material ~ Material ~ Malzeme
+– nichts verfügbar – ~ – nothing available – ~ – uygun yok –
+z. B. Kette 45 cm ~ e.g. chain 45 cm ~ örn. zincir 45 cm
+Notiz zum Teil (optional) ~ Note for this part (optional) ~ Parça notu (isteğe bağlı)
++ Hinzufügen ~ + Add ~ + Ekle
+Paket speichern ~ Save package ~ Paketi kaydet
+Unterwegs ~ Out ~ Dışarıda
+Zurück ~ Back ~ Geri
+In Werkstatt ~ At workshop ~ Atölyede
+✓ Zurück ~ ✓ Back ~ ✓ Geri geldi
+Wieder raus ~ Out again ~ Tekrar gönder
+Keine Pakete. ~ No packages. ~ Paket yok.
+Nummer, Werkstatt, Stein … ~ Number, workshop, stone … ~ Numara, atölye, taş …
+✏️ Bearbeiten ~ ✏️ Edit ~ ✏️ Düzenle
+Bitte auswählen ~ Please select ~ Lütfen seçin
+Bitte Menge eingeben ~ Please enter quantity ~ Lütfen miktar girin
+Bitte eine Werkstatt wählen (Person mit Typ „Werkstatt“ anlegen) ~ Please select a workshop (create a person with type “Workshop”) ~ Lütfen bir atölye seçin (“Atölye” türünde kişi oluşturun)
+Paket ist leer ~ Package is empty ~ Paket boş
+Werkstatt-Paket ~ Workshop package ~ Atölye paketi
+Paketnr.: Kürzel + Zähler, z. B. P0001 ~ Package no.: prefix + counter, e.g. P0001 ~ Paket no.: ön ek + sayaç, örn. P0001
+Neu unter „Mehr“: Werkstatt – Pakete mit fortlaufender Nummer (P0001, Kürzel änderbar), Werkstatt, Arbeit (Montage, Polieren …), für wen / Bestellung, Frist; Inhalt aus Steinen, Waren, Gold/Material oder Sonstigem mit Summe; Status „In Werkstatt“ / „Zurück“; Anzeige 🔧 im Lager und in der Fertigung; WhatsApp an die Werkstatt; Excel-Blatt ~ New under “More”: workshop – packages with running number (P0001, prefix changeable), workshop, work (assembly, polishing …), for whom / order, deadline; contents of stones, items, gold/material or other with total; status “at workshop” / “back”; 🔧 shown in stock and production; WhatsApp to the workshop; Excel sheet ~ “Daha fazla” altında yeni: atölye – sıra numaralı paketler (P0001, ön ek değiştirilebilir), atölye, işlem (montaj, cila …), kimin için / sipariş, vade; taş, ürün, altın/malzeme veya diğer içerik ve toplam; “atölyede” / “geri” durumu; depoda ve üretimde 🔧; atölyeye WhatsApp; Excel sayfası
+🔐 Sicherheitsfragen ~ 🔐 Security questions ~ 🔐 Güvenlik soruları
+🔐 Bitte die Sicherheitsfragen beantworten. ~ 🔐 Please answer the security questions. ~ 🔐 Lütfen güvenlik sorularını cevaplayın.
+Antwort ~ Answer ~ Cevap
+Antwort 1 ~ Answer 1 ~ Cevap 1
+Antwort 2 ~ Answer 2 ~ Cevap 2
+Frage 1 ~ Question 1 ~ Soru 1
+Frage 2 ~ Question 2 ~ Soru 2
+Eigene Frage 1 ~ Own question 1 ~ Kendi sorunuz 1
+Eigene Frage 2 ~ Own question 2 ~ Kendi sorunuz 2
+– Frage wählen – ~ – choose a question – ~ – soru seçin –
+✏️ Eigene Frage … ~ ✏️ Own question … ~ ✏️ Kendi sorum …
+z. B. Wie hieß mein erstes Auto? ~ e.g. What was my first car? ~ örn. İlk arabam neydi?
+Wie heißt dein Vater? ~ What is your father’s name? ~ Babanızın adı nedir?
+Wie lautet der Mädchenname deiner Mutter? ~ What is your mother’s maiden name? ~ Annenizin kızlık soyadı nedir?
+In welcher Stadt bist du geboren? ~ In which city were you born? ~ Hangi şehirde doğdunuz?
+Wie hieß dein erstes Haustier? ~ What was your first pet’s name? ~ İlk evcil hayvanınızın adı neydi?
+Wie hieß deine erste Schule? ~ What was your first school? ~ İlk okulunuzun adı neydi?
+Wie heißt dein bester Freund aus der Kindheit? ~ What is your best childhood friend’s name? ~ Çocukluk en iyi arkadaşınızın adı nedir?
+Was ist dein Lieblingsessen? ~ What is your favourite food? ~ En sevdiğiniz yemek nedir?
+In welcher Straße bist du aufgewachsen? ~ On which street did you grow up? ~ Hangi sokakta büyüdünüz?
+– beim Öffnen werden Passwort und beide Antworten verlangt. ~ – password and both answers are required when opening. ~ – açarken şifre ve iki cevap istenir.
+Sicherheitsfragen ausschalten ~ Turn off security questions ~ Güvenlik sorularını kapat
+Sicherheitsfragen einschalten ~ Turn on security questions ~ Güvenlik sorularını aç
+Zusätzlich zum Passwort zwei Fragen beantworten, z. B. „Wie heißt dein Vater?“. Ohne richtige Antworten lässt sich die Datei nicht öffnen. Groß-/Kleinschreibung ist egal. ~ In addition to the password, answer two questions, e.g. “What is your father’s name?”. Without correct answers the file cannot be opened. Upper/lower case does not matter. ~ Şifreye ek olarak iki soruyu cevaplayın, örn. “Babanızın adı nedir?”. Doğru cevaplar olmadan dosya açılmaz. Büyük/küçük harf önemli değil.
+Gilt ab dem nächsten „Speichern & Beenden“. Die Fragen stehen sichtbar in der Datei, die Antworten nicht. Vergessene Antworten können nicht wiederhergestellt werden. ~ Applies from the next “Save & Exit”. The questions are visible in the file, the answers are not. Forgotten answers cannot be recovered. ~ Bir sonraki “Kaydet ve Çık” ile geçerli. Sorular dosyada görünür, cevaplar görünmez. Unutulan cevaplar kurtarılamaz.
+Bitte Passwort und beide Antworten eingeben. ~ Please enter the password and both answers. ~ Lütfen şifreyi ve iki cevabı girin.
+Passwort oder Antwort falsch. ~ Password or answer wrong. ~ Şifre veya cevap yanlış.
+Passwort oder Antwort falsch ~ Password or answer wrong ~ Şifre veya cevap yanlış
+Bitte zwei Fragen wählen ~ Please choose two questions ~ Lütfen iki soru seçin
+Bitte zwei verschiedene Fragen ~ Please use two different questions ~ Lütfen iki farklı soru
+Bitte beide Antworten eingeben ~ Please enter both answers ~ Lütfen iki cevabı girin
+Sicherheitsfragen aktiv – jetzt „Speichern & Beenden“ ~ Security questions active – now “Save & Exit” ~ Güvenlik soruları aktif – şimdi “Kaydet ve Çık”
+Sicherheitsfragen aus – es gilt wieder nur das Passwort ~ Security questions off – only the password applies again ~ Güvenlik soruları kapalı – yine sadece şifre geçerli
+Statt 3-fach Passwort: zwei Sicherheitsfragen (z. B. „Wie heißt dein Vater?“, auch eigene Fragen) – beim Öffnen werden Passwort und beide Antworten verlangt; Groß-/Kleinschreibung egal ~ Instead of triple password: two security questions (e.g. “What is your father’s name?”, own questions too) – password and both answers are required when opening; case does not matter ~ 3’lü şifre yerine: iki güvenlik sorusu (örn. “Babanızın adı nedir?”, kendi sorular da) – açarken şifre ve iki cevap istenir; büyük/küçük harf önemsiz
+🔐 3-fach Passwort ~ 🔐 Triple password ~ 🔐 3’lü şifre
+🔐 Diese Datei ist 3-fach geschützt. Bitte Passwort 2 und 3 eingeben. ~ 🔐 This file is triple-protected. Please enter password 2 and 3. ~ 🔐 Bu dosya 3’lü korumalı. Lütfen şifre 2 ve 3’ü girin.
+Passwort 1 ~ Password 1 ~ Şifre 1
+Passwort 2 ~ Password 2 ~ Şifre 2
+Passwort 3 ~ Password 3 ~ Şifre 3
+Passwort 2 (mind. 6 Zeichen) ~ Password 2 (min. 6 characters) ~ Şifre 2 (en az 6 karakter)
+Passwort 3 (mind. 6 Zeichen) ~ Password 3 (min. 6 characters) ~ Şifre 3 (en az 6 karakter)
+Öffnen ~ Open ~ Aç
+Bitte alle drei Passwörter eingeben. ~ Please enter all three passwords. ~ Lütfen üç şifreyi de girin.
+Mindestens ein Passwort ist falsch. ~ At least one password is wrong. ~ En az bir şifre yanlış.
+Mindestens ein Passwort ist falsch ~ At least one password is wrong ~ En az bir şifre yanlış
+Aktiv ~ Active ~ Aktif
+– die Datei öffnet sich nur mit allen drei Passwörtern. ~ – the file only opens with all three passwords. ~ – dosya sadece üç şifreyle açılır.
+3-fach Passwort ausschalten ~ Turn off triple password ~ 3’lü şifreyi kapat
+3-fach Passwort einschalten ~ Turn on triple password ~ 3’lü şifreyi aç
+Zusätzlich zum Passwort werden zwei weitere Passwörter verlangt (z. B. für drei verschiedene Personen). Ohne alle drei lässt sich die Datei nicht öffnen. ~ In addition to the password, two more passwords are required (e.g. for three different people). The file cannot be opened without all three. ~ Şifreye ek olarak iki şifre daha istenir (örn. üç farklı kişi için). Üçü olmadan dosya açılmaz.
+Gilt ab dem nächsten „Speichern & Beenden“. Vergessene Passwörter können nicht wiederhergestellt werden. ~ Applies from the next “Save & Exit”. Forgotten passwords cannot be recovered. ~ Bir sonraki “Kaydet ve Çık” ile geçerli. Unutulan şifreler kurtarılamaz.
+Passwort 2 und 3: mind. 6 Zeichen ~ Password 2 and 3: min. 6 characters ~ Şifre 2 ve 3: en az 6 karakter
+Die drei Passwörter müssen verschieden sein ~ The three passwords must be different ~ Üç şifre farklı olmalı
+3-fach Passwort aktiv – jetzt „Speichern & Beenden“ ~ Triple password active – now “Save & Exit” ~ 3’lü şifre aktif – şimdi “Kaydet ve Çık”
+3-fach Passwort aus – es gilt wieder nur Passwort 1 ~ Triple password off – only password 1 applies again ~ 3’lü şifre kapalı – yine sadece şifre 1 geçerli
+Einstellungen: 3-fach Passwort (ein-/ausschaltbar) – die Datei öffnet sich nur mit allen drei Passwörtern; beim Laden werden Passwort 2 und 3 abgefragt ~ Settings: triple password (on/off) – the file only opens with all three passwords; password 2 and 3 are asked when loading ~ Ayarlar: 3’lü şifre (açılıp kapatılabilir) – dosya sadece üç şifreyle açılır; yüklerken şifre 2 ve 3 sorulur
 Kontobuch: Einnahmen, Ausgaben und Saldo getrennt in USD und EUR; Gesamtsaldo umgerechnet darunter ~ Cash book: income, expenses and balance separately in USD and EUR; total balance converted below ~ Kasa defteri: gelir, gider ve bakiye USD ve EUR ayrı; altında çevrilmiş toplam bakiye
 💬 WhatsApp ~ 💬 WhatsApp ~ 💬 WhatsApp
 📤 Teilen ~ 📤 Share ~ 📤 Paylaş
@@ -1190,7 +1317,10 @@ function balHTML(pid){
  const b=balOf(pid),us=Object.keys(b).filter(u=>Math.abs(b[u])>1e-9),e=eurOf(b),owed=e.t>=0;
  return `<div class="risk ${owed?"":"neg"}"><b>Risikostatus</b><div>${owed?"Er schuldet mir":"Ich schulde"}</div><div class="big">${f2(Math.abs(e.t))} ${SYM(BC())}</div><small>${e.miss?"Kurse fehlen für Teilbeträge":"zu aktuellen Kursen, ca."}</small></div>
  <div class="card tbl"><div class="th"><span>Währung</span><span>Ich schulde</span><span>Er schuldet</span></div>${us.map(u=>`<div class="tr"><span>${UN[u]}</span><span class="out">${b[u]<0?fn(-b[u],u):""}</span><span class="in">${b[u]>0?fn(b[u],u):""}</span></div>`).join("")||'<p class="mu">Noch keine Buchungen.</p>'}</div>`}
-function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:uid(),name:n};data.people.push(p);return p}
+const pfxC=()=>(data.prefix&&data.prefix.Kunde)||"K";
+function nextCC(){const pre=pfxC();let mx=0;data.people.forEach(p=>{if(p.cc&&p.cc.startsWith(pre)){const r=p.cc.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});return pre+String(mx+1).padStart(4,"0")}
+const pcc=p=>p&&p.cc?p.cc:"";
+function addPerson(id){const n=$(id).value.trim();if(!n)return null;const p={id:uid(),name:n,cc:nextCC()};data.people.push(p);return p}
 
 
 /* ---------- Bestellungen ---------- */
@@ -1294,7 +1424,7 @@ act.osave=()=>{const f=ui.of;if(!ui.pid){toast("Keine Person gewählt");return}
 act.oex=d=>{const id=Number(d.id);ui.oex=ui.oex===id?0:id;render()};
 function ordShareTxt(o){const p=data.people.find(x=>x.id===o.pid),L=[];
  L.push("*Bestellung "+(o.no||"")+"* – "+dt(o.date));
- if(!ui.oanon&&p)L.push("Kunde: "+plabel(p));
+ if(p)L.push("Kunde: "+(ui.oanon?(p.cc||"–"):p.name+(p.cc?" ("+p.cc+")":"")+((x=>x?" · "+x:"")(String(p.company||"").trim()))));
  if(o.due)L.push("Frist: "+dt(o.due));
  L.push("");oItems(o).forEach((x,i)=>{
   L.push((i+1)+") "+x.qty+"× "+itemTxt(x));if(x.pnote)L.push("   📝 "+x.pnote);
@@ -1325,7 +1455,7 @@ function ordRow(o,showP){const p=data.people.find(x=>x.id===o.pid),it=oItems(o),
  <div class="it" style="padding:6px 0"><b>Menge gesamt</b><b>${n} Stück</b></div><button class="sec" data-a="oedit" data-id="${o.id}" style="margin:6px 0">✏️ Bestellung bearbeiten</button>
  <div class="row" style="margin:0 0 4px"><a class="sec navb" href="https://wa.me/?text=${encodeURIComponent(ordShareTxt(o))}" target="_blank" rel="noopener">💬 WhatsApp</a><button class="sec" data-a="oshare" data-id="${o.id}">📤 Teilen${(o.att||[]).some(a=>a.type.startsWith("image/"))?" + Fotos":""}</button></div>
  ${(p=>p&&p.phone?`<a class="sec navb" style="display:block;margin:0 0 4px" href="https://wa.me/${String(p.phone).replace(/[^\d]/g,"").replace(/^00/,"")}?text=${encodeURIComponent(ordShareTxt(o))}" target="_blank" rel="noopener">💬 WhatsApp an ${esc(p.name)}</a>`:"")(ui.oanon?null:data.people.find(x=>x.id===o.pid))}
- ${CB("ui.oanon",!!ui.oanon,"Ohne Kundendaten senden (z. B. an die Werkstatt)",'data-r="1"')}<div class="lbl" style="margin-top:6px"><b>Anhänge</b></div>${attHTML(o.att||[],String(o.id))}${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
+ ${CB("ui.oanon",!!ui.oanon,"Nur Chiffre statt Kundendaten senden (z. B. an die Werkstatt)",'data-r="1"')}<div class="lbl" style="margin-top:6px"><b>Anhänge</b></div>${attHTML(o.att||[],String(o.id))}${o.note?`<p class="mu" style="margin:4px 0 0">📝 ${esc(o.note)}</p>`:""}${o.done&&o.doneDate?`<p class="mu" style="margin:4px 0 0">Erledigt am ${dt(o.doneDate)}</p>`:""}</div>`:""}</div>`}
 const ordSort=l=>l.slice().sort((a,b)=>(a.done-b.done)||(!a.done?String(a.due||"9999").localeCompare(String(b.due||"9999")):0)||String(b.date).localeCompare(a.date)||b.id-a.id);
 function ordList(pid){const l=ordSort(data.orders.filter(o=>o.pid===pid));
  return `</div><div class="card"><b>Bestellungen dieser Person</b>${l.map(o=>ordRow(o,false)).join("")||'<p class="mu">Noch keine Bestellungen.</p>'}`}
@@ -1350,7 +1480,7 @@ function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
 function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.length;
  const T=(v,i,t,s)=>`<button class="sec tile" data-a="go" data-v="${v}" style="text-align:left;padding:16px;display:flex;gap:14px;align-items:center"><span style="font-size:26px">${i}</span><span><b>${t}</b><br><small class="mu">${s}</small></span></button>`;
  $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><div class="card" style="display:grid;gap:10px">
- ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
+ ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
 const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
  return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
@@ -1497,14 +1627,90 @@ act.tsave=()=>{const t=ui.te;if(!carOf(t.car)){toast("Bitte ein Fahrzeug wählen
 act.tdel=()=>{if(!confirmTap("tdel"))return;data.trips=data.trips.filter(x=>x.id!==ui.te.id);ui.te=null;rTrips()};
 function xTrips(){return["Fahrtenbuch",[["Datum","Kennzeichen","Fahrzeug","Start","Ziel","km","Hin und zurück","Verbrauch /100 km","Liter/kWh","Preis","Kosten","Währung","Art","Zweck"],...data.trips.slice().sort((a,b)=>a.date.localeCompare(b.date)).map(t=>{const c=carOf(t.car)||{};return[t.date,c.plate||"",c.name||"",locTxt(t.fk,t.ftxt,t.flat,t.flon)||t.fromT,locTxt(t.tk,t.ttxt,t.tlat,t.tlon)||t.toT,Math.round(t.kmT*10)/10,t.rt?"ja":"",parse(t.cons),Math.round(t.liters*100)/100,parse(t.price),Math.round(t.cost*100)/100,t.cur||BC(),t.kind,t.purpose||""]})]]}
 
+
+/* ---------- Werkstatt-Pakete ---------- */
+const PKK=[["stone","💎 Stein (Lager)"],["prod","💍 Ware (Fertigung)"],["mat","🟡 Gold / Material (Lager)"],["free","✍️ Sonstiges"]];
+const pfxK=()=>(data.prefix&&data.prefix.Paket)||"P";
+function nextPkg(){const pre=pfxK();let mx=0;data.pkgs.forEach(k=>{if(k.no&&k.no.startsWith(pre)){const r=k.no.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});return pre+String(mx+1).padStart(4,"0")}
+function pkgOf(k,id){for(const g of data.pkgs){if(g.status==="back")continue;if((g.items||[]).some(x=>x.k===k&&x.ref===id))return g}return null}
+function pkItemTxt(x){if(x.k==="stone"){const s=data.stock.find(y=>y.id===x.ref);return s?s.name+(isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":"",s.color,s.clar].filter(Boolean).join(" "):" · "+f3(parse(x.qty))+" "+(UL[s.unit]||"")):"?"}
+ if(x.k==="prod"){const p=data.prods.find(y=>y.id===x.ref);return p?shortCode(p.code)+" · "+(p.name||p.grp)+" · "+f3(pTW(p))+" g":"?"}
+ if(x.k==="mat"){const s=data.stock.find(y=>y.id===x.ref);return s?f3(parse(x.qty))+" "+(UL[s.unit]||"")+" "+s.name:"?"}
+ return (parse(x.qty)||1)+"× "+(x.txt||"")}
+function pkSum(g){const it=g.items||[];let st=0,pr=0,fr=0;const mat={};
+ it.forEach(x=>{if(x.k==="stone"){const s=data.stock.find(y=>y.id===x.ref);st+=s&&isSingle(s)?1:(Math.round(parse(x.pcs))||1)}else if(x.k==="prod")pr++;else if(x.k==="free")fr+=Math.round(parse(x.qty))||1;else{const s=data.stock.find(y=>y.id===x.ref);if(s){const u=UL[s.unit]||"";mat[u]=(mat[u]||0)+parse(x.qty)}}});
+ const parts=[];if(st)parts.push(st+" Stein"+(st===1?"":"e"));if(pr)parts.push(pr+" Ware"+(pr===1?"":"n"));Object.keys(mat).forEach(u=>parts.push(f3(mat[u])+" "+u+" Material"));if(fr)parts.push(fr+"× Sonstiges");
+ return{txt:parts.join(" · ")||"leer",n:st+pr+fr+Object.keys(mat).length}}
+const newPk=()=>({id:0,no:nextPkg(),ov:false,pid:0,fpid:0,oid:0,step:"",date:today(),dk:"",due:"",note:"",items:[],add:{k:"stone",ref:0,qty:"",pcs:"",txt:""},status:"out"});
+function pkCand(g,k){const ids=new Set(g.items.filter(x=>x.k===k).map(x=>x.ref));
+ if(k==="stone")return data.stock.filter(s=>s.group==="Stein"&&s.active!==false&&!ids.has(s.id)&&!(isSingle(s)&&(qtyOf(s.id)<=1e-9||(pkgOf("stone",s.id)&&pkgOf("stone",s.id).id!==g.id))));
+ if(k==="prod")return data.prods.filter(p=>p.status!=="sold"&&!ids.has(p.id)&&!(pkgOf("prod",p.id)&&pkgOf("prod",p.id).id!==g.id));
+ if(k==="mat")return data.stock.filter(s=>s.group!=="Stein"&&s.active!==false);return[]}
+function pkShareTxt(g){const w=data.people.find(x=>x.id===g.pid),f=data.people.find(x=>x.id===g.fpid),o=data.orders.find(x=>x.id===g.oid),L=["*Werkstatt-Paket "+g.no+"* – "+dt(g.date)];
+ if(w)L.push("Werkstatt: "+w.name);if(g.step)L.push("Arbeit: "+g.step);if(f)L.push("Für: "+(ui.oanon?(f.cc||"–"):f.name+(f.cc?" ("+f.cc+")":"")));if(o)L.push("Bestellung: "+o.no);if(g.due)L.push("Frist: "+dt(g.due));
+ L.push("");(g.items||[]).forEach((x,i)=>L.push((i+1)+") "+pkItemTxt(x)+(x.note?" – "+x.note:"")));L.push("","Insgesamt: "+pkSum(g).txt);if(g.note)L.push("Notiz: "+g.note);return L.join("\n")}
+function rPkg(){const e=$("s-pkg");
+ if(ui.pk){const g=ui.pk,a=g.add,cand=pkCand(g,a.k),sm=pkSum(g);
+  const ws=[[0,"– Werkstatt wählen –"],...data.people.filter(p=>!p.walk).sort((x,y)=>(y.type==="Werkstatt")-(x.type==="Werkstatt")).map(p=>[p.id,(p.type==="Werkstatt"?"🔧 ":"")+plabel(p)])];
+  e.innerHTML=`<div class="nav"><b>${g.id?"Paket "+esc(g.no):"Neues Paket"}</b><button class="sec sm" data-a="pkback">Liste</button></div><div class="card">
+  <div class="g2">${F("Paketnummer",`<input data-f="ui.pk.no" value="${esc(g.no)}"${g.ov?"":" readonly"} autocapitalize="characters" autocorrect="off">`)}${F("Kürzel",I("data.prefix.Paket",pfxK(),"P",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off"'))}</div>
+  ${CB("ui.pk.ov",g.ov,"Nummer überschreiben",'data-r="1"')}
+  ${F("Werkstatt",S("ui.pk.pid",g.pid,ws,'data-n="1"'))}
+  ${F("Arbeit",SX("ui.pk.step",g.step,L_STEP))}
+  <div class="g2">${F("Für (Kunde, optional)",S("ui.pk.fpid",g.fpid,[[0,"– niemand –"],...data.people.filter(p=>!p.walk).map(p=>[p.id,plabel(p)])],'data-n="1" data-r="1"'))}${F("Bestellung (optional)",S("ui.pk.oid",g.oid,[[0,"– keine –"],...data.orders.filter(o=>!o.done&&(!g.fpid||o.pid===g.fpid)).map(o=>[o.id,o.no+" · "+pnm(o.pid)])],'data-n="1"'))}</div>
+  ${F("Datum",`<input type="date" data-f="ui.pk.date" value="${g.date}" data-r="1">`)}${dueForm("ui.pk")}
+  ${F("Notiz",I("ui.pk.note",g.note,"z. B. vorsichtig polieren"))}</div>
+  <div class="card"><b>Inhalt</b>${g.items.map((x,i)=>`<div class="it"><div>${esc(pkItemTxt(x))}${x.note?`<small>${esc(x.note)}</small>`:""}</div><button class="sec sm" data-a="pkdel" data-i="${i}">Entfernen</button></div>`).join("")||'<p class="mu">Noch leer.</p>'}
+  <div class="it"><b>Insgesamt</b><b>${esc(sm.txt)}</b></div>
+  <div class="lbl" style="margin-top:8px"><b>Hinzufügen</b></div>
+  ${F("Art",S("ui.pk.add.k",a.k,PKK,'data-r="1"'))}
+  ${a.k==="free"?`<div class="g2">${F("Bezeichnung",I("ui.pk.add.txt",a.txt,"z. B. Kette 45 cm"))}${F("Stück",I("ui.pk.add.qty",a.qty,"1",'inputmode="numeric"'))}</div>`:
+   F(a.k==="stone"?"Stein":a.k==="prod"?"Ware":"Material",S("ui.pk.add.ref",a.ref,[[0,cand.length?"– wählen –":"– nichts verfügbar –"],...cand.map(s=>[s.id,a.k==="prod"?shortCode(s.code)+" · "+(s.name||s.grp)+" · "+f3(pTW(s))+" g":s.name+(s.group==="Stein"&&isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":""].filter(Boolean).join(" "):" ("+f3(qtyOf(s.id))+" "+(UL[s.unit]||"")+")")])],'data-n="1" data-r="1"'))+
+   ((a.k==="mat"||(a.k==="stone"&&a.ref&&!isSingle(data.stock.find(s=>s.id===a.ref))))?`<div class="g2">${F("Menge ("+(UL[(data.stock.find(s=>s.id===a.ref)||{}).unit]||"")+")",I("ui.pk.add.qty",a.qty,"",'inputmode="decimal"'))}${a.k==="stone"?F("Stück",I("ui.pk.add.pcs",a.pcs,"",'inputmode="numeric"')):"<div></div>"}</div>`:"")}
+  ${F("Notiz zum Teil (optional)",I("ui.pk.add.note",a.note||"",""))}
+  <button class="sec" data-a="pkadd">+ Hinzufügen</button></div>
+  <div class="row"><button data-a="pksave">Paket speichern</button>${g.id?`<button class="sec" data-a="pkrm">${dl("pkrm","Löschen")}</button>`:""}</div>`;return}
+ const q=String(ui.pkq||"").trim().toLowerCase();
+ const L=data.pkgs.filter(g=>ui.pkf==="all"||(ui.pkf==="out"?g.status!=="back":g.status==="back")).filter(g=>!q||(g.no+" "+pnm(g.pid)+" "+pnm(g.fpid)+" "+g.step+" "+g.note+" "+(g.items||[]).map(pkItemTxt).join(" ")).toLowerCase().includes(q))
+  .sort((a,b)=>((a.status==="back")-(b.status==="back"))||String(a.due||"9999").localeCompare(String(b.due||"9999"))||String(b.date).localeCompare(a.date));
+ const nOut=data.pkgs.filter(g=>g.status!=="back").length;
+ e.innerHTML=`<div class="bar"><span>Werkstatt</span><span>🔧</span></div><button data-a="pknew">+ Neues Paket</button>
+ <div class="card" style="margin-top:10px"><div class="tg">${TG("pkf",ui.pkf,[["out","Unterwegs ("+nOut+")"],["back","Zurück"],["all","Alle"]])}</div>${F("Suchen",I("ui.pkq",ui.pkq,"Nummer, Werkstatt, Stein …",'data-r="1" autocomplete="off"'))}</div>
+ <div class="card">${L.map(g=>{const op=ui.pkx===g.id,sm=pkSum(g),back=g.status==="back";
+  return `<div style="border-left:4px solid ${back?"var(--mu)":"#f0a020"};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0"><div data-a="pkx" data-id="${g.id}" style="flex:1;min-width:0"><b>${esc(g.no)} · ${esc(pnm(g.pid)||"–")} ${op?"▴":"▾"}</b><small>${esc([g.step,sm.txt].filter(Boolean).join(" · "))}</small><small>${dt(g.date)}${g.fpid?" · für "+esc(pnm(g.fpid)):""}${back&&g.backDate?" · zurück "+dt(g.backDate):""}</small>${g.due&&!back?`<small>${dueTag(g.due)}</small>`:""}</div>
+  <div class="r"><span style="color:${back?"var(--mu)":"#f0a020"}"><b>${back?"Zurück":"In Werkstatt"}</b></span><br><button class="sec sm" data-a="pkst" data-id="${g.id}">${back?"Wieder raus":"✓ Zurück"}</button></div></div>
+  ${op?`<div style="padding:0 0 10px">${(g.items||[]).map((x,i)=>`<div class="it" style="padding:6px 0"><div>${i+1}) ${esc(pkItemTxt(x))}${x.note?`<small>${esc(x.note)}</small>`:""}</div></div>`).join("")}<div class="it" style="padding:6px 0"><b>Insgesamt</b><b>${esc(sm.txt)}</b></div>${g.note?`<p class="mu">📝 ${esc(g.note)}</p>`:""}
+  ${CB("ui.oanon",!!ui.oanon,"Nur Chiffre statt Kundendaten senden",'data-r="1"')}<div class="row" style="margin:6px 0 0"><button class="sec" data-a="pkedit" data-id="${g.id}">✏️ Bearbeiten</button><a class="sec navb" href="https://wa.me/${(p=>p&&p.phone?String(p.phone).replace(/[^\d]/g,"").replace(/^00/,""):"")(data.people.find(x=>x.id===g.pid))}?text=${encodeURIComponent(pkShareTxt(g))}" target="_blank" rel="noopener">💬 WhatsApp</a></div></div>`:""}</div>`}).join("")||'<p class="mu">Keine Pakete.</p>'}</div>`}
+act.pkf=d=>{ui.pkf=d.v;rPkg()};
+act.pkx=d=>{const id=Number(d.id);ui.pkx=ui.pkx===id?0:id;rPkg()};
+act.pknew=()=>{ui.pk=newPk();rPkg();window.scrollTo(0,0)};
+act.pkedit=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;ui.pk={...JSON.parse(JSON.stringify(g)),ov:true,dk:g.due?"x":"",add:{k:"stone",ref:0,qty:"",pcs:"",txt:""}};rPkg();window.scrollTo(0,0)};
+act.pkback=()=>{ui.pk=null;rPkg()};
+act.pkadd=()=>{const g=ui.pk,a=g.add;let x;
+ if(a.k==="free"){if(!String(a.txt).trim()){toast("Bitte Bezeichnung eingeben");return}x={k:"free",txt:String(a.txt).trim(),qty:String(Math.max(1,Math.round(parse(a.qty))||1))}}
+ else{if(!a.ref){toast("Bitte auswählen");return}const s=a.k==="prod"?null:data.stock.find(y=>y.id===a.ref);
+  if((a.k==="mat"||(a.k==="stone"&&!isSingle(s)))&&!(parse(a.qty)>0)){toast("Bitte Menge eingeben");return}
+  x={k:a.k,ref:a.ref,qty:a.k==="prod"||(a.k==="stone"&&isSingle(s))?"1":a.qty,pcs:a.pcs||""}}
+ if(a.note)x.note=String(a.note).trim();g.items.push(x);g.add={k:a.k,ref:0,qty:"",pcs:"",txt:"",note:""};rPkg()};
+act.pkdel=d=>{ui.pk.items.splice(Number(d.i),1);rPkg()};
+act.pksave=()=>{const g=ui.pk;if(!g.pid){toast("Bitte eine Werkstatt wählen (Person mit Typ „Werkstatt“ anlegen)");return}if(!g.items.length){toast("Paket ist leer");return}
+ const no=String(g.no).trim();if(!no){toast("Nummer fehlt");return}if(data.pkgs.some(x=>x.no===no&&x.id!==g.id)){toast("Diese Nummer gibt es schon");return}
+ const o={id:g.id||uid(),no,pid:g.pid,fpid:g.fpid||0,oid:g.oid||0,step:g.step||"",date:g.date||today(),due:dueOf(g.date,g.dk,g.due),note:String(g.note||"").trim(),items:g.items,status:g.status||"out",backDate:g.backDate||""};
+ const i=data.pkgs.findIndex(x=>x.id===o.id);if(i<0)data.pkgs.push(o);else data.pkgs[i]=o;ui.pk=null;ui.pkx=o.id;rPkg();toast("Paket "+no+" gespeichert")};
+act.pkrm=()=>{if(!confirmTap("pkrm"))return;data.pkgs=data.pkgs.filter(x=>x.id!==ui.pk.id);ui.pk=null;rPkg()};
+act.pkst=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;if(g.status==="back"){g.status="out";g.backDate=""}else{g.status="back";g.backDate=today()}rPkg();toast(g.status==="back"?"Paket "+g.no+" zurück erhalten":"Paket "+g.no+" wieder in der Werkstatt")};
+function xPkg(){const r=[["Paket","Datum","Werkstatt","Arbeit","Für","Bestellung","Teil","Notiz Teil","Frist","Status","Zurück am","Notiz"]];
+ data.pkgs.forEach(g=>(g.items||[]).forEach(x=>r.push([g.no,g.date,pnm(g.pid),g.step||"",pnm(g.fpid),(data.orders.find(o=>o.id===g.oid)||{}).no||"",pkItemTxt(x),x.note||"",g.due||"",g.status==="back"?"Zurück":"In Werkstatt",g.backDate||"",g.note||""])));return["Werkstatt",r]}
+
+
 /* ---------- Konten ---------- */
 /* Personen: Details, Suche */
-const plabel=p=>{const x=String(p.company||"").trim()||String(p.city||"").trim();return p.name+(x?" · "+x:"")};
+const plabel=p=>{const x=String(p.company||"").trim()||String(p.city||"").trim();return (p.cc&&!ui.anon?p.cc+" · ":"")+(ui.anon&&p.cc?p.cc:p.name+(x?" · "+x:""))};
 const pOpts=sel=>{const q=String(ui.pq2||"").trim().toLowerCase();
- return [[0,"Person wählen …"],...data.people.filter(p=>p.id===sel||!q||[p.name,p.company,p.city,p.country,p.addr,p.phone,p.type,p.note].join(" ").toLowerCase().includes(q)).map(p=>[p.id,plabel(p)])]};
+ return [[0,"Person wählen …"],...data.people.filter(p=>p.id===sel||!q||[p.cc,p.name,p.company,p.city,p.country,p.addr,p.phone,p.type,p.note].join(" ").toLowerCase().includes(q)).map(p=>[p.id,plabel(p)])]};
 function uK(){[["psel",ui.pid],["vpsel",ui.sv?ui.sv.pid:0]].forEach(([id,sel])=>{const e=$(id);
  if(e)e.innerHTML=pOpts(sel).map(([a,b])=>`<option value="${a}"${String(a)===String(sel)?" selected":""}>${esc(b)}</option>`).join("")})}
-function pinfo(p){const l=[],a=[p.type,p.company].filter(Boolean).join(" · "),w=[p.addr,p.city,p.country].filter(Boolean).join(", ");
+function pinfo(p){const l=[];if(p.cc)l.push(`<div style="font-size:20px;font-weight:800;letter-spacing:1px">🔑 ${esc(p.cc)}</div>`);const a=[p.type,p.company].filter(Boolean).join(" · "),w=[p.addr,p.city,p.country].filter(Boolean).join(", ");
  if(a)l.push(`<div><b>${esc(a)}</b></div>`);
  if(w)l.push(`<div>📍 ${esc(w)}</div>`);
  if(p.phone)l.push(`<div>📞 <a href="tel:${esc(String(p.phone).replace(/[^+\d]/g,""))}" style="color:var(--ac)">${esc(p.phone)}</a></div>`);
@@ -1515,7 +1721,7 @@ function pinfo(p){const l=[],a=[p.type,p.company].filter(Boolean).join(" · "),w
 function pCard(){const p=data.people.find(x=>x.id===ui.pid);if(!p)return"";
  if(ui.pe&&ui.pf){const f=ui.pf,t3='autocorrect="off" autocapitalize="words" spellcheck="false" autocomplete="off"';
   return `<div class="card"><div class="bar"><span>Details</span><span>📇</span></div>
-  ${F("Name",I("ui.pf.name",f.name,"",t3))}
+  <div class="g2">${F("Name",I("ui.pf.name",f.name,"",t3))}${F("Chiffre",I("ui.pf.cc",f.cc||"","K0001",'data-up="8" maxlength="8" autocapitalize="characters" autocorrect="off" autocomplete="off"'))}</div>
   <div class="g2">${F("Typ",S("ui.pf.type",f.type||"",[["","– wählen –"],"Kunde","Händler","Lieferant","Werkstatt","Sonstige"]))}${F("Firma",I("ui.pf.company",f.company||"","",t3))}</div>
   <div class="g2">${F("Land",I("ui.pf.country",f.country||"","",t3))}${F("Stadt",I("ui.pf.city",f.city||"","",t3))}</div>
   ${F("Adresse",I("ui.pf.addr",f.addr||"","",t3))}
@@ -1539,7 +1745,8 @@ act.pshare=async()=>{const p=data.people.find(x=>x.id===ui.pid);if(!p)return;con
 act.pfedit=()=>{const p=data.people.find(x=>x.id===ui.pid);if(!p)return;ui.pf={...p};ui.pe=true;render()};
 act.pfcancel=()=>{ui.pe=false;ui.pf=null;render()};
 act.pfsave=()=>{const p=data.people.find(x=>x.id===ui.pid),f=ui.pf;if(!p||!f)return;if(!String(f.name).trim()){toast("Name fehlt");return}
- ["name","type","company","country","city","addr","phone","note"].forEach(k=>p[k]=String(f[k]||"").trim());ui.pe=false;ui.pf=null;render();toast("Gespeichert")};
+ const cc=String(f.cc||"").trim().toUpperCase();if(cc&&data.people.some(x=>x.id!==p.id&&x.cc===cc)){toast("Diese Chiffre gibt es schon");return}
+ ["name","type","company","country","city","addr","phone","note"].forEach(k=>p[k]=String(f[k]||"").trim());p.cc=cc||nextCC();ui.pe=false;ui.pf=null;render();toast("Gespeichert")};
 act.pfdel=()=>{const id=ui.pid;
  if(data.moves.some(m=>m.pid===id)||data.sales.some(s=>s.pid===id)){toast("Person hat Buchungen – kann nicht gelöscht werden");return}
  if(!confirmTap("pfdel"))return;
@@ -1608,7 +1815,7 @@ function uL(){const q=ui.lq.toLowerCase();
  const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
   .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
  $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
-  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small></div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small>${(g=>g?`<small style="color:#f0a020">🔧 ${esc(g.no)} · ${esc(pnm(g.pid))}${g.step?" · "+esc(g.step):""}</small>`:"")(pkgOf("stone",s.id)||pkgOf("mat",s.id))}</div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
 /* 4C: Standard-Karat mit ungefährem Durchmesser (Rund, Brillantschliff) */
 const CTD=[[0.05,2.5],[0.10,3.0],[0.20,3.8],[0.25,4.1],[0.30,4.5],[0.40,4.8],[0.50,5.2],[0.70,5.8],[0.90,6.3],[1.00,6.5],[1.25,6.9],[1.50,7.4],[1.75,7.8],[2.00,8.2],[2.50,8.8],[3.00,9.4]];
 function ctDiam(ct){if(!(ct>0))return 0;const t=CTD;
@@ -1718,7 +1925,7 @@ function rP(){
  <div class="card"><div class="g2">${F("Gruppe",S("ui.pg",ui.pg,[["","Alle"],...Object.keys(PG)],'data-r="1"'))}${F("Status",S("ui.ps",ui.ps,[["","Alle"],["prod","In Fertigung"],["done","Fertig (Lager)"],["sold","Verkauft"]],'data-r="1"'))}</div>
  <input data-f="ui.pq" data-u="uP" value="${esc(ui.pq)}" placeholder="Suchen (Nummer oder Name)"></div>
  <div class="card" id="prows"></div>`;uP()}
-const soldTxt=p=>(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
+const soldTxt=p=>((g=>g?" · 🔧 "+g.no+" ("+pnm(g.pid)+")":"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
 function uP(){const l=plist();
  $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small></div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
  $("prows").innerHTML+=l.length?`<div class="it"><b>${l.length} Stück</b><b>${f3(l.reduce((a,p)=>a+pTW(p),0))} g gesamt</b></div>`:""}
@@ -1914,6 +2121,7 @@ act.gom=d=>{ui.pid=Number(d.id);ui.kdir="in";go("konten")};
 function ocDue(){const L=[];
  data.orders.forEach(o=>{if(o.due&&!o.done)L.push({d:o.due,h:`<div class="it click" data-a="go" data-v="orders"><div><b>📋 ${esc(o.no||"")} · ${oQty(o)} Stück</b><small>${esc(pnm(o.pid))}</small></div><div class="r"><small>${dueTag(o.due)}</small></div></div>`})});
  data.moves.forEach(m=>{if(m.due&&!m.paid)L.push({d:m.due,h:`<div class="it click" data-a="gom" data-id="${m.pid}"><div><b>💶 ${esc(pnm(m.pid))}</b><small>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><small>${dueTag(m.due)}</small></div></div>`})});
+ data.pkgs.forEach(g=>{if(g.due&&g.status!=="back")L.push({d:g.due,h:`<div class="it click" data-a="go" data-v="pkg"><div><b>🔧 ${esc(g.no)} · ${esc(pnm(g.pid))}</b><small>${esc([g.step,pkSum(g).txt].filter(Boolean).join(" · "))}</small></div><div class="r"><small>${dueTag(g.due)}</small></div></div>`})});
  data.cars.forEach(c=>CDUE.forEach(([f,l])=>{if(c[f]&&daysTo(c[f])<=30)L.push({d:c[f],h:`<div class="it click" data-a="gocar" data-id="${c.id}"><div><b>🚗 ${esc(c.plate||c.name)}</b><small>${l}</small></div><div class="r"><small>${dueTag(c[f])}</small></div></div>`})}));
  L.sort((a,b)=>a.d.localeCompare(b.d));
  return L.length?box("Fristen","⏰",L.slice(0,8).map(x=>x.h).join("")):""}
@@ -1980,7 +2188,7 @@ function xlsx(sheets){const sh=sheets.map(([n,rows])=>`<?xml version="1.0" encod
  ...sh.map((x,i)=>[`xl/worksheets/sheet${i+1}.xml`,x])];
  return zipStore(F)}
 const ST={prod:"In Fertigung",done:"Fertig (Lager)",sold:"Verkauft"};
-const pnm=id=>{const p=data.people.find(x=>x.id===id);return p?p.name:""};
+const pnm=id=>{const p=data.people.find(x=>x.id===id);return p?(ui.anon&&p.cc?p.cc:p.name):""};
 function xLager(){return["Lager",[["Gruppe","Nummer","Bezeichnung","Einheit","Feingehalt","Bestand","Herkunft","Art","Farbe","Reinheit","Schliff","Karat je Stein","Notiz"],...data.stock.map(s=>[s.group,s.code||"",s.name,UL[s.unit]||s.unit,Number(s.fine)||"",Math.round(qtyOf(s.id)*1000)/1000,s.nat||"",s.type||"",s.color||"",s.clar||"",s.cut||"",Number(parse(s.ct))||"",s.note||""])]]}
 function xWare(){return["Fertige Ware",[["Nummer","Gruppe","Bezeichnung","Status","Gesamtgewicht g","Goldgewicht g","Kosten","Währung"],...data.prods.map(p=>[p.code,p.grp,p.name,ST[p.status]||p.status,Math.round(pTW(p)*1000)/1000||"",Number(p.w)||"",Math.round((Number(p.cost)||0)*100)/100,p.cur||""])]]}
 function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Telefon","Notiz","Saldo EUR","Saldo USD","Saldo Gold g"]];
@@ -1988,27 +2196,41 @@ function xKonten(){const r=[["Name","Typ","Firma","Land","Stadt","Adresse","Tele
 function xBuch(){return["Buchungen",[["Datum","Person","Richtung","Einheit","Betrag","Notiz"],...data.moves.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(m=>[m.date,pnm(m.pid),m.dir==="out"?"Ich gebe":"Ich erhalte",UN[m.unit]||m.unit,m.amount,m.note||""])]]}
 function xOrd(){const r=[["Nummer","Datum","Person","Position","Anzahl","Geliefert","Offen","Notiz Position","Status","Notiz","Anhänge"]];data.orders.forEach(o=>oItems(o).forEach(x=>r.push([o.no||"",o.date,pnm(o.pid),itemTxt(x),x.qty,itGot(x),itOpen(x),x.pnote||"",o.done?"Erledigt":"Aktiv",o.note||"",(o.att||[]).length||""])));return["Bestellungen",r]}
 function xKasse(){return["Kontobuch",[["Datum","Kontobuch","Art","Kategorie","Betrag","Währung","Notiz"],...data.entries.slice().sort((a,b)=>String(a.date).localeCompare(b.date)).map(e=>[e.date,e.book?bkName(e.book):"Hauptbuch",e.type,e.cat,e.amount,e.cur||BC(),e.note||""])]]}
-async function xSave(kind){
- const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd(),xNotes(),xTrips()];
+async function xSave(kind){const an=ui.anon;ui.anon=false;try{return await xSave2(kind)}finally{ui.anon=an}}
+async function xSave2(kind){
+ const sheets=kind==="lager"?[xLager(),xWare()]:[xLager(),xWare(),xKonten(),xBuch(),xKasse(),xOrd(),xNotes(),xTrips(),xPkg()];
  const name=(data.user||"Export")+(kind==="lager"?"_Lager":"_Alles")+".xlsx";
  try{const blob=xlsx(sheets),d=await claude.use("downloads");
   if(d)await d.save({filename:name,data:blob});
   else{const f=new File([blob],name),a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}
   toast("Excel bereit")}catch(e){toast("Nicht gespeichert")}}
 act.xl=d=>xSave(d.v);
+const SECQ=["Wie heißt dein Vater?","Wie lautet der Mädchenname deiner Mutter?","In welcher Stadt bist du geboren?","Wie hieß dein erstes Haustier?","Wie hieß deine erste Schule?","Wie heißt dein bester Freund aus der Kindheit?","Was ist dein Lieblingsessen?","In welcher Straße bist du aufgewachsen?"];
+act.p3on=()=>{const f=ui.p3;if(f.a!==pw){toast("Aktuelles Passwort stimmt nicht");return}
+ const q=[1,2].map(n=>f["q"+n]==="__own"?String(f["o"+n]||"").trim():f["q"+n]);
+ if(!q[0]||!q[1]){toast("Bitte zwei Fragen wählen");return}if(q[0]===q[1]){toast("Bitte zwei verschiedene Fragen");return}
+ if(ansN(f.b).length<2||ansN(f.c).length<2){toast("Bitte beide Antworten eingeben");return}
+ pw=pwJoin(f.a,ansN(f.b),ansN(f.c));data.sec=3;data.secq=q;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aktiv – jetzt „Speichern & Beenden“")};
+act.p3off=()=>{const f=ui.p3,qa=Array.isArray(data.secq);if((qa?pwJoin(f.a,ansN(f.b),ansN(f.c)):pwJoin(f.a,f.b,f.c))!==pw){toast("Passwort oder Antwort falsch");return}
+ pw=f.a;data.sec=1;delete data.secq;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aus – es gilt wieder nur das Passwort")};
 act.pwchg=()=>{const f=ui.pwf;
- if(f.a!==pw){toast("Aktuelles Passwort stimmt nicht");return}
+ const tri=data.sec===3,cur=tri?pwParts()[0]:pw;
+ if(f.a!==cur){toast("Aktuelles Passwort stimmt nicht");return}
  if(String(f.b).length<6){toast("Neues Passwort: mind. 6 Zeichen");return}
  if(f.b!==f.c){toast("Die neuen Passwörter sind nicht gleich");return}
- if(f.b===pw){toast("Neues Passwort ist gleich dem alten");return}
- pw=f.b;ui.pwf={a:"",b:"",c:""};render();toast("Passwort geändert – jetzt „Speichern & Beenden“")};
+ if(f.b===cur){toast("Neues Passwort ist gleich dem alten");return}
+ if(tri){const q=pwParts();q[0]=f.b;pw=pwJoin(...q)}else pw=f.b;ui.pwf={a:"",b:"",c:""};render();toast("Passwort geändert – jetzt „Speichern & Beenden“")};
 
 function rSet(){
  $("s-set").innerHTML=`<div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
- <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div></div>
+ <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div>
+ <div class="g2">${F("Werkstatt-Paket",I("data.prefix.Paket",pfxK(),"P",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Paketnr.: Kürzel + Zähler, z. B. P0001</p></div></div>
  <div class="card"><b>Hauptwährung</b>${(data.entries.length||data.moves.length||data.prods.length||data.sales.length)?`<p style="margin:6px 0">${data.base==="USD"?"US-Dollar ($)":"Euro (€)"}</p><p class="mu" style="margin:0">Nur änderbar, solange es noch keine Buchungen, Waren oder Verkäufe gibt.</p>`:F("Hauptwährung",S("data.base",data.base,[["EUR","Euro (€)"],["USD","US-Dollar ($)"]]))+'<p class="mu" style="margin:0">Gold und die andere Währung werden danach in dieser Währung gerechnet.</p>'}</div>
+ <div class="card"><b>🔑 Kunden-Chiffre</b><p class="mu" style="margin:4px 0 8px">Jede Person bekommt automatisch eine Chiffre (z. B. K0001). Die kannst du auf Zettel, Tüten oder Etiketten schreiben, statt Name und Adresse. Suche findet Personen auch über die Chiffre.</p>
+ <div class="g2">${F("Kürzel",I("data.prefix.Kunde",pfxC(),"K",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off"'))}<p class="mu" style="margin:0;align-self:end">z. B. ${esc(pfxC())}0001</p></div>
+ ${CB("ui.anon",!!ui.anon,"Diskret-Modus: in Listen nur Chiffre statt Namen zeigen",'data-r="1"')}</div>
  <div class="card"><b>Modelle (Bestellung)</b><p class="mu" style="margin:4px 0 8px">Diese Modelle stehen bei Bestellungen zur Auswahl. Antippen zum Entfernen.</p>
  <div class="chips">${data.models.map((m,i)=>`<button class="sec" data-a="mdel" data-i="${i}">${esc(m)} ${armed("md"+i)?"– weg?":"✕"}</button>`).join("")||'<span class="mu">Keine Modelle.</span>'}</div>
  <div class="row" style="margin:0"><input id="mNew2" placeholder="Neues Modell, z. B. Tiffany Style" autocorrect="off"><button class="sec" data-a="madd2" style="flex:0 0 34%">Hinzufügen</button></div></div>
@@ -2016,6 +2238,13 @@ function rSet(){
  ${CB("data.ab.on",data.ab&&data.ab.on,"Bar- und Überweisungsbuchungen von Personen automatisch ins Kontobuch",'data-r="1"')}
  ${data.ab&&data.ab.on?`<div class="g2">${F("Bar (Bareinzug / Barzahlung) in",S("data.ab.cash",String(data.ab.cash||0),[["0","Hauptbuch"],...data.books.map(b=>[String(b.id),b.name])]))}${F("Überweisung in",S("data.ab.bank",String(data.ab.bank||0),[["0","Hauptbuch"],...data.books.map(b=>[String(b.id),b.name])]))}</div>`:""}
  <p class="mu" style="margin:0">Gilt für neue Buchungen in Konten und Verkauf. Im Kontobuch mit 🔗 markiert; löschst du die Buchung in Konten, verschwindet sie auch im Kontobuch.</p></div>
+ <div class="card"><b>🔐 Sicherheitsfragen</b>${data.sec===3?`<p style="margin:6px 0"><b class="in">Aktiv</b> – beim Öffnen werden Passwort und beide Antworten verlangt.</p>
+ ${Array.isArray(data.secq)?data.secq.map((q,i)=>`<p class="mu" style="margin:2px 0">${i+1}. ${esc(q)}</p>`).join(""):'<p class="mu">(3-fach Passwort ohne Fragen)</p>'}
+ ${F("Passwort",`<input type="password" data-f="ui.p3.a" value="${esc(ui.p3.a)}" autocomplete="off">`)}${F(Array.isArray(data.secq)?"Antwort 1":"Passwort 2",`<input type="password" data-f="ui.p3.b" value="${esc(ui.p3.b)}" autocomplete="off">`)}${F(Array.isArray(data.secq)?"Antwort 2":"Passwort 3",`<input type="password" data-f="ui.p3.c" value="${esc(ui.p3.c)}" autocomplete="off">`)}
+ <button class="sec" data-a="p3off">Sicherheitsfragen ausschalten</button>`:`<p class="mu" style="margin:6px 0">Zusätzlich zum Passwort zwei Fragen beantworten, z. B. „Wie heißt dein Vater?“. Ohne richtige Antworten lässt sich die Datei nicht öffnen. Groß-/Kleinschreibung ist egal.</p>
+ ${F("Aktuelles Passwort",`<input type="password" data-f="ui.p3.a" value="${esc(ui.p3.a)}" autocomplete="off">`)}
+ ${[1,2].map(n=>F("Frage "+n,S("ui.p3.q"+n,ui.p3["q"+n]||"",[["","– Frage wählen –"],...SECQ,["__own","✏️ Eigene Frage …"]],'data-r="1"'))+(ui.p3["q"+n]==="__own"?F("Eigene Frage "+n,I("ui.p3.o"+n,ui.p3["o"+n]||"","z. B. Wie hieß mein erstes Auto?")):"")+F("Antwort "+n,I("ui.p3."+(n===1?"b":"c"),ui.p3[n===1?"b":"c"]||"","",'autocomplete="off" autocorrect="off" autocapitalize="off"'))).join("")}
+ <button data-a="p3on">Sicherheitsfragen einschalten</button>`}<p class="mu" style="margin:8px 0 0">Gilt ab dem nächsten „Speichern &amp; Beenden“. Die Fragen stehen sichtbar in der Datei, die Antworten nicht. Vergessene Antworten können nicht wiederhergestellt werden.</p></div>
  <div class="card"><b>Passwort ändern</b>
  ${F("Aktuelles Passwort",`<input type="password" data-f="ui.pwf.a" value="${esc(ui.pwf.a)}" autocomplete="off" autocapitalize="off" autocorrect="off">`)}
  ${F("Neues Passwort (mind. 6 Zeichen)",`<input type="password" data-f="ui.pwf.b" value="${esc(ui.pwf.b)}" autocomplete="new-password" autocapitalize="off" autocorrect="off">`)}
