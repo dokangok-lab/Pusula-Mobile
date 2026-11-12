@@ -135,8 +135,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.57";
+const VER="0.58";
 const HIST=[
+ ["0.58","12.11.2026",["Werkstatt: neuer Status „📦 Abholbereit“ mit eigenem Knopf (dann „✓ Abgeholt“ oder „Wieder in Arbeit“); eigener Filter; abholbereite Pakete oben in „Fristen“ der Übersicht; Anzeige im Lager und in der Fertigung"]],
  ["0.57","12.11.2026",["Übersicht „Verkäufe“: auch Verkäufe aus Konten (Verkauf mit/ohne Barcode) werden gezählt","„Fertige Ware: Gold“: Feingehalt 0,585 wird erkannt, Ware ohne Feingehalt steht unter „ohne Angabe“"]],
  ["0.56","12.11.2026",["Warenliste zeigt die Steine mit voller Steinnummer (z. B. 💎 Oval 1,07 ct CVD LG82923732); Auswahllisten in Bestellung, Verkauf und Werkstatt zeigen Steinform, Karat und Nummer; Suche findet Ware auch über die Steinnummer"]],
  ["0.55","12.11.2026",["Kunden-Chiffre: jede Person bekommt automatisch eine Nummer (K0001 …, Kürzel änderbar, Chiffre auch selbst änderbar); groß in der Personenkarte, in Auswahllisten und Suche; beim Teilen „Nur Chiffre statt Kundendaten“; Diskret-Modus zeigt in Listen nur die Chiffre"]],
@@ -645,6 +646,12 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+📦 Abholbereit ~ 📦 Ready for pickup ~ 📦 Teslime hazır
+Abholbereit ~ Ready for pickup ~ Teslime hazır
+abholbereit ~ ready for pickup ~ teslime hazır
+✓ Abgeholt ~ ✓ Picked up ~ ✓ Teslim alındı
+Wieder in Arbeit ~ Back in progress ~ Tekrar işlemde
+Werkstatt: neuer Status „📦 Abholbereit“ mit eigenem Knopf (dann „✓ Abgeholt“ oder „Wieder in Arbeit“); eigener Filter; abholbereite Pakete oben in „Fristen“ der Übersicht; Anzeige im Lager und in der Fertigung ~ Workshop: new status “📦 ready for pickup” with its own button (then “✓ picked up” or “back in progress”); own filter; ready packages at the top of “Deadlines” in the overview; shown in stock and production ~ Atölye: kendi düğmesiyle yeni “📦 teslime hazır” durumu (sonra “✓ teslim alındı” veya “tekrar işlemde”); ayrı filtre; hazır paketler ana ekranda “Vadeler”in en üstünde; depoda ve üretimde gösterim
 ohne Angabe ~ not specified ~ belirtilmemiş
 Übersicht „Verkäufe“: auch Verkäufe aus Konten (Verkauf mit/ohne Barcode) werden gezählt ~ Overview “Sales”: sales from accounts (sale with/without barcode) are counted too ~ Ana ekran “Satışlar”: hesaplardaki satışlar (barkodlu/barkodsuz) da sayılır
 „Fertige Ware: Gold“: Feingehalt 0,585 wird erkannt, Ware ohne Feingehalt steht unter „ohne Angabe“ ~ “Finished goods: gold”: fineness 0.585 is recognised, items without fineness are listed as “not specified” ~ “Hazır mal: altın”: 0,585 milyem tanınır, milyemsiz ürünler “belirtilmemiş” altında
@@ -1654,7 +1661,7 @@ function pkCand(g,k){const ids=new Set(g.items.filter(x=>x.k===k).map(x=>x.ref))
  if(k==="mat")return data.stock.filter(s=>s.group!=="Stein"&&s.active!==false);return[]}
 function pkShareTxt(g){const w=data.people.find(x=>x.id===g.pid),f=data.people.find(x=>x.id===g.fpid),o=data.orders.find(x=>x.id===g.oid),L=["*Werkstatt-Paket "+g.no+"* – "+dt(g.date)];
  if(w)L.push("Werkstatt: "+w.name);if(g.step)L.push("Arbeit: "+g.step);if(f)L.push("Für: "+(ui.oanon?(f.cc||"–"):f.name+(f.cc?" ("+f.cc+")":"")));if(o)L.push("Bestellung: "+o.no);if(g.due)L.push("Frist: "+dt(g.due));
- L.push("");(g.items||[]).forEach((x,i)=>L.push((i+1)+") "+pkItemTxt(x)+(x.note?" – "+x.note:"")));L.push("","Insgesamt: "+pkSum(g).txt);if(g.note)L.push("Notiz: "+g.note);return L.join("\n")}
+ L.push("");(g.items||[]).forEach((x,i)=>L.push((i+1)+") "+pkItemTxt(x)+(x.note?" – "+x.note:"")));L.push("","Insgesamt: "+pkSum(g).txt);if(g.note)L.push("Notiz: "+g.note);if(g.status==="ready")L.push("Status: abholbereit");return L.join("\n")}
 function rPkg(){const e=$("s-pkg");
  if(ui.pk){const g=ui.pk,a=g.add,cand=pkCand(g,a.k),sm=pkSum(g);
   const ws=[[0,"– Werkstatt wählen –"],...data.people.filter(p=>!p.walk).sort((x,y)=>(y.type==="Werkstatt")-(x.type==="Werkstatt")).map(p=>[p.id,(p.type==="Werkstatt"?"🔧 ":"")+plabel(p)])];
@@ -1677,14 +1684,15 @@ function rPkg(){const e=$("s-pkg");
   <button class="sec" data-a="pkadd">+ Hinzufügen</button></div>
   <div class="row"><button data-a="pksave">Paket speichern</button>${g.id?`<button class="sec" data-a="pkrm">${dl("pkrm","Löschen")}</button>`:""}</div>`;return}
  const q=String(ui.pkq||"").trim().toLowerCase();
- const L=data.pkgs.filter(g=>ui.pkf==="all"||(ui.pkf==="out"?g.status!=="back":g.status==="back")).filter(g=>!q||(g.no+" "+pnm(g.pid)+" "+pnm(g.fpid)+" "+g.step+" "+g.note+" "+(g.items||[]).map(pkItemTxt).join(" ")).toLowerCase().includes(q))
-  .sort((a,b)=>((a.status==="back")-(b.status==="back"))||String(a.due||"9999").localeCompare(String(b.due||"9999"))||String(b.date).localeCompare(a.date));
- const nOut=data.pkgs.filter(g=>g.status!=="back").length;
+ const L=data.pkgs.filter(g=>ui.pkf==="all"||(ui.pkf==="out"?g.status!=="back":ui.pkf==="ready"?g.status==="ready":g.status==="back")).filter(g=>!q||(g.no+" "+pnm(g.pid)+" "+pnm(g.fpid)+" "+g.step+" "+g.note+" "+(g.items||[]).map(pkItemTxt).join(" ")).toLowerCase().includes(q))
+  .sort((a,b)=>((a.status==="back")-(b.status==="back"))||((b.status==="ready")-(a.status==="ready"))||String(a.due||"9999").localeCompare(String(b.due||"9999"))||String(b.date).localeCompare(a.date));
+ const nOut=data.pkgs.filter(g=>g.status!=="back").length,nRdy=data.pkgs.filter(g=>g.status==="ready").length;
  e.innerHTML=`<div class="bar"><span>Werkstatt</span><span>🔧</span></div><button data-a="pknew">+ Neues Paket</button>
- <div class="card" style="margin-top:10px"><div class="tg">${TG("pkf",ui.pkf,[["out","Unterwegs ("+nOut+")"],["back","Zurück"],["all","Alle"]])}</div>${F("Suchen",I("ui.pkq",ui.pkq,"Nummer, Werkstatt, Stein …",'data-r="1" autocomplete="off"'))}</div>
- <div class="card">${L.map(g=>{const op=ui.pkx===g.id,sm=pkSum(g),back=g.status==="back";
-  return `<div style="border-left:4px solid ${back?"var(--mu)":"#f0a020"};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0"><div data-a="pkx" data-id="${g.id}" style="flex:1;min-width:0"><b>${esc(g.no)} · ${esc(pnm(g.pid)||"–")} ${op?"▴":"▾"}</b><small>${esc([g.step,sm.txt].filter(Boolean).join(" · "))}</small><small>${dt(g.date)}${g.fpid?" · für "+esc(pnm(g.fpid)):""}${back&&g.backDate?" · zurück "+dt(g.backDate):""}</small>${g.due&&!back?`<small>${dueTag(g.due)}</small>`:""}</div>
-  <div class="r"><span style="color:${back?"var(--mu)":"#f0a020"}"><b>${back?"Zurück":"In Werkstatt"}</b></span><br><button class="sec sm" data-a="pkst" data-id="${g.id}">${back?"Wieder raus":"✓ Zurück"}</button></div></div>
+ <div class="card" style="margin-top:10px"><div class="tg">${TG("pkf",ui.pkf,[["out","Unterwegs ("+nOut+")"],["ready","Abholbereit ("+nRdy+")"],["back","Zurück"],["all","Alle"]])}</div>${F("Suchen",I("ui.pkq",ui.pkq,"Nummer, Werkstatt, Stein …",'data-r="1" autocomplete="off"'))}</div>
+ <div class="card">${L.map(g=>{const op=ui.pkx===g.id,sm=pkSum(g),back=g.status==="back",rdy=g.status==="ready",col=back?"var(--mu)":rdy?"var(--in)":"#f0a020";
+  return `<div style="border-left:4px solid ${col};padding-left:10px;border-bottom:1px solid var(--bd)"><div class="it" style="border:0"><div data-a="pkx" data-id="${g.id}" style="flex:1;min-width:0"><b>${esc(g.no)} · ${esc(pnm(g.pid)||"–")} ${op?"▴":"▾"}</b><small>${esc([g.step,sm.txt].filter(Boolean).join(" · "))}</small><small>${dt(g.date)}${g.fpid?" · für "+esc(pnm(g.fpid)):""}${back&&g.backDate?" · zurück "+dt(g.backDate):""}${rdy&&g.readyDate?" · abholbereit seit "+dt(g.readyDate):""}</small>${g.due&&!back&&!rdy?`<small>${dueTag(g.due)}</small>`:""}</div>
+  <div class="r"><span style="color:${col}"><b>${back?"Zurück":rdy?"📦 Abholbereit":"In Werkstatt"}</b></span><br>
+  ${back?`<button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="out">Wieder raus</button>`:rdy?`<button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="back">✓ Abgeholt</button><br><button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="out" style="margin-top:4px">Wieder in Arbeit</button>`:`<button class="sm" data-a="pkst" data-id="${g.id}" data-v="ready">📦 Abholbereit</button><br><button class="sec sm" data-a="pkst" data-id="${g.id}" data-v="back" style="margin-top:4px">✓ Zurück</button>`}</div></div>
   ${op?`<div style="padding:0 0 10px">${(g.items||[]).map((x,i)=>`<div class="it" style="padding:6px 0"><div>${i+1}) ${esc(pkItemTxt(x))}${x.note?`<small>${esc(x.note)}</small>`:""}</div></div>`).join("")}<div class="it" style="padding:6px 0"><b>Insgesamt</b><b>${esc(sm.txt)}</b></div>${g.note?`<p class="mu">📝 ${esc(g.note)}</p>`:""}
   ${CB("ui.oanon",!!ui.oanon,"Nur Chiffre statt Kundendaten senden",'data-r="1"')}<div class="row" style="margin:6px 0 0"><button class="sec" data-a="pkedit" data-id="${g.id}">✏️ Bearbeiten</button><a class="sec navb" href="https://wa.me/${(p=>p&&p.phone?String(p.phone).replace(/[^\d]/g,"").replace(/^00/,""):"")(data.people.find(x=>x.id===g.pid))}?text=${encodeURIComponent(pkShareTxt(g))}" target="_blank" rel="noopener">💬 WhatsApp</a></div></div>`:""}</div>`}).join("")||'<p class="mu">Keine Pakete.</p>'}</div>`}
 act.pkf=d=>{ui.pkf=d.v;rPkg()};
@@ -1704,9 +1712,11 @@ act.pksave=()=>{const g=ui.pk;if(!g.pid){toast("Bitte eine Werkstatt wählen (Pe
  const o={id:g.id||uid(),no,pid:g.pid,fpid:g.fpid||0,oid:g.oid||0,step:g.step||"",date:g.date||today(),due:dueOf(g.date,g.dk,g.due),note:String(g.note||"").trim(),items:g.items,status:g.status||"out",backDate:g.backDate||""};
  const i=data.pkgs.findIndex(x=>x.id===o.id);if(i<0)data.pkgs.push(o);else data.pkgs[i]=o;ui.pk=null;ui.pkx=o.id;rPkg();toast("Paket "+no+" gespeichert")};
 act.pkrm=()=>{if(!confirmTap("pkrm"))return;data.pkgs=data.pkgs.filter(x=>x.id!==ui.pk.id);ui.pk=null;rPkg()};
-act.pkst=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;if(g.status==="back"){g.status="out";g.backDate=""}else{g.status="back";g.backDate=today()}rPkg();toast(g.status==="back"?"Paket "+g.no+" zurück erhalten":"Paket "+g.no+" wieder in der Werkstatt")};
-function xPkg(){const r=[["Paket","Datum","Werkstatt","Arbeit","Für","Bestellung","Teil","Notiz Teil","Frist","Status","Zurück am","Notiz"]];
- data.pkgs.forEach(g=>(g.items||[]).forEach(x=>r.push([g.no,g.date,pnm(g.pid),g.step||"",pnm(g.fpid),(data.orders.find(o=>o.id===g.oid)||{}).no||"",pkItemTxt(x),x.note||"",g.due||"",g.status==="back"?"Zurück":"In Werkstatt",g.backDate||"",g.note||""])));return["Werkstatt",r]}
+act.pkst=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;const v=d.v||(g.status==="back"?"out":"back");g.status=v;
+ if(v==="back")g.backDate=today();else g.backDate="";if(v==="ready")g.readyDate=today();else if(v==="out")g.readyDate="";
+ rPkg();toast(v==="back"?"Paket "+g.no+" zurück erhalten":v==="ready"?"Paket "+g.no+" ist abholbereit":"Paket "+g.no+" wieder in der Werkstatt")};
+function xPkg(){const r=[["Paket","Datum","Werkstatt","Arbeit","Für","Bestellung","Teil","Notiz Teil","Frist","Status","Abholbereit seit","Zurück am","Notiz"]];
+ data.pkgs.forEach(g=>(g.items||[]).forEach(x=>r.push([g.no,g.date,pnm(g.pid),g.step||"",pnm(g.fpid),(data.orders.find(o=>o.id===g.oid)||{}).no||"",pkItemTxt(x),x.note||"",g.due||"",g.status==="back"?"Zurück":g.status==="ready"?"Abholbereit":"In Werkstatt",g.readyDate||"",g.backDate||"",g.note||""])));return["Werkstatt",r]}
 
 
 /* ---------- Konten ---------- */
@@ -1821,7 +1831,7 @@ function uL(){const q=ui.lq.toLowerCase();
  const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
   .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
  $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
-  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small>${(g=>g?`<small style="color:#f0a020">🔧 ${esc(g.no)} · ${esc(pnm(g.pid))}${g.step?" · "+esc(g.step):""}</small>`:"")(pkgOf("stone",s.id)||pkgOf("mat",s.id))}</div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small>${(g=>g?`<small style="color:${g.status==="ready"?"var(--in)":"#f0a020"}">${g.status==="ready"?"📦":"🔧"} ${esc(g.no)} · ${esc(pnm(g.pid))}${g.status==="ready"?" · abholbereit":g.step?" · "+esc(g.step):""}</small>`:"")(pkgOf("stone",s.id)||pkgOf("mat",s.id))}</div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
 /* 4C: Standard-Karat mit ungefährem Durchmesser (Rund, Brillantschliff) */
 const CTD=[[0.05,2.5],[0.10,3.0],[0.20,3.8],[0.25,4.1],[0.30,4.5],[0.40,4.8],[0.50,5.2],[0.70,5.8],[0.90,6.3],[1.00,6.5],[1.25,6.9],[1.50,7.4],[1.75,7.8],[2.00,8.2],[2.50,8.8],[3.00,9.4]];
 function ctDiam(ct){if(!(ct>0))return 0;const t=CTD;
@@ -1934,7 +1944,7 @@ function rP(){
 function pStn(p,withNo=true){return (p.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type).map(s=>{const st=data.stock.find(x=>x.id===s.sid);
  const ct=parse(s.qty);return [s.type||(st&&st.type)||"",ct?f2(ct).replace(/0$/,"")+" ct":"",s.nat||(st&&st.nat)||"",withNo&&st?st.name:""].filter(Boolean).join(" ")}).filter(Boolean).join(" + ")}
 const pLbl=p=>{const st=pStn(p);return shortCode(p.code)+" · "+(p.name||p.grp)+(st?" · 💎 "+st:"")+" · "+f3(pTW(p))+" g"};
-const soldTxt=p=>((g=>g?" · 🔧 "+g.no+" ("+pnm(g.pid)+")":"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
+const soldTxt=p=>((g=>g?" · "+(g.status==="ready"?"📦 abholbereit ":"🔧 ")+g.no+" ("+pnm(g.pid)+")":"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
 function uP(){const l=plist();
  $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""}${(st=>st?"</small><small>💎 "+esc(st)+"</small><small>":"")(pStn(p))} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small></div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
  $("prows").innerHTML+=l.length?`<div class="it"><b>${l.length} Stück</b><b>${f3(l.reduce((a,p)=>a+pTW(p),0))} g gesamt</b></div>`:""}
@@ -2130,7 +2140,7 @@ act.gom=d=>{ui.pid=Number(d.id);ui.kdir="in";go("konten")};
 function ocDue(){const L=[];
  data.orders.forEach(o=>{if(o.due&&!o.done)L.push({d:o.due,h:`<div class="it click" data-a="go" data-v="orders"><div><b>📋 ${esc(o.no||"")} · ${oQty(o)} Stück</b><small>${esc(pnm(o.pid))}</small></div><div class="r"><small>${dueTag(o.due)}</small></div></div>`})});
  data.moves.forEach(m=>{if(m.due&&!m.paid)L.push({d:m.due,h:`<div class="it click" data-a="gom" data-id="${m.pid}"><div><b>💶 ${esc(pnm(m.pid))}</b><small>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}${m.note?" · "+esc(m.note):""}</small></div><div class="r"><small>${dueTag(m.due)}</small></div></div>`})});
- data.pkgs.forEach(g=>{if(g.due&&g.status!=="back")L.push({d:g.due,h:`<div class="it click" data-a="go" data-v="pkg"><div><b>🔧 ${esc(g.no)} · ${esc(pnm(g.pid))}</b><small>${esc([g.step,pkSum(g).txt].filter(Boolean).join(" · "))}</small></div><div class="r"><small>${dueTag(g.due)}</small></div></div>`})});
+ data.pkgs.forEach(g=>{if(g.status==="ready")L.push({d:"0000",h:`<div class="it click" data-a="go" data-v="pkg"><div><b>📦 ${esc(g.no)} · ${esc(pnm(g.pid))}</b><small>${esc(pkSum(g).txt)}</small></div><div class="r"><small class="in"><b>abholbereit</b></small></div></div>`});else if(g.due&&g.status!=="back")L.push({d:g.due,h:`<div class="it click" data-a="go" data-v="pkg"><div><b>🔧 ${esc(g.no)} · ${esc(pnm(g.pid))}</b><small>${esc([g.step,pkSum(g).txt].filter(Boolean).join(" · "))}</small></div><div class="r"><small>${dueTag(g.due)}</small></div></div>`})});
  data.cars.forEach(c=>CDUE.forEach(([f,l])=>{if(c[f]&&daysTo(c[f])<=30)L.push({d:c[f],h:`<div class="it click" data-a="gocar" data-id="${c.id}"><div><b>🚗 ${esc(c.plate||c.name)}</b><small>${l}</small></div><div class="r"><small>${dueTag(c[f])}</small></div></div>`})}));
  L.sort((a,b)=>a.d.localeCompare(b.d));
  return L.length?box("Fristen","⏰",L.slice(0,8).map(x=>x.h).join("")):""}
