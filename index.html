@@ -19,7 +19,8 @@
 body{background:var(--bg);color:var(--tx);font:16px/1.4 -apple-system,system-ui,"Helvetica Neue",Arial,sans-serif;padding:12px 12px 130px;max-width:520px;margin:0 auto}
 .card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px}
 h1{font-size:22px;margin:4px 0 12px}
-#who{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}#bSave{white-space:nowrap;padding-left:10px;padding-right:10px}
+#who{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}#bSave{white-space:nowrap;padding-left:9px;padding-right:9px}
+@media (max-width:520px){#main>.nav button.sm{padding:6px 8px}#bSave{font-size:14px}#main>.nav>div{gap:4px!important;margin-left:auto}#main>.nav{flex-wrap:wrap}#who{flex:1 0 auto;max-width:100%}}
 button,input,select,textarea{font:inherit;color:inherit}
 button{border:0;border-radius:12px;padding:12px 14px;background:var(--ac);color:#fff;font-weight:600;width:100%}
 button.sec{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
@@ -59,6 +60,21 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 .nb button span{font-size:18px}.nb button.on{background:rgba(255,255,255,.18);color:#fff}
 #toast{position:fixed;left:50%;bottom:104px;transform:translateX(-50%);background:#222;color:#fff;padding:9px 14px;border-radius:20px;font-size:14px;opacity:0;transition:.2s;pointer-events:none;z-index:9;max-width:90%;text-align:center}
 #toast.on{opacity:1}
+.dk{display:none}@media (min-width:900px){.dk{display:block}}
+@media (min-width:900px){
+body{max-width:none;padding:20px 28px 40px}
+#start{max-width:520px;margin:0 auto}
+#main{max-width:none;margin:0;padding-left:216px}
+.nb{left:16px;right:auto;top:16px;bottom:16px;width:196px;flex-direction:column;justify-content:flex-start;gap:4px;padding:14px 10px;border-radius:18px}
+.nb button{flex:none;flex-direction:row;justify-content:flex-start;gap:10px;font-size:15px;padding:10px 12px;min-height:44px}
+.nb button span{font-size:20px;width:26px;text-align:center}
+#s-home:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
+#s-home>.card{margin:0}
+.tiles{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+#toast{bottom:28px}
+}
+@media (min-width:1400px){#s-home:not(.hide){grid-template-columns:repeat(3,minmax(0,1fr))}}
+
 #ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:16px}#ov img{max-width:100%;max-height:85vh;object-fit:contain;border-radius:10px}#ov .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px}
 .att{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.att .a{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;background:var(--fld);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:4px}.att .a img{width:100%;height:100%;object-fit:cover}.att .d{position:absolute;top:2px;right:2px;min-width:22px;height:22px;padding:0 4px;border-radius:11px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;border:0}.attbtn{display:block;text-align:center;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--fld);font-weight:600;cursor:pointer;margin:6px 0}
 </style></head><body>
@@ -86,7 +102,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 </div>
 
 <div id="main" class="hide">
- <div class="nav"><h1 id="who" style="margin:0"></h1><div style="display:flex;gap:6px"><button class="sec sm" data-a="go" data-v="orders">📋</button><button class="sec sm" data-a="go" data-v="set">⚙️</button><button class="sec sm" id="bSave">Speichern &amp; Beenden</button></div></div>
+ <div class="nav"><h1 id="who" style="margin:0"></h1><div style="display:flex;gap:6px"><button class="sec sm dk" data-a="fs" title="Vollbild">⛶</button><button class="sec sm" data-a="go" data-v="orders">📋</button><button class="sec sm" data-a="go" data-v="set">⚙️</button><button class="sec sm" data-a="savekeep" title="Zwischenspeichern">💾</button><button class="sec sm" id="bSave">Speichern &amp; Beenden</button></div></div>
  <div id="rb" class="rb" data-a="rtog"></div>
  <div id="rEd" class="card hide"></div>
 
@@ -136,8 +152,11 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.63";
+const VER="0.66";
 const HIST=[
+ ["0.66","13.11.2026",["Laptop: volle Bildschirmbreite und ⛶-Knopf für Vollbild","Laptop: Speichern öffnet jetzt „Speichern unter“ (bzw. Download) statt Teilen; Zwischenspeichern schreibt danach direkt in dieselbe Datei"]],
+ ["0.65","13.11.2026",["Zwischenspeichern als 💾-Knopf oben neben ⚙️ statt in den Einstellungen"]],
+ ["0.64","13.11.2026",["Automatische Anpassung an Laptop / großen Bildschirm: Menü links, Übersicht in Spalten"]],
  ["0.63","13.11.2026",["Konten: neue Ausgänge KB (Kosten bar) und KU (Kosten Überweisung) – z. B. Versand bezahlen, zählt nicht als Schuld","Übersicht: Kasse/Bank zählen automatische Kontobuch-Einträge nicht mehr doppelt"]],
  ["0.62","13.11.2026",["Kontobuch: Person / offenes Konto wählbar – Buchung zählt auch im Personenkonto","Konten: Verkauf mit Barcode mit mehreren Waren auf einmal"]],
  ["0.61","13.11.2026",["Neues Logo: Kontobuch mit Kompass (App-Symbol und Anmeldeseite)"]],
@@ -299,20 +318,23 @@ $("bOpen3").onclick=async()=>{if(!pend3)return;const a=$("pw").value,b=$("pwB").
  if(!a||!b||!c){$("msg").textContent=Array.isArray(pend3.q)?"Bitte Passwort und beide Antworten eingeben.":"Bitte alle drei Passwörter eingeben.";return}
  try{pw=Array.isArray(pend3.q)?pwJoin(a,ansN(b),ansN(c)):pwJoin(a,b,c);const d=await dec(pend3,pw);pend3=null;$("pw3box").classList.add("hide");$("pwB").value="";$("pwC").value="";open(d)}
  catch(_){pw="";$("msg").textContent=Array.isArray(pend3.q)?"Passwort oder Antwort falsch.":"Mindestens ein Passwort ist falsch."}};
-async function saveFile(){const name=data.user+".json",text=await enc(data,pw);
+const isMob=()=>typeof navigator!=="undefined"&&(/iPhone|iPad|iPod|Android/i.test(navigator.userAgent||"")||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1));
+let fileH=null;
+async function writeOut(name,text){
  const dlc=await claude.use("downloads");
- if(dlc){await dlc.save({filename:name,data:text})}
- else{const f=new File([text],name,{type:"application/json"});
-  if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f]});
-  else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}}}
+ if(dlc){await dlc.save({filename:name,data:text});return}
+ const f=new File([text],name,{type:"application/json"});
+ if(isMob()){if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f]});return}}
+ else if(typeof window.showSaveFilePicker==="function"){
+  try{if(!fileH||fileH.name!==name)fileH=await window.showSaveFilePicker({suggestedName:name,types:[{description:"Pusula Mobile",accept:{"application/json":[".json"]}}]});
+   const w=await fileH.createWritable();await w.write(text);await w.close();return}
+  catch(e){if(e&&e.name==="AbortError")throw e;fileH=null}}
+ const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
+async function saveFile(){await writeOut(data.user+".json",await enc(data,pw))}
 $("bSave").onclick=async()=>{
  const name=data.user+".json";let text;
  try{text=await enc(data,pw);
-  const dlc=await claude.use("downloads");
-  if(dlc){await dlc.save({filename:name,data:text})}
-  else{const f=new File([text],name,{type:"application/json"});
-   if(navigator.canShare&&navigator.canShare({files:[f]}))await navigator.share({files:[f]});
-   else{const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}}
+  await writeOut(name,text);
  }catch(e){alert(tx("Nicht gespeichert – die Daten bleiben noch in der App."));return}
  data=null;pw="";pend3=null;$("pw").value="";$("pw3box").classList.add("hide");$("msg").textContent="Gespeichert. Die App ist jetzt leer.";show(false)};
 
@@ -659,6 +681,11 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Laptop: volle Bildschirmbreite und ⛶-Knopf für Vollbild ~ Laptop: full screen width and ⛶ button for full screen ~ Dizüstü: tam ekran genişliği ve tam ekran için ⛶ düğmesi
+Laptop: Speichern öffnet jetzt „Speichern unter“ (bzw. Download) statt Teilen; Zwischenspeichern schreibt danach direkt in dieselbe Datei ~ Laptop: saving now opens “Save as” (or a download) instead of sharing; quick save then writes straight into the same file ~ Dizüstü: kaydetme artık paylaşım yerine “Farklı kaydet” (veya indirme) açar; ara kaydetme sonra doğrudan aynı dosyaya yazar
+Vollbild: Taste F11 ~ Full screen: press F11 ~ Tam ekran: F11 tuşu
+Zwischenspeichern als 💾-Knopf oben neben ⚙️ statt in den Einstellungen ~ Quick save as 💾 button at the top next to ⚙️ instead of in settings ~ Ara kaydetme ayarlar yerine üstte ⚙️ yanında 💾 düğmesi
+Automatische Anpassung an Laptop / großen Bildschirm: Menü links, Übersicht in Spalten ~ Automatic layout for laptop / large screens: menu on the left, overview in columns ~ Dizüstü / büyük ekrana otomatik uyum: menü solda, genel bakış sütunlarda
 Konten: neue Ausgänge KB (Kosten bar) und KU (Kosten Überweisung) – z. B. Versand bezahlen, zählt nicht als Schuld ~ Accounts: new outgoings KB (cash cost) and KU (transfer cost) – e.g. paying shipping, not counted as debt ~ Hesaplar: yeni çıkışlar KB (nakit masraf) ve KU (havale masraf) – örn. kargo ödemesi, borç sayılmaz
 Übersicht: Kasse/Bank zählen automatische Kontobuch-Einträge nicht mehr doppelt ~ Overview: cash/bank no longer count automatic ledger entries twice ~ Genel bakış: kasa/banka otomatik defter kayıtlarını artık iki kez saymıyor
 Kosten bar (keine Schuld) ~ Cash cost (no debt) ~ Nakit masraf (borç değil)
@@ -2313,6 +2340,7 @@ act.p3on=()=>{const f=ui.p3;if(f.a!==pw){toast("Aktuelles Passwort stimmt nicht"
  pw=pwJoin(f.a,ansN(f.b),ansN(f.c));data.sec=3;data.secq=q;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aktiv – jetzt „Speichern & Beenden“")};
 act.p3off=()=>{const f=ui.p3,qa=Array.isArray(data.secq);if((qa?pwJoin(f.a,ansN(f.b),ansN(f.c)):pwJoin(f.a,f.b,f.c))!==pw){toast("Passwort oder Antwort falsch");return}
  pw=f.a;data.sec=1;delete data.secq;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aus – es gilt wieder nur das Passwort")};
+act.fs=()=>{const d=document;try{if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen();else toast("Vollbild: Taste F11")}catch(_){toast("Vollbild: Taste F11")}};
 act.savekeep=async()=>{try{await saveFile();data.savedAt=nowIso();toast("Zwischengespeichert – du kannst weiterarbeiten");render()}catch(e){if(e&&e.name==="AbortError"){toast("Nicht gespeichert");return}toast("Nicht gespeichert")}};
 act.pwchg=()=>{const f=ui.pwf;
  const tri=data.sec===3,cur=tri?pwParts()[0]:pw;
@@ -2323,7 +2351,7 @@ act.pwchg=()=>{const f=ui.pwf;
  if(tri){const q=pwParts();q[0]=f.b;pw=pwJoin(...q)}else pw=f.b;ui.pwf={a:"",b:"",c:""};render();toast("Passwort geändert – jetzt „Speichern & Beenden“")};
 
 function rSet(){
- $("s-set").innerHTML=`<div class="card"><b>💾 Zwischenspeichern</b><p class="mu" style="margin:4px 0 8px">Speichert deine Datei (verschlüsselt), ohne die App zu leeren – du kannst danach direkt weiterarbeiten.${data.savedAt?" Zuletzt: "+dt(String(data.savedAt).slice(0,10))+" "+String(data.savedAt).slice(11,16):""}</p><button data-a="savekeep">💾 Jetzt zwischenspeichern</button></div>
+ $("s-set").innerHTML=`
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
