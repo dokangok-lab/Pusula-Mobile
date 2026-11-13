@@ -152,8 +152,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.68";
+const VER="0.69";
 const HIST=[
+ ["0.69","13.11.2026",["Zebra-Etikett wie in ZebraDesigner: D :1.06ct · Farbe Qualität · 3.26gr · Preis | LG-Nummer, Barcode mit Karat, Seriennummer","Werkstatt-Etikett: Nummer groß auf dem rechten Teil","Etiketten: rechter Teil, Drehen um 180° und Testetikett in den Einstellungen"]],
  ["0.68","13.11.2026",["Etikett (fertig): Seriennummer wird komplett gedruckt (z. B. YZD0000198)"]],
  ["0.67","13.11.2026",["Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode)","Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße"]],
  ["0.66","13.11.2026",["Laptop: volle Bildschirmbreite und ⛶-Knopf für Vollbild","Laptop: Speichern öffnet jetzt „Speichern unter“ (bzw. Download) statt Teilen; Zwischenspeichern schreibt danach direkt in dieselbe Datei"]],
@@ -280,7 +281,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){
- data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},lbl:{w:"60",h:"13",l:"28",m:"1",fs:"100",x:"0",y:"0"},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
  if(!Array.isArray(data.pkSt))data.pkSt=["Wird gerade gemacht","Wartet auf Steine","Wartet auf Gold","Etikett muss gedruckt werden","Gravur fehlt","Qualitätskontrolle","Rückfrage an Werkstatt"];
  if(!Array.isArray(data.models))data.models=["Solitär","Tiffany Style","Halo","Trilogy","Memoire / Eternity","Tennis","Vintage","Toi et Moi"];
@@ -683,6 +684,16 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zebra-Etikett wie in ZebraDesigner: D :1.06ct · Farbe Qualität · 3.26gr · Preis | LG-Nummer, Barcode mit Karat, Seriennummer ~ Zebra label as in ZebraDesigner: D :1.06ct · colour clarity · 3.26gr · price | LG number, barcode with karat, serial number ~ ZebraDesigner gibi Zebra etiketi: D :1.06ct · renk berraklık · 3.26gr · fiyat | LG numarası, ayarlı barkod, seri numarası
+Werkstatt-Etikett: Nummer groß auf dem rechten Teil ~ Workshop label: number large on the right part ~ Atölye etiketi: numara sağ kısımda büyük
+Etiketten: rechter Teil, Drehen um 180° und Testetikett in den Einstellungen ~ Labels: right part, 180° rotation and test label in settings ~ Etiketler: sağ kısım, 180° döndürme ve ayarlarda test etiketi
+Rechter Teil (mm) ~ Right part (mm) ~ Sağ kısım (mm)
+Im Druckfenster: Drucker „Dia. Etikettdrucker“, Ränder „Keine“, Skalierung „Standard“ bzw. 100 %, und unter „Weitere Einstellungen“ ~ In the print window: printer “Dia. Etikettdrucker”, margins “None”, scale “Default” or 100 %, and under “More settings” ~ Yazdırma penceresinde: yazıcı “Dia. Etikettdrucker”, kenar boşlukları “Yok”, ölçek “Varsayılan” veya %100 ve “Diğer ayarlar” altında
+Kopf- und Fußzeilen ausschalten ~ turn off headers and footers ~ üst ve alt bilgileri kapatın
+. Größe, Drehung und Verschiebung: ⚙️ Einstellungen → Etiketten. ~ . Size, rotation and offset: ⚙️ Settings → Labels. ~ . Boyut, döndürme ve kaydırma: ⚙️ Ayarlar → Etiketler.
+Beim Drucken um 180° drehen ~ Rotate 180° when printing ~ Yazdırırken 180° döndür
+🖨️ Testetikett drucken ~ 🖨️ Print test label ~ 🖨️ Test etiketi yazdır
+Maße in mm. Breite = ganzes Etikett inkl. Schwanz (wie im Druckertreiber). Linker / rechter Teil = die beiden Flächen vor und nach dem schwarzen Strich. ~ Sizes in mm. Width = whole label incl. tail (as in the printer driver). Left / right part = the two areas before and after the black line. ~ Ölçüler mm. Genişlik = kuyruk dahil tüm etiket (yazıcı sürücüsündeki gibi). Sol / sağ kısım = siyah çizgiden önceki ve sonraki iki alan.
 Etikett (fertig): Seriennummer wird komplett gedruckt (z. B. YZD0000198) ~ Label (finished): serial number printed in full (e.g. YZD0000198) ~ Etiket (hazır): seri numarası tam yazdırılır (örn. YZD0000198)
 Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode) ~ Production: labels for Zebra printers – finished label (karat, grams, diamond, price, certificate, barcode) and workshop label (last 4 digits of stone or short code) ~ Üretim: Zebra yazıcı etiketleri – hazır etiket (ayar, gram, pırlanta, fiyat, sertifika, barkod) ve atölye etiketi (taşın son 4 hanesi veya kısa kod)
 Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße ~ Settings: label size, left part, offset and font size ~ Ayarlar: etiket boyutu, sol kısım, kaydırma ve yazı boyutu
@@ -2387,52 +2398,57 @@ function c128(t){t=String(t||"").replace(/[^\x20-\x7e]/g,"");if(!t)return null;c
  let s=v[0];for(let k=1;k<v.length;k++)s+=v[k]*k;v.push(s%103,106);
  let x=0,r="";v.forEach(c=>{const p=C128[c];for(let k=0;k<p.length;k++){const w=Number(p[k]);if(k%2===0)r+=`<rect x="${x}" y="0" width="${w}" height="10"/>`;x+=w}});
  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${x} 10" preserveAspectRatio="none" style="width:100%;height:100%;display:block" shape-rendering="crispEdges">${r}</svg>`}
-const LBD={w:"60",h:"13",l:"28",m:"1",fs:"100",x:"0",y:"0"};
-const LB=()=>{const c=Object.assign({},LBD,data.lbl||{}),n=k=>parse(c[k]);return{w:n("w")||60,h:n("h")||13,l:n("l")||28,m:n("m")||0,fs:(n("fs")||100)/100,x:n("x")||0,y:n("y")||0}};
+const LBD={v:2,w:"84",h:"13",l:"27",r:"25",m:"1",fs:"100",x:"0",y:"0",rot:true};
+const LB=()=>{if(!data.lbl||data.lbl.v!==2)data.lbl=Object.assign({},LBD);const c=data.lbl,n=k=>parse(c[k]);return{w:n("w")||84,h:n("h")||13,l:n("l")||27,r:n("r")||25,m:n("m")||0,fs:(n("fs")||100)/100,x:n("x")||0,y:n("y")||0,rot:!!c.rot}};
 const KAR={333:"8K",375:"9K",417:"10K",585:"14K",750:"18K",833:"20K",875:"21K",916:"22K",999:"24K"};
 const karOf=f=>{const n=Math.round(pm(f));return KAR[n]||(n?n+"‰":"")};
 const st4=no=>{const d=String(no||"").replace(/\D/g,"");return d.slice(-4)};
+const dotN=s=>String(s||"").replace(",",".");
 function lbFields(d){const ss=(d.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type),s0=ss[0]||{},st=data.stock.find(x=>x.id===s0.sid)||{};
  const ct=ss.reduce((a,s)=>a+parse(s.qty),0),m0=(d.metal||[])[0]||{},pr=parse(d.p2)||parse(d.p1);
- return{kar:karOf(m0.fine),ser:d.code||"",col:s0.color||st.color||"",ct:ct?f2(ct):"",gr:pTW(d)?w3(pTW(d)):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:st.name||"",bc:d.code||"",
+ return{kar:karOf(m0.fine),ser:d.code||"",col:s0.color||st.color||"",ct:ct?dotN(f2(ct)):"",gr:pTW(d)?dotN(f2(pTW(d))):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:String(st.name||"").replace(/^LG\s*/i,""),bc:d.code||"",
   stn:ss.map(s=>(data.stock.find(x=>x.id===s.sid)||{}).name).filter(Boolean).map(st4).join(" ")}}
-function lbOne(k,f){const c=LB(),fs=c.h*0.19*c.fs,pad=`padding:${c.m}mm`,R=c.w-c.l;
- const box=`width:${c.w}mm;height:${c.h}mm;display:flex;overflow:hidden;font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#000;background:#fff;box-sizing:border-box;position:relative;left:${c.x}mm;top:${c.y}mm`;
- const L=`width:${c.l}mm;height:100%;box-sizing:border-box;${pad};display:grid;grid-template-columns:1fr 1fr;align-content:space-around;gap:0 1mm;font-size:${fs}mm;line-height:1.1;white-space:nowrap`;
- const Rt=`width:${R}mm;height:100%;box-sizing:border-box;${pad};border-left:0.6mm solid #000;display:flex;gap:1mm;align-items:center`;
- const e=v=>esc(String(v||""));
- if(k==="ws"){const main=f.mode==="short"?f.ser:f.mode==="both"?(f.stn||"–")+" · "+f.ser:(f.stn||"–");
-  return `<div style="${box}"><div style="width:${c.l}mm;height:100%;box-sizing:border-box;${pad};display:flex;align-items:center;justify-content:center;font-size:${fs*1.9}mm;white-space:nowrap">${e(f.mode==="both"?(f.stn||"–"):main)}</div><div style="${Rt};flex-direction:column;justify-content:center;align-items:flex-start;font-size:${fs*1.1}mm;line-height:1.15;white-space:nowrap"><div>${e(f.mode==="both"?f.ser:(f.mode==="short"?(f.stn?"💎 "+f.stn:""):f.ser))}</div><div>${e([f.kar,f.gr?f.gr+" g":""].filter(Boolean).join(" · "))}</div>${f.note?`<div>${e(f.note)}</div>`:""}</div></div>`}
- const bc=c128(f.bc);
- return `<div style="${box}"><div style="${L}"><div>D:${e(f.ct)}</div><div>${e(f.kar)}</div><div>${e([f.col,f.cl].filter(Boolean).join(" "))}</div><div style="font-size:${fs*1.15}mm">${e(f.gr)}${f.gr?"g":""}</div></div>
- <div style="${Rt}"><div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:0.3mm;font-size:${fs*0.95}mm;line-height:1;white-space:nowrap;overflow:hidden"><div style="letter-spacing:0.15mm">${e(f.cert)}</div><div style="height:${c.h*0.34}mm">${bc||""}</div><div>${e(f.ser)}</div></div><div style="font-size:${fs*1.15}mm;white-space:nowrap">${e(f.pr)}</div></div></div>`}
+function lbOne(k,f){const c=LB(),fs=c.h*0.2*c.fs,e=v=>esc(String(v||""));
+ const box=`width:${c.w}mm;height:${c.h}mm;position:relative;overflow:hidden;font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#000;background:#fff;box-sizing:border-box`;
+ const inner=`position:absolute;left:${c.x}mm;top:${c.y}mm;width:${c.l+c.r}mm;height:${c.h}mm;display:flex`;
+ const L=`width:${c.l}mm;height:100%;box-sizing:border-box;padding:${c.m}mm ${c.m*1.5}mm`;
+ const Rt=`width:${c.r}mm;height:100%;box-sizing:border-box;padding:${c.m}mm ${c.m}mm ${c.m}mm ${c.m*1.5}mm;border-left:0.7mm solid #000`;
+ const tail=`<div style="position:absolute;left:${c.l+c.r+(c.w-c.l-c.r)*0.7}mm;top:${c.h*0.25}mm;width:0.6mm;height:${c.h*0.25}mm;background:#000;display:none"></div>`;
+ if(k==="ws"){const big=f.mode==="short"?f.ser:(f.stn||"–"),small=f.mode==="both"?f.ser:"";
+  return `<div style="${box}"><div style="${inner}"><div style="${L};display:flex;align-items:center;justify-content:center;font-size:${fs*0.95}mm;white-space:nowrap;flex-direction:column;gap:0.6mm">${small?`<div>${e(small)}</div>`:""}${f.note?`<div>${e(f.note)}</div>`:""}</div><div style="${Rt};border-left:0;display:flex;align-items:center;justify-content:center;font-size:${fs*(String(big).length>6?1.05:1.6)}mm;white-space:nowrap">${e(big)}</div></div></div>`}
+ const bc=c128(f.bc),cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"";
+ return `<div style="${box}"><div style="${inner}"><div style="${L};display:grid;grid-template-columns:1.15fr 1fr;grid-template-rows:1fr 1fr;align-items:center;font-size:${fs}mm;line-height:1;white-space:nowrap"><div>${f.ct?"D :"+e(f.ct)+"ct":""}</div><div>${e([f.col,f.cl].filter(Boolean).join(" "))}</div><div>${f.gr?e(f.gr)+"gr":""}</div><div style="font-size:${fs*1.3}mm;text-align:right">${e(f.pr)}</div></div>
+ <div style="${Rt};display:flex;flex-direction:column;justify-content:center;gap:0.35mm;font-size:${fs*0.9}mm;line-height:1;white-space:nowrap;overflow:hidden"><div style="letter-spacing:0.25mm">${e(cert)}</div><div style="display:flex;align-items:center;gap:0.6mm;height:${c.h*0.32}mm"><div style="width:${c.r*0.62}mm;height:100%">${bc||""}</div><div style="font-size:${fs*0.95}mm">${e(f.kar)}</div></div><div>${e(f.ser)}</div></div></div></div>`}
 function lpHTML(){const l=ui.lp,f=l.f,k=l.k,c=LB();
  const inp=(key,lab)=>F(lab,I("ui.lp.f."+key,f[key],"",'data-u="uLp" autocorrect="off" autocomplete="off" spellcheck="false"'));
- const sc=Math.min(2.4,300/(c.w*3.78));
+ const sc=Math.min(2.4,320/(c.w*3.78));
  return `<div class="bar"><span>${k==="ws"?"🔧 Werkstatt-Etikett":"🏷️ Etikett (fertig)"}</span><span>🦓</span></div><div class="card">
  ${k==="ws"?`<div class="chips">${[["stone","Stein (letzte 4)"],["short","Kurzcode"],["both","Beides"]].map(([v,t])=>`<button class="${f.mode===v?"":"sec"}" data-a="lpm" data-v="${v}">${t}</button>`).join("")}</div>
-  <div class="g2">${inp("stn","Steinnummer (letzte 4)")}${inp("ser","Kurzcode")}</div><div class="g2">${inp("kar","Karat")}${inp("gr","Gramm")}</div>${inp("note","Zusatz (optional)")}`
+  <div class="g2">${inp("stn","Steinnummer (letzte 4)")}${inp("ser","Kurzcode")}</div>${inp("note","Zusatz (optional)")}`
  :`<div class="g2">${inp("kar","Karat")}${inp("ser","Seriennummer")}</div><div class="g2">${inp("col","Dia. Farbe")}${inp("ct","Dia. Carat")}</div><div class="g2">${inp("gr","Gramm")}${inp("cl","Dia. Qualität")}</div><div class="g2">${inp("pr","Preis")}${inp("cert","Dia. Zertifikatsnummer")}</div>${inp("bc","Barcode")}`}
- <p class="mu" style="margin:4px 0 6px">Vorschau</p><div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden"><div style="height:${c.h*3.78*sc+4}px"><div id="lpv" style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm">${lbOne(k,f)}</div></div></div>
+ <p class="mu" style="margin:4px 0 6px">Vorschau</p><div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden"><div style="height:${c.h*3.78*sc+4}px"><div id="lpv" style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne(k,f)}</div></div></div>
  <div class="g2" style="margin-top:10px">${F("Anzahl",N("ui.lp.n",l.n))}<div></div></div>
  <div class="row"><button data-a="lprint">🖨️ Drucken</button><button class="sec" data-a="lpx">Schließen</button></div>
- <p class="mu" style="margin:0">Im Druckfenster den Zebra-Drucker (z. B. „Dia. Etikettdrucker“) wählen, Ränder: keine, Kopf-/Fußzeilen aus. Etikettengröße und Verschiebung stellst du unter ⚙️ Einstellungen → Etiketten ein.</p></div>`}
+ <p class="mu" style="margin:0">Im Druckfenster: Drucker „Dia. Etikettdrucker“, Ränder „Keine“, Skalierung „Standard“ bzw. 100 %, und unter „Weitere Einstellungen“ <b>Kopf- und Fußzeilen ausschalten</b>. Größe, Drehung und Verschiebung: ⚙️ Einstellungen → Etiketten.</p></div>`}
 function uLp(){const e=$("lpv");if(e&&ui.lp)e.innerHTML=lbOne(ui.lp.k,ui.lp.f)}
 act.lbl=d=>{const p=ui.pd;if(!p)return;const f=lbFields(p);if(d.k==="ws")f.ser=shortCode(p.code);f.mode=f.stn?"stone":"short";f.note="";ui.lp={k:d.k,f,n:"1"};render();setTimeout(()=>{const e=$("lpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
 act.lpm=d=>{ui.lp.f.mode=d.v;render()};
 act.lpx=()=>{ui.lp=null;render()};
-act.lprint=()=>{const l=ui.lp;if(!l)return;const c=LB(),n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));
- const one=`<div class="pg">${lbOne(l.k,l.f)}</div>`;
- const doc=`<!doctype html><html><head><meta charset="utf-8"><title>Etikett</title><style>@page{size:${c.w}mm ${c.h}mm;margin:0}html,body{margin:0;padding:0;background:#fff}.pg{width:${c.w}mm;height:${c.h}mm;overflow:hidden;page-break-after:always;break-after:page}.pg:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>${one.repeat(n)}</body></html>`;
- let fr=$("lbfr");if(fr)fr.remove();fr=document.createElement("iframe");fr.id="lbfr";fr.setAttribute("aria-hidden","true");fr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";document.body.appendChild(fr);
+function lbDoc(k,f,n){const c=LB(),one=`<div class="pg"><div class="rt">${lbOne(k,f)}</div></div>`;
+ return `<!doctype html><html><head><meta charset="utf-8"><title> </title><style>@page{size:${c.w}mm ${c.h}mm;margin:0}html,body{margin:0;padding:0;background:#fff}.pg{width:${c.w}mm;height:${c.h}mm;overflow:hidden;page-break-after:always;break-after:page;position:relative}.pg:last-child{page-break-after:auto;break-after:auto}.rt{width:${c.w}mm;height:${c.h}mm;${c.rot?"transform:rotate(180deg);transform-origin:50% 50%;":""}}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>${one.repeat(n)}</body></html>`}
+function lbPrint(doc){let fr=$("lbfr");if(fr)fr.remove();fr=document.createElement("iframe");fr.id="lbfr";fr.setAttribute("aria-hidden","true");fr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";document.body.appendChild(fr);
  const w=fr.contentWindow;w.document.open();w.document.write(doc);w.document.close();
- setTimeout(()=>{try{w.focus();w.print()}catch(e){toast("Drucken nicht möglich")}},250)};
-function lbSet(){if(!data.lbl)data.lbl=Object.assign({},LBD);const b=data.lbl;
+ setTimeout(()=>{try{w.focus();w.print()}catch(e){toast("Drucken nicht möglich")}},250)}
+act.lprint=()=>{const l=ui.lp;if(!l)return;const n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));lbPrint(lbDoc(l.k,l.f,n))};
+const LSAMP={kar:"14K",ser:"YZD0000198",col:"D",ct:"1.06",gr:"3.26",cl:"VS1",pr:"2434",cert:"123456789",bc:"YZD0000198"};
+act.ltest=()=>lbPrint(lbDoc("fin",LSAMP,1));
+function lbSet(){LB();const b=data.lbl;
  const n=(k,l)=>F(l,I("data.lbl."+k,b[k],LBD[k],'inputmode="decimal" data-u="uLs"'));
- return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße deines Etiketts in mm. Linker Teil = Bereich vor dem schwarzen Strich (Karat, Gewicht …), rechts davon Nummer, Barcode und Preis.</p>
- <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("m","Innenrand (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div>${n("fs","Schriftgröße (%)")}
- <div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden" id="lsv">${lsPrev()}</div></div>`}
-function lsPrev(){const c=LB(),sc=Math.min(2.4,300/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm">${lbOne("fin",{kar:"14K",ser:"YZD0000198",col:"F",ct:"0,50",gr:"3,25",cl:"VVS2",pr:"1290",cert:"LG82923732",bc:"YZD0000198"})}</div></div>`}
+ return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße in mm. Breite = ganzes Etikett inkl. Schwanz (wie im Druckertreiber). Linker / rechter Teil = die beiden Flächen vor und nach dem schwarzen Strich.</p>
+ <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("r","Rechter Teil (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div><div class="g2">${n("fs","Schriftgröße (%)")}${n("m","Innenrand (mm)")}</div>
+ ${CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
+ <div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden;margin-bottom:10px" id="lsv">${lsPrev()}</div><button class="sec" data-a="ltest">🖨️ Testetikett drucken</button></div>`}
+function lsPrev(){const c=LB(),sc=Math.min(2.4,320/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne("fin",LSAMP)}</div></div>`}
 function uLs(){const e=$("lsv");if(e)e.innerHTML=lsPrev()}
 act.fs=()=>{const d=document;try{if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen();else toast("Vollbild: Taste F11")}catch(_){toast("Vollbild: Taste F11")}};
 act.savekeep=async()=>{try{await saveFile();data.savedAt=nowIso();toast("Zwischengespeichert – du kannst weiterarbeiten");render()}catch(e){if(e&&e.name==="AbortError"){toast("Nicht gespeichert");return}toast("Nicht gespeichert")}};
