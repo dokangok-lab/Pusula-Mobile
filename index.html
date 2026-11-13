@@ -152,8 +152,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.71";
+const VER="0.72";
 const HIST=[
+ ["0.72","13.11.2026",["Etiketten: Direktdruck über Zebra Browser Print (ZPL, ohne Druckfenster) – Druckweg und Auflösung in den Einstellungen"]],
  ["0.71","13.11.2026",["Etikettendruck ohne Datum, Titel und Internetadresse – es wird nur das Etikett gedruckt"]],
  ["0.70","13.11.2026",["Arbeitsschritt „Montage D2“: Anzahl seitlicher Steine × Preis pro Stein (z. B. 16 × 0,50 = 8,00) wird automatisch als Betrag eingetragen"]],
  ["0.69","13.11.2026",["Zebra-Etikett wie in ZebraDesigner: D :1.06ct · Farbe Qualität · 3.26gr · Preis | LG-Nummer, Barcode mit Karat, Seriennummer","Werkstatt-Etikett: Nummer groß auf dem rechten Teil","Etiketten: rechter Teil, Drehen um 180° und Testetikett in den Einstellungen"]],
@@ -686,6 +687,15 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Etiketten: Direktdruck über Zebra Browser Print (ZPL, ohne Druckfenster) – Druckweg und Auflösung in den Einstellungen ~ Labels: direct printing via Zebra Browser Print (ZPL, no print dialog) – print method and resolution in settings ~ Etiketler: Zebra Browser Print ile doğrudan baskı (ZPL, yazdırma penceresi yok) – baskı yolu ve çözünürlük ayarlarda
+Druckweg ~ Print method ~ Baskı yolu
+Direkt (Zebra Browser Print) ~ Direct (Zebra Browser Print) ~ Doğrudan (Zebra Browser Print)
+Druckfenster des Browsers ~ Browser print dialog ~ Tarayıcı yazdırma penceresi
+Drucker-Auflösung ~ Printer resolution ~ Yazıcı çözünürlüğü
+🔌 Verbindung prüfen ~ 🔌 Check connection ~ 🔌 Bağlantıyı kontrol et
+Einmalig am Laptop das kostenlose Programm „Zebra Browser Print“ von zebra.com installieren und starten, dort den Etikettdrucker als Standard wählen und diese Seite erlauben. Dann druckt die App direkt – ohne Druckfenster, wie ZebraDesigner. ~ Install and start the free “Zebra Browser Print” program from zebra.com once on the laptop, choose the label printer as default there and allow this page. Then the app prints directly – no print dialog, like ZebraDesigner. ~ Dizüstüne bir kez zebra.com’dan ücretsiz “Zebra Browser Print” programını kurup başlatın, etiket yazıcısını varsayılan seçin ve bu sayfaya izin verin. Uygulama ZebraDesigner gibi doğrudan yazdırır – pencere açılmaz.
+Zebra Browser Print nicht erreichbar – Programm gestartet? ~ Zebra Browser Print not reachable – is the program running? ~ Zebra Browser Print’e ulaşılamıyor – program çalışıyor mu?
+Zebra Browser Print: kein Standarddrucker gewählt ~ Zebra Browser Print: no default printer selected ~ Zebra Browser Print: varsayılan yazıcı seçilmedi
 Etikettendruck ohne Datum, Titel und Internetadresse – es wird nur das Etikett gedruckt ~ Label printing without date, title and web address – only the label is printed ~ Etiket baskısı tarih, başlık ve internet adresi olmadan – sadece etiket yazdırılır
 Arbeitsschritt „Montage D2“: Anzahl seitlicher Steine × Preis pro Stein (z. B. 16 × 0,50 = 8,00) wird automatisch als Betrag eingetragen ~ Work step “Montage D2”: number of side stones × price per stone (e.g. 16 × 0.50 = 8.00) is filled in automatically as amount ~ “Montage D2” işlemi: yan taş sayısı × taş başı fiyat (örn. 16 × 0,50 = 8,00) otomatik tutar olarak girilir
 Montage D2 ~ Setting D2 ~ Montaj D2
@@ -2410,7 +2420,7 @@ function c128(t){t=String(t||"").replace(/[^\x20-\x7e]/g,"");if(!t)return null;c
  let s=v[0];for(let k=1;k<v.length;k++)s+=v[k]*k;v.push(s%103,106);
  let x=0,r="";v.forEach(c=>{const p=C128[c];for(let k=0;k<p.length;k++){const w=Number(p[k]);if(k%2===0)r+=`<rect x="${x}" y="0" width="${w}" height="10"/>`;x+=w}});
  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${x} 10" preserveAspectRatio="none" style="width:100%;height:100%;display:block" shape-rendering="crispEdges">${r}</svg>`}
-const LBD={v:2,w:"84",h:"13",l:"27",r:"25",m:"1",fs:"100",x:"0",y:"0",rot:true};
+const LBD={v:2,w:"84",h:"13",l:"27",r:"25",m:"1",fs:"100",x:"0",y:"0",rot:true,way:"bp",dpi:"203"};
 const LB=()=>{if(!data.lbl||data.lbl.v!==2)data.lbl=Object.assign({},LBD);const c=data.lbl,n=k=>parse(c[k]);return{w:n("w")||84,h:n("h")||13,l:n("l")||27,r:n("r")||25,m:n("m")||0,fs:(n("fs")||100)/100,x:n("x")||0,y:n("y")||0,rot:!!c.rot}};
 const KAR={333:"8K",375:"9K",417:"10K",585:"14K",750:"18K",833:"20K",875:"21K",916:"22K",999:"24K"};
 const karOf=f=>{const n=Math.round(pm(f));return KAR[n]||(n?n+"‰":"")};
@@ -2454,14 +2464,43 @@ function lbPrint(pages){const c=LB();
  const t=document.title;document.title=" ";
  const done=()=>{document.title=t;window.removeEventListener("afterprint",done)};window.addEventListener("afterprint",done);
  setTimeout(()=>{try{window.print()}catch(e){toast("Drucken nicht möglich")}setTimeout(()=>{document.title=t},1500)},60)}
-act.lprint=()=>{const l=ui.lp;if(!l)return;const n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));lbPrint(lbDoc(l.k,l.f,n))};
+/* Direktdruck über Zebra Browser Print (ZPL) */
+const c128n=t=>{const s=c128(t);return s?Number((s.match(/viewBox="0 0 (\d+)/)||[])[1]||0):0};
+const zs=v=>String(v??"").replace(/[\^~]/g," ");
+function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4,D=v=>Math.max(0,Math.round(v*d));
+ const H=D(c.h),L=D(c.l),R=D(c.r),m=D(c.m),fs=c.h*0.2*c.fs,F=mm=>D(mm),T=(x,y,h,t,b)=>`^FO${x},${y}^A0N,${F(h)},${F(h*(b||0.9))}^FD${zs(t)}^FS`;
+ let z=`^XA^CI28^PW${D(c.w)}^LL${H}^PO${(data.lbl||{}).zrot?"I":"N"}^LH${D(c.x)},${D(c.y)}^MMT`;
+ if(k==="ws"){const big=f.mode==="short"?f.ser:(f.stn||"–"),small=f.mode==="both"?f.ser:"",bh=String(big).length>6?fs*1.05:fs*1.6;
+  z+=`^FO${L},${Math.round((H-F(bh))/2)}^FB${R},1,0,C^A0N,${F(bh)},${F(bh*0.95)}^FD${zs(big)}^FS`;
+  const sm=[small,f.note].filter(Boolean);sm.forEach((t,i)=>{z+=`^FO${m},${Math.round(H/2-F(fs)*(sm.length/2)+i*F(fs)*1.15)}^FB${L-2*m},1,0,C^A0N,${F(fs*0.95)},${F(fs*0.85)}^FD${zs(t)}^FS`})}
+ else{const x0=Math.round(m*1.5),c2=x0+Math.round((L-3*m)*0.53),y1=Math.round(H*0.2),y2=Math.round(H*0.58),bw=Math.max(3,D(0.7));
+  if(f.ct)z+=T(x0,y1,fs,"D :"+f.ct+"ct");z+=T(c2,y1,fs,[f.col,f.cl].filter(Boolean).join(" "));
+  if(f.gr)z+=T(x0,y2,fs,f.gr+"gr");if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
+  z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
+  const xr=L+bw+Math.round(m*1.5),cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,bh=Math.round(H*0.3),yb=Math.round(H*0.36),bcw=c128n(f.bc)*mod;
+  if(cert)z+=T(xr,Math.round(H*0.1),fs*0.9,cert,0.8);
+  if(f.bc)z+=`^FO${xr},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N^FD${zs(f.bc)}^FS`;
+  if(f.kar)z+=T(xr+bcw+D(0.8),yb+Math.round(bh*0.2),fs*0.95,f.kar);
+  if(f.ser)z+=T(xr,yb+bh+D(0.5),fs*0.9,f.ser,0.85)}
+ return z+`^PQ${n||1}^XZ`}
+const BPU="https://127.0.0.1:9101/";
+async function bpDev(){const r=await fetch(BPU+"default?type=printer",{cache:"no-store"});const t=await r.text();if(!t||!t.trim())throw new Error("noprinter");return JSON.parse(t)}
+async function bpSend(z){const dev=await bpDev();const r=await fetch(BPU+"write",{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({device:dev,data:z})});if(!r.ok)throw new Error("write");return dev}
+async function lbGo(k,f,n){const b=data.lbl||{};
+ if(b.way==="bp"){try{const dev=await bpSend(zplOf(k,f,n));toast("Gedruckt auf "+(dev.name||"Zebra"))}
+  catch(e){toast(e&&e.message==="noprinter"?"Zebra Browser Print: kein Standarddrucker gewählt":"Zebra Browser Print nicht erreichbar – Programm gestartet?")}return}
+ lbPrint(lbDoc(k,f,n))}
+act.bptest=async()=>{try{const d=await bpDev();toast("Verbunden: "+(d.name||"Drucker"))}catch(e){toast(e&&e.message==="noprinter"?"Zebra Browser Print: kein Standarddrucker gewählt":"Zebra Browser Print nicht erreichbar – Programm gestartet?")}};
+act.lprint=()=>{const l=ui.lp;if(!l)return;const n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));lbGo(l.k,l.f,n)};
 const LSAMP={kar:"14K",ser:"YZD0000198",col:"D",ct:"1.06",gr:"3.26",cl:"VS1",pr:"2434",cert:"123456789",bc:"YZD0000198"};
-act.ltest=()=>lbPrint(lbDoc("fin",LSAMP,1));
+act.ltest=()=>lbGo("fin",LSAMP,1);
 function lbSet(){LB();const b=data.lbl;
  const n=(k,l)=>F(l,I("data.lbl."+k,b[k],LBD[k],'inputmode="decimal" data-u="uLs"'));
  return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße in mm. Breite = ganzes Etikett inkl. Schwanz (wie im Druckertreiber). Linker / rechter Teil = die beiden Flächen vor und nach dem schwarzen Strich.</p>
  <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("r","Rechter Teil (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div><div class="g2">${n("fs","Schriftgröße (%)")}${n("m","Innenrand (mm)")}</div>
- ${CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
+ ${(b.way||"bp")==="bp"?CB("data.lbl.zrot",!!b.zrot,"Beim Drucken um 180° drehen"):CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
+ <div class="g2">${F("Druckweg",S("data.lbl.way",b.way||"bp",[["bp","Direkt (Zebra Browser Print)"],["win","Druckfenster des Browsers"]],'data-r="1"'))}${F("Drucker-Auflösung",S("data.lbl.dpi",b.dpi||"203",[["203","203 dpi"],["300","300 dpi"]]))}</div>
+ ${(b.way||"bp")==="bp"?`<p class="mu" style="margin:0 0 8px">Einmalig am Laptop das kostenlose Programm „Zebra Browser Print“ von zebra.com installieren und starten, dort den Etikettdrucker als Standard wählen und diese Seite erlauben. Dann druckt die App direkt – ohne Druckfenster, wie ZebraDesigner.</p><button class="sec" data-a="bptest" style="margin-bottom:8px">🔌 Verbindung prüfen</button>`:""}
  <div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden;margin-bottom:10px" id="lsv">${lsPrev()}</div><button class="sec" data-a="ltest">🖨️ Testetikett drucken</button></div>`}
 function lsPrev(){const c=LB(),sc=Math.min(2.4,320/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne("fin",LSAMP)}</div></div>`}
 function uLs(){const e=$("lsv");if(e)e.innerHTML=lsPrev()}
