@@ -152,8 +152,10 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.69";
+const VER="0.71";
 const HIST=[
+ ["0.71","13.11.2026",["Etikettendruck ohne Datum, Titel und Internetadresse – es wird nur das Etikett gedruckt"]],
+ ["0.70","13.11.2026",["Arbeitsschritt „Montage D2“: Anzahl seitlicher Steine × Preis pro Stein (z. B. 16 × 0,50 = 8,00) wird automatisch als Betrag eingetragen"]],
  ["0.69","13.11.2026",["Zebra-Etikett wie in ZebraDesigner: D :1.06ct · Farbe Qualität · 3.26gr · Preis | LG-Nummer, Barcode mit Karat, Seriennummer","Werkstatt-Etikett: Nummer groß auf dem rechten Teil","Etiketten: rechter Teil, Drehen um 180° und Testetikett in den Einstellungen"]],
  ["0.68","13.11.2026",["Etikett (fertig): Seriennummer wird komplett gedruckt (z. B. YZD0000198)"]],
  ["0.67","13.11.2026",["Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode)","Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße"]],
@@ -684,6 +686,12 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Etikettendruck ohne Datum, Titel und Internetadresse – es wird nur das Etikett gedruckt ~ Label printing without date, title and web address – only the label is printed ~ Etiket baskısı tarih, başlık ve internet adresi olmadan – sadece etiket yazdırılır
+Arbeitsschritt „Montage D2“: Anzahl seitlicher Steine × Preis pro Stein (z. B. 16 × 0,50 = 8,00) wird automatisch als Betrag eingetragen ~ Work step “Montage D2”: number of side stones × price per stone (e.g. 16 × 0.50 = 8.00) is filled in automatically as amount ~ “Montage D2” işlemi: yan taş sayısı × taş başı fiyat (örn. 16 × 0,50 = 8,00) otomatik tutar olarak girilir
+Montage D2 ~ Setting D2 ~ Montaj D2
+Anzahl Steine (D2) ~ Number of stones (D2) ~ Taş sayısı (D2)
+Preis pro Stein ~ Price per stone ~ Taş başı fiyat
+Betrag (automatisch) ~ Amount (automatic) ~ Tutar (otomatik)
 Zebra-Etikett wie in ZebraDesigner: D :1.06ct · Farbe Qualität · 3.26gr · Preis | LG-Nummer, Barcode mit Karat, Seriennummer ~ Zebra label as in ZebraDesigner: D :1.06ct · colour clarity · 3.26gr · price | LG number, barcode with karat, serial number ~ ZebraDesigner gibi Zebra etiketi: D :1.06ct · renk berraklık · 3.26gr · fiyat | LG numarası, ayarlı barkod, seri numarası
 Werkstatt-Etikett: Nummer groß auf dem rechten Teil ~ Workshop label: number large on the right part ~ Atölye etiketi: numara sağ kısımda büyük
 Etiketten: rechter Teil, Drehen um 180° und Testetikett in den Einstellungen ~ Labels: right part, 180° rotation and test label in settings ~ Etiketler: sağ kısım, 180° döndürme ve ayarlarda test etiketi
@@ -2003,7 +2011,7 @@ const OTH="✎";
 const L_FORM=["Rund (Brillant)","Radiant","Prinzess","Oval","Marquise","Birne","Herz","Smaragd","Kissen (Cushion)","Baguette","Ascher"];
 const L_COL=[..."DEFGHIJKLMNOPQRSTUVWXYZ","Fancy"];
 const L_CLAR=[["FL","FL – Flawless"],["IF","IF – Internally Flawless"],["VVS1","VVS1"],["VVS2","VVS2"],["VS1","VS1"],["VS2","VS2"],["SI1","SI1"],["SI2","SI2"],["I1","I1 – Piqué"],["I2","I2 – Piqué"],["I3","I3 – Piqué"]];
-const L_STEP=["Guss","Fassen (Steine)","Polieren","Rhodinieren","Vergolden / Galvanik","Löten","Montage","Größe ändern","Gravur","Lasergravur","Reparatur","Zertifikat / Prüfung","Versand"];
+const L_STEP=["Guss","Fassen (Steine)","Polieren","Rhodinieren","Vergolden / Galvanik","Löten","Montage","Montage D2","Größe ändern","Gravur","Lasergravur","Reparatur","Zertifikat / Prüfung","Versand"];
 const L_CUT=[["Ideal","Ideal (Hearts & Arrows)"],"Excellent","Very Good","Good","Fair","Poor"];
 const L_CT=()=>CTD.map(([c,d])=>[f2(c),f2(c)+" ct · Ø "+String(d).replace(".",",")+" mm"]);
 /* Auswahl mit Rad (iPhone) + "Andere … selbst eingeben" */
@@ -2105,6 +2113,9 @@ act.pback=()=>{ui.lp=null;ui.pd=null;render()};
 act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
 act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
 function pEdit(p){const d=ui.pd,k=p.slice(6);
+ const d2=k.match(/^steps\.(\d+)\.(type|pcs|pp)$/);
+ if(d2){const s=d.steps[d2[1]];if(s&&s.type==="Montage D2"){if(d2[2]==="type"&&!String(s.pp||"").trim())s.pp=data.d2p||"0,5";if(d2[2]==="pp")data.d2p=s.pp;
+  const n=parse(s.pcs),pp=parse(s.pp);if(n>0&&pp>0){s.amt=String(Math.round(n*pp*100)/100).replace(".",",");setV(`ui.pd.steps.${d2[1]}.amt`,s.amt)}}}
  if(k==="tw")d.wm=String(d.tw).trim()?"t":"a";
  if(/^metal\.\d+\.qty$/.test(k))d.wm="a";
  if(k==="grp"&&!d.ov&&ui.pnew)d.code=nextCode(d.grp);
@@ -2177,7 +2188,8 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  h+=`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
  <div class="bar"><span>Fertigung (Arbeit, Politur …)</span><span>🔧</span></div><div class="card"><datalist id="stepl"><option>Arbeit</option><option>Politur</option><option>Fassen</option><option>Guss</option><option>Gravur</option></datalist>`;
  d.steps.forEach((s,i)=>{h+=`<div class="rowc"><div class="g2">${F("Vorgang",SX(`ui.pd.steps.${i}.type`,s.type,L_STEP))}${F("Atelier",I(`ui.pd.steps.${i}.atelier`,s.atelier))}</div>
-  <div class="g2">${F("Betrag",N(`ui.pd.steps.${i}.amt`,s.amt))}${F("Währung",S(`ui.pd.steps.${i}.cur`,s.cur,CUR))}</div>
+  ${s.type==="Montage D2"?`<div class="g2">${F("Anzahl Steine (D2)",N(`ui.pd.steps.${i}.pcs`,s.pcs||""))}${F("Preis pro Stein",N(`ui.pd.steps.${i}.pp`,s.pp||""))}</div>`:""}
+  <div class="g2">${F(s.type==="Montage D2"?"Betrag (automatisch)":"Betrag",N(`ui.pd.steps.${i}.amt`,s.amt))}${F("Währung",S(`ui.pd.steps.${i}.cur`,s.cur,CUR))}</div>
   <div class="g2">${F("Ausgang g",N(`ui.pd.steps.${i}.out`,s.out))}${F("Eingang g",N(`ui.pd.steps.${i}.in`,s.in))}</div>
   ${F("Status",S(`ui.pd.steps.${i}.state`,s.state,["Offen","Erledigt"]))}
   <div class="rf"><span id="st_${i}"></span><button class="sec sm" data-a="pdelr" data-t="steps" data-i="${i}">Entfernen</button></div></div>`});
@@ -2434,11 +2446,14 @@ function uLp(){const e=$("lpv");if(e&&ui.lp)e.innerHTML=lbOne(ui.lp.k,ui.lp.f)}
 act.lbl=d=>{const p=ui.pd;if(!p)return;const f=lbFields(p);if(d.k==="ws")f.ser=shortCode(p.code);f.mode=f.stn?"stone":"short";f.note="";ui.lp={k:d.k,f,n:"1"};render();setTimeout(()=>{const e=$("lpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
 act.lpm=d=>{ui.lp.f.mode=d.v;render()};
 act.lpx=()=>{ui.lp=null;render()};
-function lbDoc(k,f,n){const c=LB(),one=`<div class="pg"><div class="rt">${lbOne(k,f)}</div></div>`;
- return `<!doctype html><html><head><meta charset="utf-8"><title> </title><style>@page{size:${c.w}mm ${c.h}mm;margin:0}html,body{margin:0;padding:0;background:#fff}.pg{width:${c.w}mm;height:${c.h}mm;overflow:hidden;page-break-after:always;break-after:page;position:relative}.pg:last-child{page-break-after:auto;break-after:auto}.rt{width:${c.w}mm;height:${c.h}mm;${c.rot?"transform:rotate(180deg);transform-origin:50% 50%;":""}}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>${one.repeat(n)}</body></html>`}
-function lbPrint(doc){let fr=$("lbfr");if(fr)fr.remove();fr=document.createElement("iframe");fr.id="lbfr";fr.setAttribute("aria-hidden","true");fr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";document.body.appendChild(fr);
- const w=fr.contentWindow;w.document.open();w.document.write(doc);w.document.close();
- setTimeout(()=>{try{w.focus();w.print()}catch(e){toast("Drucken nicht möglich")}},250)}
+function lbDoc(k,f,n){const c=LB(),one=`<div class="lbpg"><div class="lbrt">${lbOne(k,f)}</div></div>`;return one.repeat(n)}
+function lbPrint(pages){const c=LB();
+ let st=$("lbcss");if(!st){st=document.createElement("style");st.id="lbcss";document.head.appendChild(st)}
+ st.textContent=`#lbp{display:none}@media print{@page{size:${c.w}mm ${c.h}mm;margin:0}html,body,:root{margin:0!important;padding:0!important;background:#fff!important;max-width:none!important;width:${c.w}mm!important}body>*:not(#lbp){display:none!important}#lbp{display:block!important}.lbpg{width:${c.w}mm;height:${c.h}mm;overflow:hidden;page-break-after:always;break-after:page;position:relative}.lbpg:last-child{page-break-after:auto;break-after:auto}.lbrt{width:${c.w}mm;height:${c.h}mm;${c.rot?"transform:rotate(180deg);transform-origin:50% 50%;":""}}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
+ let d=$("lbp");if(!d){d=document.createElement("div");d.id="lbp";document.body.appendChild(d)}d.innerHTML=pages;
+ const t=document.title;document.title=" ";
+ const done=()=>{document.title=t;window.removeEventListener("afterprint",done)};window.addEventListener("afterprint",done);
+ setTimeout(()=>{try{window.print()}catch(e){toast("Drucken nicht möglich")}setTimeout(()=>{document.title=t},1500)},60)}
 act.lprint=()=>{const l=ui.lp;if(!l)return;const n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));lbPrint(lbDoc(l.k,l.f,n))};
 const LSAMP={kar:"14K",ser:"YZD0000198",col:"D",ct:"1.06",gr:"3.26",cl:"VS1",pr:"2434",cert:"123456789",bc:"YZD0000198"};
 act.ltest=()=>lbPrint(lbDoc("fin",LSAMP,1));
