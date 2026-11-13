@@ -152,8 +152,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.66";
+const VER="0.67";
 const HIST=[
+ ["0.67","13.11.2026",["Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode)","Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße"]],
  ["0.66","13.11.2026",["Laptop: volle Bildschirmbreite und ⛶-Knopf für Vollbild","Laptop: Speichern öffnet jetzt „Speichern unter“ (bzw. Download) statt Teilen; Zwischenspeichern schreibt danach direkt in dieselbe Datei"]],
  ["0.65","13.11.2026",["Zwischenspeichern als 💾-Knopf oben neben ⚙️ statt in den Einstellungen"]],
  ["0.64","13.11.2026",["Automatische Anpassung an Laptop / großen Bildschirm: Menü links, Übersicht in Spalten"]],
@@ -278,7 +279,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){
- data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
+ data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},lbl:{w:"60",h:"13",l:"28",m:"1",fs:"100",x:"0",y:"0"},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
  if(!Array.isArray(data.pkSt))data.pkSt=["Wird gerade gemacht","Wartet auf Steine","Wartet auf Gold","Etikett muss gedruckt werden","Gravur fehlt","Qualitätskontrolle","Rückfrage an Werkstatt"];
  if(!Array.isArray(data.models))data.models=["Solitär","Tiffany Style","Halo","Trilogy","Memoire / Eternity","Tennis","Vintage","Toi et Moi"];
@@ -681,6 +682,38 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode) ~ Production: labels for Zebra printers – finished label (karat, grams, diamond, price, certificate, barcode) and workshop label (last 4 digits of stone or short code) ~ Üretim: Zebra yazıcı etiketleri – hazır etiket (ayar, gram, pırlanta, fiyat, sertifika, barkod) ve atölye etiketi (taşın son 4 hanesi veya kısa kod)
+Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße ~ Settings: label size, left part, offset and font size ~ Ayarlar: etiket boyutu, sol kısım, kaydırma ve yazı boyutu
+🏷️ Etikett drucken ~ 🏷️ Print label ~ 🏷️ Etiket yazdır
+🔧 Werkstatt-Etikett ~ 🔧 Workshop label ~ 🔧 Atölye etiketi
+🏷️ Etikett (fertig) ~ 🏷️ Label (finished) ~ 🏷️ Etiket (hazır)
+Stein (letzte 4) ~ Stone (last 4) ~ Taş (son 4)
+Kurzcode ~ Short code ~ Kısa kod
+Beides ~ Both ~ İkisi de
+Steinnummer (letzte 4) ~ Stone number (last 4) ~ Taş numarası (son 4)
+Zusatz (optional) ~ Extra (optional) ~ Ek (isteğe bağlı)
+Seriennummer ~ Serial number ~ Seri numarası
+Dia. Farbe ~ Dia. colour ~ Pırlanta rengi
+Dia. Carat ~ Dia. carat ~ Pırlanta karat
+Gramm ~ Grams ~ Gram
+Dia. Qualität ~ Dia. clarity ~ Pırlanta berraklığı
+Preis ~ Price ~ Fiyat
+Dia. Zertifikatsnummer ~ Dia. certificate no. ~ Pırlanta sertifika no.
+Barcode ~ Barcode ~ Barkod
+Vorschau ~ Preview ~ Önizleme
+🖨️ Drucken ~ 🖨️ Print ~ 🖨️ Yazdır
+Schließen ~ Close ~ Kapat
+Im Druckfenster den Zebra-Drucker (z. B. „Dia. Etikettdrucker“) wählen, Ränder: keine, Kopf-/Fußzeilen aus. Etikettengröße und Verschiebung stellst du unter ⚙️ Einstellungen → Etiketten ein. ~ In the print window choose the Zebra printer (e.g. “Dia. Etikettdrucker”), margins: none, headers/footers off. Set label size and offset under ⚙️ Settings → Labels. ~ Yazdırma penceresinde Zebra yazıcıyı seçin (örn. “Dia. Etikettdrucker”), kenar boşluğu: yok, üst/alt bilgi kapalı. Etiket boyutu ve kaydırma: ⚙️ Ayarlar → Etiketler.
+🦓 Etiketten (Zebra) ~ 🦓 Labels (Zebra) ~ 🦓 Etiketler (Zebra)
+Maße deines Etiketts in mm. Linker Teil = Bereich vor dem schwarzen Strich (Karat, Gewicht …), rechts davon Nummer, Barcode und Preis. ~ Your label size in mm. Left part = area before the black line (karat, weight …), to the right number, barcode and price. ~ Etiket ölçüleri (mm). Sol kısım = siyah çizgiden önceki alan (ayar, ağırlık …), sağında numara, barkod ve fiyat.
+Breite (mm) ~ Width (mm) ~ Genişlik (mm)
+Höhe (mm) ~ Height (mm) ~ Yükseklik (mm)
+Linker Teil (mm) ~ Left part (mm) ~ Sol kısım (mm)
+Innenrand (mm) ~ Inner margin (mm) ~ İç boşluk (mm)
+Verschieben → (mm) ~ Shift → (mm) ~ Kaydır → (mm)
+Verschieben ↓ (mm) ~ Shift ↓ (mm) ~ Kaydır ↓ (mm)
+Schriftgröße (%) ~ Font size (%) ~ Yazı boyutu (%)
+Drucken nicht möglich ~ Printing not possible ~ Yazdırılamıyor
 Laptop: volle Bildschirmbreite und ⛶-Knopf für Vollbild ~ Laptop: full screen width and ⛶ button for full screen ~ Dizüstü: tam ekran genişliği ve tam ekran için ⛶ düğmesi
 Laptop: Speichern öffnet jetzt „Speichern unter“ (bzw. Download) statt Teilen; Zwischenspeichern schreibt danach direkt in dieselbe Datei ~ Laptop: saving now opens “Save as” (or a download) instead of sharing; quick save then writes straight into the same file ~ Dizüstü: kaydetme artık paylaşım yerine “Farklı kaydet” (veya indirme) açar; ara kaydetme sonra doğrudan aynı dosyaya yazar
 Vollbild: Taste F11 ~ Full screen: press F11 ~ Tam ekran: F11 tuşu
@@ -2053,9 +2086,9 @@ const soldTxt=p=>((g=>g?" · "+(g.status==="ready"?"📦 abholbereit ":"🔧 ")+
 function uP(){const l=plist();
  $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""}${(st=>st?"</small><small>💎 "+esc(st)+"</small><small>":"")(pStn(p))} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small></div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
  $("prows").innerHTML+=l.length?`<div class="it"><b>${l.length} Stück</b><b>${f3(l.reduce((a,p)=>a+pTW(p),0))} g gesamt</b></div>`:""}
-act.pnew=()=>{ui.pd=newP();ui.pnew=true;render()};
-act.pedit=d=>{ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
-act.pback=()=>{ui.pd=null;render()};
+act.pnew=()=>{ui.lp=null;ui.pd=newP();ui.pnew=true;render()};
+act.pedit=d=>{ui.lp=null;ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
+act.pback=()=>{ui.lp=null;ui.pd=null;render()};
 act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
 act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
 function pEdit(p){const d=ui.pd,k=p.slice(6);
@@ -2147,6 +2180,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  <p class="mu">Goldwert wird mit dem Verkaufskurs oben gerechnet. Preis oder Multiplikator: du kannst beides eingeben, das andere rechnet sich.</p></div>
  <div class="row"><button data-a="psave">Speichern</button><button class="sec" data-a="pdel">${dl("pdel","Löschen")}</button></div>
  <div class="row">${d.status==="sold"?"":`<button class="sec" data-a="pfin">${d.status==="done"?"Wieder in Fertigung":"Fertigstellen"}</button>`}</div>
+ <div class="row"><button class="sec" data-a="lbl" data-k="fin">🏷️ Etikett drucken</button><button class="sec" data-a="lbl" data-k="ws">🔧 Werkstatt-Etikett</button></div>${ui.lp?lpHTML():""}
  ${idx>=0?`<div class="row"><button class="sec" data-a="pnav" data-v="-1">◀ Vorheriges</button><button class="sec" data-a="pnav" data-v="1">Nächstes ▶</button></div>`:""}`;
  $("s-prod").innerHTML=h;calcP()}
 function syncStock(p){
@@ -2167,7 +2201,7 @@ act.pfin=()=>{const d=ui.pd,old=d.status;d.status=old==="prod"?"done":"prod";
 act.pdel=()=>{if(!confirmTap("pdel"))return;const d=ui.pd,p=data.prods.find(x=>x.id===d.id);
  if(p&&p.status==="sold"){toast("Verkauft – erst den Verkauf löschen");return}
  data.prods=data.prods.filter(x=>x.id!==d.id);data.smoves=data.smoves.filter(m=>m.ref!=="p"+d.id);ui.pd=null;render()};
-act.pnav=d=>{const l=plist(),i=l.findIndex(p=>p.id===ui.pd.id);if(i<0)return;const j=i+Number(d.v);if(j<0||j>=l.length)return;ui.pd=openP(l[j]);ui.pnew=false;render()};
+act.pnav=d=>{const l=plist(),i=l.findIndex(p=>p.id===ui.pd.id);if(i<0)return;const j=i+Number(d.v);if(j<0||j>=l.length)return;ui.lp=null;ui.pd=openP(l[j]);ui.pnew=false;render()};
 
 /* ---------- Verkauf ---------- */
 const newSale=()=>({pid:(data.people.find(p=>p.walk)||{}).id||0,date:today(),cur:BC(),lines:[],note:"",lf:null});
@@ -2340,6 +2374,64 @@ act.p3on=()=>{const f=ui.p3;if(f.a!==pw){toast("Aktuelles Passwort stimmt nicht"
  pw=pwJoin(f.a,ansN(f.b),ansN(f.c));data.sec=3;data.secq=q;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aktiv – jetzt „Speichern & Beenden“")};
 act.p3off=()=>{const f=ui.p3,qa=Array.isArray(data.secq);if((qa?pwJoin(f.a,ansN(f.b),ansN(f.c)):pwJoin(f.a,f.b,f.c))!==pw){toast("Passwort oder Antwort falsch");return}
  pw=f.a;data.sec=1;delete data.secq;ui.p3={a:"",b:"",c:""};render();toast("Sicherheitsfragen aus – es gilt wieder nur das Passwort")};
+/* ---------- Etiketten (Zebra) ---------- */
+const C128=["212222","222122","222221","121223","121322","131222","122213","122312","132212","221213","221312","231212","112232","122132","122231","113222","123122","123221","223211","221132","221231","213212","223112","312131","311222","321122","321221","312212","322112","322211","212123","212321","232121","111323","131123","131321","112313","132113","132311","211313","231113","231311","112133","112331","132131","113123","113321","133121","313121","211331","231131","213113","213311","213131","311123","311321","331121","312113","312311","332111","314111","221411","431111","111224","111422","121124","121421","141122","141221","112214","112412","122114","122411","142112","142211","241211","221114","413111","241112","134111","111242","121142","121241","114212","124112","124211","411212","421112","421211","212141","214121","412121","111143","111341","131141","114113","114311","411113","411311","113141","114131","311141","411131","211412","211214","211232","2331112"];
+function c128(t){t=String(t||"").replace(/[^\x20-\x7e]/g,"");if(!t)return null;const v=[];let set="",i=0;
+ const dg=k=>{let n=0;while(k+n<t.length&&/\d/.test(t[k+n]))n++;return n};
+ while(i<t.length){const n=dg(i);
+  if(n>=4||(n>=2&&n===t.length-i&&set==="C")){let m=n-(n%2);if(set!=="C"){if(n%2&&set===""){v.push(104);set="B";v.push(t.charCodeAt(i)-32);i++;continue}v.push(set?99:105);set="C"}
+   for(let j=0;j<m;j+=2)v.push(Number(t.substr(i+j,2)));i+=m;continue}
+  if(set!=="B"){v.push(set?100:104);set="B"}v.push(t.charCodeAt(i)-32);i++}
+ let s=v[0];for(let k=1;k<v.length;k++)s+=v[k]*k;v.push(s%103,106);
+ let x=0,r="";v.forEach(c=>{const p=C128[c];for(let k=0;k<p.length;k++){const w=Number(p[k]);if(k%2===0)r+=`<rect x="${x}" y="0" width="${w}" height="10"/>`;x+=w}});
+ return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${x} 10" preserveAspectRatio="none" style="width:100%;height:100%;display:block" shape-rendering="crispEdges">${r}</svg>`}
+const LBD={w:"60",h:"13",l:"28",m:"1",fs:"100",x:"0",y:"0"};
+const LB=()=>{const c=Object.assign({},LBD,data.lbl||{}),n=k=>parse(c[k]);return{w:n("w")||60,h:n("h")||13,l:n("l")||28,m:n("m")||0,fs:(n("fs")||100)/100,x:n("x")||0,y:n("y")||0}};
+const KAR={333:"8K",375:"9K",417:"10K",585:"14K",750:"18K",833:"20K",875:"21K",916:"22K",999:"24K"};
+const karOf=f=>{const n=Math.round(pm(f));return KAR[n]||(n?n+"‰":"")};
+const st4=no=>{const d=String(no||"").replace(/\D/g,"");return d.slice(-4)};
+function lbFields(d){const ss=(d.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type),s0=ss[0]||{},st=data.stock.find(x=>x.id===s0.sid)||{};
+ const ct=ss.reduce((a,s)=>a+parse(s.qty),0),m0=(d.metal||[])[0]||{},pr=parse(d.p2)||parse(d.p1);
+ return{kar:karOf(m0.fine),ser:shortCode(d.code),col:s0.color||st.color||"",ct:ct?f2(ct):"",gr:pTW(d)?w3(pTW(d)):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:st.name||"",bc:d.code||"",
+  stn:ss.map(s=>(data.stock.find(x=>x.id===s.sid)||{}).name).filter(Boolean).map(st4).join(" ")}}
+function lbOne(k,f){const c=LB(),fs=c.h*0.19*c.fs,pad=`padding:${c.m}mm`,R=c.w-c.l;
+ const box=`width:${c.w}mm;height:${c.h}mm;display:flex;overflow:hidden;font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#000;background:#fff;box-sizing:border-box;position:relative;left:${c.x}mm;top:${c.y}mm`;
+ const L=`width:${c.l}mm;height:100%;box-sizing:border-box;${pad};display:grid;grid-template-columns:1fr 1fr;align-content:space-around;gap:0 1mm;font-size:${fs}mm;line-height:1.1;white-space:nowrap`;
+ const Rt=`width:${R}mm;height:100%;box-sizing:border-box;${pad};border-left:0.6mm solid #000;display:flex;gap:1mm;align-items:center`;
+ const e=v=>esc(String(v||""));
+ if(k==="ws"){const main=f.mode==="short"?f.ser:f.mode==="both"?(f.stn||"–")+" · "+f.ser:(f.stn||"–");
+  return `<div style="${box}"><div style="width:${c.l}mm;height:100%;box-sizing:border-box;${pad};display:flex;align-items:center;justify-content:center;font-size:${fs*1.9}mm;white-space:nowrap">${e(f.mode==="both"?(f.stn||"–"):main)}</div><div style="${Rt};flex-direction:column;justify-content:center;align-items:flex-start;font-size:${fs*1.1}mm;line-height:1.15;white-space:nowrap"><div>${e(f.mode==="both"?f.ser:(f.mode==="short"?(f.stn?"💎 "+f.stn:""):f.ser))}</div><div>${e([f.kar,f.gr?f.gr+" g":""].filter(Boolean).join(" · "))}</div>${f.note?`<div>${e(f.note)}</div>`:""}</div></div>`}
+ const bc=c128(f.bc);
+ return `<div style="${box}"><div style="${L}"><div>D:${e(f.ct)}</div><div>${e(f.kar)}</div><div>${e([f.col,f.cl].filter(Boolean).join(" "))}</div><div style="font-size:${fs*1.15}mm">${e(f.gr)}${f.gr?"g":""}</div></div>
+ <div style="${Rt}"><div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:0.3mm;font-size:${fs*0.95}mm;line-height:1;white-space:nowrap;overflow:hidden"><div style="letter-spacing:0.15mm">${e(f.cert)}</div><div style="height:${c.h*0.34}mm">${bc||""}</div><div>${e(f.ser)}</div></div><div style="font-size:${fs*1.15}mm;white-space:nowrap">${e(f.pr)}</div></div></div>`}
+function lpHTML(){const l=ui.lp,f=l.f,k=l.k,c=LB();
+ const inp=(key,lab)=>F(lab,I("ui.lp.f."+key,f[key],"",'data-u="uLp" autocorrect="off" autocomplete="off" spellcheck="false"'));
+ const sc=Math.min(2.4,300/(c.w*3.78));
+ return `<div class="bar"><span>${k==="ws"?"🔧 Werkstatt-Etikett":"🏷️ Etikett (fertig)"}</span><span>🦓</span></div><div class="card">
+ ${k==="ws"?`<div class="chips">${[["stone","Stein (letzte 4)"],["short","Kurzcode"],["both","Beides"]].map(([v,t])=>`<button class="${f.mode===v?"":"sec"}" data-a="lpm" data-v="${v}">${t}</button>`).join("")}</div>
+  <div class="g2">${inp("stn","Steinnummer (letzte 4)")}${inp("ser","Kurzcode")}</div><div class="g2">${inp("kar","Karat")}${inp("gr","Gramm")}</div>${inp("note","Zusatz (optional)")}`
+ :`<div class="g2">${inp("kar","Karat")}${inp("ser","Seriennummer")}</div><div class="g2">${inp("col","Dia. Farbe")}${inp("ct","Dia. Carat")}</div><div class="g2">${inp("gr","Gramm")}${inp("cl","Dia. Qualität")}</div><div class="g2">${inp("pr","Preis")}${inp("cert","Dia. Zertifikatsnummer")}</div>${inp("bc","Barcode")}`}
+ <p class="mu" style="margin:4px 0 6px">Vorschau</p><div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden"><div style="height:${c.h*3.78*sc+4}px"><div id="lpv" style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm">${lbOne(k,f)}</div></div></div>
+ <div class="g2" style="margin-top:10px">${F("Anzahl",N("ui.lp.n",l.n))}<div></div></div>
+ <div class="row"><button data-a="lprint">🖨️ Drucken</button><button class="sec" data-a="lpx">Schließen</button></div>
+ <p class="mu" style="margin:0">Im Druckfenster den Zebra-Drucker (z. B. „Dia. Etikettdrucker“) wählen, Ränder: keine, Kopf-/Fußzeilen aus. Etikettengröße und Verschiebung stellst du unter ⚙️ Einstellungen → Etiketten ein.</p></div>`}
+function uLp(){const e=$("lpv");if(e&&ui.lp)e.innerHTML=lbOne(ui.lp.k,ui.lp.f)}
+act.lbl=d=>{const p=ui.pd;if(!p)return;const f=lbFields(p);f.mode=f.stn?"stone":"short";f.note="";ui.lp={k:d.k,f,n:"1"};render();setTimeout(()=>{const e=$("lpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
+act.lpm=d=>{ui.lp.f.mode=d.v;render()};
+act.lpx=()=>{ui.lp=null;render()};
+act.lprint=()=>{const l=ui.lp;if(!l)return;const c=LB(),n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));
+ const one=`<div class="pg">${lbOne(l.k,l.f)}</div>`;
+ const doc=`<!doctype html><html><head><meta charset="utf-8"><title>Etikett</title><style>@page{size:${c.w}mm ${c.h}mm;margin:0}html,body{margin:0;padding:0;background:#fff}.pg{width:${c.w}mm;height:${c.h}mm;overflow:hidden;page-break-after:always;break-after:page}.pg:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}</style></head><body>${one.repeat(n)}</body></html>`;
+ let fr=$("lbfr");if(fr)fr.remove();fr=document.createElement("iframe");fr.id="lbfr";fr.setAttribute("aria-hidden","true");fr.style.cssText="position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";document.body.appendChild(fr);
+ const w=fr.contentWindow;w.document.open();w.document.write(doc);w.document.close();
+ setTimeout(()=>{try{w.focus();w.print()}catch(e){toast("Drucken nicht möglich")}},250)};
+function lbSet(){if(!data.lbl)data.lbl=Object.assign({},LBD);const b=data.lbl;
+ const n=(k,l)=>F(l,I("data.lbl."+k,b[k],LBD[k],'inputmode="decimal" data-u="uLs"'));
+ return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße deines Etiketts in mm. Linker Teil = Bereich vor dem schwarzen Strich (Karat, Gewicht …), rechts davon Nummer, Barcode und Preis.</p>
+ <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("m","Innenrand (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div>${n("fs","Schriftgröße (%)")}
+ <div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden" id="lsv">${lsPrev()}</div></div>`}
+function lsPrev(){const c=LB(),sc=Math.min(2.4,300/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm">${lbOne("fin",{kar:"14K",ser:"YZD198",col:"F",ct:"0,50",gr:"3,25",cl:"VVS2",pr:"1290",cert:"LG82923732",bc:"YZD0000198"})}</div></div>`}
+function uLs(){const e=$("lsv");if(e)e.innerHTML=lsPrev()}
 act.fs=()=>{const d=document;try{if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen();else toast("Vollbild: Taste F11")}catch(_){toast("Vollbild: Taste F11")}};
 act.savekeep=async()=>{try{await saveFile();data.savedAt=nowIso();toast("Zwischengespeichert – du kannst weiterarbeiten");render()}catch(e){if(e&&e.name==="AbortError"){toast("Nicht gespeichert");return}toast("Nicht gespeichert")}};
 act.pwchg=()=>{const f=ui.pwf;
@@ -2353,6 +2445,7 @@ act.pwchg=()=>{const f=ui.pwf;
 function rSet(){
  $("s-set").innerHTML=`
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
+ ${lbSet()}
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div>
