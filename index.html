@@ -136,8 +136,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.62";
+const VER="0.63";
 const HIST=[
+ ["0.63","13.11.2026",["Konten: neue Ausgänge KB (Kosten bar) und KU (Kosten Überweisung) – z. B. Versand bezahlen, zählt nicht als Schuld","Übersicht: Kasse/Bank zählen automatische Kontobuch-Einträge nicht mehr doppelt"]],
  ["0.62","13.11.2026",["Kontobuch: Person / offenes Konto wählbar – Buchung zählt auch im Personenkonto","Konten: Verkauf mit Barcode mit mehreren Waren auf einmal"]],
  ["0.61","13.11.2026",["Neues Logo: Kontobuch mit Kompass (App-Symbol und Anmeldeseite)"]],
  ["0.60","12.11.2026",["Zwischenspeichern: Datei speichern, ohne die App zu leeren (in den Einstellungen und unter „Mehr“), mit Zeitpunkt der letzten Sicherung"]],
@@ -658,6 +659,11 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Konten: neue Ausgänge KB (Kosten bar) und KU (Kosten Überweisung) – z. B. Versand bezahlen, zählt nicht als Schuld ~ Accounts: new outgoings KB (cash cost) and KU (transfer cost) – e.g. paying shipping, not counted as debt ~ Hesaplar: yeni çıkışlar KB (nakit masraf) ve KU (havale masraf) – örn. kargo ödemesi, borç sayılmaz
+Übersicht: Kasse/Bank zählen automatische Kontobuch-Einträge nicht mehr doppelt ~ Overview: cash/bank no longer count automatic ledger entries twice ~ Genel bakış: kasa/banka otomatik defter kayıtlarını artık iki kez saymıyor
+Kosten bar (keine Schuld) ~ Cash cost (no debt) ~ Nakit masraf (borç değil)
+Kosten Überweisung (keine Schuld) ~ Transfer cost (no debt) ~ Havale masraf (borç değil)
+keine Schuld ~ no debt ~ borç değil
 Kontobuch: Person / offenes Konto wählbar – Buchung zählt auch im Personenkonto ~ Ledger: person / open account selectable – entry also counts in the person's account ~ Kasa defteri: kişi / açık hesap seçilebilir – kayıt kişi hesabına da işlenir
 Konten: Verkauf mit Barcode mit mehreren Waren auf einmal ~ Accounts: barcode sale with several items at once ~ Hesaplar: barkodlu satışta birden fazla ürün
 – ohne Person (nur Kontobuch) – ~ – no person (ledger only) – ~ – kişisiz (sadece defter) –
@@ -1368,14 +1374,15 @@ function rKasse(){
 const OP={
  AG:["Goldeingang","in","HAS"],NT:["Bareinzug","in","EUR"],KK:["Banküberweisung","in","EUR"],MG:["Wareneingang","in","EUR"],AL:["Gutschrift","in","EUR"],
  HC:["Altgold-Ausgang","out","HAS"],NO:["Barzahlung","out","EUR"],GH:["Überweisung aus","out","EUR"],MC:["Warenausgang","out","EUR"],BR:["Belastung","out","EUR"],
- VB:["Verkauf mit Barcode","out","EUR"],VO:["Verkauf ohne Barcode","out","EUR"],EO:["Einkauf ohne Barcode","in","EUR"],RB:["Rückgabe mit Barcode","in","EUR"],RA:["Rabatt","in","EUR"]};
-const MONEY={NT:"cash",NO:"cash",KK:"bank",GH:"bank"};
+ VB:["Verkauf mit Barcode","out","EUR"],VO:["Verkauf ohne Barcode","out","EUR"],EO:["Einkauf ohne Barcode","in","EUR"],RB:["Rückgabe mit Barcode","in","EUR"],RA:["Rabatt","in","EUR"],KB:["Kosten bar (keine Schuld)","out","EUR"],KU:["Kosten Überweisung (keine Schuld)","out","EUR"]};
+const NODEBT={KB:1,KU:1};
+const MONEY={NT:"cash",NO:"cash",KK:"bank",GH:"bank",KB:"cash",KU:"bank"};
 function autoBook(m){const ab=data.ab||{};if(!ab.on||!MONEY[m.type]||!["EUR","USD"].includes(m.unit))return;
  const p=data.people.find(x=>x.id===m.pid),inc=m.dir==="in",bk=Number(ab[MONEY[m.type]])||0;
  data.entries.push({id:uid(),type:inc?"in":"out",amount:m.amount,cat:(inc?"Zahlung von ":"Zahlung an ")+(p?p.name:"?"),note:[OP[m.type][0],m.note].filter(Boolean).join(" · "),date:m.date,book:bk&&data.books.some(b=>b.id===bk)?bk:0,cur:m.unit,rate:m.unit===BC()?1:R("usd"),mref:m.id})}
 const opName=m=>OP[m.type]?OP[m.type][0]:(m.dir==="out"?"Ich gab":"Ich nahm");
 const tiles=(keys,a)=>`<div class="tiles">${keys.map(k=>`<button data-a="${a}" data-k="${k}"><b>${k}</b><span>${OP[k][0]}</span></button>`).join("")}</div>`;
-const balOf=pid=>{const b={};data.moves.filter(m=>m.pid===pid).forEach(m=>b[m.unit]=(b[m.unit]||0)+(m.dir==="out"?m.amount:-m.amount));return b};
+const balOf=pid=>{const b={};data.moves.filter(m=>m.pid===pid&&!NODEBT[m.type]).forEach(m=>b[m.unit]=(b[m.unit]||0)+(m.dir==="out"?m.amount:-m.amount));return b};
 function eurOf(b){let t=0,miss=false;for(const u in b){if(u==="Stk")continue;if((u===FC()&&!R("usd"))||(u==="HAS"&&!R("gold")))miss=true;t+=toEUR(b[u],u)}return{t,miss}}
 function balHTML(pid){
  const b=balOf(pid),us=Object.keys(b).filter(u=>Math.abs(b[u])>1e-9),e=eurOf(b),owed=e.t>=0;
@@ -1859,7 +1866,7 @@ function rKo(){
   h+=pCard();
   h+=balHTML(ui.pid);
   h+=`<div class="card"><div class="tg" style="margin-bottom:10px">${TG("kdir",ui.kdir,[["in","Eingänge (ich nahm)"],["out","Ausgänge (ich gab)"],["ord","📋 Bestellung"]])}</div>
-   ${ui.kdir==="ord"?"":tiles(ui.kdir==="in"?["AG","NT","KK","MG","AL"]:["VB","VO","HC","NO","GH","MC","BR"],"kop")}`;
+   ${ui.kdir==="ord"?"":tiles(ui.kdir==="in"?["AG","NT","KK","MG","AL"]:["VB","VO","HC","NO","GH","MC","BR","KB","KU"],"kop")}`;
   if(ui.kdir==="ord")h+=ordForm()+ordList(ui.pid);
   if(ui.kf&&ui.kdir!=="ord"){const f=ui.kf;
    h+=`<div class="bar">${OP[f.k][0]}</div>${kExtra(f)}<div class="g2">${F("Betrag / Menge",N("ui.kf.amount",f.amount))}${F("Einheit",S("ui.kf.unit",f.unit,Object.keys(UN).map(u=>[u,UN[u]])))}</div>
@@ -1869,7 +1876,7 @@ function rKo(){
  $("s-konten").innerHTML=h;uOf()}
 function histHTML(pid){
  return data.moves.filter(m=>m.pid===pid).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(m=>
-  `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small>${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
+  `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small>${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${NODEBT[m.type]?'<br><span class="pill">keine Schuld</span>':""}${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
 act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=true;render()}};
 act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
 act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,prods:[],sid:0,qty:"",q:""};render()};
@@ -2216,8 +2223,8 @@ function ocDue(){const L=[];
  L.sort((a,b)=>a.d.localeCompare(b.d));
  return L.length?box("Fristen","⏰",L.slice(0,8).map(x=>x.h).join("")):""}
 function rHome(){
- const cash=cashBy({NT:1,NO:-1});data.entries.forEach(e=>{const c=e.cur||BC();cash[c]=(cash[c]||0)+(e.type==="in"?e.amount:-e.amount)});
- const bank=cashBy({KK:1,GH:-1});
+ const cash=cashBy({NT:1,NO:-1,KB:-1});data.entries.forEach(e=>{if(e.mref)return;const c=e.cur||BC();cash[c]=(cash[c]||0)+(e.type==="in"?e.amount:-e.amount)});
+ const bank=cashBy({KK:1,GH:-1,KU:-1});
  const bl=o=>Object.keys(o).filter(u=>Math.abs(o[u])>1e-9).map(u=>[UN[u],`<b class="${o[u]<0?"out":""}">${fn(o[u],u)}</b>`]);
  const rec={},owe={};
  data.people.forEach(p=>{const b=balOf(p.id);for(const u in b){if(u==="Stk")continue;if(b[u]>0)rec[u]=(rec[u]||0)+b[u];else if(b[u]<0)owe[u]=(owe[u]||0)-b[u]}});
