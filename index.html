@@ -152,8 +152,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.67";
+const VER="0.68";
 const HIST=[
+ ["0.68","13.11.2026",["Etikett (fertig): Seriennummer wird komplett gedruckt (z. B. YZD0000198)"]],
  ["0.67","13.11.2026",["Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode)","Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße"]],
  ["0.66","13.11.2026",["Laptop: volle Bildschirmbreite und ⛶-Knopf für Vollbild","Laptop: Speichern öffnet jetzt „Speichern unter“ (bzw. Download) statt Teilen; Zwischenspeichern schreibt danach direkt in dieselbe Datei"]],
  ["0.65","13.11.2026",["Zwischenspeichern als 💾-Knopf oben neben ⚙️ statt in den Einstellungen"]],
@@ -682,6 +683,7 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Etikett (fertig): Seriennummer wird komplett gedruckt (z. B. YZD0000198) ~ Label (finished): serial number printed in full (e.g. YZD0000198) ~ Etiket (hazır): seri numarası tam yazdırılır (örn. YZD0000198)
 Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode) ~ Production: labels for Zebra printers – finished label (karat, grams, diamond, price, certificate, barcode) and workshop label (last 4 digits of stone or short code) ~ Üretim: Zebra yazıcı etiketleri – hazır etiket (ayar, gram, pırlanta, fiyat, sertifika, barkod) ve atölye etiketi (taşın son 4 hanesi veya kısa kod)
 Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße ~ Settings: label size, left part, offset and font size ~ Ayarlar: etiket boyutu, sol kısım, kaydırma ve yazı boyutu
 🏷️ Etikett drucken ~ 🏷️ Print label ~ 🏷️ Etiket yazdır
@@ -2392,7 +2394,7 @@ const karOf=f=>{const n=Math.round(pm(f));return KAR[n]||(n?n+"‰":"")};
 const st4=no=>{const d=String(no||"").replace(/\D/g,"");return d.slice(-4)};
 function lbFields(d){const ss=(d.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type),s0=ss[0]||{},st=data.stock.find(x=>x.id===s0.sid)||{};
  const ct=ss.reduce((a,s)=>a+parse(s.qty),0),m0=(d.metal||[])[0]||{},pr=parse(d.p2)||parse(d.p1);
- return{kar:karOf(m0.fine),ser:shortCode(d.code),col:s0.color||st.color||"",ct:ct?f2(ct):"",gr:pTW(d)?w3(pTW(d)):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:st.name||"",bc:d.code||"",
+ return{kar:karOf(m0.fine),ser:d.code||"",col:s0.color||st.color||"",ct:ct?f2(ct):"",gr:pTW(d)?w3(pTW(d)):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:st.name||"",bc:d.code||"",
   stn:ss.map(s=>(data.stock.find(x=>x.id===s.sid)||{}).name).filter(Boolean).map(st4).join(" ")}}
 function lbOne(k,f){const c=LB(),fs=c.h*0.19*c.fs,pad=`padding:${c.m}mm`,R=c.w-c.l;
  const box=`width:${c.w}mm;height:${c.h}mm;display:flex;overflow:hidden;font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#000;background:#fff;box-sizing:border-box;position:relative;left:${c.x}mm;top:${c.y}mm`;
@@ -2416,7 +2418,7 @@ function lpHTML(){const l=ui.lp,f=l.f,k=l.k,c=LB();
  <div class="row"><button data-a="lprint">🖨️ Drucken</button><button class="sec" data-a="lpx">Schließen</button></div>
  <p class="mu" style="margin:0">Im Druckfenster den Zebra-Drucker (z. B. „Dia. Etikettdrucker“) wählen, Ränder: keine, Kopf-/Fußzeilen aus. Etikettengröße und Verschiebung stellst du unter ⚙️ Einstellungen → Etiketten ein.</p></div>`}
 function uLp(){const e=$("lpv");if(e&&ui.lp)e.innerHTML=lbOne(ui.lp.k,ui.lp.f)}
-act.lbl=d=>{const p=ui.pd;if(!p)return;const f=lbFields(p);f.mode=f.stn?"stone":"short";f.note="";ui.lp={k:d.k,f,n:"1"};render();setTimeout(()=>{const e=$("lpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
+act.lbl=d=>{const p=ui.pd;if(!p)return;const f=lbFields(p);if(d.k==="ws")f.ser=shortCode(p.code);f.mode=f.stn?"stone":"short";f.note="";ui.lp={k:d.k,f,n:"1"};render();setTimeout(()=>{const e=$("lpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
 act.lpm=d=>{ui.lp.f.mode=d.v;render()};
 act.lpx=()=>{ui.lp=null;render()};
 act.lprint=()=>{const l=ui.lp;if(!l)return;const c=LB(),n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));
@@ -2430,7 +2432,7 @@ function lbSet(){if(!data.lbl)data.lbl=Object.assign({},LBD);const b=data.lbl;
  return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße deines Etiketts in mm. Linker Teil = Bereich vor dem schwarzen Strich (Karat, Gewicht …), rechts davon Nummer, Barcode und Preis.</p>
  <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("m","Innenrand (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div>${n("fs","Schriftgröße (%)")}
  <div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden" id="lsv">${lsPrev()}</div></div>`}
-function lsPrev(){const c=LB(),sc=Math.min(2.4,300/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm">${lbOne("fin",{kar:"14K",ser:"YZD198",col:"F",ct:"0,50",gr:"3,25",cl:"VVS2",pr:"1290",cert:"LG82923732",bc:"YZD0000198"})}</div></div>`}
+function lsPrev(){const c=LB(),sc=Math.min(2.4,300/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm">${lbOne("fin",{kar:"14K",ser:"YZD0000198",col:"F",ct:"0,50",gr:"3,25",cl:"VVS2",pr:"1290",cert:"LG82923732",bc:"YZD0000198"})}</div></div>`}
 function uLs(){const e=$("lsv");if(e)e.innerHTML=lsPrev()}
 act.fs=()=>{const d=document;try{if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen();else toast("Vollbild: Taste F11")}catch(_){toast("Vollbild: Taste F11")}};
 act.savekeep=async()=>{try{await saveFile();data.savedAt=nowIso();toast("Zwischengespeichert – du kannst weiterarbeiten");render()}catch(e){if(e&&e.name==="AbortError"){toast("Nicht gespeichert");return}toast("Nicht gespeichert")}};
