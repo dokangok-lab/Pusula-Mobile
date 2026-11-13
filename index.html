@@ -101,6 +101,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
   </div>
   <div class="card">
    <div class="row"><select id="kbk"></select></div>
+   <div class="row"><select id="kpers"></select></div>
    <div class="row"><select id="type"><option value="in">Einnahme</option><option value="out" selected>Ausgabe</option></select>
    <input id="amt" type="text" inputmode="decimal" placeholder="Betrag"><select id="ecur" style="flex:0 0 26%"><option value="EUR">EUR €</option><option value="USD">USD $</option></select></div>
    <div class="row"><input id="cat" list="cats" placeholder="Kategorie (z. B. Miete)"><datalist id="cats"></datalist></div>
@@ -135,8 +136,9 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.61";
+const VER="0.62";
 const HIST=[
+ ["0.62","13.11.2026",["Kontobuch: Person / offenes Konto wählbar – Buchung zählt auch im Personenkonto","Konten: Verkauf mit Barcode mit mehreren Waren auf einmal"]],
  ["0.61","13.11.2026",["Neues Logo: Kontobuch mit Kompass (App-Symbol und Anmeldeseite)"]],
  ["0.60","12.11.2026",["Zwischenspeichern: Datei speichern, ohne die App zu leeren (in den Einstellungen und unter „Mehr“), mit Zeitpunkt der letzten Sicherung"]],
  ["0.59","12.11.2026",["Werkstatt: Zwischenschritte (z. B. „Etikett muss gedruckt werden“, „Wird gerade gemacht“) frei wählbar und erweiterbar, mit Notiz; Verlauf mit Datum und Uhrzeit für jede Änderung; Optionen in den Einstellungen verwalten"]],
@@ -656,6 +658,12 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Kontobuch: Person / offenes Konto wählbar – Buchung zählt auch im Personenkonto ~ Ledger: person / open account selectable – entry also counts in the person's account ~ Kasa defteri: kişi / açık hesap seçilebilir – kayıt kişi hesabına da işlenir
+Konten: Verkauf mit Barcode mit mehreren Waren auf einmal ~ Accounts: barcode sale with several items at once ~ Hesaplar: barkodlu satışta birden fazla ürün
+– ohne Person (nur Kontobuch) – ~ – no person (ledger only) – ~ – kişisiz (sadece defter) –
+Weitere Personen ~ Other people ~ Diğer kişiler
+Weitere Ware hinzufügen ~ Add another item ~ Başka ürün ekle
+Ausgewählt ~ Selected ~ Seçilen
 Neues Logo: Kontobuch mit Kompass (App-Symbol und Anmeldeseite) ~ New logo: ledger with compass (app icon and login page) ~ Yeni logo: pusulalı hesap defteri (uygulama simgesi ve giriş sayfası)
 💾 Zwischenspeichern ~ 💾 Save in between ~ 💾 Ara kaydet
 💾 Jetzt zwischenspeichern ~ 💾 Save now ~ 💾 Şimdi ara kaydet
@@ -1298,10 +1306,17 @@ act.rtog=()=>{const e=$("rEd"),r=data.rates;e.classList.toggle("hide");
 $("prev").onclick=()=>{ui.view=new Date(ui.view.getFullYear(),ui.view.getMonth()-1,1);rKasse()};
 $("next").onclick=()=>{ui.view=new Date(ui.view.getFullYear(),ui.view.getMonth()+1,1);rKasse()};
 $("bAdd").onclick=()=>{const a=parse($("amt").value);if(!(a>0)){$("amt").focus();return}
- data.entries.push({id:uid(),type:$("type").value,amount:Math.round(a*100)/100,cat:$("cat").value.trim()||"Sonstiges",note:$("note").value.trim(),date:$("date").value||today(),book:Number($("kbk").value)||0,cur:$("ecur").value==="USD"?"USD":"EUR",rate:($("ecur").value||BC())===BC()?1:R("usd")});
+ const kp=Number(($("kpers")||{}).value)||0,pp=data.people.find(x=>x.id===kp);let mref;
+ if(pp){const inc=$("type").value==="in",mv={id:uid(),pid:pp.id,type:inc?"NT":"NO",dir:inc?"in":"out",unit:$("ecur").value==="USD"?"USD":"EUR",amount:Math.round(a*100)/100,note:$("note").value.trim()||"Kontobuch",date:$("date").value||today()};data.moves.push(mv);mref=mv.id}
+ data.entries.push({id:uid(),type:$("type").value,amount:Math.round(a*100)/100,cat:$("cat").value.trim()||(pp?($("type").value==="in"?"Zahlung von ":"Zahlung an ")+pp.name:"Sonstiges"),...(mref?{mref,kp:1}:{}),note:$("note").value.trim(),date:$("date").value||today(),book:Number($("kbk").value)||0,cur:$("ecur").value==="USD"?"USD":"EUR",rate:($("ecur").value||BC())===BC()?1:R("usd")});
  if(data.entries[data.entries.length-1].rate===0)toast("Kurs fehlt – Betrag zählt erst mit Kurs in der Summe");
- $("amt").value="";$("note").value="";ui.view=new Date(($("date").value||today())+"T12:00:00");rKasse()};
-function del(id){const e=data.entries.find(x=>x.id===id);data.entries=data.entries.filter(x=>x.id!==id&&!(e&&e.tr&&x.tr===e.tr));rKasse()}
+ $("amt").value="";$("note").value="";if($("kpers"))$("kpers").value="0";ui.view=new Date(($("date").value||today())+"T12:00:00");rKasse()};
+function del(id){const e=data.entries.find(x=>x.id===id);data.entries=data.entries.filter(x=>x.id!==id&&!(e&&e.tr&&x.tr===e.tr));if(e&&e.kp&&e.mref)data.moves=data.moves.filter(m=>m.id!==e.mref);rKasse()}
+function kpOpts(){const e=$("kpers");if(!e)return;const v=e.value,io=$("type").value==="in";
+ const ob=data.people.map(p=>({p,b:balOf(p.id)})),open=ob.filter(x=>Object.keys(x.b).some(u=>Math.abs(x.b[u])>1e-9)).sort((a,b)=>a.p.name.localeCompare(b.p.name)),rest=ob.filter(x=>!open.includes(x)).sort((a,b)=>a.p.name.localeCompare(b.p.name));
+ const lab=x=>x.p.name+(x.p.company?" · "+x.p.company:(x.p.city?" · "+x.p.city:""))+" ("+Object.keys(x.b).filter(u=>Math.abs(x.b[u])>1e-9).map(u=>(x.b[u]>0?"+":"−")+fn(Math.abs(x.b[u]),u)+" "+UN[u]).join(", ")+")";
+ e.innerHTML=`<option value="0">${esc("– ohne Person (nur Kontobuch) –")}</option>`+(open.length?`<optgroup label="${esc(tx("Offene Konten"))}">${open.map(x=>`<option value="${x.p.id}">${esc(lab(x))}</option>`).join("")}</optgroup>`:"")+(rest.length?`<optgroup label="${esc(tx("Weitere Personen"))}">${rest.map(x=>`<option value="${x.p.id}">${esc(x.p.name+(x.p.company?" · "+x.p.company:(x.p.city?" · "+x.p.city:"")))}</option>`).join("")}</optgroup>`:"");
+ if([...(e.options||[])].some(o=>o.value===v))e.value=v}
 const bkName=id=>{const b=(data.books||[]).find(x=>x.id===id);return b?b.name:""};
 function trHTML(){const bs=[[0,"Hauptbuch"],...(data.books||[]).map(b=>[b.id,b.name])];
  if(!ui.tro)return bs.length>1?'<button class="sec" data-a="trtog" style="margin-top:10px">⇄ Übertragung zwischen Kontobüchern</button>':"";
@@ -1333,7 +1348,7 @@ const eBase=e=>{const c=e.cur||BC();if(c===BC())return e.amount;const r=e.rate||
 function rKasse(){
  {const s=$("ecur");if(s&&!s.dataset.init){s.value=BC();s.dataset.init="1"}}
  $("mon").textContent=ui.view.toLocaleDateString(LOC[lang]||"de-DE",{month:"long",year:"numeric"});
- kbRender();
+ kbRender();kpOpts();
  const m=ym(ui.view),es=data.entries.filter(e=>(!ui.kb||(e.book||0)===ui.kb)&&e.date.startsWith(m)).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id);
  let i=0,o=0;const c={};
  const pc={EUR:{i:0,o:0},USD:{i:0,o:0}};
@@ -1820,18 +1835,22 @@ act.pfdel=()=>{const id=ui.pid;
  if(!confirmTap("pfdel"))return;
  data.people=data.people.filter(p=>p.id!==id);ui.pid=0;ui.pe=false;ui.pf=null;render()};
 act.gop=d=>{ui.pid=Number(d.id);ui.pe=false;ui.pf=null;go("konten")};
-const kProds=q=>data.prods.filter(p=>p.status==="done"&&pMatch(p,q||"")).sort((a,b)=>String(a.code).localeCompare(String(b.code)));
+const kProds=q=>data.prods.filter(p=>p.status==="done"&&!((ui.kf&&ui.kf.prods)||[]).includes(p.id)&&pMatch(p,q||"")).sort((a,b)=>String(a.code).localeCompare(String(b.code)));
 function kExtra(f){
  if(f.k==="VB"){const os=[];data.orders.filter(o=>o.pid===ui.pid&&!o.done).forEach(o=>oItems(o).forEach((x,i)=>{if(itOpen(x))os.push([o.id+":"+i,o.no+" · "+x.qty+"× "+itemTxt(x)+" (noch "+itOpen(x)+")"])}));
-  return F("Ware suchen (Nummer oder Name)",I("ui.kf.q",f.q||"","z. B. YZD178",'data-u="uKp" autocorrect="off" autocomplete="off" spellcheck="false"'))+F("Ware (fertig, im Lager)",`<select data-f="ui.kf.prod" data-n="1" data-r="1" id="kpsel">${kPopts(f)}</select>`)+
+  const sel=(f.prods||[]).map(id=>data.prods.find(p=>p.id===id)).filter(Boolean);
+  return F("Ware suchen (Nummer oder Name)",I("ui.kf.q",f.q||"","z. B. YZD178",'data-u="uKp" autocorrect="off" autocomplete="off" spellcheck="false"'))+F(sel.length?"Weitere Ware hinzufügen":"Ware (fertig, im Lager)",`<select data-f="ui.kf.prod" data-n="1" data-r="1" id="kpsel">${kPopts(f)}</select>`)+
+   (sel.length?`<div class="card" style="margin:0 0 10px;padding:8px 10px"><b><span>Ausgewählt</span>: ${sel.length}</b>${sel.map(p=>`<div class="it"><div>${esc(pLbl(p))}</div><div class="r"><button class="sec sm" data-a="kpx" data-id="${p.id}">✕</button></div></div>`).join("")}</div>`:"")+
    (os.length?F("Für Bestellung (optional)",S("ui.kf.ord",f.ord||"",[["","– keiner Bestellung zuordnen –"],...os])):"")}
  if(f.k==="VO"){const st=data.stock.filter(s=>s.active!==false);
   return F("Lagerware ohne Barcode (optional)",S("ui.kf.sid",f.sid,[[0,"– keine –"],...st.map(s=>[s.id,s.name+" ("+f3(qtyOf(s.id))+" "+(UL[s.unit]||"")+")"])],'data-n="1" data-r="1"'))+(f.sid?F("Menge aus dem Lager",N("ui.kf.qty",f.qty)):"")}
  return""}
 const kPopts=f=>[[0,"– wählen –"],...kProds(f.q).map(p=>[p.id,pLbl(p)])].map(([a,b])=>`<option value="${a}"${String(a)===String(f.prod)?" selected":""}>${esc(b)}</option>`).join("");
-function uKp(){const e=$("kpsel");if(e&&ui.kf){const l=kProds(ui.kf.q);if(l.length===1&&ui.kf.prod!==l[0].id){ui.kf.prod=l[0].id;kProd();render();return}e.innerHTML=kPopts(ui.kf)}}
-function kProd(){const f=ui.kf,p=data.prods.find(x=>x.id===f.prod);if(!p)return;
- f.unit=(p.cur==="USD"?"USD":"EUR");const pr=parse(p.p1);if(pr>0)f.amount=String(pr).replace(".",",");f.note=p.code+" "+p.name}
+function uKp(){const e=$("kpsel");if(e&&ui.kf){const l=kProds(ui.kf.q);if(l.length===1&&ui.kf.q&&ui.kf.q.length>=3){ui.kf.prod=l[0].id;kProd();render();return}e.innerHTML=kPopts(ui.kf)}}
+function kProd(){const f=ui.kf,p=data.prods.find(x=>x.id===f.prod);if(!p)return;f.prods=f.prods||[];if(!f.prods.includes(p.id))f.prods.push(p.id);f.prod=0;f.q="";kSum()}
+function kSum(){const f=ui.kf,ps=(f.prods||[]).map(id=>data.prods.find(x=>x.id===id)).filter(Boolean);if(!ps.length){f.amount="";f.note="";return}
+ f.unit=(ps[0].cur==="USD"?"USD":"EUR");const t=ps.reduce((a,p)=>a+(parse(p.p1)||0),0);f.amount=t>0?String(Math.round(t*100)/100).replace(".",","):"";f.note=ps.map(p=>p.code+" "+p.name).join(", ")}
+act.kpx=d=>{const f=ui.kf;if(!f)return;f.prods=(f.prods||[]).filter(x=>x!==Number(d.id));kSum();render()};
 function rKo(){
  let h=`<div class="card">${F("Person suchen",I("ui.pq2",ui.pq2,"Name, Stadt, Land …",'data-u="uK" autocorrect="off" autocomplete="off" spellcheck="false"'))}
  ${F("Konto",S("ui.pid",ui.pid,pOpts(ui.pid),'data-n="1" data-r="1" id="psel"'))}
@@ -1853,16 +1872,16 @@ function histHTML(pid){
   `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small>${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
 act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=true;render()}};
 act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
-act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,sid:0,qty:"",q:""};render()};
+act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,prods:[],sid:0,qty:"",q:""};render()};
 act.kcancel=()=>{ui.kf=null;render()};
 act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte Betrag eingeben");return}
- if(f.k==="VB"&&!f.prod){toast("Bitte eine Ware wählen");return}
+ if(f.k==="VB"&&!(f.prods||[]).length){toast("Bitte eine Ware wählen");return}
  const mv={id:uid(),pid:ui.pid,type:f.k,dir:OP[f.k][1],unit:f.unit,amount:a,note:f.note.trim(),date:f.date||today(),due:dueOf(f.date,f.dk,f.due)},date=mv.date;
- if(f.k==="VB"){const p=data.prods.find(x=>x.id===f.prod);if(p){p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prod=p.id;if(f.ord){const[oi,ii]=String(f.ord).split(":");oAssign(oi,Number(ii),p.id)}}}
+ if(f.k==="VB"){mv.prods=[];(f.prods||[]).forEach(id=>{const p=data.prods.find(x=>x.id===id);if(!p)return;p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prods.push(p.id);if(f.ord){const[oi,ii]=String(f.ord).split(":");oAssign(oi,Number(ii),p.id)}});if(mv.prods.length===1){mv.prod=mv.prods[0];delete mv.prods}}
  if(f.k==="VO"&&f.sid){const q=parse(f.qty);if(q>0){const s=data.stock.find(x=>x.id===f.sid);data.smoves.push({id:uid(),sid:f.sid,qty:-q,date,note:"Verkauf an "+pnm(ui.pid),ref:"m"+mv.id});mv.ref="m"+mv.id;if(s&&!mv.note)mv.note=s.name}}
  data.moves.push(mv);autoBook(mv);ui.kf=null;render();toast(MONEY[mv.type]&&data.ab&&data.ab.on?"Gebucht – auch im Kontobuch":"Gebucht")};
 act.kdel=d=>{const id=Number(d.id),m=data.moves.find(x=>x.id===id);data.entries=data.entries.filter(e=>e.mref!==id);
- if(m&&m.prod){const p=data.prods.find(x=>x.id===m.prod);if(p&&p.status==="sold"&&!p.saleId){p.status="done";delete p.soldTo;delete p.soldDate}}
+ if(m)[...(m.prods||[]),m.prod].filter(Boolean).forEach(pid=>{const p=data.prods.find(x=>x.id===pid);if(p&&p.status==="sold"&&!p.saleId){p.status="done";delete p.soldTo;delete p.soldDate}});
  if(m&&m.ref)data.smoves=data.smoves.filter(x=>x.ref!==m.ref);
  data.moves=data.moves.filter(x=>x.id!==id);render()};
 
