@@ -134,6 +134,7 @@ body{max-width:none;padding:20px 28px 40px}
  <section id="s-verkauf" class="hide"></section>
  <section id="s-orders" class="hide"></section>
  <section id="s-more" class="hide"></section>
+ <section id="s-stat" class="hide"></section>
  <section id="s-notes" class="hide"></section>
  <section id="s-trips" class="hide"></section>
  <section id="s-pkg" class="hide"></section>
@@ -152,8 +153,16 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.72";
+const VER="0.80";
 const HIST=[
+ ["0.80","15.11.2026",["Werkstatt: „✓ Abgeholt“ bereitet automatisch einen Verkauf mit Barcode für die Person (bzw. „für …“) vor – alle Waren des Pakets, Betrag aus VK, nur noch prüfen und Buchen"]],
+ ["0.79","15.11.2026",["Konten: klarere Namen – BR „Belastung (er schuldet mir, ohne Kasse)“ für bestehende Schulden, AL „Gutschrift (ich schulde ihm, ohne Kasse)“, KB/KU „nur Kasse/Bank, keine Schuld“"]],
+ ["0.78","15.11.2026",["Neu unter Mehr: 📊 Statistik – Umsatz, Wareneinsatz, Rohertrag, Produktionskosten, verarbeitetes Gold und Karat, Ausgaben nach Kostenart, Lagerwert, Top-Kunden (Monat, Jahr, gesamt)","Kunden-Vorlieben: aus Käufen und Bestellungen erkennt die App bevorzugte Steinform, Karat, Modell, Steinart, Goldfarbe und D2-Anteil","Konten: Personenprofil mit Überblick (Umsatz, gekaufte Waren, Bestellungen, Kosten) und Vorlieben","KB/KU mit Kostenart (Produktionskosten, Fahrtkosten, Versand, Material …), auch im Kontobuch als Kategorie"]],
+ ["0.77","15.11.2026",["Konten / Verkauf mit Barcode: Einheit auf EUR oder USD umstellen rechnet den Betrag zum Kurs um – danach frei anpassbar; Anzeige des Betrags in der anderen Währung"]],
+ ["0.76","15.11.2026",["Einstellungen: Preis pro ct nach Karat-Bereich (z. B. 1,50–1,60 ct = 107 USD), auch getrennt nach Echt/CVD/HPHT/D2 – wird bei Steinen automatisch eingetragen","Fertigung: Stein-Zeile mit Häkchen „D2“ – D2-Steine zählen nicht zum Hauptstein und erscheinen nicht auf dem Etikett"]],
+ ["0.75","15.11.2026",["Fertigung: Sortierung – neueste, älteste, zuletzt fertig, zuletzt verkauft, Nummer, Name, Kosten, VK und Gewicht (auf- oder absteigend)"]],
+ ["0.74","13.11.2026",["Fertigung: Nach Eingabe des Gesamtgewichts fragt die App bei jedem Arbeitsschritt (Montage, Politur …), ob das der Eingang ist – Ja / Nein / Für alle ja"]],
+ ["0.73","13.11.2026",["Etiketten: ohne Zebra Browser Print öffnet sich automatisch das Druckfenster"]],
  ["0.72","13.11.2026",["Etiketten: Direktdruck über Zebra Browser Print (ZPL, ohne Druckfenster) – Druckweg und Auflösung in den Einstellungen"]],
  ["0.71","13.11.2026",["Etikettendruck ohne Datum, Titel und Internetadresse – es wird nur das Etikett gedruckt"]],
  ["0.70","13.11.2026",["Arbeitsschritt „Montage D2“: Anzahl seitlicher Steine × Preis pro Stein (z. B. 16 × 0,50 = 8,00) wird automatisch als Betrag eingetragen"]],
@@ -346,10 +355,10 @@ $("bSave").onclick=async()=>{
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
-function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
- const nv=["kasse","orders","set","more","notes","trips","pkg"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
+function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg","stat"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
+ const nv=["kasse","orders","set","more","notes","trips","pkg","stat"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
 act.go=d=>go(d.v);
-function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg})[ui.s]()}
+function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat})[ui.s]()}
 function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
@@ -366,6 +375,10 @@ function hook(p){
  if(p==="ui.te.car"&&ui.te){const c=carOf(ui.te.car);if(c){ui.te.cons=String(c.cons||"");ui.te.price=String(c.price||"")}}
  if(p.startsWith("ui.of.cur.")&&ui.of)ui.of.dirty=true;
  if(p==="ui.kf.prod")kProd();
+ if(p==="ui.kf.unit"&&ui.kf){const f=ui.kf,old=f.ul||f.unit;f.uset=1;
+  if(f.k==="VB"&&old!==f.unit&&["EUR","USD"].includes(old)&&["EUR","USD"].includes(f.unit)){const a=parse(f.amount);if(a>0){const c=cvC(a,old,f.unit);if(c>0){f.amount=String(Math.round(c*100)/100).replace(".",",");setV("ui.kf.amount",f.amount)}else toast("Kurs fehlt – bitte oben Kurse abrufen")}}
+  f.ul=f.unit;kConv()}
+ if(p==="ui.kf.amount")kConv();
  if(p==="ui.pid"){ui.pe=false;ui.pf=null;ui.nv=false;ui.ptxt=""}
  else if(p==="ui.se.group"){ui.se.unit=SU[ui.se.group];if(ui.se.group==="Stein"&&ui.se.single===undefined)ui.se.single=true}
  else if(p.startsWith("data.rates")){if(p!=="data.rates.auto"&&!p.startsWith("data.rates.adj")){data.rates.at=now();data.rates.net=""}rRates();if(ui.pd&&ui.s==="prod")calcP()}
@@ -687,6 +700,111 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Werkstatt: „✓ Abgeholt“ bereitet automatisch einen Verkauf mit Barcode für die Person (bzw. „für …“) vor – alle Waren des Pakets, Betrag aus VK, nur noch prüfen und Buchen ~ Workshop: “✓ Picked up” automatically prepares a barcode sale for the person (or “for …”) – all items of the package, amount from sale price, just check and post ~ Atölye: “✓ Teslim alındı” kişi (veya “… için”) adına barkodlu satışı otomatik hazırlar – paketteki tüm ürünler, tutar satış fiyatından, sadece kontrol edip kaydedin
+Konten: klarere Namen – BR „Belastung (er schuldet mir, ohne Kasse)“ für bestehende Schulden, AL „Gutschrift (ich schulde ihm, ohne Kasse)“, KB/KU „nur Kasse/Bank, keine Schuld“ ~ Accounts: clearer names – BR “Charge (he owes me, no cash)” for existing debts, AL “Credit (I owe him, no cash)”, KB/KU “cash/bank only, no debt” ~ Hesaplar: daha net adlar – mevcut borçlar için BR “Borçlandırma (bana borçlu, kasasız)”, AL “Alacak (ona borçluyum, kasasız)”, KB/KU “sadece kasa/banka, borç değil”
+Belastung (er schuldet mir, ohne Kasse) ~ Charge (he owes me, no cash) ~ Borçlandırma (bana borçlu, kasasız)
+Gutschrift (ich schulde ihm, ohne Kasse) ~ Credit (I owe him, no cash) ~ Alacak (ona borçluyum, kasasız)
+Kosten bar (nur Kasse, keine Schuld) ~ Cash cost (cash only, no debt) ~ Nakit masraf (sadece kasa, borç değil)
+Kosten Überweisung (nur Bank, keine Schuld) ~ Transfer cost (bank only, no debt) ~ Havale masraf (sadece banka, borç değil)
+Neu unter Mehr: 📊 Statistik – Umsatz, Wareneinsatz, Rohertrag, Produktionskosten, verarbeitetes Gold und Karat, Ausgaben nach Kostenart, Lagerwert, Top-Kunden (Monat, Jahr, gesamt) ~ New under More: 📊 Statistics – revenue, cost of goods, gross profit, production costs, gold and carats processed, expenses by type, stock value, top customers (month, year, all) ~ Daha Fazla altında yeni: 📊 İstatistik – ciro, mal maliyeti, brüt kâr, üretim maliyetleri, işlenen altın ve karat, türe göre giderler, stok değeri, en iyi müşteriler (ay, yıl, tümü)
+Kunden-Vorlieben: aus Käufen und Bestellungen erkennt die App bevorzugte Steinform, Karat, Modell, Steinart, Goldfarbe und D2-Anteil ~ Customer preferences: from purchases and orders the app detects preferred stone shape, carat, model, stone type, gold colour and D2 share ~ Müşteri tercihleri: alımlar ve siparişlerden tercih edilen taş şekli, karat, model, taş türü, altın rengi ve D2 oranı belirlenir
+Konten: Personenprofil mit Überblick (Umsatz, gekaufte Waren, Bestellungen, Kosten) und Vorlieben ~ Accounts: person profile with overview (revenue, items bought, orders, costs) and preferences ~ Hesaplar: genel bakış (ciro, alınan ürünler, siparişler, masraflar) ve tercihlerle kişi profili
+KB/KU mit Kostenart (Produktionskosten, Fahrtkosten, Versand, Material …), auch im Kontobuch als Kategorie ~ KB/KU with cost type (production, travel, shipping, material …), also as category in the ledger ~ KB/KU masraf türüyle (üretim, yol, kargo, malzeme …), defterde kategori olarak da
+Statistik ~ Statistics ~ İstatistik
+Umsatz, Kosten, Lager, Kunden-Vorlieben ~ Revenue, costs, stock, customer preferences ~ Ciro, masraflar, stok, müşteri tercihleri
+Dieser Monat ~ This month ~ Bu ay
+Letzter Monat ~ Last month ~ Geçen ay
+Dieses Jahr ~ This year ~ Bu yıl
+Letztes Jahr ~ Last year ~ Geçen yıl
+Gesamt ~ All time ~ Tümü
+💶 Verkauf ~ 💶 Sales ~ 💶 Satış
+Umsatz gesamt ~ Total revenue ~ Toplam ciro
+Konten-Verkäufe mit und ohne Barcode ~ Account sales with and without barcode ~ Barkodlu ve barkodsuz hesap satışları
+davon mit Barcode ~ of which with barcode ~ bunun barkodlu kısmı
+Verkaufte Waren ~ Items sold ~ Satılan ürünler
+Wareneinsatz (Kosten der verkauften Waren) ~ Cost of goods sold ~ Satılan malın maliyeti
+Rohertrag (Barcode-Umsatz − Wareneinsatz) ~ Gross profit (barcode revenue − cost of goods) ~ Brüt kâr (barkodlu ciro − mal maliyeti)
+Ø Verkaufspreis ~ Ø sale price ~ Ø satış fiyatı
+🔧 Produktion ~ 🔧 Production ~ 🔧 Üretim
+Fertiggestellt ~ Finished ~ Tamamlanan
+Produktionskosten ~ Production costs ~ Üretim maliyetleri
+Gold verarbeitet ~ Gold processed ~ İşlenen altın
+Steine verarbeitet ~ Stones processed ~ İşlenen taşlar
+🧾 Ausgaben ~ 🧾 Expenses ~ 🧾 Giderler
+Keine Ausgaben im Zeitraum. ~ No expenses in this period. ~ Bu dönemde gider yok.
+Summe ~ Total ~ Toplam
+Aus dem Kontobuch (Ausgaben) und den Konten-Vorgängen KB/KU. Zahlungen an Personen (Schulden) zählen nicht als Ausgabe. ~ From the ledger (expenses) and the KB/KU account entries. Payments to people (debts) do not count as expenses. ~ Defterden (giderler) ve KB/KU hesap işlemlerinden. Kişilere ödemeler (borçlar) gider sayılmaz.
+📦 Lager jetzt ~ 📦 Stock now ~ 📦 Şu anki stok
+Fertige Waren ~ Finished items ~ Hazır ürünler
+Lagerwert (Kosten) ~ Stock value (cost) ~ Stok değeri (maliyet)
+Karat im Lager ~ Carats in stock ~ Stoktaki karat
+Gold im Lager (Ware) ~ Gold in stock (items) ~ Stoktaki altın (ürün)
+🏆 Top-Kunden ~ 🏆 Top customers ~ 🏆 En iyi müşteriler
+Keine Verkäufe im Zeitraum. ~ No sales in this period. ~ Bu dönemde satış yok.
+🎯 Kunden-Vorlieben ~ 🎯 Customer preferences ~ 🎯 Müşteri tercihleri
+🎯 Vorlieben ~ 🎯 Preferences ~ 🎯 Tercihler
+Noch keine Käufe oder Bestellungen. ~ No purchases or orders yet. ~ Henüz alım veya sipariş yok.
+Noch keine Käufe oder Bestellungen – die Vorlieben entstehen automatisch mit jedem Verkauf. ~ No purchases or orders yet – preferences build up automatically with every sale. ~ Henüz alım veya sipariş yok – tercihler her satışla otomatik oluşur.
+Artikel ~ Item ~ Ürün
+Steinform ~ Stone shape ~ Taş şekli
+Karat ~ Carat ~ Karat
+Ø Karat (Hauptstein) ~ Ø carat (main stone) ~ Ø karat (ana taş)
+Modell ~ Model ~ Model
+Steinart ~ Stone type ~ Taş türü
+Goldfarbe ~ Gold colour ~ Altın rengi
+Mit D2-Steinen ~ With D2 stones ~ D2 taşlı
+📊 Überblick & Vorlieben ~ 📊 Overview & preferences ~ 📊 Genel bakış ve tercihler
+Anzeigen ~ Show ~ Göster
+Zuklappen ~ Collapse ~ Kapat
+Umsatz (Verkäufe) ~ Revenue (sales) ~ Ciro (satışlar)
+Gekaufte Waren ~ Items bought ~ Alınan ürünler
+Bestellungen ~ Orders ~ Siparişler
+Kosten (KB/KU, keine Schuld) ~ Costs (KB/KU, no debt) ~ Masraflar (KB/KU, borç değil)
+Kostenart ~ Cost type ~ Masraf türü
+Fahrtkosten ~ Travel costs ~ Yol masrafları
+Versand ~ Shipping ~ Kargo
+Material ~ Material ~ Malzeme
+Werkstatt / Atelier ~ Workshop / atelier ~ Atölye
+Personal ~ Staff ~ Personel
+Miete ~ Rent ~ Kira
+Gebühren ~ Fees ~ Ücretler
+Sonstige Kosten ~ Other costs ~ Diğer masraflar
+Konten / Verkauf mit Barcode: Einheit auf EUR oder USD umstellen rechnet den Betrag zum Kurs um – danach frei anpassbar; Anzeige des Betrags in der anderen Währung ~ Accounts / barcode sale: switching the unit to EUR or USD converts the amount at the rate – freely adjustable afterwards; shows the amount in the other currency ~ Hesaplar / barkodlu satış: birimi EUR veya USD yapmak tutarı kurdan çevirir – sonra serbestçe değiştirilebilir; diğer para biriminde gösterim
+Einheit auf EUR oder USD stellen – der Betrag wird umgerechnet und kann danach angepasst werden. ~ Set the unit to EUR or USD – the amount is converted and can be adjusted afterwards. ~ Birimi EUR veya USD yapın – tutar çevrilir ve sonra değiştirilebilir.
+Kurs fehlt – bitte oben Kurse abrufen ~ Rate missing – please fetch rates at the top ~ Kur eksik – lütfen üstten kurları alın
+Einstellungen: Preis pro ct nach Karat-Bereich (z. B. 1,50–1,60 ct = 107 USD), auch getrennt nach Echt/CVD/HPHT/D2 – wird bei Steinen automatisch eingetragen ~ Settings: price per ct by carat range (e.g. 1.50–1.60 ct = 107 USD), also separate for natural/CVD/HPHT/D2 – filled in automatically for stones ~ Ayarlar: karat aralığına göre ct fiyatı (örn. 1,50–1,60 ct = 107 USD), Doğal/CVD/HPHT/D2 ayrı – taşlara otomatik girilir
+Fertigung: Stein-Zeile mit Häkchen „D2“ – D2-Steine zählen nicht zum Hauptstein und erscheinen nicht auf dem Etikett ~ Production: stone row with “D2” tick – D2 stones don't count towards the main stone and don't appear on the label ~ Üretim: taş satırında “D2” işareti – D2 taşları ana taşa sayılmaz ve etikette görünmez
+D2 – seitliche Steine (nicht beim Hauptstein mitrechnen) ~ D2 – side stones (not counted with the main stone) ~ D2 – yan taşlar (ana taşla hesaplanmaz)
+💎 D2 (seitlich) ~ 💎 D2 (side) ~ 💎 D2 (yan)
+💎 Preis pro ct (automatisch) ~ 💎 Price per ct (automatic) ~ 💎 ct başı fiyat (otomatik)
+Trägt den Preis pro ct bei Steinen automatisch ein, je nach Karat pro Stein. Eigene Eingabe bei der Ware hat Vorrang. ~ Fills in the price per ct for stones automatically, depending on carat per stone. Your own entry on the item takes priority. ~ Taş başına karata göre ct fiyatını otomatik girer. Üründe kendi girdiğiniz öncelikli.
+Von ct ~ From ct ~ ct'den
+Bis ct ~ To ct ~ ct'ye
+Alle (Hauptstein) ~ All (main stone) ~ Tümü (ana taş)
+D2 (seitlich) ~ D2 (side) ~ D2 (yan)
++ Bereich ~ + Range ~ + Aralık
+Fertigung: Sortierung – neueste, älteste, zuletzt fertig, zuletzt verkauft, Nummer, Name, Kosten, VK und Gewicht (auf- oder absteigend) ~ Production: sorting – newest, oldest, last finished, last sold, number, name, cost, sale price and weight (ascending or descending) ~ Üretim: sıralama – en yeni, en eski, son biten, son satılan, numara, ad, maliyet, satış fiyatı ve ağırlık (artan veya azalan)
+Sortierung ~ Sort by ~ Sıralama
+Neueste zuerst ~ Newest first ~ Önce en yeni
+Älteste zuerst ~ Oldest first ~ Önce en eski
+Zuletzt fertig ~ Last finished ~ Son biten
+Zuletzt verkauft ~ Last sold ~ Son satılan
+Nummer A–Z ~ Number A–Z ~ Numara A–Z
+Name A–Z ~ Name A–Z ~ Ad A–Z
+Kosten: günstig → teuer ~ Cost: low → high ~ Maliyet: düşük → yüksek
+Kosten: teuer → günstig ~ Cost: high → low ~ Maliyet: yüksek → düşük
+VK: günstig → teuer ~ Sale price: low → high ~ Satış fiyatı: düşük → yüksek
+VK: teuer → günstig ~ Sale price: high → low ~ Satış fiyatı: yüksek → düşük
+Gewicht: leicht → schwer ~ Weight: light → heavy ~ Ağırlık: hafif → ağır
+Gewicht: schwer → leicht ~ Weight: heavy → light ~ Ağırlık: ağır → hafif
+Fertigung: Nach Eingabe des Gesamtgewichts fragt die App bei jedem Arbeitsschritt (Montage, Politur …), ob das der Eingang ist – Ja / Nein / Für alle ja ~ Production: after entering the total weight the app asks for each work step (setting, polishing …) whether it is the incoming weight – Yes / No / Yes for all ~ Üretim: toplam ağırlık girildikten sonra uygulama her işlem için (montaj, cila …) bunun giriş olup olmadığını sorar – Evet / Hayır / Hepsi için evet
+Gewicht mit allen Steinen (auch D2) ~ Weight with all stones (incl. D2) ~ Tüm taşlarla ağırlık (D2 dahil)
+Eingang noch leer ~ Incoming still empty ~ Giriş henüz boş
+Für alle ja ~ Yes for all ~ Hepsi için evet
+Ja ~ Yes ~ Evet
+Nein ~ No ~ Hayır
+Etiketten: ohne Zebra Browser Print öffnet sich automatisch das Druckfenster ~ Labels: without Zebra Browser Print the print dialog opens automatically ~ Etiketler: Zebra Browser Print yoksa yazdırma penceresi otomatik açılır
+Browser Print nicht da – Druckfenster wird geöffnet ~ Browser Print not found – opening print dialog ~ Browser Print yok – yazdırma penceresi açılıyor
 Etiketten: Direktdruck über Zebra Browser Print (ZPL, ohne Druckfenster) – Druckweg und Auflösung in den Einstellungen ~ Labels: direct printing via Zebra Browser Print (ZPL, no print dialog) – print method and resolution in settings ~ Etiketler: Zebra Browser Print ile doğrudan baskı (ZPL, yazdırma penceresi yok) – baskı yolu ve çözünürlük ayarlarda
 Druckweg ~ Print method ~ Baskı yolu
 Direkt (Zebra Browser Print) ~ Direct (Zebra Browser Print) ~ Doğrudan (Zebra Browser Print)
@@ -1459,18 +1577,18 @@ function rKasse(){
   return `<div class="it"><span>${esc(n)}</span><span class="${t==="in"?"in":"out"}">${eur(v)}</span></div>`}).join("")||'<p class="mu">Noch nichts in diesem Monat.</p>';
  $("list").innerHTML=es.map(e=>`<div class="it"><div>${e.mref?"🔗 ":""}${esc(e.cat)}<small>${dt(e.date)}${e.note?" · "+esc(e.note):""}${!ui.kb&&e.book?" · 📒 "+esc(bkName(e.book)):""}</small></div>
   <div class="r ${e.type==="in"?"in":"out"}">${e.type==="in"?"+":"−"}${f2(e.amount)} ${SYM(e.cur||BC())}${(e.cur||BC())!==BC()?`<small>≈ ${eur(eBase(e))}</small>`:""}<br><button class="sec sm" onclick="del(${e.id})">Löschen</button></div></div>`).join("")||'<p class="mu">Keine Einträge.</p>';
- $("cats").innerHTML=[...new Set(data.entries.map(e=>e.cat))].map(x=>`<option value="${esc(x)}">`).join("")}
+ $("cats").innerHTML=[...new Set([...KCAT,...data.entries.map(e=>e.cat)])].map(x=>`<option value="${esc(x)}">`).join("")}
 
 /* ---------- Vorgänge (gemeinsam für Konten und Verkauf) ---------- */
 const OP={
- AG:["Goldeingang","in","HAS"],NT:["Bareinzug","in","EUR"],KK:["Banküberweisung","in","EUR"],MG:["Wareneingang","in","EUR"],AL:["Gutschrift","in","EUR"],
- HC:["Altgold-Ausgang","out","HAS"],NO:["Barzahlung","out","EUR"],GH:["Überweisung aus","out","EUR"],MC:["Warenausgang","out","EUR"],BR:["Belastung","out","EUR"],
- VB:["Verkauf mit Barcode","out","EUR"],VO:["Verkauf ohne Barcode","out","EUR"],EO:["Einkauf ohne Barcode","in","EUR"],RB:["Rückgabe mit Barcode","in","EUR"],RA:["Rabatt","in","EUR"],KB:["Kosten bar (keine Schuld)","out","EUR"],KU:["Kosten Überweisung (keine Schuld)","out","EUR"]};
+ AG:["Goldeingang","in","HAS"],NT:["Bareinzug","in","EUR"],KK:["Banküberweisung","in","EUR"],MG:["Wareneingang","in","EUR"],AL:["Gutschrift (ich schulde ihm, ohne Kasse)","in","EUR"],
+ HC:["Altgold-Ausgang","out","HAS"],NO:["Barzahlung","out","EUR"],GH:["Überweisung aus","out","EUR"],MC:["Warenausgang","out","EUR"],BR:["Belastung (er schuldet mir, ohne Kasse)","out","EUR"],
+ VB:["Verkauf mit Barcode","out","EUR"],VO:["Verkauf ohne Barcode","out","EUR"],EO:["Einkauf ohne Barcode","in","EUR"],RB:["Rückgabe mit Barcode","in","EUR"],RA:["Rabatt","in","EUR"],KB:["Kosten bar (nur Kasse, keine Schuld)","out","EUR"],KU:["Kosten Überweisung (nur Bank, keine Schuld)","out","EUR"]};
 const NODEBT={KB:1,KU:1};
 const MONEY={NT:"cash",NO:"cash",KK:"bank",GH:"bank",KB:"cash",KU:"bank"};
 function autoBook(m){const ab=data.ab||{};if(!ab.on||!MONEY[m.type]||!["EUR","USD"].includes(m.unit))return;
  const p=data.people.find(x=>x.id===m.pid),inc=m.dir==="in",bk=Number(ab[MONEY[m.type]])||0;
- data.entries.push({id:uid(),type:inc?"in":"out",amount:m.amount,cat:(inc?"Zahlung von ":"Zahlung an ")+(p?p.name:"?"),note:[OP[m.type][0],m.note].filter(Boolean).join(" · "),date:m.date,book:bk&&data.books.some(b=>b.id===bk)?bk:0,cur:m.unit,rate:m.unit===BC()?1:R("usd"),mref:m.id})}
+ data.entries.push({id:uid(),type:inc?"in":"out",amount:m.amount,cat:m.cat||((inc?"Zahlung von ":"Zahlung an ")+(p?p.name:"?")),note:[OP[m.type][0],m.cat&&p?p.name:"",m.note].filter(Boolean).join(" · "),date:m.date,book:bk&&data.books.some(b=>b.id===bk)?bk:0,cur:m.unit,rate:m.unit===BC()?1:R("usd"),mref:m.id})}
 const opName=m=>OP[m.type]?OP[m.type][0]:(m.dir==="out"?"Ich gab":"Ich nahm");
 const tiles=(keys,a)=>`<div class="tiles">${keys.map(k=>`<button data-a="${a}" data-k="${k}"><b>${k}</b><span>${OP[k][0]}</span></button>`).join("")}</div>`;
 const balOf=pid=>{const b={};data.moves.filter(m=>m.pid===pid&&!NODEBT[m.type]).forEach(m=>b[m.unit]=(b[m.unit]||0)+(m.dir==="out"?m.amount:-m.amount));return b};
@@ -1639,10 +1757,73 @@ function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
 
 
 /* ---------- Mehr + Notizen ---------- */
+/* ---------- Statistik & Kunden-Vorlieben ---------- */
+const KCAT=["Produktionskosten","Fahrtkosten","Versand","Material","Werkstatt / Atelier","Personal","Miete","Gebühren","Sonstige Kosten"];
+const SPER=[["m","Dieser Monat"],["lm","Letzter Monat"],["y","Dieses Jahr"],["ly","Letztes Jahr"],["all","Gesamt"]];
+function perRange(k){const d=new Date(),y=d.getFullYear(),m=d.getMonth(),iso=(Y,M)=>new Date(Date.UTC(Y,M,1)).toISOString().slice(0,10);
+ return k==="m"?[iso(y,m),iso(y,m+1)]:k==="lm"?[iso(y,m-1),iso(y,m)]:k==="y"?[iso(y,0),iso(y+1,0)]:k==="ly"?[iso(y-1,0),iso(y,0)]:["0000","9999"]}
+const inR=(s,r)=>{s=String(s||"").slice(0,10);return !!s&&s>=r[0]&&s<r[1]};
+const bv=(a,u)=>["EUR","USD","HAS"].includes(u)?toEUR(parse(a),u):0;
+const mainSt=p=>(p.stones||[]).filter(s=>!s.d2&&(parse(s.qty)>0||s.type||s.sid));
+const mainCt=p=>mainSt(p).reduce((a,s)=>a+parse(s.qty),0);
+const d2Ct=p=>(p.stones||[]).filter(s=>s.d2).reduce((a,s)=>a+parse(s.qty),0);
+const doneDay=p=>p.doneAt?new Date(p.doneAt).toISOString().slice(0,10):p.date;
+const sMoney=v=>f2(v)+" "+SYM(BC());
+function entBase(e){return e.cur&&e.cur!==BC()?toEUR(parse(e.amount),e.cur):parse(e.amount)}
+function expRows(r){const mv=new Map(data.moves.map(m=>[m.id,m])),g={};
+ data.entries.filter(e=>e.type==="out"&&!e.tr&&inR(e.date,r)).forEach(e=>{if(e.mref){const m=mv.get(e.mref);if(!m||!NODEBT[m.type])return}
+  const c=(e.mref&&mv.get(e.mref)&&mv.get(e.mref).cat)||e.cat||"Sonstige Kosten";g[c]=(g[c]||0)+entBase(e)});
+ data.moves.filter(m=>NODEBT[m.type]&&inR(m.date,r)&&!data.entries.some(e=>e.mref===m.id)).forEach(m=>{const c=m.cat||"Sonstige Kosten";g[c]=(g[c]||0)+bv(m.amount,m.unit)});
+ return Object.entries(g).sort((a,b)=>b[1]-a[1])}
+const CTB=[[0.5,"bis 0,49 ct"],[0.9,"0,5–0,89 ct"],[1.2,"0,9–1,19 ct"],[1.5,"1,2–1,49 ct"],[2,"1,5–1,99 ct"],[1e9,"ab 2 ct"]];
+const ctB=c=>c>0?(CTB.find(([m])=>c<m)||CTB[CTB.length-1])[1]:"";
+function prefItems(pid){const L=[];
+ data.prods.filter(p=>p.soldTo===pid).forEach(p=>{const ms=mainSt(p).sort((a,b)=>parse(b.qty)-parse(a.qty))[0]||{},st=data.stock.find(x=>x.id===ms.sid)||{};
+  L.push({src:"Kauf",art:p.grp||"",form:ms.type||st.type||"",ct:mainCt(p),model:p.model||"",nat:ms.nat||st.nat||"",d2:(p.stones||[]).some(s=>s.d2),col:""})});
+ data.orders.filter(o=>o.pid===pid).forEach(o=>oItems(o).forEach(x=>{if(Array.isArray(x.pids)&&x.pids.length)return;
+  L.push({src:"Bestellung",art:x.art==="Anderes (selbst eingeben)"?(x.own||""):(x.art||""),form:x.form||"",ct:parse(x.ct),model:x.model||"",nat:x.nat||"",d2:null,col:(()=>{try{return x.met==="Gold"&&x.col?colTxt(x):""}catch(e){return""}})()})}));
+ return L}
+function prefHTML(pid){const L=prefItems(pid);if(!L.length)return '<p class="mu" style="margin:6px 0 0">Noch keine Käufe oder Bestellungen – die Vorlieben entstehen automatisch mit jedem Verkauf.</p>';
+ const top=(k,f)=>{const c={};let n=0;L.forEach(x=>{const v=f?f(x):x[k];if(v===null||v===undefined||v==="")return;n++;c[v]=(c[v]||0)+1});const e=Object.entries(c).sort((a,b)=>b[1]-a[1]);return e.length?{v:e[0][0],c:e[0][1],n,rest:e.slice(1,3)}:null};
+ const row=(lab,t)=>t?`<div class="it"><div>${lab}<small>${t.rest.map(([v,c])=>esc(v)+" ("+c+")").join(" · ")}</small></div><div class="r"><b>${esc(t.v)}</b><small>${t.c} von ${t.n} · ${Math.round(t.c/t.n*100)} %</small></div></div>`:"";
+ const cts=L.map(x=>x.ct).filter(c=>c>0),avg=cts.length?cts.reduce((a,b)=>a+b,0)/cts.length:0;
+ const d2=L.filter(x=>x.d2!==null),d2n=d2.filter(x=>x.d2).length;
+ return `<p class="mu" style="margin:4px 0 6px">${L.filter(x=>x.src==="Kauf").length} Käufe · ${L.filter(x=>x.src==="Bestellung").length} offene/eigene Bestellpositionen</p>
+ ${row("Artikel",top("art"))}${row("Steinform",top("form"))}${row("Karat",top(0,x=>ctB(x.ct)))}${avg?`<div class="it"><div>Ø Karat (Hauptstein)</div><div class="r"><b>${f2(avg)} ct</b></div></div>`:""}
+ ${row("Modell",top("model"))}${row("Steinart",top("nat"))}${row("Goldfarbe",top("col"))}
+ ${d2.length?`<div class="it"><div>Mit D2-Steinen</div><div class="r"><b>${d2n} von ${d2.length}</b><small>${Math.round(d2n/d2.length*100)} %</small></div></div>`:""}`}
+function custSum(pid){const mv=data.moves.filter(m=>m.pid===pid),u=mv.filter(m=>m.type==="VB"||m.type==="VO").reduce((a,m)=>a+bv(m.amount,m.unit),0),k=mv.filter(m=>NODEBT[m.type]).reduce((a,m)=>a+bv(m.amount,m.unit),0);
+ const os=data.orders.filter(o=>o.pid===pid);return{u,k,n:data.prods.filter(p=>p.soldTo===pid).length,oo:os.filter(o=>!o.done).length,od:os.filter(o=>o.done).length}}
+function custHTML(pid){const s=custSum(pid),open=!!(ui.cov||{})[pid];
+ return `<div class="card"><div class="nav" style="margin:0"><b>📊 Überblick & Vorlieben</b><button class="sec sm" data-a="cov" data-id="${pid}">${open?"Zuklappen":"Anzeigen"}</button></div>
+ ${open?`<div class="it"><div>Umsatz (Verkäufe)</div><div class="r"><b>${sMoney(s.u)}</b></div></div><div class="it"><div>Gekaufte Waren</div><div class="r"><b>${s.n}</b></div></div>
+ <div class="it"><div>Bestellungen</div><div class="r"><b>${s.oo} aktiv · ${s.od} erledigt</b></div></div>${s.k?`<div class="it"><div>Kosten (KB/KU, keine Schuld)</div><div class="r"><b>${sMoney(s.k)}</b></div></div>`:""}
+ <b style="display:block;margin-top:10px">🎯 Vorlieben</b>${prefHTML(pid)}`:""}</div>`}
+act.cov=d=>{ui.cov=ui.cov||{};const id=Number(d.id);ui.cov[id]=!ui.cov[id];render()};
+function rStat(){const k=ui.stp||"m",r=perRange(k),SS=(t,v,s)=>`<div class="it"><div>${t}${s?`<small>${s}</small>`:""}</div><div class="r"><b>${v}</b></div></div>`;
+ const sv=data.moves.filter(m=>(m.type==="VB"||m.type==="VO")&&inR(m.date,r)),uVB=sv.filter(m=>m.type==="VB").reduce((a,m)=>a+bv(m.amount,m.unit),0),uVO=sv.filter(m=>m.type==="VO").reduce((a,m)=>a+bv(m.amount,m.unit),0);
+ const sold=data.prods.filter(p=>p.status==="sold"&&inR(p.soldDate,r)),we=sold.reduce((a,p)=>a+bv(p.cost,p.cur),0);
+ const made=data.prods.filter(p=>p.status!=="prod"&&inR(doneDay(p),r)),mc=made.reduce((a,p)=>a+bv(p.cost,p.cur),0);
+ const ex=expRows(r),exT=ex.reduce((a,[,v])=>a+v,0);
+ const st=data.prods.filter(p=>p.status==="done"),stc=st.reduce((a,p)=>a+bv(p.cost,p.cur),0),inP=data.prods.filter(p=>p.status==="prod").length;
+ const cu={};sv.forEach(m=>cu[m.pid]=(cu[m.pid]||0)+bv(m.amount,m.unit));const top=Object.entries(cu).sort((a,b)=>b[1]-a[1]).slice(0,5);
+ const buyers=[...new Set(data.prods.filter(p=>p.soldTo).map(p=>p.soldTo).concat(data.orders.map(o=>o.pid)))].map(id=>data.people.find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.name.localeCompare(b.name));
+ const cp=ui.stpid&&buyers.some(b=>b.id===ui.stpid)?ui.stpid:(top[0]?Number(top[0][0]):(buyers[0]||{}).id);
+ $("s-stat").innerHTML=`<div class="bar"><span>Statistik</span><span>📊</span></div>
+ <div class="chips">${SPER.map(([v,t])=>`<button class="${k===v?"":"sec"}" data-a="stp" data-v="${v}">${t}</button>`).join("")}</div>
+ <div class="card"><b>💶 Verkauf</b>${SS("Umsatz gesamt",sMoney(uVB+uVO),"Konten-Verkäufe mit und ohne Barcode")}${SS("davon mit Barcode",sMoney(uVB))}${SS("Verkaufte Waren",sold.length+" Stück",sold.length?f2(sold.reduce((a,p)=>a+mainCt(p),0))+" ct · "+f3(sold.reduce((a,p)=>a+(p.w||0),0))+" g Gold":"")}
+ ${SS("Wareneinsatz (Kosten der verkauften Waren)",sMoney(we))}${SS("Rohertrag (Barcode-Umsatz − Wareneinsatz)",sMoney(uVB-we),uVB?Math.round((uVB-we)/uVB*100)+" % Marge":"")}${sold.length?SS("Ø Verkaufspreis",sMoney(uVB/sold.length)):""}</div>
+ <div class="card"><b>🔧 Produktion</b>${SS("Fertiggestellt",made.length+" Stück")}${SS("Produktionskosten",sMoney(mc),made.length?"Ø "+sMoney(mc/made.length)+" pro Stück":"")}${SS("Gold verarbeitet",f3(made.reduce((a,p)=>a+(p.w||0),0))+" g")}${SS("Steine verarbeitet",f2(made.reduce((a,p)=>a+mainCt(p),0))+" ct",(d=>d?"+ D2 "+f2(d)+" ct":"")(made.reduce((a,p)=>a+d2Ct(p),0)))}</div>
+ <div class="card"><b>🧾 Ausgaben</b>${ex.map(([c,v])=>SS(esc(c),sMoney(v))).join("")||'<p class="mu">Keine Ausgaben im Zeitraum.</p>'}${ex.length?SS("<b>Summe</b>",sMoney(exT)):""}
+ <p class="mu" style="margin:6px 0 0">Aus dem Kontobuch (Ausgaben) und den Konten-Vorgängen KB/KU. Zahlungen an Personen (Schulden) zählen nicht als Ausgabe.</p></div>
+ <div class="card"><b>📦 Lager jetzt</b>${SS("Fertige Waren",st.length+" Stück",inP+" in Fertigung")}${SS("Lagerwert (Kosten)",sMoney(stc),st.length?"Ø "+sMoney(stc/st.length):"")}${SS("Karat im Lager",f2(st.reduce((a,p)=>a+mainCt(p),0))+" ct",(d=>d?"+ D2 "+f2(d)+" ct":"")(st.reduce((a,p)=>a+d2Ct(p),0)))}${SS("Gold im Lager (Ware)",f3(st.reduce((a,p)=>a+(p.w||0),0))+" g")}</div>
+ <div class="card"><b>🏆 Top-Kunden</b>${top.map(([id,v])=>SS(esc(pnm(Number(id))),sMoney(v))).join("")||'<p class="mu">Keine Verkäufe im Zeitraum.</p>'}</div>
+ <div class="card"><b>🎯 Kunden-Vorlieben</b>${buyers.length?S("ui.stpid",cp,buyers.map(b=>[b.id,b.name+(b.company?" · "+b.company:(b.city?" · "+b.city:""))]),'data-n="1" data-r="1"')+prefHTML(cp):'<p class="mu">Noch keine Käufe oder Bestellungen.</p>'}</div>`}
+act.stp=d=>{ui.stp=d.v;render()};
 function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.length;
  const T=(v,i,t,s)=>`<button class="sec tile" data-a="go" data-v="${v}" style="text-align:left;padding:16px;display:flex;gap:14px;align-items:center"><span style="font-size:26px">${i}</span><span><b>${t}</b><br><small class="mu">${s}</small></span></button>`;
  $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><button data-a="savekeep" style="margin-bottom:10px">💾 Zwischenspeichern (App bleibt offen)</button><div class="card" style="display:grid;gap:10px">
- ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
+ ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("stat","📊","Statistik","Umsatz, Kosten, Lager, Kunden-Vorlieben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
 const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
  return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
@@ -1879,6 +2060,9 @@ act.pkrm=()=>{if(!confirmTap("pkrm"))return;data.pkgs=data.pkgs.filter(x=>x.id!=
 act.pkst=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id));if(!g)return;const v=d.v||(g.status==="back"?"out":"back");g.status=v;
  if(v==="back")g.backDate=today();else g.backDate="";if(v==="ready")g.readyDate=today();else if(v==="out")g.readyDate="";
  if(v!=="out"||g.sub)g.sub="";pkLog(g,PKB[v]);
+ if(v==="back"){const ps=g.items.filter(x=>x.k==="prod").map(x=>data.prods.find(p=>p.id===x.ref)).filter(p=>p&&p.status==="done"),to=g.fpid||g.pid;
+  if(ps.length&&data.people.some(x=>x.id===to)){ui.pid=to;ui.pe=false;ui.pf=null;ui.kdir="out";act.kop({k:"VB"});ui.kf.prods=ps.map(p=>p.id);kSum();ui.kf.note=(ui.kf.note?ui.kf.note+" · ":"")+"Paket "+g.no;
+   go("konten");toast("Verkauf mit Barcode für "+pnm(to)+" vorbereitet – Betrag prüfen und Buchen");setTimeout(()=>{const e=document.querySelector('[data-a="kbook"]');if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},80);return}}
  rPkg();toast(v==="back"?"Paket "+g.no+" zurück erhalten":v==="ready"?"Paket "+g.no+" ist abholbereit":"Paket "+g.no+" wieder in der Werkstatt")};
 function xPkg(){const r=[["Paket","Datum","Werkstatt","Arbeit","Für","Bestellung","Teil","Notiz Teil","Frist","Status","Zwischenschritt","Abholbereit seit","Zurück am","Notiz","Verlauf"]];
  data.pkgs.forEach(g=>(g.items||[]).forEach(x=>r.push([g.no,g.date,pnm(g.pid),g.step||"",pnm(g.fpid),(data.orders.find(o=>o.id===g.oid)||{}).no||"",pkItemTxt(x),x.note||"",g.due||"",g.status==="back"?"Zurück":g.status==="ready"?"Abholbereit":"In Werkstatt",g.sub||"",g.readyDate||"",g.backDate||"",g.note||"",(g.log||[]).map(l=>String(l.t).replace("T"," ")+" "+l.s+(l.note?" ("+l.note+")":"")).join(" | ")])));return["Werkstatt",r]}
@@ -1935,6 +2119,7 @@ act.pfdel=()=>{const id=ui.pid;
 act.gop=d=>{ui.pid=Number(d.id);ui.pe=false;ui.pf=null;go("konten")};
 const kProds=q=>data.prods.filter(p=>p.status==="done"&&!((ui.kf&&ui.kf.prods)||[]).includes(p.id)&&pMatch(p,q||"")).sort((a,b)=>String(a.code).localeCompare(String(b.code)));
 function kExtra(f){
+ if(NODEBT[f.k])return F("Kostenart",S("ui.kf.cat",f.cat||"Produktionskosten",KCAT));
  if(f.k==="VB"){const os=[];data.orders.filter(o=>o.pid===ui.pid&&!o.done).forEach(o=>oItems(o).forEach((x,i)=>{if(itOpen(x))os.push([o.id+":"+i,o.no+" · "+x.qty+"× "+itemTxt(x)+" (noch "+itOpen(x)+")"])}));
   const sel=(f.prods||[]).map(id=>data.prods.find(p=>p.id===id)).filter(Boolean);
   return F("Ware suchen (Nummer oder Name)",I("ui.kf.q",f.q||"","z. B. YZD178",'data-u="uKp" autocorrect="off" autocomplete="off" spellcheck="false"'))+F(sel.length?"Weitere Ware hinzufügen":"Ware (fertig, im Lager)",`<select data-f="ui.kf.prod" data-n="1" data-r="1" id="kpsel">${kPopts(f)}</select>`)+
@@ -1946,8 +2131,12 @@ function kExtra(f){
 const kPopts=f=>[[0,"– wählen –"],...kProds(f.q).map(p=>[p.id,pLbl(p)])].map(([a,b])=>`<option value="${a}"${String(a)===String(f.prod)?" selected":""}>${esc(b)}</option>`).join("");
 function uKp(){const e=$("kpsel");if(e&&ui.kf){const l=kProds(ui.kf.q);if(l.length===1&&ui.kf.q&&ui.kf.q.length>=3){ui.kf.prod=l[0].id;kProd();render();return}e.innerHTML=kPopts(ui.kf)}}
 function kProd(){const f=ui.kf,p=data.prods.find(x=>x.id===f.prod);if(!p)return;f.prods=f.prods||[];if(!f.prods.includes(p.id))f.prods.push(p.id);f.prod=0;f.q="";kSum()}
+const cvC=(a,fr,to)=>{if(fr===to)return a;const r=fromEUR(toEUR(a,fr),to);return r||0};
 function kSum(){const f=ui.kf,ps=(f.prods||[]).map(id=>data.prods.find(x=>x.id===id)).filter(Boolean);if(!ps.length){f.amount="";f.note="";return}
- f.unit=(ps[0].cur==="USD"?"USD":"EUR");const t=ps.reduce((a,p)=>a+(parse(p.p1)||0),0);f.amount=t>0?String(Math.round(t*100)/100).replace(".",","):"";f.note=ps.map(p=>p.code+" "+p.name).join(", ")}
+ if(!f.uset||!["EUR","USD"].includes(f.unit))f.unit=(ps[0].cur==="USD"?"USD":"EUR");f.ul=f.unit;const t=ps.reduce((a,p)=>{const v=parse(p.p1)||0,c=p.cur==="USD"?"USD":"EUR";return a+(c===f.unit?v:(cvC(v,c,f.unit)||v))},0);f.amount=t>0?String(Math.round(t*100)/100).replace(".",","):"";f.note=ps.map(p=>p.code+" "+p.name).join(", ")}
+ function kConvT(){const f=ui.kf;if(!f||!["EUR","USD"].includes(f.unit))return"";const a=parse(f.amount);if(!(a>0))return"Einheit auf EUR oder USD stellen – der Betrag wird umgerechnet und kann danach angepasst werden.";
+ const o=f.unit==="EUR"?"USD":"EUR",c=cvC(a,f.unit,o);return c?`≈ ${f2(c)} ${o} · Einheit auf ${o} stellen = umrechnen, danach Betrag frei anpassen`:"Kurs fehlt – bitte oben Kurse abrufen"}
+function kConv(){const e=$("kconv");if(e)e.textContent=kConvT()}
 act.kpx=d=>{const f=ui.kf;if(!f)return;f.prods=(f.prods||[]).filter(x=>x!==Number(d.id));kSum();render()};
 function rKo(){
  let h=`<div class="card">${F("Person suchen",I("ui.pq2",ui.pq2,"Name, Stadt, Land …",'data-u="uK" autocorrect="off" autocomplete="off" spellcheck="false"'))}
@@ -1955,12 +2144,12 @@ function rKo(){
  <div class="row" style="margin:0"><input id="pNew" placeholder="Neue Person"><button class="sec" data-a="addP" style="flex:0 0 36%">Anlegen</button></div></div>`;
  if(ui.pid){
   h+=pCard();
-  h+=balHTML(ui.pid);
+  h+=balHTML(ui.pid)+custHTML(ui.pid);
   h+=`<div class="card"><div class="tg" style="margin-bottom:10px">${TG("kdir",ui.kdir,[["in","Eingänge (ich nahm)"],["out","Ausgänge (ich gab)"],["ord","📋 Bestellung"]])}</div>
    ${ui.kdir==="ord"?"":tiles(ui.kdir==="in"?["AG","NT","KK","MG","AL"]:["VB","VO","HC","NO","GH","MC","BR","KB","KU"],"kop")}`;
   if(ui.kdir==="ord")h+=ordForm()+ordList(ui.pid);
   if(ui.kf&&ui.kdir!=="ord"){const f=ui.kf;
-   h+=`<div class="bar">${OP[f.k][0]}</div>${kExtra(f)}<div class="g2">${F("Betrag / Menge",N("ui.kf.amount",f.amount))}${F("Einheit",S("ui.kf.unit",f.unit,Object.keys(UN).map(u=>[u,UN[u]])))}</div>
+   h+=`<div class="bar">${OP[f.k][0]}</div>${kExtra(f)}<div class="g2">${F("Betrag / Menge",N("ui.kf.amount",f.amount))}${F("Einheit",S("ui.kf.unit",f.unit,Object.keys(UN).map(u=>[u,UN[u]])))}</div>${f.k==="VB"?`<p class="mu" id="kconv" style="margin:-4px 0 10px">${kConvT()}</p>`:""}
    ${F("Notiz (z. B. Ring, 14K)",I("ui.kf.note",f.note))}${F("Datum",`<input type="date" data-f="ui.kf.date" value="${f.date}" data-r="1">`)}${dueForm("ui.kf")}
    <div class="row"><button data-a="kbook">Buchen</button><button class="sec" data-a="kcancel">Abbrechen</button></div>`}
   h+=`</div><div class="card"><b>Verlauf</b>${histHTML(ui.pid)}</div>`}
@@ -1975,6 +2164,7 @@ act.kcancel=()=>{ui.kf=null;render()};
 act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte Betrag eingeben");return}
  if(f.k==="VB"&&!(f.prods||[]).length){toast("Bitte eine Ware wählen");return}
  const mv={id:uid(),pid:ui.pid,type:f.k,dir:OP[f.k][1],unit:f.unit,amount:a,note:f.note.trim(),date:f.date||today(),due:dueOf(f.date,f.dk,f.due)},date=mv.date;
+ if(NODEBT[f.k])mv.cat=f.cat||"Produktionskosten";
  if(f.k==="VB"){mv.prods=[];(f.prods||[]).forEach(id=>{const p=data.prods.find(x=>x.id===id);if(!p)return;p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prods.push(p.id);if(f.ord){const[oi,ii]=String(f.ord).split(":");oAssign(oi,Number(ii),p.id)}});if(mv.prods.length===1){mv.prod=mv.prods[0];delete mv.prods}}
  if(f.k==="VO"&&f.sid){const q=parse(f.qty);if(q>0){const s=data.stock.find(x=>x.id===f.sid);data.smoves.push({id:uid(),sid:f.sid,qty:-q,date,note:"Verkauf an "+pnm(ui.pid),ref:"m"+mv.id});mv.ref="m"+mv.id;if(s&&!mv.note)mv.note=s.name}}
  data.moves.push(mv);autoBook(mv);ui.kf=null;render();toast(MONEY[mv.type]&&data.ab&&data.ab.on?"Gebucht – auch im Kontobuch":"Gebucht")};
@@ -2102,16 +2292,21 @@ function codeMatch(code,q){const c=String(code).toLowerCase();if(c.includes(q))r
  if(q.replace(/\s/g,"")===pre+String(parseInt(num,10)))return true;
  return parseInt(num,10)===parseInt(m[2],10)&&(!m[1]||pre===m[1])}
 const pMatch=(p,q)=>{q=String(q||"").trim().toLowerCase();return !q||codeMatch(p.code,q)||(p.code+" "+p.name+" "+pStn(p)).toLowerCase().includes(q)};
+const PSORT=[["new","Neueste zuerst"],["old","Älteste zuerst"],["done","Zuletzt fertig"],["sold","Zuletzt verkauft"],["code","Nummer A–Z"],["name","Name A–Z"],["ca","Kosten: günstig → teuer"],["cd","Kosten: teuer → günstig"],["va","VK: günstig → teuer"],["vd","VK: teuer → günstig"],["wa","Gewicht: leicht → schwer"],["wd","Gewicht: schwer → leicht"]];
+function pSortFn(k){const cv=(v,c)=>{const n=parse(v);return toEUR(n,c)||n},cost=p=>cv(p.cost,p.cur),vk=p=>cv(p.p1,p.cur),num=(a,b)=>String(a||"").localeCompare(String(b||""),"de",{numeric:true,sensitivity:"base"}),dn=p=>Number(p.doneAt)||0,sd=p=>String(p.soldDate||"");
+ return({old:(a,b)=>a.id-b.id,done:(a,b)=>dn(b)-dn(a)||b.id-a.id,sold:(a,b)=>sd(b).localeCompare(sd(a))||b.id-a.id,code:(a,b)=>num(a.code,b.code),name:(a,b)=>num(a.name||a.grp,b.name||b.grp)||num(a.code,b.code),
+  ca:(a,b)=>cost(a)-cost(b),cd:(a,b)=>cost(b)-cost(a),va:(a,b)=>(vk(a)||1e15)-(vk(b)||1e15),vd:(a,b)=>vk(b)-vk(a),wa:(a,b)=>pTW(a)-pTW(b),wd:(a,b)=>pTW(b)-pTW(a)})[k]||((a,b)=>b.id-a.id)}
 function plist(){
- return data.prods.filter(p=>(!ui.pg||p.grp===ui.pg)&&(!ui.ps||p.status===ui.ps)&&pMatch(p,ui.pq)).sort((a,b)=>b.id-a.id)}
+ return data.prods.filter(p=>(!ui.pg||p.grp===ui.pg)&&(!ui.ps||p.status===ui.ps)&&pMatch(p,ui.pq)).sort(pSortFn(data.psort||"new"))}
 function rP(){
  if(ui.pd){rPE();return}
  $("s-prod").innerHTML=`<div class="row"><button data-a="pnew">+ Neue Ware (Barcode)</button></div>
  <div class="card"><div class="g2">${F("Gruppe",S("ui.pg",ui.pg,[["","Alle"],...Object.keys(PG)],'data-r="1"'))}${F("Status",S("ui.ps",ui.ps,[["","Alle"],["prod","In Fertigung"],["done","Fertig (Lager)"],["sold","Verkauft"]],'data-r="1"'))}</div>
+ ${F("Sortierung",S("data.psort",data.psort||"new",PSORT,'data-r="1"'))}
  <input data-f="ui.pq" data-u="uP" value="${esc(ui.pq)}" placeholder="Suchen (Nummer oder Name)"></div>
  <div class="card" id="prows"></div>`;uP()}
 function pStn(p,withNo=true){return (p.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type).map(s=>{const st=data.stock.find(x=>x.id===s.sid);
- const ct=parse(s.qty);return [s.type||(st&&st.type)||"",ct?f2(ct).replace(/0$/,"")+" ct":"",s.nat||(st&&st.nat)||"",withNo&&st?st.name:""].filter(Boolean).join(" ")}).filter(Boolean).join(" + ")}
+ const ct=parse(s.qty);return [s.d2?"D2":"",s.type||(st&&st.type)||"",ct?f2(ct).replace(/0$/,"")+" ct":"",s.nat||(st&&st.nat)||"",withNo&&st?st.name:""].filter(Boolean).join(" ")}).filter(Boolean).join(" + ")}
 const pLbl=p=>{const st=pStn(p);return shortCode(p.code)+" · "+(p.name||p.grp)+(st?" · 💎 "+st:"")+" · "+f3(pTW(p))+" g"};
 const soldTxt=p=>((g=>g?" · "+(g.status==="ready"?"📦 abholbereit ":"🔧 ")+g.no+" ("+pnm(g.pid)+")":"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
 function uP(){const l=plist();
@@ -2122,7 +2317,21 @@ act.pedit=d=>{ui.lp=null;ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui
 act.pback=()=>{ui.lp=null;ui.pd=null;render()};
 act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
 act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
+function twAsk(d){const tw=parse(d.tw);if(!(tw>0))return"";const no=ui.twNo||{};
+ const L=d.steps.map((s,i)=>({s,i})).filter(({s,i})=>s.type&&Math.abs(parse(s.in)-tw)>1e-9&&!no[i+":"+d.tw]);if(!L.length)return"";
+ return `<div class="rowc" style="border-color:var(--ac);margin-top:4px"><b>Ist ${esc(d.tw)} g der Eingang für …</b><p class="mu" style="margin:2px 0 6px">Gewicht mit allen Steinen (auch D2)</p>
+ ${L.map(({s,i})=>`<div class="it"><div>${esc(s.type)}${s.atelier?" · "+esc(s.atelier):""}<small>${parse(s.in)>0?"jetzt: "+esc(s.in)+" g":"Eingang noch leer"}</small></div><div class="r" style="display:flex;gap:6px"><button class="sm" data-a="twy" data-i="${i}">Ja</button><button class="sec sm" data-a="twn" data-i="${i}">Nein</button></div></div>`).join("")}
+ ${L.length>1?`<button class="sm" data-a="twy" data-i="all" style="margin-top:6px">Für alle ja</button>`:""}</div>`}
+act.twy=d=>{const p=ui.pd;if(!p)return;p.steps.forEach((s,i)=>{if((d.i==="all"||String(i)===d.i)&&s.type)s.in=p.tw});calcP();render()};
+act.twn=d=>{const p=ui.pd;if(!p)return;ui.twNo=ui.twNo||{};ui.twNo[d.i+":"+p.tw]=1;render()};
+function ctRule(s){const L=(data.ctp||[]).filter(r=>parse(r.price)>0);if(!L.length)return null;const pc=parse(s.pcs)||1,ct=parse(s.qty)/pc;if(!(ct>0))return null;
+ const ok=r=>{const f=parse(r.from),t=parse(r.to)||1e9;return ct>=f-1e-9&&ct<=t+1e-9};
+ const C=L.filter(ok).filter(r=>s.d2?r.kind==="D2":r.kind!=="D2"&&(!r.kind||r.kind===s.nat));
+ return C.find(r=>r.kind&&r.kind===s.nat)||C.find(r=>s.d2||!r.kind)||null}
 function pEdit(p){const d=ui.pd,k=p.slice(6);
+ const sp=k.match(/^stones\.(\d+)\.(qty|pcs|nat|d2|sid|price)$/);
+ if(sp){const s=d.stones[sp[1]];if(s){if(sp[2]==="price")s.pauto=0;
+  else if(!String(s.price||"").trim()||s.pauto){const r=ctRule(s);if(r){s.price=String(r.price);s.cur=r.cur||s.cur;s.pauto=1;setV(`ui.pd.stones.${sp[1]}.price`,s.price);setV(`ui.pd.stones.${sp[1]}.cur`,s.cur)}}}}
  const d2=k.match(/^steps\.(\d+)\.(type|pcs|pp)$/);
  if(d2){const s=d.steps[d2[1]];if(s&&s.type==="Montage D2"){if(d2[2]==="type"&&!String(s.pp||"").trim())s.pp=data.d2p||"0,5";if(d2[2]==="pp")data.d2p=s.pp;
   const n=parse(s.pcs),pp=parse(s.pp);if(n>0&&pp>0){s.amt=String(Math.round(n*pp*100)/100).replace(".",",");setV(`ui.pd.steps.${d2[1]}.amt`,s.amt)}}}
@@ -2136,7 +2345,8 @@ function pEdit(p){const d=ui.pd,k=p.slice(6);
  const sm=p.match(/^ui\.pd\.stones\.(\d+)\.sid$/);
  if(sm){const t=d.stones[sm[1]],s=data.stock.find(x=>x.id===t.sid);
   if(s){if(s.nat)t.nat=s.nat;if(s.type)t.type=s.type;if(s.color)t.color=s.color;if(s.clar)t.clar=s.clar;if(s.cut)t.cut=s.cut;
-   if(parse(s.ct)>0)t.qty=String(s.ct).replace(".",",");if(!String(t.pcs||"").trim())t.pcs="1"}}
+   if(parse(s.ct)>0)t.qty=String(s.ct).replace(".",",");if(!String(t.pcs||"").trim())t.pcs="1";
+   if(!String(t.price||"").trim()||t.pauto){const r=ctRule(t);if(r){t.price=String(r.price);t.cur=r.cur||t.cur;t.pauto=1}}}}
  calcP()}
 function setV(path,val){const e=document.querySelector(`[data-f="${path}"]`);if(e&&document.activeElement!==e)e.value=val}
 const pm=v=>{const n=parse(v||"");return n>0&&n<=1.5?n*1000:n};
@@ -2188,12 +2398,13 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
   <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="metal">+ Metall-Zeile</button></div>
  <div class="bar"><span>Steine</span><span>💎</span></div><div class="card">`;
- d.stones.forEach((s,i)=>{h+=`<div class="rowc">${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1" data-r="1"'))}
+ d.stones.forEach((s,i)=>{h+=`<div class="rowc"${s.d2?' style="border-style:dashed"':""}>${s.d2?'<b style="display:block;margin-bottom:6px">💎 D2 (seitlich)</b>':""}${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1" data-r="1"'))}
   ${F("Steinart / Herkunft",S(`ui.pd.stones.${i}.nat`,s.nat||"",SNAT))}
   <div class="g2">${F("Karat ct",I(`ui.pd.stones.${i}.qty`,s.qty,"z. B. 1,07",'inputmode="decimal" autocomplete="off"'))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
   <div class="g2">${F("Preis pro ct",N(`ui.pd.stones.${i}.price`,s.price))}${F("Währung",S(`ui.pd.stones.${i}.cur`,s.cur,CUR))}</div>
   <div class="g2">${F("Art / Form",SX(`ui.pd.stones.${i}.type`,s.type,L_FORM))}${F("Farbe",SX(`ui.pd.stones.${i}.color`,s.color,L_COL))}</div>
   <div class="g2">${F("Reinheit",SX(`ui.pd.stones.${i}.clar`,s.clar,L_CLAR))}${F("Schliff",SX(`ui.pd.stones.${i}.cut`,s.cut,L_CUT))}</div>
+  ${CB(`ui.pd.stones.${i}.d2`,!!s.d2,"D2 – seitliche Steine (nicht beim Hauptstein mitrechnen)",'data-r="1"')}
   <div class="rf"><span id="tt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="stones" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
  <div class="bar"><span>Fertigung (Arbeit, Politur …)</span><span>🔧</span></div><div class="card"><datalist id="stepl"><option>Arbeit</option><option>Politur</option><option>Fassen</option><option>Guss</option><option>Gravur</option></datalist>`;
@@ -2206,7 +2417,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  h+=`<button class="sec" data-a="padd" data-t="steps">+ Arbeitsschritt</button></div>
  <div class="bar"><span>Beträge</span><span>💰</span></div><div class="card">
  <div class="g2">${F("Gesamtkosten",'<input id="cT" readonly>')}${F("Währung",S("ui.pd.cur",d.cur,CUR,'data-r="1"'))}</div>
- ${F("Gesamtgewicht g (Gold + Steine)",I("ui.pd.tw",d.tw||"","z. B. 4,35",'inputmode="decimal" autocomplete="off"'))}
+ ${F("Gesamtgewicht g (Gold + Steine)",I("ui.pd.tw",d.tw||"","z. B. 4,35",'inputmode="decimal" autocomplete="off" data-r="1"'))}${twAsk(d)}
  <p class="mu" id="cW" style="margin:0 0 8px"></p>
  <div class="g2">${F("Multiplikator (Verkauf)",N("ui.pd.f1",d.f1))}${F("Verkaufspreis",N("ui.pd.p1",d.p1))}</div>
  <div class="g2">${F("Multiplikator (Etikett)",N("ui.pd.f2",d.f2))}${F("Etikettenpreis",N("ui.pd.p2",d.p2))}</div>
@@ -2230,7 +2441,7 @@ function pSave(quiet){const d=ui.pd;calcP();d.code=d.code.trim();
  ui.pnew=false;d.code0=d.code;ui.lastCur=d.cur;syncStock(c);
  if(!quiet)toast("Gespeichert");return true}
 act.psave=()=>{if(pSave(false))render()};
-act.pfin=()=>{const d=ui.pd,old=d.status;d.status=old==="prod"?"done":"prod";
+act.pfin=()=>{const d=ui.pd,old=d.status;d.status=old==="prod"?"done":"prod";if(d.status==="done")d.doneAt=Date.now();
  if(pSave(true)){toast(d.status==="done"?"Fertig – Lager abgebucht":"Wieder in Fertigung – Lager zurückgebucht");
   if(d.status==="done"){ui.pd=null;ui.ps="";ui.pq="";ui.phl=d.id;render();window.scrollTo(0,0);return}}else d.status=old;render()};
 act.pdel=()=>{if(!confirmTap("pdel"))return;const d=ui.pd,p=data.prods.find(x=>x.id===d.id);
@@ -2426,7 +2637,7 @@ const KAR={333:"8K",375:"9K",417:"10K",585:"14K",750:"18K",833:"20K",875:"21K",9
 const karOf=f=>{const n=Math.round(pm(f));return KAR[n]||(n?n+"‰":"")};
 const st4=no=>{const d=String(no||"").replace(/\D/g,"");return d.slice(-4)};
 const dotN=s=>String(s||"").replace(",",".");
-function lbFields(d){const ss=(d.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type),s0=ss[0]||{},st=data.stock.find(x=>x.id===s0.sid)||{};
+function lbFields(d){const ss=(d.stones||[]).filter(s=>!s.d2&&(s.sid||parse(s.qty)>0||s.type)),s0=ss[0]||{},st=data.stock.find(x=>x.id===s0.sid)||{};
  const ct=ss.reduce((a,s)=>a+parse(s.qty),0),m0=(d.metal||[])[0]||{},pr=parse(d.p2)||parse(d.p1);
  return{kar:karOf(m0.fine),ser:d.code||"",col:s0.color||st.color||"",ct:ct?dotN(f2(ct)):"",gr:pTW(d)?dotN(f2(pTW(d))):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:String(st.name||"").replace(/^LG\s*/i,""),bc:d.code||"",
   stn:ss.map(s=>(data.stock.find(x=>x.id===s.sid)||{}).name).filter(Boolean).map(st4).join(" ")}}
@@ -2488,12 +2699,20 @@ async function bpDev(){const r=await fetch(BPU+"default?type=printer",{cache:"no
 async function bpSend(z){const dev=await bpDev();const r=await fetch(BPU+"write",{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({device:dev,data:z})});if(!r.ok)throw new Error("write");return dev}
 async function lbGo(k,f,n){const b=data.lbl||{};
  if(b.way==="bp"){try{const dev=await bpSend(zplOf(k,f,n));toast("Gedruckt auf "+(dev.name||"Zebra"))}
-  catch(e){toast(e&&e.message==="noprinter"?"Zebra Browser Print: kein Standarddrucker gewählt":"Zebra Browser Print nicht erreichbar – Programm gestartet?")}return}
+  catch(e){toast("Browser Print nicht da – Druckfenster wird geöffnet");lbPrint(lbDoc(k,f,n))}return}
  lbPrint(lbDoc(k,f,n))}
 act.bptest=async()=>{try{const d=await bpDev();toast("Verbunden: "+(d.name||"Drucker"))}catch(e){toast(e&&e.message==="noprinter"?"Zebra Browser Print: kein Standarddrucker gewählt":"Zebra Browser Print nicht erreichbar – Programm gestartet?")}};
 act.lprint=()=>{const l=ui.lp;if(!l)return;const n=Math.max(1,Math.min(50,Math.round(parse(l.n)||1)));lbGo(l.k,l.f,n)};
 const LSAMP={kar:"14K",ser:"YZD0000198",col:"D",ct:"1.06",gr:"3.26",cl:"VS1",pr:"2434",cert:"123456789",bc:"YZD0000198"};
 act.ltest=()=>lbGo("fin",LSAMP,1);
+function ctpSet(){if(!Array.isArray(data.ctp))data.ctp=[];const K=[["","Alle (Hauptstein)"],["Echt","Echt"],["CVD","CVD"],["HPHT","HPHT"],["D2","D2 (seitlich)"]];
+ return `<div class="card"><b>💎 Preis pro ct (automatisch)</b><p class="mu" style="margin:4px 0 10px">Trägt den Preis pro ct bei Steinen automatisch ein, je nach Karat pro Stein. Eigene Eingabe bei der Ware hat Vorrang.</p>
+ ${data.ctp.map((r,i)=>`<div class="rowc"><div class="g2">${F("Von ct",I(`data.ctp.${i}.from`,r.from||"","1,50",'inputmode="decimal"'))}${F("Bis ct",I(`data.ctp.${i}.to`,r.to||"","1,60",'inputmode="decimal"'))}</div>
+  <div class="g2">${F("Preis pro ct",I(`data.ctp.${i}.price`,r.price||"","107",'inputmode="decimal"'))}${F("Währung",S(`data.ctp.${i}.cur`,r.cur||BC(),CUR))}</div>
+  <div class="rf">${S(`data.ctp.${i}.kind`,r.kind||"",K)}<button class="sec sm" data-a="ctpdel" data-i="${i}" style="margin-left:8px">✕</button></div></div>`).join("")}
+ <button class="sec" data-a="ctpadd">+ Bereich</button></div>`}
+act.ctpadd=()=>{const l=data.ctp=data.ctp||[],p=l[l.length-1];l.push({from:p?p.to:"",to:"",price:"",cur:p?p.cur:BC(),kind:p?p.kind:""});render()};
+act.ctpdel=d=>{data.ctp.splice(Number(d.i),1);render()};
 function lbSet(){LB();const b=data.lbl;
  const n=(k,l)=>F(l,I("data.lbl."+k,b[k],LBD[k],'inputmode="decimal" data-u="uLs"'));
  return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße in mm. Breite = ganzes Etikett inkl. Schwanz (wie im Druckertreiber). Linker / rechter Teil = die beiden Flächen vor und nach dem schwarzen Strich.</p>
@@ -2517,6 +2736,7 @@ act.pwchg=()=>{const f=ui.pwf;
 function rSet(){
  $("s-set").innerHTML=`
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
+ ${ctpSet()}
  ${lbSet()}
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>

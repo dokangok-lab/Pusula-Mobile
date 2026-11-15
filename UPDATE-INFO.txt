@@ -1,0 +1,77 @@
+Pusula Mobile – Update-Paket 0.80
+
+Alle 6 Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
+index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
+Danach die App 2x neu laden – unter Einstellungen steht dann die neue Version.
+
+Änderungen:
+
+0.80 (15.11.2026)
+  - Werkstatt: „✓ Abgeholt“ bereitet automatisch einen Verkauf mit Barcode für die Person (bzw. „für …“) vor – alle Waren des Pakets, Betrag aus VK, nur noch prüfen und Buchen
+
+0.79 (15.11.2026)
+  - Konten: klarere Namen – BR „Belastung (er schuldet mir, ohne Kasse)“ für bestehende Schulden, AL „Gutschrift (ich schulde ihm, ohne Kasse)“, KB/KU „nur Kasse/Bank, keine Schuld“
+
+0.78 (15.11.2026)
+  - Neu unter Mehr: 📊 Statistik – Umsatz, Wareneinsatz, Rohertrag, Produktionskosten, verarbeitetes Gold und Karat, Ausgaben nach Kostenart, Lagerwert, Top-Kunden (Monat, Jahr, gesamt)
+  - Kunden-Vorlieben: aus Käufen und Bestellungen erkennt die App bevorzugte Steinform, Karat, Modell, Steinart, Goldfarbe und D2-Anteil
+  - Konten: Personenprofil mit Überblick (Umsatz, gekaufte Waren, Bestellungen, Kosten) und Vorlieben
+  - KB/KU mit Kostenart (Produktionskosten, Fahrtkosten, Versand, Material …), auch im Kontobuch als Kategorie
+
+0.77 (15.11.2026)
+  - Konten / Verkauf mit Barcode: Einheit auf EUR oder USD umstellen rechnet den Betrag zum Kurs um – danach frei anpassbar; Anzeige des Betrags in der anderen Währung
+
+0.76 (15.11.2026)
+  - Einstellungen: Preis pro ct nach Karat-Bereich (z. B. 1,50–1,60 ct = 107 USD), auch getrennt nach Echt/CVD/HPHT/D2 – wird bei Steinen automatisch eingetragen
+  - Fertigung: Stein-Zeile mit Häkchen „D2“ – D2-Steine zählen nicht zum Hauptstein und erscheinen nicht auf dem Etikett
+
+0.75 (15.11.2026)
+  - Fertigung: Sortierung – neueste, älteste, zuletzt fertig, zuletzt verkauft, Nummer, Name, Kosten, VK und Gewicht (auf- oder absteigend)
+
+0.74 (13.11.2026)
+  - Fertigung: Nach Eingabe des Gesamtgewichts fragt die App bei jedem Arbeitsschritt (Montage, Politur …), ob das der Eingang ist – Ja / Nein / Für alle ja
+
+0.73 (13.11.2026)
+  - Etiketten: ohne Zebra Browser Print öffnet sich automatisch das Druckfenster
+
+0.72 (13.11.2026)
+  - Etiketten: Direktdruck über Zebra Browser Print (ZPL, ohne Druckfenster) – Druckweg und Auflösung in den Einstellungen
+
+0.71 (13.11.2026)
+  - Etikettendruck ohne Datum, Titel und Internetadresse – es wird nur das Etikett gedruckt
+
+0.70 (13.11.2026)
+  - Arbeitsschritt „Montage D2“: Anzahl seitlicher Steine × Preis pro Stein (z. B. 16 × 0,50 = 8,00) wird automatisch als Betrag eingetragen
+
+0.69 (13.11.2026)
+  - Zebra-Etikett wie in ZebraDesigner: D :1.06ct · Farbe Qualität · 3.26gr · Preis | LG-Nummer, Barcode mit Karat, Seriennummer
+  - Werkstatt-Etikett: Nummer groß auf dem rechten Teil
+  - Etiketten: rechter Teil, Drehen um 180° und Testetikett in den Einstellungen
+
+0.68 (13.11.2026)
+  - Etikett (fertig): Seriennummer wird komplett gedruckt (z. B. YZD0000198)
+
+0.67 (13.11.2026)
+  - Fertigung: Etiketten für Zebra-Drucker – fertiges Etikett (Karat, Gramm, Diamant, Preis, Zertifikat, Barcode) und Werkstatt-Etikett (letzte 4 Ziffern Stein oder Kurzcode)
+  - Einstellungen: Etikettengröße, linker Teil, Verschiebung und Schriftgröße
+
+0.66 (13.11.2026)
+  - Laptop: volle Bildschirmbreite und ⛶-Knopf für Vollbild
+  - Laptop: Speichern öffnet jetzt „Speichern unter“ (bzw. Download) statt Teilen; Zwischenspeichern schreibt danach direkt in dieselbe Datei
+
+0.65 (13.11.2026)
+  - Zwischenspeichern als 💾-Knopf oben neben ⚙️ statt in den Einstellungen
+
+0.64 (13.11.2026)
+  - Automatische Anpassung an Laptop / großen Bildschirm: Menü links, Übersicht in Spalten
+
+0.63 (13.11.2026)
+  - Konten: neue Ausgänge KB (Kosten bar) und KU (Kosten Überweisung) – z. B. Versand bezahlen, zählt nicht als Schuld
+  - Übersicht: Kasse/Bank zählen automatische Kontobuch-Einträge nicht mehr doppelt
+
+0.62 (13.11.2026)
+  - Kontobuch: Person / offenes Konto wählbar – Buchung zählt auch im Personenkonto
+  - Konten: Verkauf mit Barcode mit mehreren Waren auf einmal
+
+0.61 (13.11.2026)
+  - Neues Logo: Kontobuch mit Kompass (App-Symbol und Anmeldeseite)
