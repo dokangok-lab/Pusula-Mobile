@@ -1,10 +1,27 @@
-Pusula Mobile – Update 0.95 (Komplettpaket)
+Pusula Mobile – Update 1.00 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 0.95.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.00.
 
 Änderungen:
+
+1.00 (18.11.2026)
+  - Neu unter Mehr: 📜 Zertifikat-Finder – einen oder mehrere Verkäufe anhaken, die App zeigt alle Zertifikate sortiert nach den letzten 4 Ziffern (mit voller Nummer, Ware und Verkauf), Liste kopierbar
+
+0.99 (18.11.2026)
+  - Verkäufe bekommen automatisch eine Nummer S + Jahr + Monat + laufende Nummer (z. B. S2611001), auch rückwirkend
+  - Konten-Verlauf: „📊 Auswertung“ je Verkauf – Einnahmen, Kosten, Gewinn mit Marge, Stück, Gold und Karat gesamt und im Durchschnitt
+  - Verkaufsbuch zeigt die Verkaufsnummer
+
+0.98 (18.11.2026)
+  - Konten: „💱 Saldo umrechnen (€ ⇄ $)“ – Schuld/Guthaben von Euro in Dollar oder umgekehrt umbuchen, mit Kurs und änderbarem Ergebnis, ohne Kasse/Kontobuch
+
+0.97 (18.11.2026)
+  - Verkauf: neues 📒 Verkaufsbuch – jede Einnahme (Verkauf an …, Stückzahl), Wareneinsatz und Kosten als Zeile mit laufendem Saldo; Endeinnahmen, Endausgaben, Ergebnis; Zeitraum wählbar; Excel-Export
+
+0.96 (18.11.2026)
+  - Etiketten: neuer Druckweg „Zebra-Datei“ – App erstellt den Zebra-Druckcode (ZPL), Zebra-Druck.bat schickt ihn ohne Zusatzprogramm direkt an den Drucker; Anleitung im Update-Paket
 
 0.95 (18.11.2026)
   - Etiketten schneller: 🏷️-Knopf direkt in der Fertigungsliste (ohne Ware zu öffnen); „Mehrere Etiketten drucken“ von Nummer bis Nummer oder alle der Liste in einem Druckauftrag; Option „nach Fertigstellen automatisch drucken“

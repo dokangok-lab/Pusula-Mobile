@@ -135,6 +135,7 @@ body{max-width:none;padding:20px 28px 40px}
  <section id="s-orders" class="hide"></section>
  <section id="s-more" class="hide"></section>
  <section id="s-stat" class="hide"></section>
+ <section id="s-cert" class="hide"></section>
  <section id="s-notes" class="hide"></section>
  <section id="s-trips" class="hide"></section>
  <section id="s-pkg" class="hide"></section>
@@ -153,8 +154,13 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.95";
+const VER="1.00";
 const HIST=[
+ ["1.00","18.11.2026",["Neu unter Mehr: 📜 Zertifikat-Finder – einen oder mehrere Verkäufe anhaken, die App zeigt alle Zertifikate sortiert nach den letzten 4 Ziffern (mit voller Nummer, Ware und Verkauf), Liste kopierbar"]],
+ ["0.99","18.11.2026",["Verkäufe bekommen automatisch eine Nummer S + Jahr + Monat + laufende Nummer (z. B. S2611001), auch rückwirkend","Konten-Verlauf: „📊 Auswertung“ je Verkauf – Einnahmen, Kosten, Gewinn mit Marge, Stück, Gold und Karat gesamt und im Durchschnitt","Verkaufsbuch zeigt die Verkaufsnummer"]],
+ ["0.98","18.11.2026",["Konten: „💱 Saldo umrechnen (€ ⇄ $)“ – Schuld/Guthaben von Euro in Dollar oder umgekehrt umbuchen, mit Kurs und änderbarem Ergebnis, ohne Kasse/Kontobuch"]],
+ ["0.97","18.11.2026",["Verkauf: neues 📒 Verkaufsbuch – jede Einnahme (Verkauf an …, Stückzahl), Wareneinsatz und Kosten als Zeile mit laufendem Saldo; Endeinnahmen, Endausgaben, Ergebnis; Zeitraum wählbar; Excel-Export"]],
+ ["0.96","18.11.2026",["Etiketten: neuer Druckweg „Zebra-Datei“ – App erstellt den Zebra-Druckcode (ZPL), Zebra-Druck.bat schickt ihn ohne Zusatzprogramm direkt an den Drucker; Anleitung im Update-Paket"]],
  ["0.95","18.11.2026",["Etiketten schneller: 🏷️-Knopf direkt in der Fertigungsliste (ohne Ware zu öffnen); „Mehrere Etiketten drucken“ von Nummer bis Nummer oder alle der Liste in einem Druckauftrag; Option „nach Fertigstellen automatisch drucken“"]],
  ["0.94","17.11.2026",["Werkstatt-Paket: Inhalt wird automatisch nach Nummer sortiert (z. B. 101, 102, 150) – erst Waren, dann Steine, Material, Sonstiges"]],
  ["0.93","17.11.2026",["Werkstatt-Paket: „Mehrere auf einmal“ – Waren von Nummer bis Nummer in einem Schritt hinzufügen"]],
@@ -370,10 +376,10 @@ $("bSave").onclick=async()=>{
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
-function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg","stat"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
- const nv=["kasse","orders","set","more","notes","trips","pkg","stat"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
+function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg","stat","cert"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
+ const nv=["kasse","orders","set","more","notes","trips","pkg","stat","cert"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
 act.go=d=>{if(d.v==="prod"&&ui.s==="prod"&&ui.pd){act.pback();return}go(d.v)};
-function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat})[ui.s]()}
+function render(){snoSync();({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat,cert:rCert})[ui.s]()}
 function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
@@ -390,6 +396,10 @@ function hook(p){
  if(p==="ui.te.car"&&ui.te){const c=carOf(ui.te.car);if(c){ui.te.cons=String(c.cons||"");ui.te.price=String(c.price||"")}}
  if(p.startsWith("ui.of.cur.")&&ui.of)ui.of.dirty=true;
  if(p==="ui.kf.prod")kProd();
+ if(p==="ui.wx.from"&&ui.wx){ui.wx=wxDef(ui.wx.pid,ui.wx.from);wxCalc()}
+ if(p==="ui.wx.to"&&ui.wx){const w=ui.wx;if(w.to===w.from){ui.wx=wxDef(w.pid,w.to==="EUR"?"USD":"EUR")}else{const r=cvC(1,w.from,w.to);w.rate=r?String(Math.round(r*10000)/10000).replace(".",","):"";w.bm=0}wxCalc()}
+ if(p==="ui.wx.a"&&ui.wx){wxCalc();setV("ui.wx.b",ui.wx.b)}
+ if(p==="ui.wx.b"&&ui.wx)ui.wx.bm=1;
  if(p==="ui.kf.unit"&&ui.kf){const f=ui.kf,old=f.ul||f.unit;f.uset=1;
   if(f.k==="VB"&&old!==f.unit&&["EUR","USD"].includes(old)&&["EUR","USD"].includes(f.unit)){const a=parse(f.amount);if(a>0){const c=cvC(a,old,f.unit);if(c>0){f.amount=String(Math.round(c*100)/100).replace(".",",");setV("ui.kf.amount",f.amount)}else toast("Kurs fehlt – bitte oben Kurse abrufen")}}
   f.ul=f.unit;kConv()}
@@ -715,6 +725,49 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Neu unter Mehr: 📜 Zertifikat-Finder – einen oder mehrere Verkäufe anhaken, die App zeigt alle Zertifikate sortiert nach den letzten 4 Ziffern (mit voller Nummer, Ware und Verkauf), Liste kopierbar ~ New under More: 📜 Certificate finder – tick one or more sales, the app lists all certificates sorted by the last 4 digits (with full number, item and sale), list can be copied ~ Daha Fazla altında yeni: 📜 Sertifika bulucu – bir veya birden fazla satış seçin, tüm sertifikalar son 4 haneye göre sıralanır (tam numara, ürün ve satışla), liste kopyalanabilir
+Zertifikat-Finder ~ Certificate finder ~ Sertifika bulucu
+Zertifikate eines Verkaufs nach letzten 4 Ziffern ~ Certificates of a sale by last 4 digits ~ Bir satışın sertifikaları son 4 haneye göre
+1. Verkäufe wählen ~ 1. Choose sales ~ 1. Satışları seçin
+2. Zertifikate – nach letzten 4 Ziffern ~ 2. Certificates – by last 4 digits ~ 2. Sertifikalar – son 4 haneye göre
+Oben einen oder mehrere Verkäufe anhaken. ~ Tick one or more sales above. ~ Yukarıdan bir veya birden fazla satış seçin.
+📋 Liste kopieren ~ 📋 Copy list ~ 📋 Listeyi kopyala
+Keine Verkäufe mit Barcode gefunden. ~ No barcode sales found. ~ Barkodlu satış bulunamadı.
+Liste kopiert ~ List copied ~ Liste kopyalandı
+Verkäufe bekommen automatisch eine Nummer S + Jahr + Monat + laufende Nummer (z. B. S2611001), auch rückwirkend ~ Sales automatically get a number S + year + month + running number (e.g. S2611001), also retroactively ~ Satışlar otomatik numara alır: S + yıl + ay + sıra (örn. S2611001), geriye dönük de
+Konten-Verlauf: „📊 Auswertung“ je Verkauf – Einnahmen, Kosten, Gewinn mit Marge, Stück, Gold und Karat gesamt und im Durchschnitt ~ Account history: “📊 Analysis” per sale – income, costs, profit with margin, pieces, gold and carats total and average ~ Hesap geçmişi: her satış için “📊 Analiz” – gelir, maliyet, marjlı kâr, adet, toplam ve ortalama altın ve karat
+Verkaufsbuch zeigt die Verkaufsnummer ~ Sales book shows the sale number ~ Satış defteri satış numarasını gösterir
+📊 Auswertung ~ 📊 Analysis ~ 📊 Analiz
+Auswertung zu ~ Close analysis ~ Analizi kapat
+Einnahmen ~ Income ~ Gelir
+Kosten (Wareneinsatz) ~ Costs (cost of goods) ~ Maliyet (mal maliyeti)
+Gewinn ~ Profit ~ Kâr
+Stück ~ Pieces ~ Adet
+Gold gesamt ~ Gold total ~ Toplam altın
+Karat gesamt (Hauptsteine) ~ Carats total (main stones) ~ Toplam karat (ana taşlar)
+Verkaufsnr.: Kürzel + Jahr + Monat + Zähler, z. B. S2611001 ~ Sale no.: prefix + year + month + counter, e.g. S2611001 ~ Satış no.: kısaltma + yıl + ay + sayaç, örn. S2611001
+Ohne Barcode-Waren – Kosten/Gold/Karat nicht bekannt. ~ No barcode items – cost/gold/carats unknown. ~ Barkodlu ürün yok – maliyet/altın/karat bilinmiyor.
+Konten: „💱 Saldo umrechnen (€ ⇄ $)“ – Schuld/Guthaben von Euro in Dollar oder umgekehrt umbuchen, mit Kurs und änderbarem Ergebnis, ohne Kasse/Kontobuch ~ Accounts: “💱 Convert balance (€ ⇄ $)” – move debt/credit from euro to dollar or back, with rate and editable result, without cash/ledger ~ Hesaplar: “💱 Bakiye çevir (€ ⇄ $)” – borç/alacağı euro'dan dolara veya tersine aktar, kur ve değiştirilebilir sonuçla, kasa/defter olmadan
+💱 Saldo umrechnen (€ ⇄ $) ~ 💱 Convert balance (€ ⇄ $) ~ 💱 Bakiye çevir (€ ⇄ $)
+💱 Währung umrechnen ~ 💱 Convert currency ~ 💱 Para birimi çevir
+Bucht einen Betrag von einer Währung in die andere um – ohne Kasse und Kontobuch. Der Gesamtsaldo bleibt gleich, nur die Währung wechselt. ~ Moves an amount from one currency to the other – without cash and ledger. The total balance stays the same, only the currency changes. ~ Bir tutarı bir para biriminden diğerine aktarır – kasa ve defter olmadan. Toplam bakiye aynı kalır, sadece para birimi değişir.
+Umrechnen & buchen ~ Convert & post ~ Çevir ve kaydet
+Währungswechsel ~ Currency exchange ~ Döviz değişimi
+€ Euro ~ € Euro ~ € Euro
+$ Dollar ~ $ Dollar ~ $ Dolar
+Verkauf: neues 📒 Verkaufsbuch – jede Einnahme (Verkauf an …, Stückzahl), Wareneinsatz und Kosten als Zeile mit laufendem Saldo; Endeinnahmen, Endausgaben, Ergebnis; Zeitraum wählbar; Excel-Export ~ Sales: new 📒 sales book – each income (sale to …, quantity), cost of goods and costs as a row with running balance; total income, total expenses, result; period selectable; Excel export ~ Satış: yeni 📒 satış defteri – her gelir (… satışı, adet), mal maliyeti ve masraflar bakiyeli satır olarak; toplam gelir, toplam gider, sonuç; dönem seçilebilir; Excel dışa aktarım
+📒 Verkaufsbuch ~ 📒 Sales book ~ 📒 Satış defteri
+⬇️ Excel ~ ⬇️ Excel ~ ⬇️ Excel
+Vorgang ~ Transaction ~ İşlem
+Einnahme ~ Income ~ Gelir
+Ausgabe ~ Expense ~ Gider
+Saldo ~ Balance ~ Bakiye
+Endeinnahmen ~ Total income ~ Toplam gelir
+Endausgaben ~ Total expenses ~ Toplam gider
+Ergebnis ~ Result ~ Sonuç
+Keine Buchungen im Zeitraum. ~ No entries in this period. ~ Bu dönemde kayıt yok.
+Etiketten: neuer Druckweg „Zebra-Datei“ – App erstellt den Zebra-Druckcode (ZPL), Zebra-Druck.bat schickt ihn ohne Zusatzprogramm direkt an den Drucker; Anleitung im Update-Paket ~ Labels: new print method “Zebra file” – the app creates the Zebra print code (ZPL), Zebra-Druck.bat sends it directly to the printer without extra software; instructions in the update package ~ Etiketler: yeni baskı yolu “Zebra dosyası” – uygulama Zebra baskı kodunu (ZPL) oluşturur, Zebra-Druck.bat ek program olmadan doğrudan yazıcıya gönderir; talimat güncelleme paketinde
+Zebra-Datei (mit Zebra-Druck.bat, ohne Zusatzprogramm) ~ Zebra file (with Zebra-Druck.bat, no extra software) ~ Zebra dosyası (Zebra-Druck.bat ile, ek program yok)
 Etiketten schneller: 🏷️-Knopf direkt in der Fertigungsliste (ohne Ware zu öffnen); „Mehrere Etiketten drucken“ von Nummer bis Nummer oder alle der Liste in einem Druckauftrag; Option „nach Fertigstellen automatisch drucken“ ~ Faster labels: 🏷️ button right in the production list (without opening the item); “Print several labels” from number to number or all of the list in one print job; option “print automatically after finishing” ~ Daha hızlı etiket: üretim listesinde doğrudan 🏷️ düğmesi; numaradan numaraya veya listedeki tümü tek baskıda; “bitirince otomatik yazdır” seçeneği
 🏷️ Mehrere Etiketten drucken ~ 🏷️ Print several labels ~ 🏷️ Birden fazla etiket yazdır
 Öffnen ~ Open ~ Aç
@@ -1657,6 +1710,7 @@ const OP={
  HC:["Altgold-Ausgang","out","HAS"],NO:["Barzahlung","out","EUR"],GH:["Überweisung aus","out","EUR"],MC:["Warenausgang","out","EUR"],BR:["Belastung (er schuldet mir, ohne Kasse)","out","EUR"],
  VB:["Verkauf mit Barcode","out","EUR"],VO:["Verkauf ohne Barcode","out","EUR"],EO:["Einkauf ohne Barcode","in","EUR"],RB:["Rückgabe mit Barcode","in","EUR"],RA:["Rabatt","in","EUR"],KB:["Kosten bar (nur Kasse, keine Schuld)","out","EUR"],KU:["Kosten Überweisung (nur Bank, keine Schuld)","out","EUR"]};
 const NODEBT={KB:1,KU:1};
+OP.WX=["Währungswechsel","out","EUR"];
 const MONEY={NT:"cash",NO:"cash",KK:"bank",GH:"bank",KB:"cash",KU:"bank"};
 function autoBook(m){const ab=data.ab||{};if(!ab.on||!MONEY[m.type]||!["EUR","USD"].includes(m.unit))return;
  const p=data.people.find(x=>x.id===m.pid),inc=m.dir==="in",bk=Number(ab[MONEY[m.type]])||0;
@@ -1892,10 +1946,29 @@ function rStat(){const k=ui.stp||"m",r=perRange(k),SS=(t,v,s)=>`<div class="it">
  <div class="card"><b>🏆 Top-Kunden</b>${top.map(([id,v])=>SS(esc(pnm(Number(id))),sMoney(v))).join("")||'<p class="mu">Keine Verkäufe im Zeitraum.</p>'}</div>
  <div class="card"><b>🎯 Kunden-Vorlieben</b>${buyers.length?S("ui.stpid",cp,buyers.map(b=>[b.id,b.name+(b.company?" · "+b.company:(b.city?" · "+b.city:""))]),'data-n="1" data-r="1"')+prefHTML(cp):'<p class="mu">Noch keine Käufe oder Bestellungen.</p>'}</div>`}
 act.stp=d=>{ui.stp=d.v;render()};
+/* ---------- Zertifikat-Finder ---------- */
+function cfSales(){const g={};data.moves.filter(m=>m.type==="VB"&&m.sno).forEach(m=>{(g[m.sno]=g[m.sno]||{sno:m.sno,date:m.date,pid:m.pid,ms:[]}).ms.push(m)});
+ return Object.values(g).sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.sno.localeCompare(a.sno))}
+function cfCerts(sel){const L=[];cfSales().filter(s=>sel[s.sno]).forEach(s=>s.ms.forEach(m=>mProds(m).forEach(p=>(p.stones||[]).filter(x=>!x.d2&&x.sid).forEach(x=>{const st=data.stock.find(y=>y.id===x.sid);
+  if(st&&st.name)L.push({l4:st4(st.name),cert:st.name,code:p.code,sno:s.sno,ct:parse(x.qty)||parse(st.ct),type:x.type||st.type||""})}))));
+ return L.sort((a,b)=>a.l4.localeCompare(b.l4,"de",{numeric:true})||a.cert.localeCompare(b.cert))}
+function rCert(){const sel=ui.cfs||(ui.cfs={}),q=String(ui.cfq||"").trim().toLowerCase(),S=cfSales().filter(s=>!q||(s.sno+" "+pnm(s.pid)).toLowerCase().includes(q)),C=cfCerts(sel),n=Object.values(sel).filter(Boolean).length;
+ $("s-cert").innerHTML=`<div class="bar"><span>Zertifikat-Finder</span><span>📜</span></div>
+ <div class="card"><b>1. Verkäufe wählen</b><input data-f="ui.cfq" data-u="uCf" value="${esc(ui.cfq||"")}" placeholder="Suchen (S2611… oder Kunde)" style="margin:8px 0" autocorrect="off" autocomplete="off" spellcheck="false">
+ <div id="cfl">${cfList(S,sel)}</div>
+ ${n?`<button class="sec sm" data-a="cfclr" style="margin-top:6px">Auswahl leeren (${n})</button>`:""}</div>
+ <div class="card"><b>2. Zertifikate – nach letzten 4 Ziffern</b>${C.length?`<p class="mu" style="margin:4px 0 8px">${C.length} Zertifikat${C.length>1?"e":""} aus ${n} Verkauf${n>1?"en":""}</p>
+ ${C.map(c=>`<div class="it"><div><b style="font-size:26px;letter-spacing:1px">${esc(c.l4)}</b><small>${esc(c.cert)} · ${esc(c.type)} ${c.ct?f2(c.ct)+" ct":""}</small></div><div class="r"><b>${esc(shortCode(c.code))}</b><small>${esc(c.sno)}</small></div></div>`).join("")}
+ <div class="row" style="margin-top:8px"><button class="sec" data-a="cfcopy">📋 Liste kopieren</button></div>`:'<p class="mu" style="margin:6px 0 0">Oben einen oder mehrere Verkäufe anhaken.</p>'}</div>`}
+function cfList(S,sel){return S.map(s=>{const k=s.ms.reduce((a,m)=>a+mProds(m).length,0);return `<label class="it" style="cursor:pointer"><div style="display:flex;gap:10px;align-items:center"><input type="checkbox" data-cf="${esc(s.sno)}"${sel[s.sno]?" checked":""} style="width:22px;height:22px"><div><b>${esc(s.sno)}</b> · ${esc(pnm(s.pid))}<small>${dt(s.date)} · ${k} Stück</small></div></div></label>`}).join("")||'<p class="mu">Keine Verkäufe mit Barcode gefunden.</p>'}
+function uCf(){const e=$("cfl");if(!e)return;const q=String(ui.cfq||"").trim().toLowerCase();e.innerHTML=cfList(cfSales().filter(s=>!q||(s.sno+" "+pnm(s.pid)).toLowerCase().includes(q)),ui.cfs||{})}
+document.addEventListener("change",e=>{const el=e.target;if(!el||!el.dataset||el.dataset.cf===undefined)return;ui.cfs=ui.cfs||{};ui.cfs[el.dataset.cf]=el.checked;rCert()});
+act.cfclr=()=>{ui.cfs={};rCert()};
+act.cfcopy=()=>{const t=cfCerts(ui.cfs||{}).map(c=>c.l4+"  "+c.cert+"  "+shortCode(c.code)+"  "+c.sno).join("\n");try{navigator.clipboard.writeText(t).then(()=>toast("Liste kopiert"),()=>toast("Kopieren nicht möglich"))}catch(_){toast("Kopieren nicht möglich")}};
 function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.length;
  const T=(v,i,t,s)=>`<button class="sec tile" data-a="go" data-v="${v}" style="text-align:left;padding:16px;display:flex;gap:14px;align-items:center"><span style="font-size:26px">${i}</span><span><b>${t}</b><br><small class="mu">${s}</small></span></button>`;
  $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><button data-a="savekeep" style="margin-bottom:10px">💾 Zwischenspeichern (App bleibt offen)</button><div class="card" style="display:grid;gap:10px">
- ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("stat","📊","Statistik","Umsatz, Kosten, Lager, Kunden-Vorlieben")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
+ ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("stat","📊","Statistik","Umsatz, Kosten, Lager, Kunden-Vorlieben")}${T("cert","📜","Zertifikat-Finder","Zertifikate eines Verkaufs nach letzten 4 Ziffern")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
 const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
  return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
@@ -2227,7 +2300,7 @@ function rKo(){
  <div class="row" style="margin:0"><input id="pNew" placeholder="Neue Person"><button class="sec" data-a="addP" style="flex:0 0 36%">Anlegen</button></div></div>`;
  if(ui.pid){
   h+=pCard();
-  h+=balHTML(ui.pid)+custHTML(ui.pid);
+  h+=balHTML(ui.pid)+wxHTML(ui.pid)+custHTML(ui.pid);
   h+=`<div class="card"><div class="tg" style="margin-bottom:10px">${TG("kdir",ui.kdir,[["in","Eingänge (ich nahm)"],["out","Ausgänge (ich gab)"],["ord","📋 Bestellung"]])}</div>
    ${ui.kdir==="ord"?"":tiles(ui.kdir==="in"?["AG","NT","KK","MG","AL"]:["VB","VO","HC","NO","GH","MC","BR","KB","KU"],"kop")}`;
   if(ui.kdir==="ord")h+=ordForm()+ordList(ui.pid);
@@ -2239,7 +2312,7 @@ function rKo(){
  $("s-konten").innerHTML=h;uOf()}
 function histHTML(pid){
  return data.moves.filter(m=>m.pid===pid).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(m=>
-  `<div class="it"><div>${opName(m)}${mCnt(m)?` <span class="pill" style="white-space:nowrap;display:inline-block">${mCnt(m)} Stück</span>`:""}<small>${dt(m.date)}${m.note?" · "+mNote(m):""}</small>${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${NODEBT[m.type]?'<br><span class="pill">keine Schuld</span>':""}${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
+  `<div class="it"><div>${m.sno?`<b>${esc(m.sno)}</b> · `:""}${opName(m)}${mCnt(m)?` <span class="pill" style="white-space:nowrap;display:inline-block">${mCnt(m)} Stück</span>`:""}<small>${dt(m.date)}${m.note?" · "+mNote(m):""}</small>${m.sno?`<button class="sec sm" data-a="sdet" data-id="${m.id}" style="margin-top:6px">${(ui.sd||{})[m.id]?"Auswertung zu":"📊 Auswertung"}</button>`:""}${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${NODEBT[m.type]?'<br><span class="pill">keine Schuld</span>':""}${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>${m.sno&&(ui.sd||{})[m.id]?saleHTML(m):""}`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
 act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=true;render()}};
 act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
 act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,prods:[],sid:0,qty:"",q:""};render()};
@@ -2251,7 +2324,7 @@ act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte 
  if(f.k==="VB"){mv.prods=[];(f.prods||[]).forEach(id=>{const p=data.prods.find(x=>x.id===id);if(!p)return;p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prods.push(p.id);if(f.ord){const[oi,ii]=String(f.ord).split(":");oAssign(oi,Number(ii),p.id)}});if(mv.prods.length===1){mv.prod=mv.prods[0];delete mv.prods}}
  if(f.k==="VO"&&f.sid){const q=parse(f.qty);if(q>0){const s=data.stock.find(x=>x.id===f.sid);data.smoves.push({id:uid(),sid:f.sid,qty:-q,date,note:"Verkauf an "+pnm(ui.pid),ref:"m"+mv.id});mv.ref="m"+mv.id;if(s&&!mv.note)mv.note=s.name}}
  data.moves.push(mv);autoBook(mv);ui.kf=null;render();toast(MONEY[mv.type]&&data.ab&&data.ab.on?"Gebucht – auch im Kontobuch":"Gebucht")};
-act.kdel=d=>{const id=Number(d.id),m=data.moves.find(x=>x.id===id);data.entries=data.entries.filter(e=>e.mref!==id);
+act.kdel=d=>{const id=Number(d.id),m=data.moves.find(x=>x.id===id);data.entries=data.entries.filter(e=>e.mref!==id);if(m&&m.wx){data.moves=data.moves.filter(x=>x.wx!==m.wx);render();return}
  if(m)[...(m.prods||[]),m.prod].filter(Boolean).forEach(pid=>{const p=data.prods.find(x=>x.id===pid);if(p&&p.status==="sold"&&!p.saleId){p.status="done";delete p.soldTo;delete p.soldDate}});
  if(m&&m.ref)data.smoves=data.smoves.filter(x=>x.ref!==m.ref);
  data.moves=data.moves.filter(x=>x.id!==id);render()};
@@ -2311,10 +2384,56 @@ function sqOpts(i,cur){const q=String((ui.sq||{})[i]||"").trim().toLowerCase().r
 function uSq(){const d=ui.pd;if(!d)return;for(const k in (ui.sq||{})){const i=Number(k),e=$("ssel_"+i),s=d.stones[i];if(!e||!s)continue;
   const q=String(ui.sq[k]||"").trim();e.innerHTML=sqOpts(i,s.sid);
   if(q.length>=3){const m=[...e.options].filter(o=>Number(o.value)>0);if(m.length===1){s.sid=Number(m[0].value);ui.sq[k]="";pEdit("ui.pd.stones."+i+".sid");render();return}}}}
+/* ---------- Verkaufsnummer S2611001 + Verkaufsauswertung ---------- */
+const pfxS=()=>((data.prefix||{}).Verkauf||"S");
+function snoSync(){const L=data.moves.filter(m=>(m.type==="VB"||m.type==="VO")&&!m.sno);if(!L.length)return;
+ L.sort((a,b)=>String(a.date).localeCompare(String(b.date))||a.id-b.id);const bySale={};
+ data.moves.forEach(m=>{if(m.sno&&m.saleId)bySale[m.saleId]=m.sno});
+ L.forEach(m=>{if(m.saleId&&bySale[m.saleId]){m.sno=bySale[m.saleId];return}
+  const d=String(m.date||today()),pre=pfxS()+d.slice(2,4)+d.slice(5,7);let mx=0;
+  data.moves.forEach(x=>{if(x.sno&&x.sno.startsWith(pre)){const r=x.sno.slice(pre.length);if(/^\d+$/.test(r))mx=Math.max(mx,parseInt(r,10))}});
+  m.sno=pre+String(mx+1).padStart(3,"0");if(m.saleId)bySale[m.saleId]=m.sno})}
+function mProds(m){let ps=Array.isArray(m.prods)&&m.prods.length?m.prods:(m.prod?[m.prod]:[]);
+ if(!ps.length&&m.saleId&&m.type==="VB"){const first=data.moves.find(x=>x.saleId===m.saleId&&x.type==="VB");if(first&&first.id===m.id)ps=data.prods.filter(x=>x.saleId===m.saleId).map(x=>x.id)}
+ return ps.map(id=>data.prods.find(x=>x.id===id)).filter(Boolean)}
+function saleStat(m){const ps=mProds(m),u=m.unit,cv=(v,c)=>{const n=parse(v);return c===u?n:(cvC(n,c,u)||n)};
+ const cost=ps.reduce((a,p)=>a+cv(p.cost,p.cur==="USD"?"USD":"EUR"),0),gold=ps.reduce((a,p)=>a+(p.w||0),0),tw=ps.reduce((a,p)=>a+(pTW(p)||0),0),ct=ps.reduce((a,p)=>a+mainCt(p),0),d2=ps.reduce((a,p)=>a+d2Ct(p),0);
+ return{n:ps.length,cost,gold,tw,ct,d2,ein:m.amount,gew:m.amount-cost}}
+function saleHTML(m){const s=saleStat(m),n=s.n||mCnt(m),u=m.unit,a=(t,v,sm)=>`<div class="it" style="padding:6px 0"><div>${t}${sm?`<small>${sm}</small>`:""}</div><div class="r"><b>${v}</b></div></div>`;
+ return `<div style="margin:8px 0 4px;padding:8px 10px;border:1px solid var(--bd);border-radius:10px">
+ ${a("Einnahmen",fu(s.ein,u))}${s.n?a("Kosten (Wareneinsatz)",fu(s.cost,u),"Ø "+fu(s.cost/s.n,u)+" pro Stück"):""}
+ ${s.n?a("<b>Gewinn</b>",`<span style="color:${s.gew>=0?"var(--in)":"var(--out)"}">${fu(s.gew,u)}</span>`,s.ein?Math.round(s.gew/s.ein*100)+" % Marge":""):""}
+ ${a("Stück",String(n),s.n&&s.ein?"Ø Verkaufspreis "+fu(s.ein/s.n,u):"")}
+ ${s.n?a("Gold gesamt",f3(s.gold)+" g","Ø "+f3(s.gold/s.n)+" g · Gesamtgewicht "+f3(s.tw)+" g"):""}
+ ${s.n&&s.ct?a("Karat gesamt (Hauptsteine)",f2(s.ct)+" ct","Ø "+f2(s.ct/s.n)+" ct"+(s.d2?" · D2 "+f2(s.d2)+" ct":"")):""}
+ ${!s.n?'<p class="mu" style="margin:4px 0 0">Ohne Barcode-Waren – Kosten/Gold/Karat nicht bekannt.</p>':""}</div>`}
+act.sdet=d=>{ui.sd=ui.sd||{};const id=Number(d.id);ui.sd[id]=!ui.sd[id];render()};
 function mCnt(m){if(Array.isArray(m.prods)&&m.prods.length)return m.prods.length;if(m.prod)return 1;if(["VB","VO","MC","MA"].includes(m.type)){const c=(String(m.note||"").match(/\b[A-Z]{2,4}\d{3,}\b/g)||[]).length;return c}return 0}
 function mNote(m){const n=String(m.note||"");if(n.length<=110||(ui.mx||{})[m.id])return esc(n)+(n.length>110?` <button class="sec sm" data-a="mx" data-id="${m.id}">weniger</button>`:"");
  return esc(n.slice(0,100).replace(/[ ,]+[^ ,]*$/,""))+` … <button class="sec sm" data-a="mx" data-id="${m.id}">alle anzeigen</button>`}
 act.mx=d=>{ui.mx=ui.mx||{};const id=Number(d.id);ui.mx[id]=!ui.mx[id];render()};
+/* ---------- Währung umrechnen (Saldo € ⇄ $) ---------- */
+function wxHTML(pid){const b=balOf(pid),has=["EUR","USD"].some(u=>Math.abs(b[u]||0)>1e-9);if(!has&&!ui.wx)return"";
+ if(!ui.wx||ui.wx.pid!==pid)return `<div class="row" style="margin:-4px 0 12px"><button class="sec" data-a="wxo">💱 Saldo umrechnen (€ ⇄ $)</button></div>`;
+ const w=ui.wx,o=[["EUR","€ Euro"],["USD","$ Dollar"]];
+ return `<div class="card"><div class="nav" style="margin:0"><b>💱 Währung umrechnen</b><button class="sec sm" data-a="wxx">Schließen</button></div>
+ <p class="mu" style="margin:4px 0 10px">Bucht einen Betrag von einer Währung in die andere um – ohne Kasse und Kontobuch. Der Gesamtsaldo bleibt gleich, nur die Währung wechselt.</p>
+ <div class="g2">${F("Von",S("ui.wx.from",w.from,o,'data-r="1"'))}${F("Nach",S("ui.wx.to",w.to,o,'data-r="1"'))}</div>
+ <div class="g2">${F("Betrag ("+w.from+")",N("ui.wx.a",w.a))}${F("Kurs (1 "+w.from+" = … "+w.to+")",I("ui.wx.rate",w.rate,"",'inputmode="decimal" data-u="uWx"'))}</div>
+ ${F("Ergebnis ("+w.to+") – änderbar",N("ui.wx.b",w.b))}
+ <p class="mu" id="wxi" style="margin:-4px 0 10px">${wxInfo()}</p>
+ <div class="row"><button data-a="wxbook">Umrechnen &amp; buchen</button></div></div>`}
+function wxDef(pid,from){const b=balOf(pid),to=from==="EUR"?"USD":"EUR",r=cvC(1,from,to);return{pid,from,to,a:Math.abs(b[from]||0)?String(Math.round(Math.abs(b[from])*100)/100).replace(".",","):"",rate:r?String(Math.round(r*10000)/10000).replace(".",","):"",b:"",bm:0}}
+function wxCalc(){const w=ui.wx;if(!w||w.bm)return;const a=parse(w.a),r=parse(w.rate);w.b=a>0&&r>0?String(Math.round(a*r*100)/100).replace(".",","):""}
+function wxInfo(){const w=ui.wx;if(!w)return"";const b=balOf(w.pid),s=v=>v>0?"er schuldet "+f2(v):v<0?"ich schulde "+f2(-v):"0";return `Jetzt: ${w.from} ${s(b[w.from]||0)} · ${w.to} ${s(b[w.to]||0)}`}
+function uWx(){wxCalc();setV("ui.wx.b",ui.wx.b)}
+act.wxo=()=>{const b=balOf(ui.pid),from=Math.abs(b.EUR||0)>1e-9?"EUR":"USD";ui.wx=wxDef(ui.pid,from);wxCalc();render()};
+act.wxx=()=>{ui.wx=null;render()};
+act.wxbook=()=>{const w=ui.wx;if(!w)return;const a=parse(w.a),bb=parse(w.b);if(w.from===w.to){toast("Bitte zwei verschiedene Währungen wählen");return}
+ if(!(a>0)||!(bb>0)){toast("Betrag und Ergebnis prüfen");return}
+ const cur=balOf(w.pid)[w.from]||0,d1=cur<0?"out":"in",d2=d1==="out"?"in":"out",id=uid(),t=today(),note=`${f2(a)} ${w.from} → ${f2(bb)} ${w.to} (Kurs ${w.rate})`;
+ data.moves.push({id:uid(),pid:w.pid,type:"WX",dir:d1,unit:w.from,amount:Math.round(a*100)/100,note,date:t,wx:id},{id:uid(),pid:w.pid,type:"WX",dir:d2,unit:w.to,amount:Math.round(bb*100)/100,note,date:t,wx:id});
+ ui.wx=null;render();toast("Umgerechnet: "+note)};
 function singleUse(s){const m=data.smoves.find(x=>x.sid===s.id&&x.qty<0&&x.ref&&x.ref[0]==="p");return m?data.prods.find(p=>"p"+p.id===m.ref):stoneIn(s.id)}
 const stoneIn=(sid,ex)=>data.prods.find(p=>p.id!==ex&&(p.stones||[]).some(x=>x.sid===sid))||null;
 function singleTxt(s){const ip=stoneIn(s.id);if(ip&&ip.status==="prod")return"Reserviert in Fertigung: "+shortCode(ip.code)+" ("+ip.code+")";if(qtyOf(s.id)>1e-9)return"Im Lager ("+f3(qtyOf(s.id))+" ct)";const p=singleUse(s);return p?"Verbaut in "+shortCode(p.code)+" ("+p.code+")"+(p.status==="sold"?" · verkauft":""):"Nicht im Lager"}
@@ -2579,6 +2698,37 @@ act.pnav=d=>{const l=plist(),i=l.findIndex(p=>p.id===ui.pd.id);if(i<0)return;con
 
 /* ---------- Verkauf ---------- */
 const newSale=()=>({pid:(data.people.find(p=>p.walk)||{}).id||0,date:today(),cur:BC(),lines:[],note:"",lf:null});
+/* ---------- Verkaufsbuch (Einnahmen / Ausgaben je Verkauf) ---------- */
+function vbRows(r){const R=[],seen=new Set(),mv=new Map(data.moves.map(m=>[m.id,m]));
+ data.moves.filter(m=>(m.type==="VB"||m.type==="VO")&&inR(m.date,r)).forEach(m=>{const p=data.people.find(x=>x.id===m.pid),n=mCnt(m);
+  R.push({d:m.date,t:"Verkauf",txt:(m.sno?m.sno+" · ":"")+(m.type==="VB"?"Verkauf mit Barcode":"Verkauf ohne Barcode")+" · "+(p?p.name:"?")+(n?" · "+n+" Stück":""),note:m.note||"",ein:bv(m.amount,m.unit),aus:0});
+  let ps=Array.isArray(m.prods)&&m.prods.length?m.prods:(m.prod?[m.prod]:[]);
+  if(!ps.length&&m.saleId&&m.type==="VB"&&!seen.has(m.saleId)){seen.add(m.saleId);ps=data.prods.filter(x=>x.saleId===m.saleId).map(x=>x.id)}
+  const pp=ps.map(id=>data.prods.find(x=>x.id===id)).filter(Boolean),we=pp.reduce((a,x)=>a+bv(x.cost,x.cur),0);
+  if(we)R.push({d:m.date,t:"Wareneinsatz",txt:(m.sno?m.sno+" · ":"")+"Wareneinsatz · "+pp.length+" Stück",note:pp.map(x=>shortCode(x.code)).join(", "),ein:0,aus:we})});
+ data.entries.filter(e=>e.type==="out"&&!e.tr&&inR(e.date,r)).forEach(e=>{const m=e.mref&&mv.get(e.mref);if(e.mref&&(!m||!NODEBT[m.type]))return;
+  R.push({d:e.date,t:"Kosten",txt:(m&&m.cat)||e.cat||"Sonstige Kosten",note:e.note||"",ein:0,aus:entBase(e)})});
+ data.moves.filter(m=>NODEBT[m.type]&&inR(m.date,r)&&!data.entries.some(e=>e.mref===m.id)).forEach(m=>{const p=data.people.find(x=>x.id===m.pid);
+  R.push({d:m.date,t:"Kosten",txt:m.cat||"Sonstige Kosten",note:[p?p.name:"",m.note].filter(Boolean).join(" · "),ein:0,aus:bv(m.amount,m.unit)})});
+ R.sort((a,b)=>String(a.d).localeCompare(String(b.d))||(a.t==="Verkauf"?-1:1));let s=0;R.forEach(x=>{s+=x.ein-x.aus;x.saldo=s});return R}
+function vbHTML(){const k=ui.vbp||"m",r=perRange(k),R=vbRows(r),E=R.reduce((a,x)=>a+x.ein,0),we=R.filter(x=>x.t==="Wareneinsatz").reduce((a,x)=>a+x.aus,0),ko=R.filter(x=>x.t==="Kosten").reduce((a,x)=>a+x.aus,0),A=we+ko,c=BC();
+ const td='style="padding:6px 3px;border-bottom:1px solid var(--bd);vertical-align:top"',tr='style="padding:6px 3px;border-bottom:1px solid var(--bd);text-align:right;white-space:nowrap;vertical-align:top"';
+ return `<div class="card"><div class="nav" style="margin:0"><b>📒 Verkaufsbuch</b><button class="sec sm" data-a="vbx">⬇️ Excel</button></div>
+ <div class="chips" style="margin-top:8px">${SPER.map(([v,t])=>`<button class="${k===v?"":"sec"}" data-a="vbp" data-v="${v}">${t}</button>`).join("")}</div>
+ <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:13px"><thead><tr style="color:var(--ac);text-align:left"><th ${td}>Datum</th><th ${td}>Vorgang</th><th ${tr}>Einnahme</th><th ${tr}>Ausgabe</th><th ${tr}>Saldo</th></tr></thead><tbody>
+ ${R.map(x=>`<tr><td ${td}>${dt(x.d).slice(0,6)}</td><td ${td}>${esc(x.txt)}${x.note?`<br><small class="mu">${esc(String(x.note).length>42?String(x.note).slice(0,40)+" …":x.note)}</small>`:""}</td><td ${tr}>${x.ein?`<span style="color:var(--in)">${f2(x.ein)}</span>`:""}</td><td ${tr}>${x.aus?`<span style="color:var(--out)">${f2(x.aus)}</span>`:""}</td><td ${tr}>${f2(x.saldo)}</td></tr>`).join("")||`<tr><td colspan="5" ${td}><span class="mu">Keine Buchungen im Zeitraum.</span></td></tr>`}
+ </tbody></table></div>
+ <div class="it"><div>Endeinnahmen</div><div class="r"><b style="color:var(--in)">${f2(E)} ${SYM(c)}</b></div></div>
+ <div class="it"><div>Endausgaben<small>Wareneinsatz ${f2(we)} · Kosten ${f2(ko)}</small></div><div class="r"><b style="color:var(--out)">${f2(A)} ${SYM(c)}</b></div></div>
+ <div class="it"><div><b>Ergebnis</b></div><div class="r"><b style="color:${E-A>=0?"var(--in)":"var(--out)"}">${f2(E-A)} ${SYM(c)}</b></div></div>
+ <p class="mu" style="margin:6px 0 0">Alle Beträge in ${c}, umgerechnet zum aktuellen Kurs. Einnahmen = Verkäufe (mit/ohne Barcode). Ausgaben = Wareneinsatz der verkauften Waren + Kosten (Kontobuch-Ausgaben, KB/KU). Schuldenzahlungen zählen nicht.</p></div>`}
+act.vbook=()=>{ui.vbk=!ui.vbk;render()};
+act.vbp=d=>{ui.vbp=d.v;render()};
+act.vbx=async()=>{const k=ui.vbp||"m",R=vbRows(perRange(k)),c=BC(),lab=(SPER.find(x=>x[0]===k)||[,""])[1];
+ const rows=[["Datum","Art","Vorgang","Notiz","Einnahme "+c,"Ausgabe "+c,"Saldo "+c],...R.map(x=>[dt(x.d),x.t,x.txt,x.note,x.ein?Math.round(x.ein*100)/100:"",x.aus?Math.round(x.aus*100)/100:"",Math.round(x.saldo*100)/100])];
+ const E=R.reduce((a,x)=>a+x.ein,0),A=R.reduce((a,x)=>a+x.aus,0);rows.push([],["","","Endeinnahmen","",Math.round(E*100)/100,"",""],["","","Endausgaben","","",Math.round(A*100)/100,""],["","","Ergebnis","","","",Math.round((E-A)*100)/100]);
+ const name=(data.user||"Export")+"_Verkaufsbuch_"+lab.replace(/\s+/g,"_")+".xlsx";
+ try{const blob=xlsx([["Verkaufsbuch",rows]]),d=await claude.use("downloads");if(d)await d.save({filename:name,data:blob});else{const f=new File([blob],name),a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;a.click()}toast("Excel bereit")}catch(e){toast("Nicht gespeichert")}};
 function rV(){const s=ui.sv||(ui.sv=newSale());
  const no=Math.max(0,...data.sales.map(x=>x.no))+1;
  const tot=s.lines.reduce((a,l)=>a+(OP[l.k][1]==="out"?l.amount:-l.amount),0);
@@ -2587,7 +2737,8 @@ function rV(){const s=ui.sv||(ui.sv=newSale());
  ${F("Kunde / Händler",S("ui.sv.pid",s.pid,pOpts(s.pid),'data-n="1" data-r="1" id="vpsel"'))}
  <div class="row"><input id="pNew2" placeholder="Neue Person"><button class="sec" data-a="addP2" style="flex:0 0 36%">Anlegen</button></div>
  <div class="g2">${F("Datum",`<input type="date" data-f="ui.sv.date" value="${s.date}">`)}${F("Währung",S("ui.sv.cur",s.cur,CUR,s.lines.length?"disabled":'data-r="1"'))}</div>
- <div class="row" style="margin:0"><button class="sec" data-a="vkonto">Konto &amp; Verlauf</button><button class="sec" data-a="vlist">Verkaufsliste</button></div></div>`;
+ <div class="row" style="margin:0"><button class="sec" data-a="vkonto">Konto &amp; Verlauf</button><button class="sec" data-a="vlist">Verkaufsliste</button><button class="sec" data-a="vbook">📒 Verkaufsbuch</button></div></div>`;
+ if(ui.vbk)h+=vbHTML();
  if(s.pid){const pp=data.people.find(x=>x.id===s.pid);if(pp)h+=`<div class="card"><b>${esc(pp.name)}</b>${pinfo(pp)}</div>`;h+=balHTML(s.pid)}
  h+=`<div class="card"><div class="tg" style="margin-bottom:10px">${TG("vdir",ui.vdir,[["in","Eingänge"],["out","Ausgänge"]])}</div>
  ${tiles(ui.vdir==="in"?["NT","KK","EO","RB","RA"]:["VB","VO","NO","GH"],"vop")}${s.lf?lfHTML(s):""}</div>
@@ -2877,7 +3028,12 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
 const BPU="https://127.0.0.1:9101/";
 async function bpDev(){const r=await fetch(BPU+"default?type=printer",{cache:"no-store"});const t=await r.text();if(!t||!t.trim())throw new Error("noprinter");return JSON.parse(t)}
 async function bpSend(z){const dev=await bpDev();const r=await fetch(BPU+"write",{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({device:dev,data:z})});if(!r.ok)throw new Error("write");return dev}
+async function zplFile(z,n){const name="pusula-etikett.zpl";
+ try{const dlc=await claude.use("downloads");if(dlc){await dlc.save({filename:name,data:z});toast(n+" Etikett"+(n>1?"en":"")+" als Zebra-Datei gespeichert");return}}catch(_){}
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([z],{type:"application/octet-stream"}));a.download=name;document.body.appendChild(a);a.click();
+ setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast(n+" Etikett"+(n>1?"en":"")+" → Zebra")}
 async function lbMulti(fs){if(!fs.length){toast("Keine Ware ausgewählt");return}const b=data.lbl||{};
+ if(b.way==="zpl"){zplFile(fs.map(f=>zplOf("fin",f,1)).join(""),fs.length);return}
  if(b.way==="bp"){try{const dev=await bpSend(fs.map(f=>zplOf("fin",f,1)).join(""));toast(fs.length+" Etikett"+(fs.length>1?"en":"")+" gedruckt auf "+(dev.name||"Zebra"));return}catch(e){toast("Druckfenster wird geöffnet")}}
  lbPrint(fs.map(f=>lbDoc("fin",f,1)).join(""))}
 act.pql=d=>{const p=data.prods.find(x=>x.id===Number(d.id));if(p)lbMulti([lbFields(p)])};
@@ -2886,6 +3042,7 @@ act.pqr=()=>{const cs=pkSorted(plist()),i1=cs.findIndex(s=>s.id===ui.pq1),i2=cs.
  lbMulti(cs.slice(Math.min(i1,i2),Math.max(i1,i2)+1).map(lbFields))};
 act.pqa=()=>lbMulti(pkSorted(plist()).map(lbFields));
 async function lbGo(k,f,n){const b=data.lbl||{};
+ if(b.way==="zpl"){zplFile(zplOf(k,f,n),n);return}
  if(b.way==="bp"){try{const dev=await bpSend(zplOf(k,f,n));toast("Gedruckt auf "+(dev.name||"Zebra"))}
   catch(e){toast("Browser Print nicht da – Druckfenster wird geöffnet");lbPrint(lbDoc(k,f,n))}return}
  lbPrint(lbDoc(k,f,n))}
@@ -2907,7 +3064,8 @@ function lbSet(){LB();const b=data.lbl;
  <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("r","Rechter Teil (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div><div class="g2">${n("fs","Schriftgröße (%)")}${n("m","Innenrand (mm)")}</div>
  ${CB("data.lbl.auto",!!b.auto,"Nach „Fertigstellen“ Etikett automatisch drucken")}
  ${(b.way||"bp")==="bp"?CB("data.lbl.zrot",!!b.zrot,"Beim Drucken um 180° drehen"):CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
- <div class="g2">${F("Druckweg",S("data.lbl.way",b.way||"bp",[["bp","Direkt (Zebra Browser Print)"],["win","Druckfenster des Browsers"]],'data-r="1"'))}${F("Drucker-Auflösung",S("data.lbl.dpi",b.dpi||"203",[["203","203 dpi"],["300","300 dpi"]]))}</div>
+ <div class="g2">${F("Druckweg",S("data.lbl.way",b.way||"bp",[["zpl","Zebra-Datei (mit Zebra-Druck.bat, ohne Zusatzprogramm)"],["bp","Direkt (Zebra Browser Print)"],["win","Druckfenster des Browsers"]],'data-r="1"'))}${F("Drucker-Auflösung",S("data.lbl.dpi",b.dpi||"203",[["203","203 dpi"],["300","300 dpi"]]))}</div>
+ ${b.way==="zpl"?`<p class="mu" style="margin:0 0 8px">Die App speichert das Etikett als Zebra-Datei (pusula-etikett.zpl). Einmal einrichten: Drucker freigeben (Name „ZEBRA“), Zebra-Druck.bat aus dem Update-Paket in einen festen Ordner legen und .zpl-Dateien damit öffnen lassen, im Browser „Dateien dieses Typs immer öffnen“. Danach druckt jeder Klick sofort – Anleitung: ZEBRA-EINRICHTUNG.txt im Update-Paket.</p>`:""}
  ${(b.way||"bp")==="bp"?`<p class="mu" style="margin:0 0 8px">Einmalig am Laptop das kostenlose Programm „Zebra Browser Print“ von zebra.com installieren und starten, dort den Etikettdrucker als Standard wählen und diese Seite erlauben. Dann druckt die App direkt – ohne Druckfenster, wie ZebraDesigner.</p><button class="sec" data-a="bptest" style="margin-bottom:8px">🔌 Verbindung prüfen</button>`:""}
  <div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden;margin-bottom:10px" id="lsv">${lsPrev()}</div><button class="sec" data-a="ltest">🖨️ Testetikett drucken</button></div>`}
 function lsPrev(){const c=LB(),sc=Math.min(2.4,320/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne("fin",LSAMP)}</div></div>`}
@@ -2931,7 +3089,8 @@ function rSet(){
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div>
- <div class="g2">${F("Werkstatt-Paket",I("data.prefix.Paket",pfxK(),"P",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Paketnr.: Kürzel + Zähler, z. B. P0001</p></div></div>
+ <div class="g2">${F("Werkstatt-Paket",I("data.prefix.Paket",pfxK(),"P",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Paketnr.: Kürzel + Zähler, z. B. P0001</p></div>
+ <div class="g2">${F("Verkauf",I("data.prefix.Verkauf",pfxS(),"S",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Verkaufsnr.: Kürzel + Jahr + Monat + Zähler, z. B. S2611001</p></div></div>
  <div class="card"><b>Hauptwährung</b>${(data.entries.length||data.moves.length||data.prods.length||data.sales.length)?`<p style="margin:6px 0">${data.base==="USD"?"US-Dollar ($)":"Euro (€)"}</p><p class="mu" style="margin:0">Nur änderbar, solange es noch keine Buchungen, Waren oder Verkäufe gibt.</p>`:F("Hauptwährung",S("data.base",data.base,[["EUR","Euro (€)"],["USD","US-Dollar ($)"]]))+'<p class="mu" style="margin:0">Gold und die andere Währung werden danach in dieser Währung gerechnet.</p>'}</div>
  <div class="card"><b>🔑 Kunden-Chiffre</b><p class="mu" style="margin:4px 0 8px">Jede Person bekommt automatisch eine Chiffre (z. B. K0001). Die kannst du auf Zettel, Tüten oder Etiketten schreiben, statt Name und Adresse. Suche findet Personen auch über die Chiffre.</p>
  <div class="g2">${F("Kürzel",I("data.prefix.Kunde",pfxC(),"K",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off"'))}<p class="mu" style="margin:0;align-self:end">z. B. ${esc(pfxC())}0001</p></div>

@@ -1,0 +1,33 @@
+Pusula Mobile – Etiketten direkt auf den Zebra drucken (ohne Zusatzprogramm)
+============================================================================
+
+Einmalig am Laptop einrichten (ca. 5 Minuten):
+
+1) Drucker freigeben
+   Windows-Einstellungen > Bluetooth und Geräte > Drucker und Scanner
+   > "Dia. Etikettdrucker" > Druckereigenschaften > Reiter "Freigabe"
+   > Haken bei "Drucker freigeben", Freigabename: ZEBRA > OK
+
+2) Zebra-Druck.bat ablegen
+   Die Datei Zebra-Druck.bat aus diesem Paket in einen festen Ordner kopieren,
+   z. B. C:\Pusula\Zebra-Druck.bat  (nicht im Download-Ordner lassen)
+
+3) .zpl-Dateien damit öffnen lassen
+   In der App unter Einstellungen > Etiketten > Druckweg: "Zebra-Datei" wählen
+   und einmal "Testetikett drucken". Es wird pusula-etikett.zpl heruntergeladen.
+   Im Download-Ordner Rechtsklick auf pusula-etikett.zpl > Öffnen mit
+   > Andere App auswählen > "Weitere Apps" > "Andere App auf diesem PC suchen"
+   > C:\Pusula\Zebra-Druck.bat wählen > "Immer" bestätigen.
+   -> Das Etikett wird gedruckt.
+
+4) Browser: automatisch öffnen
+   Edge/Chrome: Bei der nächsten heruntergeladenen pusula-etikett.zpl in der
+   Download-Liste auf "..." klicken > "Dateien dieses Typs immer öffnen".
+
+Fertig: Ab jetzt druckt jeder Klick auf 🏷️ in der App sofort auf dem Zebra.
+Mehrere Etiketten (Von/Bis) gehen in einem Rutsch raus.
+
+Wenn die Position nicht passt:
+Einstellungen > Etiketten > "Verschieben" (mm) und "Schriftgröße" anpassen.
+Am genauesten: in ZebraDesigner bei einem Etikett "Drucke in Datei" anhaken,
+drucken und die .prn-Datei an Claude schicken – dann wird das Layout 1:1 übernommen.
