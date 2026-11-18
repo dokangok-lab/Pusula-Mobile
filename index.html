@@ -54,7 +54,7 @@ input[type=date]{min-width:0;max-width:100%;-webkit-appearance:none;appearance:n
 .navb{flex:1;text-align:center;padding:12px 6px;border-radius:12px;text-decoration:none;font-weight:600;font-size:14px;border:1px solid var(--bd);color:var(--tx);background:var(--fld)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}.chips button{width:auto;white-space:nowrap;padding:7px 12px}
 .pill{font-size:11px;padding:2px 8px;border-radius:10px;background:var(--fld);border:1px solid var(--bd);color:var(--mu)}
-[data-a]{cursor:pointer;-webkit-tap-highlight-color:transparent}[data-a] *{pointer-events:none}
+[data-a]{cursor:pointer;-webkit-tap-highlight-color:transparent}[data-a] *{pointer-events:none}[data-a] [data-a]{pointer-events:auto}
 .nb{position:fixed;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom,0px)*.25 + 2px);display:flex;gap:2px;background:var(--hd);padding:6px;border-radius:20px;z-index:5;box-shadow:0 4px 16px rgba(0,0,0,.35)}
 .nb button{background:none;color:#d6ccff;font-size:10px;padding:6px 0;border-radius:14px;font-weight:500;display:flex;flex-direction:column;align-items:center;gap:1px;min-height:48px}
 .nb button span{font-size:18px}.nb button.on{background:rgba(255,255,255,.18);color:#fff}
@@ -153,8 +153,23 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="0.80";
+const VER="0.95";
 const HIST=[
+ ["0.95","18.11.2026",["Etiketten schneller: 🏷️-Knopf direkt in der Fertigungsliste (ohne Ware zu öffnen); „Mehrere Etiketten drucken“ von Nummer bis Nummer oder alle der Liste in einem Druckauftrag; Option „nach Fertigstellen automatisch drucken“"]],
+ ["0.94","17.11.2026",["Werkstatt-Paket: Inhalt wird automatisch nach Nummer sortiert (z. B. 101, 102, 150) – erst Waren, dann Steine, Material, Sonstiges"]],
+ ["0.93","17.11.2026",["Werkstatt-Paket: „Mehrere auf einmal“ – Waren von Nummer bis Nummer in einem Schritt hinzufügen"]],
+ ["0.92","17.11.2026",["Konten-Verlauf: Anzahl der Waren steht neben jedem Verkauf (z. B. „50 Stück“); lange Warenlisten werden gekürzt – „alle anzeigen“ klappt sie auf"]],
+ ["0.91","17.11.2026",["Fertigung: „← Zurück zur Liste“ auch ganz unten; erneutes Tippen auf „Fertigung“ unten öffnet die Liste – sie springt zur zuletzt bearbeiteten Ware"]],
+ ["0.90","17.11.2026",["Zertifikatskarte: für vorgedruckte Karten – es werden nur die Werte in die weißen Felder und das Foto ins Fotofeld gedruckt (Standard); Vorschau zeigt die Karte als Hilfe"]],
+ ["0.89","17.11.2026",["Fertigung: „💳 Zertifikatskarte drucken“ – Karte im Scheckkartenformat (Model No, Gold K, Gram, D1, D2 Farbe/Qualität, Foto) direkt an den Kartendrucker","Einstellungen: eigener Kartenhintergrund, Seitensteine neben D1 oder mit D1 zusammengerechnet, Verschiebung, Testkarte"]],
+ ["0.88","17.11.2026",["Fertigung: Polieren hat als Betrag automatisch 5 – bei Bedarf einfach überschreiben"]],
+ ["0.87","17.11.2026",["Fertigung: Steine ohne Zertifikat/Lagernummer – Häkchen „Farbe/Reinheit als Bereich“ mit Auswahl wie D-E, E-F … und VVS, VS, SI, VVS-VS …"]],
+ ["0.86","17.11.2026",["Montage: Häkchen „Auf ganze Zahl aufrunden“ (z. B. 22,50 → 23) – wird für die nächste Montage gemerkt"]],
+ ["0.85","17.11.2026",["Montage: Betrag = Basis (Standard 15) × Karat des Hauptsteins, auf 0,1 abgerundet (z. B. 0,65 ct → × 0,6 = 9) – Basis änderbar, wird gemerkt","Fertigung: „⧉ Duplizieren“ – fertige Ware als Vorlage kopieren, neue Nummer; Einzelsteine werden geleert und müssen neu gewählt werden"]],
+ ["0.84","16.11.2026",["Montage D2: Anzahl Steine wird automatisch aus den D2-Stein-Zeilen (Stück) übernommen und der Betrag gleich berechnet"]],
+ ["0.83","16.11.2026",["Etikett: bei D2-Steinen eigene Zeile „D2 :0.13ct“ unter Karat/Farbe – wie in ZebraDesigner; D2-Karat im Druckfenster änderbar"]],
+ ["0.82","15.11.2026",["Fertigung: Suchfeld über der Stein-Auswahl – nach Nummer, Form, ct, Farbe oder Reinheit suchen; bei genau einem Treffer wird der Stein direkt übernommen"]],
+ ["0.81","15.11.2026",["Fertigung: Einzelsteine, die schon in einer anderen Ware stecken (auch „In Fertigung“), erscheinen nicht mehr in der Stein-Auswahl; im Lager steht „Reserviert in Fertigung: …“"]],
  ["0.80","15.11.2026",["Werkstatt: „✓ Abgeholt“ bereitet automatisch einen Verkauf mit Barcode für die Person (bzw. „für …“) vor – alle Waren des Pakets, Betrag aus VK, nur noch prüfen und Buchen"]],
  ["0.79","15.11.2026",["Konten: klarere Namen – BR „Belastung (er schuldet mir, ohne Kasse)“ für bestehende Schulden, AL „Gutschrift (ich schulde ihm, ohne Kasse)“, KB/KU „nur Kasse/Bank, keine Schuld“"]],
  ["0.78","15.11.2026",["Neu unter Mehr: 📊 Statistik – Umsatz, Wareneinsatz, Rohertrag, Produktionskosten, verarbeitetes Gold und Karat, Ausgaben nach Kostenart, Lagerwert, Top-Kunden (Monat, Jahr, gesamt)","Kunden-Vorlieben: aus Käufen und Bestellungen erkennt die App bevorzugte Steinform, Karat, Modell, Steinart, Goldfarbe und D2-Anteil","Konten: Personenprofil mit Überblick (Umsatz, gekaufte Waren, Bestellungen, Kosten) und Vorlieben","KB/KU mit Kostenart (Produktionskosten, Fahrtkosten, Versand, Material …), auch im Kontobuch als Kategorie"]],
@@ -357,7 +372,7 @@ $("bSave").onclick=async()=>{
 const act={};
 function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg","stat"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
  const nv=["kasse","orders","set","more","notes","trips","pkg","stat"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
-act.go=d=>go(d.v);
+act.go=d=>{if(d.v==="prod"&&ui.s==="prod"&&ui.pd){act.pback();return}go(d.v)};
 function render(){({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat})[ui.s]()}
 function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
@@ -700,6 +715,63 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Etiketten schneller: 🏷️-Knopf direkt in der Fertigungsliste (ohne Ware zu öffnen); „Mehrere Etiketten drucken“ von Nummer bis Nummer oder alle der Liste in einem Druckauftrag; Option „nach Fertigstellen automatisch drucken“ ~ Faster labels: 🏷️ button right in the production list (without opening the item); “Print several labels” from number to number or all of the list in one print job; option “print automatically after finishing” ~ Daha hızlı etiket: üretim listesinde doğrudan 🏷️ düğmesi; numaradan numaraya veya listedeki tümü tek baskıda; “bitirince otomatik yazdır” seçeneği
+🏷️ Mehrere Etiketten drucken ~ 🏷️ Print several labels ~ 🏷️ Birden fazla etiket yazdır
+Öffnen ~ Open ~ Aç
+Gilt für die Waren der Liste unten (Filter oben beachten). Alles geht in einem Druckauftrag raus. ~ Applies to the items in the list below (mind the filter above). Everything goes out in one print job. ~ Aşağıdaki listedeki ürünler için (üstteki filtreye dikkat). Hepsi tek baskı işinde gider.
+Nach „Fertigstellen“ Etikett automatisch drucken ~ Print label automatically after “Finish” ~ “Bitir”den sonra etiketi otomatik yazdır
+Keine Ware ausgewählt ~ No item selected ~ Ürün seçilmedi
+Druckfenster wird geöffnet ~ Opening print window ~ Yazdırma penceresi açılıyor
+Werkstatt-Paket: Inhalt wird automatisch nach Nummer sortiert (z. B. 101, 102, 150) – erst Waren, dann Steine, Material, Sonstiges ~ Workshop package: contents are sorted by number automatically (e.g. 101, 102, 150) – items first, then stones, material, other ~ Atölye paketi: içerik numaraya göre otomatik sıralanır (örn. 101, 102, 150) – önce ürünler, sonra taşlar, malzeme, diğer
+Werkstatt-Paket: „Mehrere auf einmal“ – Waren von Nummer bis Nummer in einem Schritt hinzufügen ~ Workshop package: “Several at once” – add items from number to number in one step ~ Atölye paketi: “Birden fazla” – numaradan numaraya ürünleri tek adımda ekle
+Mehrere auf einmal ~ Several at once ~ Birden fazla
+Von Nummer bis Nummer – alle verfügbaren Waren dazwischen werden hinzugefügt. ~ From number to number – all available items in between are added. ~ Numaradan numaraya – aradaki tüm mevcut ürünler eklenir.
+Von ~ From ~ Başlangıç
+Bis ~ To ~ Bitiş
+Konten-Verlauf: Anzahl der Waren steht neben jedem Verkauf (z. B. „50 Stück“); lange Warenlisten werden gekürzt – „alle anzeigen“ klappt sie auf ~ Account history: the number of items is shown next to every sale (e.g. “50 pcs”); long item lists are shortened – “show all” expands them ~ Hesap geçmişi: her satışın yanında ürün sayısı (örn. “50 adet”); uzun listeler kısaltılır – “tümünü göster” açar
+alle anzeigen ~ show all ~ tümünü göster
+weniger ~ less ~ daha az
+Fertigung: „← Zurück zur Liste“ auch ganz unten; erneutes Tippen auf „Fertigung“ unten öffnet die Liste – sie springt zur zuletzt bearbeiteten Ware ~ Production: “← Back to list” also at the very bottom; tapping “Production” again opens the list – it jumps to the last edited item ~ Üretim: en altta da “← Listeye dön”; alttaki “Üretim”e tekrar dokunmak listeyi açar – son düzenlenen ürüne gider
+← Zurück zur Liste ~ ← Back to list ~ ← Listeye dön
+Zertifikatskarte: für vorgedruckte Karten – es werden nur die Werte in die weißen Felder und das Foto ins Fotofeld gedruckt (Standard); Vorschau zeigt die Karte als Hilfe ~ Certificate card: for pre-printed cards – only the values in the white fields and the photo in the photo field are printed (default); preview shows the card as a guide ~ Sertifika kartı: önceden basılı kartlar için – sadece beyaz alanlara değerler ve fotoğraf alanına foto basılır (varsayılan); önizleme kartı yardım olarak gösterir
+Vorgedruckte Karten – nur Werte und Foto drucken ~ Pre-printed cards – print values and photo only ~ Önceden basılı kartlar – sadece değerler ve foto
+Gedruckt werden nur die Texte in die weißen Felder und das Foto ins Fotofeld. Die Vorschau zeigt die Karte nur als Hilfe. ~ Only the texts in the white fields and the photo in the photo field are printed. The preview shows the card only as a guide. ~ Sadece beyaz alanlardaki yazılar ve fotoğraf alanındaki foto basılır. Önizleme kartı sadece yardım olarak gösterir.
+Vorschau = Hilfe: gedruckt werden nur Texte und Foto. Im Druckfenster den Kartendrucker wählen, Ränder „Keine“, Skalierung 100 %. Verschiebung und D1-Seitensteine: ⚙️ Einstellungen → Zertifikatskarte. ~ Preview = guide: only texts and photo are printed. In the print window choose the card printer, margins “None”, scale 100 %. Offset and D1 side stones: ⚙️ Settings → Certificate card. ~ Önizleme = yardım: sadece yazılar ve foto basılır. Yazdırma penceresinde kart yazıcısını seçin, kenar boşluğu “Yok”, ölçek %100. Kaydırma ve D1 yan taşlar: ⚙️ Ayarlar → Sertifika kartı.
+Fertigung: „💳 Zertifikatskarte drucken“ – Karte im Scheckkartenformat (Model No, Gold K, Gram, D1, D2 Farbe/Qualität, Foto) direkt an den Kartendrucker ~ Production: “💳 Print certificate card” – card in credit-card size (model no, gold K, gram, D1, D2 colour/clarity, photo) directly to the card printer ~ Üretim: “💳 Sertifika kartı yazdır” – kredi kartı boyutunda kart (model no, altın ayar, gram, D1, D2 renk/berraklık, foto) doğrudan kart yazıcısına
+Einstellungen: eigener Kartenhintergrund, Seitensteine neben D1 oder mit D1 zusammengerechnet, Verschiebung, Testkarte ~ Settings: own card background, side stones next to D1 or added to D1, offset, test card ~ Ayarlar: kendi kart arka planı, yan taşlar D1 yanında veya D1 ile toplam, kaydırma, test kartı
+💳 Zertifikatskarte drucken ~ 💳 Print certificate card ~ 💳 Sertifika kartı yazdır
+💳 Zertifikatskarte ~ 💳 Certificate card ~ 💳 Sertifika kartı
+🖨️ Karte drucken ~ 🖨️ Print card ~ 🖨️ Kartı yazdır
+D2 – Farbe ~ D2 – colour ~ D2 – renk
+D2 – Qualität ~ D2 – clarity ~ D2 – berraklık
+Im Druckfenster den Kartendrucker wählen, Ränder „Keine“, Skalierung 100 %. Hintergrund, D1-Seitensteine und Verschiebung: ⚙️ Einstellungen → Zertifikatskarte. ~ In the print window choose the card printer, margins “None”, scale 100 %. Background, D1 side stones and offset: ⚙️ Settings → Certificate card. ~ Yazdırma penceresinde kart yazıcısını seçin, kenar boşluğu “Yok”, ölçek %100. Arka plan, D1 yan taşlar ve kaydırma: ⚙️ Ayarlar → Sertifika kartı.
+💳 Zertifikatskarte (Kartendrucker) ~ 💳 Certificate card (card printer) ~ 💳 Sertifika kartı (kart yazıcısı)
+Karte im Scheckkartenformat 85,6 × 54 mm. Eigenen Hintergrund hochladen (z. B. aus iCARDE als Bild exportiert oder Foto/Scan einer leeren Karte). ~ Card in credit-card size 85.6 × 54 mm. Upload your own background (e.g. exported from iCARDE as image or photo/scan of a blank card). ~ Kredi kartı boyutu 85,6 × 54 mm. Kendi arka planınızı yükleyin (örn. iCARDE'den resim olarak veya boş kartın fotoğrafı/taraması).
+🖼️ Hintergrund wählen ~ 🖼️ Choose background ~ 🖼️ Arka plan seç
+Hintergrund hat schon Beschriftung & weiße Felder – nur Werte drucken ~ Background already has labels & white fields – print values only ~ Arka planda yazılar ve beyaz alanlar var – sadece değerleri yazdır
+Seitensteine (D2-Steine) bei D1 ~ Side stones (D2) at D1 ~ D1'de yan taşlar (D2)
+Neben D1 (0.60 + 0.13 ct) ~ Next to D1 (0.60 + 0.13 ct) ~ D1 yanında (0.60 + 0.13 ct)
+Mit D1 zusammen (0.73 ct) ~ Added to D1 (0.73 ct) ~ D1 ile toplam (0.73 ct)
+🖨️ Testkarte drucken ~ 🖨️ Print test card ~ 🖨️ Test kartı yazdır
+Hintergrund gespeichert ~ Background saved ~ Arka plan kaydedildi
+Fertigung: Polieren hat als Betrag automatisch 5 – bei Bedarf einfach überschreiben ~ Production: polishing gets 5 as amount automatically – simply overwrite if needed ~ Üretim: cila tutarı otomatik 5 – gerekirse üzerine yazın
+Fertigung: Steine ohne Zertifikat/Lagernummer – Häkchen „Farbe/Reinheit als Bereich“ mit Auswahl wie D-E, E-F … und VVS, VS, SI, VVS-VS … ~ Production: stones without certificate/stock number – tick “colour/clarity as range” with choices like D-E, E-F … and VVS, VS, SI, VVS-VS … ~ Üretim: sertifikasız/stok numarasız taşlar – “renk/berraklık aralık olarak” işareti, D-E, E-F … ve VVS, VS, SI, VVS-VS … seçenekleri
+Ohne Zertifikat: Farbe/Reinheit als Bereich (z. B. D-E, VVS) ~ No certificate: colour/clarity as range (e.g. D-E, VVS) ~ Sertifikasız: renk/berraklık aralık olarak (örn. D-E, VVS)
+I – Piqué ~ I – Piqué ~ I – Piké
+Montage: Häkchen „Auf ganze Zahl aufrunden“ (z. B. 22,50 → 23) – wird für die nächste Montage gemerkt ~ Setting: tick “Round up to whole number” (e.g. 22.50 → 23) – remembered for the next setting ~ Montaj: “Tam sayıya yuvarla” işareti (örn. 22,50 → 23) – sonraki montaj için hatırlanır
+Auf ganze Zahl aufrunden (z. B. 22,50 → 23) ~ Round up to whole number (e.g. 22.50 → 23) ~ Tam sayıya yukarı yuvarla (örn. 22,50 → 23)
+Montage: Betrag = Basis (Standard 15) × Karat des Hauptsteins, auf 0,1 abgerundet (z. B. 0,65 ct → × 0,6 = 9) – Basis änderbar, wird gemerkt ~ Setting: amount = base (default 15) × carat of the main stone, rounded down to 0.1 (e.g. 0.65 ct → × 0.6 = 9) – base adjustable, remembered ~ Montaj: tutar = taban (varsayılan 15) × ana taş karatı, 0,1'e aşağı yuvarlanır (örn. 0,65 ct → × 0,6 = 9) – taban değiştirilebilir, hatırlanır
+Fertigung: „⧉ Duplizieren“ – fertige Ware als Vorlage kopieren, neue Nummer; Einzelsteine werden geleert und müssen neu gewählt werden ~ Production: “⧉ Duplicate” – copy an item as template, new number; single stones are cleared and must be chosen again ~ Üretim: “⧉ Çoğalt” – ürünü şablon olarak kopyala, yeni numara; tek taşlar boşaltılır ve yeniden seçilmelidir
+Basis pro ct ~ Base per ct ~ ct başı taban
+Noch kein Hauptstein (ct) eingetragen ~ No main stone (ct) entered yet ~ Henüz ana taş (ct) girilmedi
+⧉ Duplizieren (gleiches Modell, neue Nummer) ~ ⧉ Duplicate (same model, new number) ~ ⧉ Çoğalt (aynı model, yeni numara)
+Montage D2: Anzahl Steine wird automatisch aus den D2-Stein-Zeilen (Stück) übernommen und der Betrag gleich berechnet ~ Setting D2: number of stones is taken automatically from the D2 stone rows (pieces) and the amount is calculated right away ~ Montaj D2: taş sayısı D2 taş satırlarından (adet) otomatik alınır ve tutar hemen hesaplanır
+Etikett: bei D2-Steinen eigene Zeile „D2 :0.13ct“ unter Karat/Farbe – wie in ZebraDesigner; D2-Karat im Druckfenster änderbar ~ Label: with D2 stones an extra line “D2 :0.13ct” under carat/colour – as in ZebraDesigner; D2 carat editable in the print dialog ~ Etiket: D2 taşlarda karat/renk altında ayrı satır “D2 :0.13ct” – ZebraDesigner gibi; D2 karat yazdırma penceresinde değiştirilebilir
+D2 Carat (leer = ohne D2-Zeile) ~ D2 carat (empty = no D2 line) ~ D2 karat (boş = D2 satırı yok)
+Fertigung: Suchfeld über der Stein-Auswahl – nach Nummer, Form, ct, Farbe oder Reinheit suchen; bei genau einem Treffer wird der Stein direkt übernommen ~ Production: search field above the stone picker – search by number, shape, ct, colour or clarity; with exactly one match the stone is taken over directly ~ Üretim: taş seçiminin üstünde arama alanı – numara, şekil, ct, renk veya berraklığa göre; tek sonuçta taş doğrudan alınır
+Kein Stein gefunden ~ No stone found ~ Taş bulunamadı
+🔍 Stein suchen (Nummer, Form, ct, Farbe …) ~ 🔍 Search stone (number, shape, ct, colour …) ~ 🔍 Taş ara (numara, şekil, ct, renk …)
+Fertigung: Einzelsteine, die schon in einer anderen Ware stecken (auch „In Fertigung“), erscheinen nicht mehr in der Stein-Auswahl; im Lager steht „Reserviert in Fertigung: …“ ~ Production: single stones already in another item (also “in production”) no longer appear in the stone picker; stock shows “Reserved in production: …” ~ Üretim: başka bir üründe olan tek taşlar (“üretimde” olanlar dahil) taş seçiminde artık görünmez; stokta “Üretimde ayrıldı: …” yazar
 Werkstatt: „✓ Abgeholt“ bereitet automatisch einen Verkauf mit Barcode für die Person (bzw. „für …“) vor – alle Waren des Pakets, Betrag aus VK, nur noch prüfen und Buchen ~ Workshop: “✓ Picked up” automatically prepares a barcode sale for the person (or “for …”) – all items of the package, amount from sale price, just check and post ~ Atölye: “✓ Teslim alındı” kişi (veya “… için”) adına barkodlu satışı otomatik hazırlar – paketteki tüm ürünler, tutar satış fiyatından, sadece kontrol edip kaydedin
 Konten: klarere Namen – BR „Belastung (er schuldet mir, ohne Kasse)“ für bestehende Schulden, AL „Gutschrift (ich schulde ihm, ohne Kasse)“, KB/KU „nur Kasse/Bank, keine Schuld“ ~ Accounts: clearer names – BR “Charge (he owes me, no cash)” for existing debts, AL “Credit (I owe him, no cash)”, KB/KU “cash/bank only, no debt” ~ Hesaplar: daha net adlar – mevcut borçlar için BR “Borçlandırma (bana borçlu, kasasız)”, AL “Alacak (ona borçluyum, kasasız)”, KB/KU “sadece kasa/banka, borç değil”
 Belastung (er schuldet mir, ohne Kasse) ~ Charge (he owes me, no cash) ~ Borçlandırma (bana borçlu, kasasız)
@@ -1995,7 +2067,8 @@ function pkShareTxt(g){const w=data.people.find(x=>x.id===g.pid),f=data.people.f
  if(w)L.push("Werkstatt: "+w.name);if(g.step)L.push("Arbeit: "+g.step);if(f)L.push("Für: "+(ui.oanon?(f.cc||"–"):f.name+(f.cc?" ("+f.cc+")":"")));if(o)L.push("Bestellung: "+o.no);if(g.due)L.push("Frist: "+dt(g.due));
  L.push("");(g.items||[]).forEach((x,i)=>L.push((i+1)+") "+pkItemTxt(x)+(x.note?" – "+x.note:"")));L.push("","Insgesamt: "+pkSum(g).txt);if(g.note)L.push("Notiz: "+g.note);if(g.status==="ready")L.push("Status: abholbereit");else if(g.sub)L.push("Stand: "+g.sub);return L.join("\n")}
 function rPkg(){const e=$("s-pkg");
- if(ui.pk){const g=ui.pk,a=g.add,cand=pkCand(g,a.k),sm=pkSum(g);
+ (data.pkgs||[]).forEach(x=>pkSortItems(x.items));
+ if(ui.pk){const g=ui.pk,a=g.add,cand=pkCand(g,a.k),sm=pkSum(g);pkSortItems(g.items);
   const ws=[[0,"– Werkstatt wählen –"],...data.people.filter(p=>!p.walk).sort((x,y)=>(y.type==="Werkstatt")-(x.type==="Werkstatt")).map(p=>[p.id,(p.type==="Werkstatt"?"🔧 ":"")+plabel(p)])];
   e.innerHTML=`<div class="nav"><b>${g.id?"Paket "+esc(g.no):"Neues Paket"}</b><button class="sec sm" data-a="pkback">Liste</button></div><div class="card">
   <div class="g2">${F("Paketnummer",`<input data-f="ui.pk.no" value="${esc(g.no)}"${g.ov?"":" readonly"} autocapitalize="characters" autocorrect="off">`)}${F("Kürzel",I("data.prefix.Paket",pfxK(),"P",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off"'))}</div>
@@ -2013,7 +2086,11 @@ function rPkg(){const e=$("s-pkg");
    F(a.k==="stone"?"Stein":a.k==="prod"?"Ware":"Material",S("ui.pk.add.ref",a.ref,[[0,cand.length?"– wählen –":"– nichts verfügbar –"],...cand.map(s=>[s.id,a.k==="prod"?pLbl(s):s.name+(s.group==="Stein"&&isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":""].filter(Boolean).join(" "):" ("+f3(qtyOf(s.id))+" "+(UL[s.unit]||"")+")")])],'data-n="1" data-r="1"'))+
    ((a.k==="mat"||(a.k==="stone"&&a.ref&&!isSingle(data.stock.find(s=>s.id===a.ref))))?`<div class="g2">${F("Menge ("+(UL[(data.stock.find(s=>s.id===a.ref)||{}).unit]||"")+")",I("ui.pk.add.qty",a.qty,"",'inputmode="decimal"'))}${a.k==="stone"?F("Stück",I("ui.pk.add.pcs",a.pcs,"",'inputmode="numeric"')):"<div></div>"}</div>`:"")}
   ${F("Notiz zum Teil (optional)",I("ui.pk.add.note",a.note||"",""))}
-  <button class="sec" data-a="pkadd">+ Hinzufügen</button></div>
+  <button class="sec" data-a="pkadd">+ Hinzufügen</button>
+  ${a.k==="prod"&&cand.length>1?(()=>{const cs=pkSorted(cand),o=[[0,"– wählen –"],...cs.map(s=>[s.id,pLbl(s)])],i1=cs.findIndex(s=>s.id===a.r1),i2=cs.findIndex(s=>s.id===a.r2),n=i1>=0&&i2>=0?Math.abs(i2-i1)+1:0;
+   return `<div class="rowc" style="margin-top:12px"><b>Mehrere auf einmal</b><p class="mu" style="margin:2px 0 8px">Von Nummer bis Nummer – alle verfügbaren Waren dazwischen werden hinzugefügt.</p>
+   <div class="g2">${F("Von",S("ui.pk.add.r1",a.r1||0,o,'data-n="1" data-r="1"'))}${F("Bis",S("ui.pk.add.r2",a.r2||0,o,'data-n="1" data-r="1"'))}</div>
+   <button class="sec" data-a="pkrange"${n?"":" disabled"}>+ ${n?n+" Waren":"Bereich"} hinzufügen</button></div>`})():""}</div>
   <div class="row"><button data-a="pksave">Paket speichern</button>${g.id?`<button class="sec" data-a="pkrm">${dl("pkrm","Löschen")}</button>`:""}</div>`;return}
  const q=String(ui.pkq||"").trim().toLowerCase();
  const L=data.pkgs.filter(g=>ui.pkf==="all"||(ui.pkf==="out"?g.status!=="back":ui.pkf==="ready"?g.status==="ready":g.status==="back")).filter(g=>!q||(g.no+" "+pnm(g.pid)+" "+pnm(g.fpid)+" "+g.step+" "+g.note+" "+(g.items||[]).map(pkItemTxt).join(" ")).toLowerCase().includes(q))
@@ -2044,6 +2121,12 @@ act.pkadd=()=>{const g=ui.pk,a=g.add;let x;
   if((a.k==="mat"||(a.k==="stone"&&!isSingle(s)))&&!(parse(a.qty)>0)){toast("Bitte Menge eingeben");return}
   x={k:a.k,ref:a.ref,qty:a.k==="prod"||(a.k==="stone"&&isSingle(s))?"1":a.qty,pcs:a.pcs||""}}
  if(a.note)x.note=String(a.note).trim();g.items.push(x);g.add={k:a.k,ref:0,qty:"",pcs:"",txt:"",note:""};rPkg()};
+function pkSortItems(items){const K={prod:0,stone:1,mat:2,free:3},lab=x=>x.k==="prod"?((data.prods.find(p=>p.id===x.ref)||{}).code||""):x.k==="free"?(x.txt||""):((data.stock.find(s=>s.id===x.ref)||{}).name||"");
+ if(Array.isArray(items))items.sort((a,b)=>(K[a.k]??9)-(K[b.k]??9)||String(lab(a)).localeCompare(String(lab(b)),"de",{numeric:true}));return items}
+function pkSorted(l){return [...l].sort((a,b)=>String(a.code||"").localeCompare(String(b.code||""),"de",{numeric:true}))}
+act.pkrange=()=>{const g=ui.pk,a=g.add,used=new Set(g.items.filter(x=>x.k==="prod").map(x=>x.ref)),cs=pkSorted(pkCand(g,"prod")),i1=cs.findIndex(s=>s.id===a.r1),i2=cs.findIndex(s=>s.id===a.r2);
+ if(i1<0||i2<0){toast("Bitte Von und Bis wählen");return}const L=cs.slice(Math.min(i1,i2),Math.max(i1,i2)+1).filter(s=>!used.has(s.id));
+ L.forEach(s=>g.items.push({k:"prod",ref:s.id,qty:"1",pcs:""}));a.r1=0;a.r2=0;rPkg();toast(L.length+" Waren hinzugefügt")};
 act.pkdel=d=>{ui.pk.items.splice(Number(d.i),1);rPkg()};
 act.pksave=()=>{const g=ui.pk;if(!g.pid){toast("Bitte eine Werkstatt wählen (Person mit Typ „Werkstatt“ anlegen)");return}if(!g.items.length){toast("Paket ist leer");return}
  const no=String(g.no).trim();if(!no){toast("Nummer fehlt");return}if(data.pkgs.some(x=>x.no===no&&x.id!==g.id)){toast("Diese Nummer gibt es schon");return}
@@ -2156,7 +2239,7 @@ function rKo(){
  $("s-konten").innerHTML=h;uOf()}
 function histHTML(pid){
  return data.moves.filter(m=>m.pid===pid).sort((a,b)=>b.date.localeCompare(a.date)||b.id-a.id).map(m=>
-  `<div class="it"><div>${opName(m)}<small>${dt(m.date)}${m.note?" · "+esc(m.note):""}</small>${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${NODEBT[m.type]?'<br><span class="pill">keine Schuld</span>':""}${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
+  `<div class="it"><div>${opName(m)}${mCnt(m)?` <span class="pill" style="white-space:nowrap;display:inline-block">${mCnt(m)} Stück</span>`:""}<small>${dt(m.date)}${m.note?" · "+mNote(m):""}</small>${m.due?`<small>${dueTag(m.due,m.paid)} <button class="sec sm" data-a="mpaid" data-id="${m.id}">${m.paid?"Wieder offen":"Erledigt"}</button></small>`:""}</div><div class="r"><b>${m.dir==="out"?"→ gab":"← nahm"} ${fu(m.amount,m.unit)}</b>${NODEBT[m.type]?'<br><span class="pill">keine Schuld</span>':""}${m.saleId?'<br><span class="pill">Verkauf</span>':`<br><button class="sec sm" data-a="kdel" data-id="${m.id}">Löschen</button>`}</div></div>`).join("")||'<p class="mu">Noch kein Verlauf.</p>'}
 act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=true;render()}};
 act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
 act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,prods:[],sid:0,qty:"",q:""};render()};
@@ -2210,6 +2293,8 @@ const DX='autocorrect="off" autocomplete="off" spellcheck="false"';
 const OTH="✎";
 const L_FORM=["Rund (Brillant)","Radiant","Prinzess","Oval","Marquise","Birne","Herz","Smaragd","Kissen (Cushion)","Baguette","Ascher"];
 const L_COL=[..."DEFGHIJKLMNOPQRSTUVWXYZ","Fancy"];
+const L_COLR=["D-E","E-F","F-G","G-H","H-I","I-J","J-K","K-L","D-F","E-G","F-H","G-I","Fancy"];
+const L_CLARR=[["FL-IF","FL-IF"],["IF-VVS","IF-VVS"],["VVS","VVS"],["VVS-VS","VVS-VS"],["VS","VS"],["VS-SI","VS-SI"],["SI","SI"],["SI-I","SI-I"],["I","I – Piqué"]];
 const L_CLAR=[["FL","FL – Flawless"],["IF","IF – Internally Flawless"],["VVS1","VVS1"],["VVS2","VVS2"],["VS1","VS1"],["VS2","VS2"],["SI1","SI1"],["SI2","SI2"],["I1","I1 – Piqué"],["I2","I2 – Piqué"],["I3","I3 – Piqué"]];
 const L_STEP=["Guss","Fassen (Steine)","Polieren","Rhodinieren","Vergolden / Galvanik","Löten","Montage","Montage D2","Größe ändern","Gravur","Lasergravur","Reparatur","Zertifikat / Prüfung","Versand"];
 const L_CUT=[["Ideal","Ideal (Hearts & Arrows)"],"Excellent","Very Good","Good","Fair","Poor"];
@@ -2221,8 +2306,18 @@ function SX(p,v,list,o={}){const L=list.map(x=>Array.isArray(x)?x:[x,x]),s=Strin
  return S(p,other?OTH:(m?m[0]:""),[["","– wählen –"],...L,[OTH,"Andere … (selbst eingeben)"]],'data-r="1"')+(other?I(p,s,"selbst eingeben",DX+' style="margin-top:6px" '+(o.iex||"")):"")}
 const shortCode=c=>{const m=String(c||"").match(/^(.*?)0*(\d+)$/);return m?m[1]+m[2]:String(c||"")};
 const isSingle=s=>s&&s.group==="Stein"&&s.single!==false;
-function singleUse(s){const m=data.smoves.find(x=>x.sid===s.id&&x.qty<0&&x.ref&&x.ref[0]==="p");return m?data.prods.find(p=>"p"+p.id===m.ref):null}
-function singleTxt(s){if(qtyOf(s.id)>1e-9)return"Im Lager ("+f3(qtyOf(s.id))+" ct)";const p=singleUse(s);return p?"Verbaut in "+shortCode(p.code)+" ("+p.code+")"+(p.status==="sold"?" · verkauft":""):"Nicht im Lager"}
+function sqOpts(i,cur){const q=String((ui.sq||{})[i]||"").trim().toLowerCase().replace(/,/g,".");const L=(ui.sOpt||[]).filter(([id,t],k)=>k===0||id===cur||!q||q.split(/\s+/).every(w=>String(t).toLowerCase().replace(/,/g,".").includes(w)));
+ return L.map(([v,t])=>`<option value="${v}"${v===cur?" selected":""}>${esc(t)}</option>`).join("")+(q&&L.length<=1?`<option disabled>Kein Stein gefunden</option>`:"")}
+function uSq(){const d=ui.pd;if(!d)return;for(const k in (ui.sq||{})){const i=Number(k),e=$("ssel_"+i),s=d.stones[i];if(!e||!s)continue;
+  const q=String(ui.sq[k]||"").trim();e.innerHTML=sqOpts(i,s.sid);
+  if(q.length>=3){const m=[...e.options].filter(o=>Number(o.value)>0);if(m.length===1){s.sid=Number(m[0].value);ui.sq[k]="";pEdit("ui.pd.stones."+i+".sid");render();return}}}}
+function mCnt(m){if(Array.isArray(m.prods)&&m.prods.length)return m.prods.length;if(m.prod)return 1;if(["VB","VO","MC","MA"].includes(m.type)){const c=(String(m.note||"").match(/\b[A-Z]{2,4}\d{3,}\b/g)||[]).length;return c}return 0}
+function mNote(m){const n=String(m.note||"");if(n.length<=110||(ui.mx||{})[m.id])return esc(n)+(n.length>110?` <button class="sec sm" data-a="mx" data-id="${m.id}">weniger</button>`:"");
+ return esc(n.slice(0,100).replace(/[ ,]+[^ ,]*$/,""))+` … <button class="sec sm" data-a="mx" data-id="${m.id}">alle anzeigen</button>`}
+act.mx=d=>{ui.mx=ui.mx||{};const id=Number(d.id);ui.mx[id]=!ui.mx[id];render()};
+function singleUse(s){const m=data.smoves.find(x=>x.sid===s.id&&x.qty<0&&x.ref&&x.ref[0]==="p");return m?data.prods.find(p=>"p"+p.id===m.ref):stoneIn(s.id)}
+const stoneIn=(sid,ex)=>data.prods.find(p=>p.id!==ex&&(p.stones||[]).some(x=>x.sid===sid))||null;
+function singleTxt(s){const ip=stoneIn(s.id);if(ip&&ip.status==="prod")return"Reserviert in Fertigung: "+shortCode(ip.code)+" ("+ip.code+")";if(qtyOf(s.id)>1e-9)return"Im Lager ("+f3(qtyOf(s.id))+" ct)";const p=singleUse(s);return p?"Verbaut in "+shortCode(p.code)+" ("+p.code+")"+(p.status==="sold"?" · verkauft":""):"Nicht im Lager"}
 function syncInit(s){if(!isSingle(s))return;const c=parse(s.ct),m=data.smoves.find(x=>x.sid===s.id&&x.ref==="init");
  if(c>0){if(m)m.qty=c;else data.smoves.push({id:uid(),sid:s.id,qty:c,date:today(),note:"Einzelstein",ref:"init"})}else if(m)data.smoves=data.smoves.filter(x=>x!==m)}
 function rLE(){const s=ui.se,isNew=!data.stock.some(x=>x.id===s.id);
@@ -2304,17 +2399,28 @@ function rP(){
  <div class="card"><div class="g2">${F("Gruppe",S("ui.pg",ui.pg,[["","Alle"],...Object.keys(PG)],'data-r="1"'))}${F("Status",S("ui.ps",ui.ps,[["","Alle"],["prod","In Fertigung"],["done","Fertig (Lager)"],["sold","Verkauft"]],'data-r="1"'))}</div>
  ${F("Sortierung",S("data.psort",data.psort||"new",PSORT,'data-r="1"'))}
  <input data-f="ui.pq" data-u="uP" value="${esc(ui.pq)}" placeholder="Suchen (Nummer oder Name)"></div>
+ <div class="card"><div class="nav" style="margin:0"><b>🏷️ Mehrere Etiketten drucken</b><button class="sec sm" data-a="pqm">${ui.pqm?"Zuklappen":"Öffnen"}</button></div>
+ ${ui.pqm?(()=>{const cs=pkSorted(plist()),o=[[0,"– wählen –"],...cs.map(s=>[s.id,pLbl(s)])],i1=cs.findIndex(s=>s.id===ui.pq1),i2=cs.findIndex(s=>s.id===ui.pq2),n=i1>=0&&i2>=0?Math.abs(i2-i1)+1:0;
+  return `<p class="mu" style="margin:6px 0 8px">Gilt für die Waren der Liste unten (Filter oben beachten). Alles geht in einem Druckauftrag raus.</p>
+  <div class="g2">${F("Von",S("ui.pq1",ui.pq1||0,o,'data-n="1" data-r="1"'))}${F("Bis",S("ui.pq2",ui.pq2||0,o,'data-n="1" data-r="1"'))}</div>
+  <div class="row"><button data-a="pqr"${n?"":" disabled"}>🖨️ ${n?n+" Etiketten":"Bereich"} drucken</button><button class="sec" data-a="pqa"${cs.length?"":" disabled"}>Alle ${cs.length} drucken</button></div>`})():""}</div>
  <div class="card" id="prows"></div>`;uP()}
 function pStn(p,withNo=true){return (p.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type).map(s=>{const st=data.stock.find(x=>x.id===s.sid);
  const ct=parse(s.qty);return [s.d2?"D2":"",s.type||(st&&st.type)||"",ct?f2(ct).replace(/0$/,"")+" ct":"",s.nat||(st&&st.nat)||"",withNo&&st?st.name:""].filter(Boolean).join(" ")}).filter(Boolean).join(" + ")}
 const pLbl=p=>{const st=pStn(p);return shortCode(p.code)+" · "+(p.name||p.grp)+(st?" · 💎 "+st:"")+" · "+f3(pTW(p))+" g"};
 const soldTxt=p=>((g=>g?" · "+(g.status==="ready"?"📦 abholbereit ":"🔧 ")+g.no+" ("+pnm(g.pid)+")":"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
 function uP(){const l=plist();
- $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""}${(st=>st?"</small><small>💎 "+esc(st)+"</small><small>":"")(pStn(p))} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small></div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
+ $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""}${(st=>st?"</small><small>💎 "+esc(st)+"</small><small>":"")(pStn(p))} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small>${p.status!=="sold"?`<button class="sec sm" data-a="pql" data-id="${p.id}" title="Etikett drucken" style="margin-top:4px">🏷️</button>`:""}</div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
  $("prows").innerHTML+=l.length?`<div class="it"><b>${l.length} Stück</b><b>${f3(l.reduce((a,p)=>a+pTW(p),0))} g gesamt</b></div>`:""}
-act.pnew=()=>{ui.lp=null;ui.pd=newP();ui.pnew=true;render()};
-act.pedit=d=>{ui.lp=null;ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
-act.pback=()=>{ui.lp=null;ui.pd=null;render()};
+act.pdup=()=>{const s=ui.pd;if(!s)return;const d=JSON.parse(JSON.stringify(s));let cut=0;
+ d.id=uid();d.code=nextCode(d.grp);d.code0="";d.ov=false;d.status="prod";d.date=today();["soldTo","soldDate","saleId","doneAt","pid","oid"].forEach(k=>delete d[k]);
+ d.stones=(d.stones||[]).map(x=>{const st=data.stock.find(y=>y.id===x.sid);if(st&&isSingle(st)){cut++;return Object.assign({},x,{sid:0,qty:"",pauto:0})}return x});
+ d.steps=(d.steps||[]).map(x=>Object.assign({},x,{in:"",out:"",state:"Offen"}));d.tw="";d.wm="a";
+ ui.lp=null;ui.pd=d;ui.pnew=true;render();scrollTo(0,0);toast("Kopie "+d.code+" – Nummer prüfen"+(cut?", Hauptstein neu wählen":"")+", dann Speichern")};
+act.pnew=()=>{ui.lp=null;ui.cp=null;ui.pd=newP();ui.pnew=true;render()};
+act.pedit=d=>{ui.lp=null;ui.cp=null;ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
+act.pback=()=>{const id=ui.pd&&ui.pd.id;ui.lp=null;ui.cp=null;ui.pd=null;render();
+ setTimeout(()=>{const e=id&&document.querySelector(`#s-prod [data-a="pedit"][data-id="${id}"]`);if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"});else scrollTo(0,0)},30)};
 act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
 act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
 function twAsk(d){const tw=parse(d.tw);if(!(tw>0))return"";const no=ui.twNo||{};
@@ -2328,13 +2434,29 @@ function ctRule(s){const L=(data.ctp||[]).filter(r=>parse(r.price)>0);if(!L.leng
  const ok=r=>{const f=parse(r.from),t=parse(r.to)||1e9;return ct>=f-1e-9&&ct<=t+1e-9};
  const C=L.filter(ok).filter(r=>s.d2?r.kind==="D2":r.kind!=="D2"&&(!r.kind||r.kind===s.nat));
  return C.find(r=>r.kind&&r.kind===s.nat)||C.find(r=>s.d2||!r.kind)||null}
-function pEdit(p){const d=ui.pd,k=p.slice(6);
+const d2Pcs=d=>(d.stones||[]).filter(s=>s.d2).reduce((a,s)=>a+(parse(s.pcs)||0),0);
+function mInfo(i){const d=ui.pd;if(!d)return"";const s=d.steps[i]||{},ct=mainCt(d),m=Math.floor(ct*10+1e-9)/10;const up=s.mup===undefined?!!data.mup:!!s.mup,v=parse(s.mb)*m;return ct>0?`Hauptstein ${f2(ct)} ct → × ${String(m).replace(".",",")}`+(parse(s.mb)>0?` = ${f2(v)}`+(up&&Math.ceil(v-1e-9)!==v?` → ${Math.ceil(v-1e-9)}`:""):""):"Noch kein Hauptstein (ct) eingetragen"}
+function mCalc(s,i){const d=ui.pd,ct=mainCt(d),m=Math.floor(ct*10+1e-9)/10,b=parse(s.mb);if(m>0&&b>0){const up=s.mup===undefined?!!data.mup:!!s.mup,v=Math.round(b*m*100)/100;s.amt=String(up?Math.ceil(v-1e-9):v).replace(".",",");setV(`ui.pd.steps.${i}.amt`,s.amt)}const e=$("mi_"+i);if(e)e.textContent=mInfo(i)}
+function mHook(p){const d=ui.pd;if(!d||!p.startsWith("ui.pd."))return;const k=p.slice(6);let ch=false;
+ const st=k.match(/^steps\.(\d+)\.(type|mb|amt|mup)$/);
+ if(st&&st[2]==="type"){const s=d.steps[Number(st[1])];if(s&&s.type==="Polieren"&&!String(s.amt||"").trim()){s.amt="5";setV(`ui.pd.steps.${st[1]}.amt`,s.amt);ch=true}}
+ if(st){const i=Number(st[1]),s=d.steps[i];if(s&&s.type==="Montage"){
+  if(st[2]==="amt")s.mAuto=0;
+  else if(st[2]==="mb"){data.mbase=s.mb;s.mAuto=1;mCalc(s,i);ch=true}
+  else if(st[2]==="mup"){data.mup=!!s.mup;s.mAuto=1;mCalc(s,i);ch=true}
+  else if(!String(s.amt||"").trim()||s.mAuto){if(!String(s.mb||"").trim())s.mb=data.mbase||"15";s.mAuto=1;mCalc(s,i);ch=true}}}
+ if(/^stones/.test(k))d.steps.forEach((s,i)=>{if(s.type==="Montage"&&s.mAuto){mCalc(s,i);ch=true}});
+ if(ch)calcP()}
+function pEdit(p){pEdit0(p);mHook(p)}
+function pEdit0(p){const d=ui.pd,k=p.slice(6);
  const sp=k.match(/^stones\.(\d+)\.(qty|pcs|nat|d2|sid|price)$/);
  if(sp){const s=d.stones[sp[1]];if(s){if(sp[2]==="price")s.pauto=0;
   else if(!String(s.price||"").trim()||s.pauto){const r=ctRule(s);if(r){s.price=String(r.price);s.cur=r.cur||s.cur;s.pauto=1;setV(`ui.pd.stones.${sp[1]}.price`,s.price);setV(`ui.pd.stones.${sp[1]}.cur`,s.cur)}}}}
  const d2=k.match(/^steps\.(\d+)\.(type|pcs|pp)$/);
  if(d2){const s=d.steps[d2[1]];if(s&&s.type==="Montage D2"){if(d2[2]==="type"&&!String(s.pp||"").trim())s.pp=data.d2p||"0,5";if(d2[2]==="pp")data.d2p=s.pp;
+  if(d2[2]==="pcs")s.pcsAuto=0;if(d2[2]==="type"&&(!String(s.pcs||"").trim()||s.pcsAuto)){const n=d2Pcs(d);if(n>0){s.pcs=String(n);s.pcsAuto=1;setV(`ui.pd.steps.${d2[1]}.pcs`,s.pcs)}}
   const n=parse(s.pcs),pp=parse(s.pp);if(n>0&&pp>0){s.amt=String(Math.round(n*pp*100)/100).replace(".",",");setV(`ui.pd.steps.${d2[1]}.amt`,s.amt)}}}
+ if(/^stones\.\d+\.(pcs|d2)$/.test(k)||k==="stones"){const n=d2Pcs(d);d.steps.forEach((s,i)=>{if(s.type==="Montage D2"&&(!String(s.pcs||"").trim()||s.pcsAuto)&&n>0){s.pcs=String(n);s.pcsAuto=1;setV(`ui.pd.steps.${i}.pcs`,s.pcs);const pp=parse(s.pp);if(pp>0){s.amt=String(Math.round(n*pp*100)/100).replace(".",",");setV(`ui.pd.steps.${i}.amt`,s.amt)}}})}
  if(k==="tw")d.wm=String(d.tw).trim()?"t":"a";
  if(/^metal\.\d+\.qty$/.test(k))d.wm="a";
  if(k==="grp"&&!d.ov&&ui.pnew)d.code=nextCode(d.grp);
@@ -2377,7 +2499,7 @@ function calcP(){
 function rPE(){const d=ui.pd;
  const gold=data.stock.filter(s=>(s.group==="Gold"||s.group==="Altgold")&&s.active!==false);
  const stn=data.stock.filter(s=>s.group==="Stein"&&s.active!==false);
- const gOpt=[[0,"– wählen –"],...gold.map(s=>[s.id,s.name])],sOpt=[[0,"– wählen –"],...stn.filter(s=>!isSingle(s)||qtyOf(s.id)>1e-9||d.stones.some(x=>x.sid===s.id)).map(s=>[s.id,s.name+(isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":"",s.color,s.clar].filter(Boolean).join(" "):"")])];
+ const gOpt=[[0,"– wählen –"],...gold.map(s=>[s.id,s.name])],sOpt=[[0,"– wählen –"],...stn.filter(s=>d.stones.some(x=>x.sid===s.id)||!isSingle(s)||(qtyOf(s.id)>1e-9&&!stoneIn(s.id,d.id))).map(s=>[s.id,s.name+(isSingle(s)?" · "+[s.type,s.ct?s.ct+" ct":"",s.color,s.clar].filter(Boolean).join(" "):"")])];
  const idx=plist().findIndex(p=>p.id===d.id);
  let h=`<div class="nav"><b>${ui.pnew?"Neue Ware":"Ware"} <span class="pill">${SL[d.status]}</span></b><button class="sec sm" data-a="pback">Liste</button></div>
 <div class="card"><b>Foto</b>${d.img?`<img src="${d.img}" alt="" style="display:block;width:100%;max-height:260px;object-fit:contain;margin:10px 0;border-radius:12px;background:var(--fld)">`:'<p class="mu" style="margin:6px 0">Noch kein Foto.</p>'}<div class="row" style="margin:0"><label class="btn" style="flex:1;text-align:center;cursor:pointer;padding:12px;border-radius:12px;background:var(--ac);color:#fff;font-weight:600"><input id="pimg" type="file" accept="image/*" style="display:none">${d.img?"Foto ändern":"Foto hinzufügen"}</label>${d.img?'<button class="sec" data-a="pimgdel" style="flex:0 0 36%">Entfernen</button>':""}</div></div>
@@ -2398,17 +2520,20 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
   <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="metal">+ Metall-Zeile</button></div>
  <div class="bar"><span>Steine</span><span>💎</span></div><div class="card">`;
- d.stones.forEach((s,i)=>{h+=`<div class="rowc"${s.d2?' style="border-style:dashed"':""}>${s.d2?'<b style="display:block;margin-bottom:6px">💎 D2 (seitlich)</b>':""}${F("Stein (Lagerartikel)",S(`ui.pd.stones.${i}.sid`,s.sid,sOpt,'data-n="1" data-r="1"'))}
+ ui.sq=ui.sq||{};ui.sOpt=sOpt;
+ d.stones.forEach((s,i)=>{h+=`<div class="rowc"${s.d2?' style="border-style:dashed"':""}>${s.d2?'<b style="display:block;margin-bottom:6px">💎 D2 (seitlich)</b>':""}${s.sid?"":`<input data-f="ui.sq.${i}" data-u="uSq" value="${esc((ui.sq||{})[i]||"")}" placeholder="🔍 Stein suchen (Nummer, Form, ct, Farbe …)" autocorrect="off" autocomplete="off" spellcheck="false" style="margin-bottom:8px">`}${F("Stein (Lagerartikel)",`<select data-f="ui.pd.stones.${i}.sid" data-n="1" data-r="1" id="ssel_${i}">${sqOpts(i,s.sid)}</select>`)}
   ${F("Steinart / Herkunft",S(`ui.pd.stones.${i}.nat`,s.nat||"",SNAT))}
   <div class="g2">${F("Karat ct",I(`ui.pd.stones.${i}.qty`,s.qty,"z. B. 1,07",'inputmode="decimal" autocomplete="off"'))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
   <div class="g2">${F("Preis pro ct",N(`ui.pd.stones.${i}.price`,s.price))}${F("Währung",S(`ui.pd.stones.${i}.cur`,s.cur,CUR))}</div>
-  <div class="g2">${F("Art / Form",SX(`ui.pd.stones.${i}.type`,s.type,L_FORM))}${F("Farbe",SX(`ui.pd.stones.${i}.color`,s.color,L_COL))}</div>
-  <div class="g2">${F("Reinheit",SX(`ui.pd.stones.${i}.clar`,s.clar,L_CLAR))}${F("Schliff",SX(`ui.pd.stones.${i}.cut`,s.cut,L_CUT))}</div>
+  <div class="g2">${F("Art / Form",SX(`ui.pd.stones.${i}.type`,s.type,L_FORM))}${F("Farbe",SX(`ui.pd.stones.${i}.color`,s.color,s.rng?L_COLR:L_COL))}</div>
+  <div class="g2">${F("Reinheit",SX(`ui.pd.stones.${i}.clar`,s.clar,s.rng?L_CLARR:L_CLAR))}${F("Schliff",SX(`ui.pd.stones.${i}.cut`,s.cut,L_CUT))}</div>
+  ${s.sid?"":CB(`ui.pd.stones.${i}.rng`,!!s.rng,"Ohne Zertifikat: Farbe/Reinheit als Bereich (z. B. D-E, VVS)",'data-r="1"')}
   ${CB(`ui.pd.stones.${i}.d2`,!!s.d2,"D2 – seitliche Steine (nicht beim Hauptstein mitrechnen)",'data-r="1"')}
   <div class="rf"><span id="tt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="stones" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
  <div class="bar"><span>Fertigung (Arbeit, Politur …)</span><span>🔧</span></div><div class="card"><datalist id="stepl"><option>Arbeit</option><option>Politur</option><option>Fassen</option><option>Guss</option><option>Gravur</option></datalist>`;
  d.steps.forEach((s,i)=>{h+=`<div class="rowc"><div class="g2">${F("Vorgang",SX(`ui.pd.steps.${i}.type`,s.type,L_STEP))}${F("Atelier",I(`ui.pd.steps.${i}.atelier`,s.atelier))}</div>
+  ${s.type==="Montage"?`<div class="g2">${F("Basis pro ct",N(`ui.pd.steps.${i}.mb`,s.mb||""))}<div class="mu" id="mi_${i}" style="align-self:end;padding-bottom:12px">${mInfo(i)}</div></div>${CB(`ui.pd.steps.${i}.mup`,s.mup===undefined?!!data.mup:!!s.mup,"Auf ganze Zahl aufrunden (z. B. 22,50 → 23)")}`:""}
   ${s.type==="Montage D2"?`<div class="g2">${F("Anzahl Steine (D2)",N(`ui.pd.steps.${i}.pcs`,s.pcs||""))}${F("Preis pro Stein",N(`ui.pd.steps.${i}.pp`,s.pp||""))}</div>`:""}
   <div class="g2">${F(s.type==="Montage D2"?"Betrag (automatisch)":"Betrag",N(`ui.pd.steps.${i}.amt`,s.amt))}${F("Währung",S(`ui.pd.steps.${i}.cur`,s.cur,CUR))}</div>
   <div class="g2">${F("Ausgang g",N(`ui.pd.steps.${i}.out`,s.out))}${F("Eingang g",N(`ui.pd.steps.${i}.in`,s.in))}</div>
@@ -2425,8 +2550,11 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  ${F("Beschreibung",I("ui.pd.note",d.note))}
  <p class="mu">Goldwert wird mit dem Verkaufskurs oben gerechnet. Preis oder Multiplikator: du kannst beides eingeben, das andere rechnet sich.</p></div>
  <div class="row"><button data-a="psave">Speichern</button><button class="sec" data-a="pdel">${dl("pdel","Löschen")}</button></div>
+ ${ui.pnew?"":`<div class="row"><button class="sec" data-a="pdup">⧉ Duplizieren (gleiches Modell, neue Nummer)</button></div>`}
  <div class="row">${d.status==="sold"?"":`<button class="sec" data-a="pfin">${d.status==="done"?"Wieder in Fertigung":"Fertigstellen"}</button>`}</div>
  <div class="row"><button class="sec" data-a="lbl" data-k="fin">🏷️ Etikett drucken</button><button class="sec" data-a="lbl" data-k="ws">🔧 Werkstatt-Etikett</button></div>${ui.lp?lpHTML():""}
+ <div class="row"><button class="sec" data-a="card">💳 Zertifikatskarte drucken</button></div>${ui.cp?cpHTML():""}
+ <div class="row"><button class="sec" data-a="pback">← Zurück zur Liste</button></div>
  ${idx>=0?`<div class="row"><button class="sec" data-a="pnav" data-v="-1">◀ Vorheriges</button><button class="sec" data-a="pnav" data-v="1">Nächstes ▶</button></div>`:""}`;
  $("s-prod").innerHTML=h;calcP()}
 function syncStock(p){
@@ -2443,11 +2571,11 @@ function pSave(quiet){const d=ui.pd;calcP();d.code=d.code.trim();
 act.psave=()=>{if(pSave(false))render()};
 act.pfin=()=>{const d=ui.pd,old=d.status;d.status=old==="prod"?"done":"prod";if(d.status==="done")d.doneAt=Date.now();
  if(pSave(true)){toast(d.status==="done"?"Fertig – Lager abgebucht":"Wieder in Fertigung – Lager zurückgebucht");
-  if(d.status==="done"){ui.pd=null;ui.ps="";ui.pq="";ui.phl=d.id;render();window.scrollTo(0,0);return}}else d.status=old;render()};
+  if(d.status==="done"){ui.pd=null;ui.ps="";ui.pq="";ui.phl=d.id;render();window.scrollTo(0,0);if((data.lbl||{}).auto){const p=data.prods.find(x=>x.id===d.id);if(p)lbMulti([lbFields(p)])}return}}else d.status=old;render()};
 act.pdel=()=>{if(!confirmTap("pdel"))return;const d=ui.pd,p=data.prods.find(x=>x.id===d.id);
  if(p&&p.status==="sold"){toast("Verkauft – erst den Verkauf löschen");return}
  data.prods=data.prods.filter(x=>x.id!==d.id);data.smoves=data.smoves.filter(m=>m.ref!=="p"+d.id);ui.pd=null;render()};
-act.pnav=d=>{const l=plist(),i=l.findIndex(p=>p.id===ui.pd.id);if(i<0)return;const j=i+Number(d.v);if(j<0||j>=l.length)return;ui.lp=null;ui.pd=openP(l[j]);ui.pnew=false;render()};
+act.pnav=d=>{const l=plist(),i=l.findIndex(p=>p.id===ui.pd.id);if(i<0)return;const j=i+Number(d.v);if(j<0||j>=l.length)return;ui.lp=null;ui.cp=null;ui.pd=openP(l[j]);ui.pnew=false;render()};
 
 /* ---------- Verkauf ---------- */
 const newSale=()=>({pid:(data.people.find(p=>p.walk)||{}).id||0,date:today(),cur:BC(),lines:[],note:"",lf:null});
@@ -2639,7 +2767,8 @@ const st4=no=>{const d=String(no||"").replace(/\D/g,"");return d.slice(-4)};
 const dotN=s=>String(s||"").replace(",",".");
 function lbFields(d){const ss=(d.stones||[]).filter(s=>!s.d2&&(s.sid||parse(s.qty)>0||s.type)),s0=ss[0]||{},st=data.stock.find(x=>x.id===s0.sid)||{};
  const ct=ss.reduce((a,s)=>a+parse(s.qty),0),m0=(d.metal||[])[0]||{},pr=parse(d.p2)||parse(d.p1);
- return{kar:karOf(m0.fine),ser:d.code||"",col:s0.color||st.color||"",ct:ct?dotN(f2(ct)):"",gr:pTW(d)?dotN(f2(pTW(d))):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:String(st.name||"").replace(/^LG\s*/i,""),bc:d.code||"",
+ const d2=(d.stones||[]).filter(s=>s.d2).reduce((a,s)=>a+parse(s.qty),0);
+ return{kar:karOf(m0.fine),ser:d.code||"",col:s0.color||st.color||"",ct:ct?dotN(f2(ct)):"",d2:d2?dotN(f2(d2)):"",gr:pTW(d)?dotN(f2(pTW(d))):"",cl:s0.clar||st.clar||"",pr:pr?String(Math.round(pr)):"",cert:String(st.name||"").replace(/^LG\s*/i,""),bc:d.code||"",
   stn:ss.map(s=>(data.stock.find(x=>x.id===s.sid)||{}).name).filter(Boolean).map(st4).join(" ")}}
 function lbOne(k,f){const c=LB(),fs=c.h*0.2*c.fs,e=v=>esc(String(v||""));
  const box=`width:${c.w}mm;height:${c.h}mm;position:relative;overflow:hidden;font-family:Arial,Helvetica,sans-serif;font-weight:700;color:#000;background:#fff;box-sizing:border-box`;
@@ -2650,7 +2779,7 @@ function lbOne(k,f){const c=LB(),fs=c.h*0.2*c.fs,e=v=>esc(String(v||""));
  if(k==="ws"){const big=f.mode==="short"?f.ser:(f.stn||"–"),small=f.mode==="both"?f.ser:"";
   return `<div style="${box}"><div style="${inner}"><div style="${L};display:flex;align-items:center;justify-content:center;font-size:${fs*0.95}mm;white-space:nowrap;flex-direction:column;gap:0.6mm">${small?`<div>${e(small)}</div>`:""}${f.note?`<div>${e(f.note)}</div>`:""}</div><div style="${Rt};border-left:0;display:flex;align-items:center;justify-content:center;font-size:${fs*(String(big).length>6?1.05:1.6)}mm;white-space:nowrap">${e(big)}</div></div></div>`}
  const bc=c128(f.bc),cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"";
- return `<div style="${box}"><div style="${inner}"><div style="${L};display:grid;grid-template-columns:1.15fr 1fr;grid-template-rows:1fr 1fr;align-items:center;font-size:${fs}mm;line-height:1;white-space:nowrap"><div>${f.ct?"D :"+e(f.ct)+"ct":""}</div><div>${e([f.col,f.cl].filter(Boolean).join(" "))}</div><div>${f.gr?e(f.gr)+"gr":""}</div><div style="font-size:${fs*1.3}mm;text-align:right">${e(f.pr)}</div></div>
+ return `<div style="${box}"><div style="${inner}"><div style="${L};display:grid;grid-template-columns:1.15fr 1fr;grid-template-rows:${f.d2?"auto auto 1fr":"1fr 1fr"};align-items:center;font-size:${f.d2?fs*0.85:fs}mm;line-height:1.05;white-space:nowrap"><div>${f.ct?"D :"+e(f.ct)+"ct":""}</div><div>${e([f.col,f.cl].filter(Boolean).join(" "))}</div>${f.d2?`<div style="grid-column:1/3">D2 :${e(f.d2)}ct</div>`:""}<div style="font-size:${fs}mm">${f.gr?e(f.gr)+"gr":""}</div><div style="font-size:${fs*1.3}mm;text-align:right">${e(f.pr)}</div></div>
  <div style="${Rt};display:flex;flex-direction:column;justify-content:center;gap:0.35mm;font-size:${fs*0.9}mm;line-height:1;white-space:nowrap;overflow:hidden"><div style="letter-spacing:0.25mm">${e(cert)}</div><div style="display:flex;align-items:center;gap:0.6mm;height:${c.h*0.32}mm"><div style="width:${c.r*0.62}mm;height:100%">${bc||""}</div><div style="font-size:${fs*0.95}mm">${e(f.kar)}</div></div><div>${e(f.ser)}</div></div></div></div>`}
 function lpHTML(){const l=ui.lp,f=l.f,k=l.k,c=LB();
  const inp=(key,lab)=>F(lab,I("ui.lp.f."+key,f[key],"",'data-u="uLp" autocorrect="off" autocomplete="off" spellcheck="false"'));
@@ -2658,23 +2787,73 @@ function lpHTML(){const l=ui.lp,f=l.f,k=l.k,c=LB();
  return `<div class="bar"><span>${k==="ws"?"🔧 Werkstatt-Etikett":"🏷️ Etikett (fertig)"}</span><span>🦓</span></div><div class="card">
  ${k==="ws"?`<div class="chips">${[["stone","Stein (letzte 4)"],["short","Kurzcode"],["both","Beides"]].map(([v,t])=>`<button class="${f.mode===v?"":"sec"}" data-a="lpm" data-v="${v}">${t}</button>`).join("")}</div>
   <div class="g2">${inp("stn","Steinnummer (letzte 4)")}${inp("ser","Kurzcode")}</div>${inp("note","Zusatz (optional)")}`
- :`<div class="g2">${inp("kar","Karat")}${inp("ser","Seriennummer")}</div><div class="g2">${inp("col","Dia. Farbe")}${inp("ct","Dia. Carat")}</div><div class="g2">${inp("gr","Gramm")}${inp("cl","Dia. Qualität")}</div><div class="g2">${inp("pr","Preis")}${inp("cert","Dia. Zertifikatsnummer")}</div>${inp("bc","Barcode")}`}
+ :`<div class="g2">${inp("kar","Karat")}${inp("ser","Seriennummer")}</div><div class="g2">${inp("col","Dia. Farbe")}${inp("ct","Dia. Carat")}</div><div class="g2">${inp("d2","D2 Carat (leer = ohne D2-Zeile)")}<div></div></div><div class="g2">${inp("gr","Gramm")}${inp("cl","Dia. Qualität")}</div><div class="g2">${inp("pr","Preis")}${inp("cert","Dia. Zertifikatsnummer")}</div>${inp("bc","Barcode")}`}
  <p class="mu" style="margin:4px 0 6px">Vorschau</p><div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden"><div style="height:${c.h*3.78*sc+4}px"><div id="lpv" style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne(k,f)}</div></div></div>
  <div class="g2" style="margin-top:10px">${F("Anzahl",N("ui.lp.n",l.n))}<div></div></div>
  <div class="row"><button data-a="lprint">🖨️ Drucken</button><button class="sec" data-a="lpx">Schließen</button></div>
  <p class="mu" style="margin:0">Im Druckfenster: Drucker „Dia. Etikettdrucker“, Ränder „Keine“, Skalierung „Standard“ bzw. 100 %, und unter „Weitere Einstellungen“ <b>Kopf- und Fußzeilen ausschalten</b>. Größe, Drehung und Verschiebung: ⚙️ Einstellungen → Etiketten.</p></div>`}
 function uLp(){const e=$("lpv");if(e&&ui.lp)e.innerHTML=lbOne(ui.lp.k,ui.lp.f)}
-act.lbl=d=>{const p=ui.pd;if(!p)return;const f=lbFields(p);if(d.k==="ws")f.ser=shortCode(p.code);f.mode=f.stn?"stone":"short";f.note="";ui.lp={k:d.k,f,n:"1"};render();setTimeout(()=>{const e=$("lpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
+act.lbl=d=>{const p=ui.pd;if(!p)return;ui.cp=null;const f=lbFields(p);if(d.k==="ws")f.ser=shortCode(p.code);f.mode=f.stn?"stone":"short";f.note="";ui.lp={k:d.k,f,n:"1"};render();setTimeout(()=>{const e=$("lpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
 act.lpm=d=>{ui.lp.f.mode=d.v;render()};
 act.lpx=()=>{ui.lp=null;render()};
 function lbDoc(k,f,n){const c=LB(),one=`<div class="lbpg"><div class="lbrt">${lbOne(k,f)}</div></div>`;return one.repeat(n)}
-function lbPrint(pages){const c=LB();
+function lbPrint(pages,sz){const c=sz||LB();
  let st=$("lbcss");if(!st){st=document.createElement("style");st.id="lbcss";document.head.appendChild(st)}
  st.textContent=`#lbp{display:none}@media print{@page{size:${c.w}mm ${c.h}mm;margin:0}html,body,:root{margin:0!important;padding:0!important;background:#fff!important;max-width:none!important;width:${c.w}mm!important}body>*:not(#lbp){display:none!important}#lbp{display:block!important}.lbpg{width:${c.w}mm;height:${c.h}mm;overflow:hidden;page-break-after:always;break-after:page;position:relative}.lbpg:last-child{page-break-after:auto;break-after:auto}.lbrt{width:${c.w}mm;height:${c.h}mm;${c.rot?"transform:rotate(180deg);transform-origin:50% 50%;":""}}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}`;
  let d=$("lbp");if(!d){d=document.createElement("div");d.id="lbp";document.body.appendChild(d)}d.innerHTML=pages;
  const t=document.title;document.title=" ";
  const done=()=>{document.title=t;window.removeEventListener("afterprint",done)};window.addEventListener("afterprint",done);
  setTimeout(()=>{try{window.print()}catch(e){toast("Drucken nicht möglich")}setTimeout(()=>{document.title=t},1500)},60)}
+/* ---------- Zertifikatskarte (Kartendrucker, 85,6 × 54 mm) ---------- */
+const CDD={d1:"sep",only:false,pre:true,x:"0",y:"0",fs:"100"};
+const CD=()=>{if(!data.card)data.card=Object.assign({},CDD);return data.card};
+function cdFields(d){const lf=lbFields(d),main=mainCt(d),side=d2Ct(d),c=CD(),n=v=>dotN(f2(v));
+ const d1=main?(side?(c.d1==="sum"?n(main+side)+" ct":n(main)+" + "+n(side)+" ct"):n(main)+" ct"):"";
+ return{model:d.code||"",gold:lf.kar,gram:lf.gr?lf.gr+" gr":"",d1,col:lf.col,cl:lf.cl,img:d.img||"",sp:"",rb:"",em:"",ot:""}}
+function cdOne(f,gh){const c=CD(),x=parse(c.x)||0,y=parse(c.y)||0,s=(parse(c.fs)||100)/100,e=v=>esc(String(v||"")),pre=c.pre!==false;
+ const P=pre?{ph:[17.4,1.2,34.6,33.8],bl:52,bw:30.2,rows:[17.3,22.4,27.5,32.6,37.8],bh:4.2,st:47.1,sl:52.2,sd:7.7,sw:7.3,sh:3}:{ph:[17.5,4,32,31],bl:52,bw:30,rows:[17.2,22.4,27.6,32.8,38],bh:4.4,st:46.6,sl:51,sd:8,sw:7.5,sh:3};
+ const only=!pre&&!!c.only&&!!c.bg,ghost=pre&&gh;
+ const fill=pre?(ghost?"outline:.25mm dashed rgba(120,110,200,.55);background:rgba(255,255,255,.55);border-radius:1mm;":""):(only?"":"background:#fff;border-radius:1mm;");
+ const box=(t,l,w,h,inner,st)=>`<div style="position:absolute;left:${l+x}mm;top:${t+y}mm;width:${w}mm;height:${h}mm;box-sizing:border-box;${fill}display:flex;align-items:center;${st||""}">${inner}</div>`;
+ const showLab=pre?ghost:!only,labCol=pre?"rgba(60,50,120,.55)":"#e9e6f5";
+ const lab=(t,txt)=>showLab?`<div style="position:absolute;left:${37.4+x}mm;top:${t+y}mm;height:${P.bh}mm;display:flex;align-items:center;font:700 ${2.7*s}mm 'Times New Roman',serif;color:${labCol}">${txt}</div>`:"";
+ const R=[["Model No:",f.model],["Gold K:",f.gold],["Gram:",f.gram],["D1:",f.d1]];
+ const bg=pre?(ghost?"background:#ece9f6;":"background:transparent;"):(c.bg?`background:#111 url(${c.bg}) center/cover no-repeat;`:"background:linear-gradient(135deg,#05050c 0%,#141235 55%,#2a2160 70%,#0c0b1f 100%);");
+ const txt=`font-size:${3.4*s}mm;color:#000;white-space:nowrap`;
+ return `<div style="position:relative;width:85.6mm;height:54mm;overflow:hidden;${bg}border-radius:3mm;font-family:Arial,Helvetica,sans-serif;color:#000">
+ ${pre?(ghost?`<div style="position:absolute;right:4mm;top:4.5mm;font:400 ${4*s}mm 'Times New Roman',serif;color:rgba(60,50,120,.45)">GUARANTEE CERTIFICATE (vorgedruckt)</div>`:""):(c.bg?"":`<div style="position:absolute;right:4mm;top:4.5mm;font:400 ${4*s}mm 'Times New Roman',serif;letter-spacing:.3mm;color:#f2f0fa">G<span style="font-size:.78em">UARANTEE</span> C<span style="font-size:.78em">ERTIFICATE</span></div><div style="position:absolute;left:4mm;top:3.5mm;font-size:${9*s}mm;line-height:1;color:#fff">💎</div>`)}
+ ${box(P.ph[0],P.ph[1],P.ph[2],P.ph[3],f.img?`<img src="${f.img}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:1.5mm">`:(ghost?`<span style="width:100%;text-align:center;font-size:2.6mm;color:rgba(60,50,120,.6)">Foto</span>`:""),"justify-content:center")}
+ ${R.map(([l,v],i)=>lab(P.rows[i],l)+box(P.rows[i],P.bl,P.bw,P.bh,`<span style="width:100%;text-align:center;${txt}">${e(v)}</span>`)).join("")}
+ ${lab(P.rows[4],"D2:")}${box(P.rows[4],P.bl,P.bw,P.bh,`<span style="flex:1;padding-left:1.5mm;${txt}">${e(f.col)}</span><span style="padding-right:1.5mm;${txt}">${e(f.cl)}</span>`)}
+ ${["Sp.","Rb.","Em.","Ot."].map((l,i)=>(showLab?`<div style="position:absolute;left:${P.sl+i*P.sd+x}mm;top:${P.st-3.2+y}mm;width:${P.sw}mm;text-align:center;font:700 ${2.4*s}mm 'Times New Roman',serif;color:${labCol}">${l}</div>`:"")+box(P.st,P.sl+i*P.sd,P.sw,P.sh,`<span style="width:100%;text-align:center;font-size:${2.4*s}mm;color:#000">${e(f[["sp","rb","em","ot"][i]])}</span>`)).join("")}
+ </div>`}
+function cpHTML(){const f=ui.cp.f,inp=(k,l)=>F(l,I("ui.cp.f."+k,f[k],"",'data-u="uCp" autocorrect="off" autocomplete="off" spellcheck="false"')),sc=Math.min(1.25,330/(85.6*3.78));
+ return `<div class="bar"><span>💳 Zertifikatskarte</span><span>🖨️</span></div><div class="card">
+ <div class="g2">${inp("model","Model No")}${inp("gold","Gold K")}</div><div class="g2">${inp("gram","Gram")}${inp("d1","D1")}</div><div class="g2">${inp("col","D2 – Farbe")}${inp("cl","D2 – Qualität")}</div>
+ <div class="g2">${inp("sp","Sp.")}${inp("rb","Rb.")}</div><div class="g2">${inp("em","Em.")}${inp("ot","Ot.")}</div>
+ <p class="mu" style="margin:4px 0 6px">Vorschau</p><div style="height:${54*3.78*sc+6}px;overflow:hidden"><div id="cpv" style="transform:scale(${sc});transform-origin:left top;width:85.6mm">${cdOne(f,1)}</div></div>
+ <div class="row"><button data-a="cprint">🖨️ Karte drucken</button><button class="sec" data-a="cpx">Schließen</button></div>
+ <p class="mu" style="margin:0">Vorschau = Hilfe: gedruckt werden nur Texte und Foto. Im Druckfenster den Kartendrucker wählen, Ränder „Keine“, Skalierung 100 %. Verschiebung und D1-Seitensteine: ⚙️ Einstellungen → Zertifikatskarte.</p></div>`}
+function uCp(){const e=$("cpv");if(e&&ui.cp)e.innerHTML=cdOne(ui.cp.f,1)}
+act.card=()=>{if(!ui.pd)return;ui.lp=null;ui.cp={f:cdFields(ui.pd)};render();setTimeout(()=>{const e=$("cpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
+act.cpx=()=>{ui.cp=null;render()};
+act.cprint=()=>{if(!ui.cp)return;lbPrint(`<div class="lbpg"><div class="lbrt">${cdOne(ui.cp.f)}</div></div>`,{w:85.6,h:54,rot:false})};
+act.ctest=()=>lbPrint(`<div class="lbpg"><div class="lbrt">${cdOne({model:"YZD0000256",gold:"14K",gram:"2.58 gr",d1:"0.60 + 0.13 ct",col:"D-E",cl:"VVS"})}</div></div>`,{w:85.6,h:54,rot:false});
+act.cbgdel=()=>{delete CD().bg;render()};
+document.addEventListener("change",e=>{const el=e.target;if(!el||el.id!=="cbg"||!el.files||!el.files[0])return;
+ const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const W=1012,H=638,cv=document.createElement("canvas");cv.width=W;cv.height=H;const g=cv.getContext("2d");
+  const r=Math.max(W/im.width,H/im.height),w=im.width*r,h=im.height*r;g.drawImage(im,(W-w)/2,(H-h)/2,w,h);CD().bg=cv.toDataURL("image/jpeg",0.85);render();toast("Hintergrund gespeichert")};im.src=fr.result};fr.readAsDataURL(el.files[0])});
+function cdSet(){const c=CD(),n=(k,l)=>F(l,I("data.card."+k,c[k]||"",CDD[k],'inputmode="decimal" data-u="uCs"'));
+ return `<div class="card"><b>💳 Zertifikatskarte (Kartendrucker)</b>${CB("data.card.pre",c.pre!==false,"Vorgedruckte Karten – nur Werte und Foto drucken",'data-r="1"')}
+ ${c.pre!==false?`<p class="mu" style="margin:4px 0 10px">Gedruckt werden nur die Texte in die weißen Felder und das Foto ins Fotofeld. Die Vorschau zeigt die Karte nur als Hilfe.</p>`:`<p class="mu" style="margin:4px 0 10px">Karte im Scheckkartenformat 85,6 × 54 mm. Eigenen Hintergrund hochladen (z. B. aus iCARDE als Bild exportiert oder Foto/Scan einer leeren Karte).</p>
+ <div class="row" style="margin:0 0 8px"><label class="btn sec" style="flex:1;text-align:center;cursor:pointer">🖼️ Hintergrund wählen<input type="file" id="cbg" accept="image/*" style="display:none"></label>${c.bg?`<button class="sec" data-a="cbgdel">Entfernen</button>`:""}</div>
+ ${c.bg?CB("data.card.only",!!c.only,"Hintergrund hat schon Beschriftung & weiße Felder – nur Werte drucken",'data-r="1"'):""}`}
+ ${F("Seitensteine (D2-Steine) bei D1",S("data.card.d1",c.d1||"sep",[["sep","Neben D1 (0.60 + 0.13 ct)"],["sum","Mit D1 zusammen (0.73 ct)"]]))}
+ <div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div>${n("fs","Schriftgröße (%)")}
+ <div style="height:${54*3.78*0.9+6}px;overflow:hidden;margin-bottom:10px"><div id="csv" style="transform:scale(.9);transform-origin:left top;width:85.6mm">${cdOne({model:"YZD0000256",gold:"14K",gram:"2.58 gr",d1:"0.60 + 0.13 ct",col:"D-E",cl:"VVS"},1)}</div></div>
+ <button class="sec" data-a="ctest">🖨️ Testkarte drucken</button></div>`}
+function uCs(){const e=$("csv");if(e)e.innerHTML=cdOne({model:"YZD0000256",gold:"14K",gram:"2.58 gr",d1:"0.60 + 0.13 ct",col:"D-E",cl:"VVS"},1)}
+
 /* Direktdruck über Zebra Browser Print (ZPL) */
 const c128n=t=>{const s=c128(t);return s?Number((s.match(/viewBox="0 0 (\d+)/)||[])[1]||0):0};
 const zs=v=>String(v??"").replace(/[\^~]/g," ");
@@ -2685,7 +2864,8 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
   z+=`^FO${L},${Math.round((H-F(bh))/2)}^FB${R},1,0,C^A0N,${F(bh)},${F(bh*0.95)}^FD${zs(big)}^FS`;
   const sm=[small,f.note].filter(Boolean);sm.forEach((t,i)=>{z+=`^FO${m},${Math.round(H/2-F(fs)*(sm.length/2)+i*F(fs)*1.15)}^FB${L-2*m},1,0,C^A0N,${F(fs*0.95)},${F(fs*0.85)}^FD${zs(t)}^FS`})}
  else{const x0=Math.round(m*1.5),c2=x0+Math.round((L-3*m)*0.53),y1=Math.round(H*0.2),y2=Math.round(H*0.58),bw=Math.max(3,D(0.7));
-  if(f.ct)z+=T(x0,y1,fs,"D :"+f.ct+"ct");z+=T(c2,y1,fs,[f.col,f.cl].filter(Boolean).join(" "));
+  const fa=f.d2?fs*0.85:fs,ya=f.d2?Math.round(H*0.12):y1;
+  if(f.ct)z+=T(x0,ya,fa,"D :"+f.ct+"ct");z+=T(c2,ya,fa,[f.col,f.cl].filter(Boolean).join(" "));if(f.d2)z+=T(x0,ya+F(fa)+D(0.4),fa,"D2 :"+f.d2+"ct");
   if(f.gr)z+=T(x0,y2,fs,f.gr+"gr");if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
   const xr=L+bw+Math.round(m*1.5),cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,bh=Math.round(H*0.3),yb=Math.round(H*0.36),bcw=c128n(f.bc)*mod;
@@ -2697,6 +2877,14 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
 const BPU="https://127.0.0.1:9101/";
 async function bpDev(){const r=await fetch(BPU+"default?type=printer",{cache:"no-store"});const t=await r.text();if(!t||!t.trim())throw new Error("noprinter");return JSON.parse(t)}
 async function bpSend(z){const dev=await bpDev();const r=await fetch(BPU+"write",{method:"POST",headers:{"Content-Type":"text/plain;charset=UTF-8"},body:JSON.stringify({device:dev,data:z})});if(!r.ok)throw new Error("write");return dev}
+async function lbMulti(fs){if(!fs.length){toast("Keine Ware ausgewählt");return}const b=data.lbl||{};
+ if(b.way==="bp"){try{const dev=await bpSend(fs.map(f=>zplOf("fin",f,1)).join(""));toast(fs.length+" Etikett"+(fs.length>1?"en":"")+" gedruckt auf "+(dev.name||"Zebra"));return}catch(e){toast("Druckfenster wird geöffnet")}}
+ lbPrint(fs.map(f=>lbDoc("fin",f,1)).join(""))}
+act.pql=d=>{const p=data.prods.find(x=>x.id===Number(d.id));if(p)lbMulti([lbFields(p)])};
+act.pqm=()=>{ui.pqm=!ui.pqm;rP()};
+act.pqr=()=>{const cs=pkSorted(plist()),i1=cs.findIndex(s=>s.id===ui.pq1),i2=cs.findIndex(s=>s.id===ui.pq2);if(i1<0||i2<0){toast("Bitte Von und Bis wählen");return}
+ lbMulti(cs.slice(Math.min(i1,i2),Math.max(i1,i2)+1).map(lbFields))};
+act.pqa=()=>lbMulti(pkSorted(plist()).map(lbFields));
 async function lbGo(k,f,n){const b=data.lbl||{};
  if(b.way==="bp"){try{const dev=await bpSend(zplOf(k,f,n));toast("Gedruckt auf "+(dev.name||"Zebra"))}
   catch(e){toast("Browser Print nicht da – Druckfenster wird geöffnet");lbPrint(lbDoc(k,f,n))}return}
@@ -2717,6 +2905,7 @@ function lbSet(){LB();const b=data.lbl;
  const n=(k,l)=>F(l,I("data.lbl."+k,b[k],LBD[k],'inputmode="decimal" data-u="uLs"'));
  return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße in mm. Breite = ganzes Etikett inkl. Schwanz (wie im Druckertreiber). Linker / rechter Teil = die beiden Flächen vor und nach dem schwarzen Strich.</p>
  <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("r","Rechter Teil (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div><div class="g2">${n("fs","Schriftgröße (%)")}${n("m","Innenrand (mm)")}</div>
+ ${CB("data.lbl.auto",!!b.auto,"Nach „Fertigstellen“ Etikett automatisch drucken")}
  ${(b.way||"bp")==="bp"?CB("data.lbl.zrot",!!b.zrot,"Beim Drucken um 180° drehen"):CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
  <div class="g2">${F("Druckweg",S("data.lbl.way",b.way||"bp",[["bp","Direkt (Zebra Browser Print)"],["win","Druckfenster des Browsers"]],'data-r="1"'))}${F("Drucker-Auflösung",S("data.lbl.dpi",b.dpi||"203",[["203","203 dpi"],["300","300 dpi"]]))}</div>
  ${(b.way||"bp")==="bp"?`<p class="mu" style="margin:0 0 8px">Einmalig am Laptop das kostenlose Programm „Zebra Browser Print“ von zebra.com installieren und starten, dort den Etikettdrucker als Standard wählen und diese Seite erlauben. Dann druckt die App direkt – ohne Druckfenster, wie ZebraDesigner.</p><button class="sec" data-a="bptest" style="margin-bottom:8px">🔌 Verbindung prüfen</button>`:""}
@@ -2737,6 +2926,7 @@ function rSet(){
  $("s-set").innerHTML=`
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  ${ctpSet()}
+ ${cdSet()}
  ${lbSet()}
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>

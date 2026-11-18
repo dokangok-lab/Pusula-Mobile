@@ -1,10 +1,57 @@
-Pusula Mobile – Update-Paket 0.80
+Pusula Mobile – Update 0.95 (Komplettpaket)
 
-Alle 6 Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
+Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann die neue Version.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 0.95.
 
 Änderungen:
+
+0.95 (18.11.2026)
+  - Etiketten schneller: 🏷️-Knopf direkt in der Fertigungsliste (ohne Ware zu öffnen); „Mehrere Etiketten drucken“ von Nummer bis Nummer oder alle der Liste in einem Druckauftrag; Option „nach Fertigstellen automatisch drucken“
+
+0.94 (17.11.2026)
+  - Werkstatt-Paket: Inhalt wird automatisch nach Nummer sortiert (z. B. 101, 102, 150) – erst Waren, dann Steine, Material, Sonstiges
+
+0.93 (17.11.2026)
+  - Werkstatt-Paket: „Mehrere auf einmal“ – Waren von Nummer bis Nummer in einem Schritt hinzufügen
+
+0.92 (17.11.2026)
+  - Konten-Verlauf: Anzahl der Waren steht neben jedem Verkauf (z. B. „50 Stück“); lange Warenlisten werden gekürzt – „alle anzeigen“ klappt sie auf
+
+0.91 (17.11.2026)
+  - Fertigung: „← Zurück zur Liste“ auch ganz unten; erneutes Tippen auf „Fertigung“ unten öffnet die Liste – sie springt zur zuletzt bearbeiteten Ware
+
+0.90 (17.11.2026)
+  - Zertifikatskarte: für vorgedruckte Karten – es werden nur die Werte in die weißen Felder und das Foto ins Fotofeld gedruckt (Standard); Vorschau zeigt die Karte als Hilfe
+
+0.89 (17.11.2026)
+  - Fertigung: „💳 Zertifikatskarte drucken“ – Karte im Scheckkartenformat (Model No, Gold K, Gram, D1, D2 Farbe/Qualität, Foto) direkt an den Kartendrucker
+  - Einstellungen: eigener Kartenhintergrund, Seitensteine neben D1 oder mit D1 zusammengerechnet, Verschiebung, Testkarte
+
+0.88 (17.11.2026)
+  - Fertigung: Polieren hat als Betrag automatisch 5 – bei Bedarf einfach überschreiben
+
+0.87 (17.11.2026)
+  - Fertigung: Steine ohne Zertifikat/Lagernummer – Häkchen „Farbe/Reinheit als Bereich“ mit Auswahl wie D-E, E-F … und VVS, VS, SI, VVS-VS …
+
+0.86 (17.11.2026)
+  - Montage: Häkchen „Auf ganze Zahl aufrunden“ (z. B. 22,50 → 23) – wird für die nächste Montage gemerkt
+
+0.85 (17.11.2026)
+  - Montage: Betrag = Basis (Standard 15) × Karat des Hauptsteins, auf 0,1 abgerundet (z. B. 0,65 ct → × 0,6 = 9) – Basis änderbar, wird gemerkt
+  - Fertigung: „⧉ Duplizieren“ – fertige Ware als Vorlage kopieren, neue Nummer; Einzelsteine werden geleert und müssen neu gewählt werden
+
+0.84 (16.11.2026)
+  - Montage D2: Anzahl Steine wird automatisch aus den D2-Stein-Zeilen (Stück) übernommen und der Betrag gleich berechnet
+
+0.83 (16.11.2026)
+  - Etikett: bei D2-Steinen eigene Zeile „D2 :0.13ct“ unter Karat/Farbe – wie in ZebraDesigner; D2-Karat im Druckfenster änderbar
+
+0.82 (15.11.2026)
+  - Fertigung: Suchfeld über der Stein-Auswahl – nach Nummer, Form, ct, Farbe oder Reinheit suchen; bei genau einem Treffer wird der Stein direkt übernommen
+
+0.81 (15.11.2026)
+  - Fertigung: Einzelsteine, die schon in einer anderen Ware stecken (auch „In Fertigung“), erscheinen nicht mehr in der Stein-Auswahl; im Lager steht „Reserviert in Fertigung: …“
 
 0.80 (15.11.2026)
   - Werkstatt: „✓ Abgeholt“ bereitet automatisch einen Verkauf mit Barcode für die Person (bzw. „für …“) vor – alle Waren des Pakets, Betrag aus VK, nur noch prüfen und Buchen
