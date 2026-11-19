@@ -1,10 +1,14 @@
-Pusula Mobile – Update 1.12 (Komplettpaket)
+Pusula Mobile – Update 1.13 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.12.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.13.
 
 Änderungen:
+
+1.13 (19.11.2026)
+  - 💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt
+  - Einstellungen → Nummern-Kürzel: „Stein-Kürzel (Zertifikat)“ frei festlegen
 
 1.12 (19.11.2026)
   - Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt)

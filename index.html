@@ -158,8 +158,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.12";
+const VER="1.13";
 const HIST=[
+ ["1.13","19.11.2026",["💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt","Einstellungen → Nummern-Kürzel: „Stein-Kürzel (Zertifikat)“ frei festlegen"]],
  ["1.12","19.11.2026",["Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt)"]],
  ["1.11","19.11.2026",["Lager: Einzelsteine, die in einer noch nicht fertigen Ware stecken, zeigen „in Fertigung“ mit der Warennummer (z. B. YZD294) statt nur den Karat"]],
  ["1.10","19.11.2026",["Wichtig: Notfall-Sicherung – die App legt laufend eine verschlüsselte Kopie im Gerät ab; lädt die App neu (z. B. nach dem IGI-Link), erscheint beim Start „↩️ Wiederherstellen“","IGI-Suche: in der Handy-App wird der Link nur kopiert statt die App zu verlassen","Warnung, wenn man bei vorhandener Notfall-Sicherung ein neues leeres Buch anlegt"]],
@@ -772,6 +773,13 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt ~ 💎 New stone: prefix (LG, ER …) to pick next to the number, digits-only keyboard; last prefix is remembered ~ 💎 Yeni taş: numaranın yanında seçilebilir kısaltma (LG, ER …), sadece rakam klavyesi; son kısaltma hatırlanır
+Einstellungen → Nummern-Kürzel: „Stein-Kürzel (Zertifikat)“ frei festlegen ~ Settings → number prefixes: set “stone prefixes (certificate)” freely ~ Ayarlar → numara kısaltmaları: “taş kısaltmaları (sertifika)” serbestçe belirlenir
+Zertifikat-/Steinnummer ~ Certificate/stone number ~ Sertifika/taş numarası
+nur Ziffern ~ digits only ~ sadece rakam
+ohne ~ none ~ yok
+Stein-Kürzel (Zertifikat) ~ Stone prefixes (certificate) ~ Taş kısaltmaları (sertifika)
+Mit Komma trennen. Bei „💎 Neuer Stein“ wählbar, dann nur Ziffern tippen. ~ Separate with commas. Selectable in “💎 New stone”, then type digits only. ~ Virgülle ayırın. “💎 Yeni taş”ta seçilir, sonra sadece rakam yazın.
 Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt) ~ Production → stones: “💎 New stone” – enter number, carat, shape, colour, clarity; the stone is created as a single stone in stock and set into the item right away (digits only → LG is added) ~ Üretim → taşlar: “💎 Yeni taş” – numara, karat, form, renk, berraklık girin; taş otomatik olarak depoda tek taş olarak oluşturulur ve ürüne hemen takılır (sadece rakam → başına LG eklenir)
 💎 Neuer Stein (direkt ins Lager + einsetzen) ~ 💎 New stone (straight to stock + set) ~ 💎 Yeni taş (doğrudan depoya + tak)
 💎 Neuer Stein ~ 💎 New stone ~ 💎 Yeni taş
@@ -2928,15 +2936,16 @@ function mHook(p){const d=ui.pd;if(!d||!p.startsWith("ui.pd."))return;const k=p.
 function pEdit(p){pEdit0(p);mHook(p)}
 function nstHTML(){const n=ui.nst;if(!n)return`<button data-a="nst" style="width:100%;margin-bottom:10px">💎 Neuer Stein (direkt ins Lager + einsetzen)</button>`;
  return `<div class="rowc" style="border-color:var(--ac);margin-bottom:10px"><b>💎 Neuer Stein</b><p class="mu" style="margin:2px 0 8px">Wird als Einzelstein im Lager angelegt und hier eingesetzt.</p>
- ${F("Zertifikat-/Steinnummer (z. B. LG762580849 oder nur 762580849)",I("ui.nst.name",n.name,"LG…",'autocorrect="off" autocomplete="off" spellcheck="false"'))}
+ <div class="f"><span>Zertifikat-/Steinnummer</span><div style="display:grid;grid-template-columns:88px 1fr;gap:8px">${S("ui.nst.pre",n.pre,[...stPres().map(x=>[x,x]),["","ohne"]])}${I("ui.nst.name",n.name,"nur Ziffern",'inputmode="numeric" pattern="[0-9]*" autocorrect="off" autocomplete="off" spellcheck="false" name="stno-x"')}</div></div>
  <div class="g2">${F("Steinart / Herkunft",S("ui.nst.nat",n.nat,SNAT))}${F("Karat ct",I("ui.nst.ct",n.ct,"z. B. 2,06",'inputmode="decimal" autocomplete="off"'))}</div>
  <div class="g2">${F("Art / Form",SX("ui.nst.type",n.type,L_FORM))}${F("Farbe",SX("ui.nst.color",n.color,L_COL))}</div>
  <div class="g2">${F("Reinheit",SX("ui.nst.clar",n.clar,L_CLAR))}${F("Schliff",SX("ui.nst.cut",n.cut,L_CUT))}</div>
  ${CB("ui.nst.d2",!!n.d2,"D2 – seitlicher Stein")}
  <div class="row"><button data-a="nstok">✓ Anlegen & einsetzen</button><button class="sec" data-a="nstx">Abbrechen</button></div></div>`}
-act.nst=()=>{ui.nst={name:"",nat:"CVD",type:"",ct:"",color:"",clar:"",cut:"",d2:false};render()};
+function stPres(){const v=data.stPre===undefined?"LG, ER":data.stPre;return String(v).toUpperCase().split(/[\s,;]+/).filter(Boolean)}
+act.nst=()=>{const P=stPres(),l=data.stPreLast;ui.nst={pre:l!==undefined&&(l===""||P.includes(l))?l:(P[0]||""),name:"",nat:"CVD",type:"",ct:"",color:"",clar:"",cut:"",d2:false};render()};
 act.nstx=()=>{ui.nst=null;render()};
-act.nstok=()=>{const n=ui.nst,d=ui.pd;if(!n||!d)return;let nm=String(n.name||"").trim().toUpperCase().replace(/\s+/g,"");if(/^\d{6,}$/.test(nm))nm="LG"+nm;
+act.nstok=()=>{const n=ui.nst,d=ui.pd;if(!n||!d)return;let nm=String(n.name||"").trim().toUpperCase().replace(/\s+/g,"");if(nm&&/^\d+$/.test(nm))nm=(n.pre||"")+nm;data.stPreLast=n.pre||"";
  const ct=parse(n.ct);if(!nm){toast("Bitte die Steinnummer eintragen");return}if(!(ct>0)){toast("Bitte Karat eintragen");return}
  let st=data.stock.find(x=>x.group==="Stein"&&(x.name.toUpperCase()===nm||String(x.code||"").toUpperCase()===nm));
  if(st){const u=stoneIn(st.id,d.id);if(u){toast("Stein "+nm+" steckt schon in "+shortCode(u.code));return}}
@@ -3470,6 +3479,7 @@ function rSet(){
  ${lbSet()}
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
+ <div class="g2">${F("Stein-Kürzel (Zertifikat)",I("data.stPre",data.stPre===undefined?"LG, ER":data.stPre,"LG, ER",'data-up="1" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Mit Komma trennen. Bei „💎 Neuer Stein“ wählbar, dann nur Ziffern tippen.</p></div>
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div>
  <div class="g2">${F("Werkstatt-Paket",I("data.prefix.Paket",pfxK(),"P",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Paketnr.: Kürzel + Zähler, z. B. P0001</p></div>
  <div class="g2">${F("Verkauf",I("data.prefix.Verkauf",pfxS(),"S",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Verkaufsnr.: Kürzel + Jahr + Monat + Zähler, z. B. S2611001</p></div></div>
