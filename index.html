@@ -158,8 +158,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.14";
+const VER="1.15";
 const HIST=[
+ ["1.15","19.11.2026",["Zertifikat-Finder: „💾 Übergabe speichern“ – abgehakte gelten als abgegeben, die übrigen als „noch abzugeben“","Offene Zertifikate erscheinen oben im Finder (nach Kunde, mit „✓ Abgegeben“) und auf der Übersicht; Gegenprüfung hakt sie automatisch ab"]],
  ["1.14","19.11.2026",["Zertifikat-Finder → Gegenprüfung: nur Ziffern-Tastatur; bei 9 Ziffern wird sofort automatisch geprüft (kein LG nötig)"]],
  ["1.13","19.11.2026",["💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt","Einstellungen → Nummern-Kürzel: „Stein-Kürzel (Zertifikat)“ frei festlegen"]],
  ["1.12","19.11.2026",["Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt)"]],
@@ -774,6 +775,12 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zertifikat-Finder: „💾 Übergabe speichern“ – abgehakte gelten als abgegeben, die übrigen als „noch abzugeben“ ~ Certificate finder: “💾 Save handover” – ticked ones count as handed over, the rest as “still to hand over” ~ Sertifika bulucu: “💾 Teslimi kaydet” – işaretliler teslim edildi, kalanlar “teslim edilecek” sayılır
+Offene Zertifikate erscheinen oben im Finder (nach Kunde, mit „✓ Abgegeben“) und auf der Übersicht; Gegenprüfung hakt sie automatisch ab ~ Open certificates appear at the top of the finder (by customer, with “✓ Handed over”) and on the overview; the cross-check ticks them off automatically ~ Açık sertifikalar bulucunun üstünde (müşteriye göre, “✓ Teslim edildi” ile) ve genel bakışta görünür; çapraz kontrol otomatik işaretler
+💾 Übergabe speichern ~ 💾 Save handover ~ 💾 Teslimi kaydet
+✓ Abgegeben ~ ✓ Handed over ~ ✓ Teslim edildi
+Bei Übergabe „✓ Abgegeben“ tippen – oder unten in der Gegenprüfung die Nummer eintippen. ~ On handover tap “✓ Handed over” – or type the number in the cross-check below. ~ Teslimde “✓ Teslim edildi”ye dokunun – veya aşağıdaki çapraz kontrolde numarayı yazın.
+Speichert: abgehakte = abgegeben, die übrigen erscheinen als „noch abzugeben“ (auch auf der Übersicht). ~ Saves: ticked = handed over, the rest appear as “still to hand over” (also on the overview). ~ Kaydeder: işaretli = teslim edildi, kalanlar “teslim edilecek” olarak görünür (genel bakışta da).
 Zertifikat-Finder → Gegenprüfung: nur Ziffern-Tastatur; bei 9 Ziffern wird sofort automatisch geprüft (kein LG nötig) ~ Certificate finder → cross-check: digits-only keyboard; with 9 digits it checks automatically right away (no LG needed) ~ Sertifika bulucu → çapraz kontrol: sadece rakam klavyesi; 9 rakamda hemen otomatik kontrol eder (LG gerekmez)
 Nur die Ziffern vom Zertifikat eintippen: alle 9 Ziffern → prüft sofort automatisch; oder letzte 4 Ziffern + „Prüfen“. ~ Type only the certificate digits: all 9 digits → checks automatically; or last 4 digits + “Check”. ~ Sertifikanın sadece rakamlarını yazın: 9 rakamın tamamı → otomatik kontrol; veya son 4 rakam + “Kontrol”.
 z. B. 803620573 oder 0573 ~ e.g. 803620573 or 0573 ~ ör. 803620573 veya 0573
@@ -2023,6 +2030,15 @@ function rOrd(){const n=data.orders.filter(o=>!o.done).length,q=String(ui.oq||""
 const ordRowsHTML=l=>ordSort(l).map(o=>ordRow(o,true)).join("")||'<p class="mu">Keine Bestellungen.</p>';
 function uOq(){const q=String(ui.oq||"").trim().toLowerCase();let l=data.orders.filter(o=>ui.of2==="all"||(ui.of2==="act"?!o.done:o.done));
  if(q)l=l.filter(o=>((o.no||"")+" "+ordTxt(o)+" "+pnm(o.pid)+" "+o.note).toLowerCase().includes(q));$("orows").innerHTML=ordRowsHTML(l)}
+function cfDue(){const ok=data.cfok||{};data.cfdue=(data.cfdue||[]).filter(c=>!ok[c.cert]);return data.cfdue}
+function cfDueHTML(L,act2){const G={};L.forEach(c=>{const k=c.for||c.buyer||"–";(G[k]=G[k]||[]).push(c)});
+ return Object.keys(G).sort().map(k=>`<div style="margin:8px 0 2px"><b>${esc(k)}</b> <span class="mu">· ${G[k].length} offen</span></div>`+G[k].map(c=>`<div class="it"><div><b style="font-size:20px;letter-spacing:1px">${esc(c.l4)}</b><small>${esc(c.cert)} · ${esc(shortCode(c.code))} · ${esc(c.sno)}${c.date?" · seit "+dt(c.date):""}</small></div>${act2?`<div class="r"><button class="sm" data-a="cfgive" data-v="${esc(c.cert)}">✓ Abgegeben</button></div>`:""}</div>`).join("")).join("")}
+function ocCfd(){const L=cfDue();if(!L.length)return"";return box("📜 Zertifikate noch abzugeben ("+L.length+")","⚠️",cfDueHTML(L.slice(0,8),false)+(L.length>8?`<p class="mu">… und ${L.length-8} weitere</p>`:""),"cert")}
+act.cfsave=()=>{const C=cfCerts(ui.cfs||{});if(!C.length)return;const ok=data.cfok||(data.cfok={}),g=C.filter(c=>ok[c.cert]),o=C.filter(c=>!ok[c.cert]);
+ const D=data.cfdue=(data.cfdue||[]).filter(x=>!C.some(c=>c.cert===x.cert));o.forEach(c=>D.push({cert:c.cert,l4:c.l4,code:c.code,sno:c.sno,buyer:c.buyer,for:c.for,date:today()}));
+ (data.cfh=data.cfh||[]).unshift({id:uid(),date:today(),snos:[...new Set(C.map(c=>c.sno))],given:g.length,total:C.length,open:o.map(c=>c.cert)});
+ rCert();toast(g.length+" abgegeben · "+o.length+" noch fällig")};
+act.cfgive=d=>{(data.cfok=data.cfok||{})[d.v]=1;cfDue();render();toast(d.v+" abgegeben ✓")};
 function ocOrd(){const l=ordSort(data.orders.filter(o=>!o.done)).slice(0,5);
  return box("Aktive Bestellungen","📋",l.map(o=>ordRow(o,true)).join("")||'<p class="mu">Keine aktiven Bestellungen.</p>',"orders")}
 
@@ -2098,15 +2114,18 @@ function cfCerts(sel){const L=[];cfSales().filter(s=>sel[s.sno]).forEach(s=>s.ms
   if(st&&st.name){const o=data.orders.find(o=>oItems(o).some(it=>Array.isArray(it.pids)&&it.pids.includes(p.id)));L.push({l4:st4(st.name),cert:st.name,code:p.code,sno:s.sno,ct:parse(x.qty)||parse(st.ct),type:x.type||st.type||"",buyer:pnm(s.pid),for:o&&o.pid!==s.pid?pnm(o.pid):"",ono:o?o.no||"":""})}}))));
  return L.sort((a,b)=>a.l4.localeCompare(b.l4,"de",{numeric:true})||a.cert.localeCompare(b.cert))}
 function rCert(){const sel=ui.cfs||(ui.cfs={}),q=String(ui.cfq||"").trim().toLowerCase(),S=cfSales().filter(s=>!q||(s.sno+" "+pnm(s.pid)).toLowerCase().includes(q)),C=cfCerts(sel),n=Object.values(sel).filter(Boolean).length;
- $("s-cert").innerHTML=`<div class="bar"><span>Zertifikat-Finder</span><span>📜</span></div>
+ const DU=cfDue();$("s-cert").innerHTML=`<div class="bar"><span>Zertifikat-Finder</span><span>📜</span></div>
+ ${DU.length?`<div class="card" style="border:1px solid #f0a020"><b>⚠️ Noch abzugeben (${DU.length})</b><p class="mu" style="margin:4px 0 0">Bei Übergabe „✓ Abgegeben“ tippen – oder unten in der Gegenprüfung die Nummer eintippen.</p>${cfDueHTML(DU,true)}</div>`:""}
  <div class="card"><b>1. Verkäufe wählen</b><input data-f="ui.cfq" data-u="uCf" value="${esc(ui.cfq||"")}" placeholder="Suchen (S2611… oder Kunde)" style="margin:8px 0" autocorrect="off" autocomplete="off" spellcheck="false">
  <div id="cfl">${cfList(S,sel)}</div>
  ${n?`<button class="sec sm" data-a="cfclr" style="margin-top:6px">Auswahl leeren (${n})</button>`:""}</div>
  <div class="card"><b>2. Zertifikate – nach letzten 4 Ziffern</b>${C.length?`<p class="mu" style="margin:4px 0 8px">${C.length} Zertifikat${C.length>1?"e":""} aus ${n} Verkauf${n>1?"en":""}</p>
  ${(()=>{const ok=data.cfok||{},f=C.filter(c=>ok[c.cert]).length;return `<p style="margin:0 0 6px"><b>${f} von ${C.length} gefunden</b>${f?` <button class="sec sm" data-a="cfreset">Häkchen zurücksetzen</button>`:""}</p>`})()}
  ${C.map(c=>{const ok=!!(data.cfok||{})[c.cert];return `<label class="it" style="cursor:pointer;${ok?"opacity:.45;text-decoration:line-through;":""}"><div style="display:flex;gap:12px;align-items:center"><input type="checkbox" data-cfk="${esc(c.cert)}"${ok?" checked":""} style="width:24px;height:24px;flex:none"><div><b style="font-size:26px;letter-spacing:1px">${esc(c.l4)}</b><small>${esc(c.cert)} · ${esc(c.type)} ${c.ct?f2(c.ct)+" ct":""}</small></div></div><div class="r"><b>${esc(shortCode(c.code))} · ${esc(c.for||c.buyer)}</b><small>${c.for?"über "+esc(c.buyer)+" · ":""}${c.ono?esc(c.ono)+" · ":""}${esc(c.sno)}</small></div></label>`}).join("")}
- <div class="row" style="margin-top:8px"><button class="sec" data-a="cfcopy">📋 Liste kopieren</button></div>`:'<p class="mu" style="margin:6px 0 0">Oben einen oder mehrere Verkäufe anhaken.</p>'}</div>
- ${C.length?`<div class="card"><b>3. 🔍 Gegenprüfung</b><p class="mu" style="margin:4px 0 8px">Nur die Ziffern vom Zertifikat eintippen: alle 9 Ziffern → prüft sofort automatisch; oder letzte 4 Ziffern + „Prüfen“.</p>
+ <div class="row" style="margin-top:8px"><button data-a="cfsave">💾 Übergabe speichern</button><button class="sec" data-a="cfcopy">📋 Liste kopieren</button></div>
+ <p class="mu" style="margin:6px 0 0">Speichert: abgehakte = abgegeben, die übrigen erscheinen als „noch abzugeben“ (auch auf der Übersicht).</p>
+ ${(data.cfh||[]).filter(x=>x.snos.some(s=>(ui.cfs||{})[s])).slice(0,3).map(x=>`<p class="mu" style="margin:4px 0 0">📝 ${dt(x.date)}: ${x.given} von ${x.total} abgegeben${x.open.length?" · "+x.open.length+" offen":""}</p>`).join("")}`:'<p class="mu" style="margin:6px 0 0">Oben einen oder mehrere Verkäufe anhaken.</p>'}</div>
+ ${C.length||DU.length?`<div class="card"><b>3. 🔍 Gegenprüfung</b><p class="mu" style="margin:4px 0 8px">Nur die Ziffern vom Zertifikat eintippen: alle 9 Ziffern → prüft sofort automatisch; oder letzte 4 Ziffern + „Prüfen“.</p>
  <input id="cfchk" name="cfchk-x" placeholder="z. B. 803620573 oder 0573" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="numeric" pattern="[0-9]*" style="width:100%;margin-bottom:8px"><button data-a="cfcheck">Prüfen</button>
  ${(ui.cfr||[]).map(r=>`<div class="it" style="border-left:4px solid ${r.ok?"var(--in)":"var(--out)"};padding-left:10px;margin-top:6px"><div><b>${r.ok?"✅":"⚠️"} ${esc(r.q)}</b><small style="color:${r.ok?"inherit":"var(--out)"}">${esc(r.msg)}</small></div></div>`).join("")}
  ${(ui.cfr||[]).length?`<button class="sec sm" data-a="cfrclr" style="margin-top:8px">Prüfliste leeren</button>`:""}</div>`:""}`}
@@ -2123,7 +2142,7 @@ act.cfcheck=()=>{const e=$("cfchk");if(!e)return;const q=String(e.value||"").tri
  const stones=data.stock.filter(s=>s.name&&(String(s.name).toUpperCase().replace(/\s+/g,"")===n||(dg.length>=4&&String(s.name).replace(/\D/g,"").endsWith(dg))));
  const R=ui.cfr=ui.cfr||[];
  if(!stones.length)R.unshift({q,ok:false,msg:"Nicht im System gefunden – gehört nicht zu diesen Verkäufen"});
- else stones.forEach(s=>{const c=C.find(x=>x.cert===s.name);
+ else stones.forEach(s=>{const c=C.find(x=>x.cert===s.name)||cfDue().find(x=>x.cert===s.name);
   if(c){data.cfok=data.cfok||{};data.cfok[c.cert]=1;R.unshift({q:s.name,ok:true,msg:"Gehört dazu: "+shortCode(c.code)+" · "+(c.for||c.buyer)+" · "+c.sno})}
   else R.unshift({q:s.name,ok:false,msg:"Gehört NICHT dazu – "+cfWhere(s)})});
  rCert();setTimeout(()=>{const x=$("cfchk");if(x)x.focus()},30)};
@@ -3226,7 +3245,7 @@ function rHome(){
  const dR=Object.keys(days).sort().reverse().slice(0,10).map(k=>[dt(k),String(days[k].n),Object.keys(days[k].r).map(c=>f2(days[k].r[c])+" "+c).join(" + ")||"–"]);
  $("s-home").innerHTML=
   box("Offene Position","⚖️",TB(["Währung","Forderung","Schuld","Differenz"],pos),"konten")+
-  ocDue()+ocBox()+ocOrd()+
+  ocDue()+ocBox()+ocCfd()+ocOrd()+
   box("Kasse","💶",TB(["Währung","Bestand"],bl(cash)),"kasse")+
   box("Bank","🏦",TB(["Währung","Bestand"],bl(bank)),"kasse")+
   box("Lager ohne Barcode","📦",TB(["Artikel","Menge","Feingehalt"],stR),"lager")+

@@ -1,10 +1,14 @@
-Pusula Mobile – Update 1.14 (Komplettpaket)
+Pusula Mobile – Update 1.15 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.14.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.15.
 
 Änderungen:
+
+1.15 (19.11.2026)
+  - Zertifikat-Finder: „💾 Übergabe speichern“ – abgehakte gelten als abgegeben, die übrigen als „noch abzugeben“
+  - Offene Zertifikate erscheinen oben im Finder (nach Kunde, mit „✓ Abgegeben“) und auf der Übersicht; Gegenprüfung hakt sie automatisch ab
 
 1.14 (19.11.2026)
   - Zertifikat-Finder → Gegenprüfung: nur Ziffern-Tastatur; bei 9 Ziffern wird sofort automatisch geprüft (kein LG nötig)
