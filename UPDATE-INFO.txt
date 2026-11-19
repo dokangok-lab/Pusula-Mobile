@@ -1,10 +1,33 @@
-Pusula Mobile – Update 1.02 (Komplettpaket)
+Pusula Mobile – Update 1.09 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.02.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.09.
 
 Änderungen:
+
+1.09 (19.11.2026)
+  - Werkstattpakete können leer angelegt werden
+  - Fertigung: bei jeder Ware „📦 Zu Werkstattpaket hinzufügen“ – Paket wählen, Hinzufügen (auch für neue, noch nicht fertige Waren); zeigt, in welchem Paket die Ware ist, mit Öffnen/Entfernen
+
+1.08 (19.11.2026)
+  - Lager: „🔎 IGI-Zertifikat übernehmen“ – 9-stellige Nummer eintragen, IGI-Seite öffnen, Text einfügen oder IGI-PDF wählen; Form, Karat, Farbe, Reinheit, Schliff, CVD/HPHT und Nummer werden automatisch eingetragen
+
+1.07 (19.11.2026)
+  - Speicher-Erinnerung: Warnhinweis oben, wenn 30 Min / 1 Std / 1,5 Std / 2 Std nicht gespeichert wurde (Standard 1 Std) – mit „Jetzt speichern“ und „Später“; einstellbar unter Einstellungen
+
+1.06 (19.11.2026)
+  - Untere Leiste: den aktiven Bereich zweimal schnell antippen lädt ihn neu – offene Ware, Person, Formulare und Filter werden geschlossen, Seite startet oben
+
+1.05 (19.11.2026)
+  - Neu unter Mehr: 🤖 Helfer – sucht überall (Personen mit Saldo und letzten Verkäufen, Waren, Steine auch über letzte 4 Ziffern, Verkäufe, Bestellungen, Pakete) und springt per „Öffnen“ direkt hin; „KI fragen“ beantwortet Fragen in eigenen Worten (in der Claude-Version)
+  - Verkauf → Verkaufsliste zeigt jetzt alle Verkäufe, auch die bei Personen eingetragenen, mit Nummer, Stückzahl, Betrag und Auswertung
+
+1.04 (19.11.2026)
+  - Neu unter Mehr: 📥 Import & Abgleich – Excel (.xlsx), CSV, PDF-Tabelle oder eingefügten Text mit Lagersteinen, fertigen Waren oder einem Verkauf vergleichen; Spalten zuordnen (wird gemerkt), Ergebnis: gleich / abweichend / nur in Datei / nur in App; Fehlendes per Häkchen hinzufügen
+
+1.03 (19.11.2026)
+  - Zertifikat-Finder: 🔍 Gegenprüfung – Zertifikatsnummer (ganz oder letzte 4 Ziffern) eintippen/scannen; die App meldet ✅ gehört dazu (und hakt ab) oder ⚠️ gehört nicht dazu – mit Hinweis, wo es hingehört
 
 1.02 (19.11.2026)
   - Zertifikat-Finder: Häkchen je Zertifikat – gefundene werden durchgestrichen, Zähler „x von y gefunden“, Häkchen zurücksetzbar; bleibt gespeichert

@@ -24,6 +24,7 @@ h1{font-size:22px;margin:4px 0 12px}
 button,input,select,textarea{font:inherit;color:inherit}
 button{border:0;border-radius:12px;padding:12px 14px;background:var(--ac);color:#fff;font-weight:600;width:100%}
 button.sec{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
+label.btn{display:flex;align-items:center;justify-content:center;gap:6px;border-radius:12px;padding:12px 14px;font-weight:600;width:100%;box-sizing:border-box}label.btn.sec{background:var(--card);color:var(--tx);border:1px solid var(--bd)}
 button.sm{width:auto;padding:6px 12px}
 input,select{width:100%;padding:11px;border-radius:10px;border:1px solid var(--bd);background:var(--fld);margin:0}
 input[readonly]{opacity:.75}
@@ -136,6 +137,8 @@ body{max-width:none;padding:20px 28px 40px}
  <section id="s-more" class="hide"></section>
  <section id="s-stat" class="hide"></section>
  <section id="s-cert" class="hide"></section>
+ <section id="s-imp" class="hide"></section>
+ <section id="s-help" class="hide"></section>
  <section id="s-notes" class="hide"></section>
  <section id="s-trips" class="hide"></section>
  <section id="s-pkg" class="hide"></section>
@@ -154,8 +157,15 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.02";
+const VER="1.09";
 const HIST=[
+ ["1.09","19.11.2026",["Werkstattpakete können leer angelegt werden","Fertigung: bei jeder Ware „📦 Zu Werkstattpaket hinzufügen“ – Paket wählen, Hinzufügen (auch für neue, noch nicht fertige Waren); zeigt, in welchem Paket die Ware ist, mit Öffnen/Entfernen"]],
+ ["1.08","19.11.2026",["Lager: „🔎 IGI-Zertifikat übernehmen“ – 9-stellige Nummer eintragen, IGI-Seite öffnen, Text einfügen oder IGI-PDF wählen; Form, Karat, Farbe, Reinheit, Schliff, CVD/HPHT und Nummer werden automatisch eingetragen"]],
+ ["1.07","19.11.2026",["Speicher-Erinnerung: Warnhinweis oben, wenn 30 Min / 1 Std / 1,5 Std / 2 Std nicht gespeichert wurde (Standard 1 Std) – mit „Jetzt speichern“ und „Später“; einstellbar unter Einstellungen"]],
+ ["1.06","19.11.2026",["Untere Leiste: den aktiven Bereich zweimal schnell antippen lädt ihn neu – offene Ware, Person, Formulare und Filter werden geschlossen, Seite startet oben"]],
+ ["1.05","19.11.2026",["Neu unter Mehr: 🤖 Helfer – sucht überall (Personen mit Saldo und letzten Verkäufen, Waren, Steine auch über letzte 4 Ziffern, Verkäufe, Bestellungen, Pakete) und springt per „Öffnen“ direkt hin; „KI fragen“ beantwortet Fragen in eigenen Worten (in der Claude-Version)","Verkauf → Verkaufsliste zeigt jetzt alle Verkäufe, auch die bei Personen eingetragenen, mit Nummer, Stückzahl, Betrag und Auswertung"]],
+ ["1.04","19.11.2026",["Neu unter Mehr: 📥 Import & Abgleich – Excel (.xlsx), CSV, PDF-Tabelle oder eingefügten Text mit Lagersteinen, fertigen Waren oder einem Verkauf vergleichen; Spalten zuordnen (wird gemerkt), Ergebnis: gleich / abweichend / nur in Datei / nur in App; Fehlendes per Häkchen hinzufügen"]],
+ ["1.03","19.11.2026",["Zertifikat-Finder: 🔍 Gegenprüfung – Zertifikatsnummer (ganz oder letzte 4 Ziffern) eintippen/scannen; die App meldet ✅ gehört dazu (und hakt ab) oder ⚠️ gehört nicht dazu – mit Hinweis, wo es hingehört"]],
  ["1.02","19.11.2026",["Zertifikat-Finder: Häkchen je Zertifikat – gefundene werden durchgestrichen, Zähler „x von y gefunden“, Häkchen zurücksetzbar; bleibt gespeichert"]],
  ["1.01","19.11.2026",["Zertifikat-Finder: neben der Ware steht, für wen sie ist (Käufer bzw. Kunde der Bestellung) – auch in der kopierten Liste"]],
  ["1.00","18.11.2026",["Neu unter Mehr: 📜 Zertifikat-Finder – einen oder mehrere Verkäufe anhaken, die App zeigt alle Zertifikate sortiert nach den letzten 4 Ziffern (mit voller Nummer, Ware und Verkauf), Liste kopierbar"]],
@@ -315,7 +325,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 /* ---------- Start / Laden / Speichern ---------- */
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
-function open(d){
+function open(d){ui.savedAt=Date.now();
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
  if(!Array.isArray(data.pkSt))data.pkSt=["Wird gerade gemacht","Wartet auf Steine","Wartet auf Gold","Etikett muss gedruckt werden","Gravur fehlt","Qualitätskontrolle","Rückfrage an Werkstatt"];
@@ -368,7 +378,14 @@ async function writeOut(name,text){
    const w=await fileH.createWritable();await w.write(text);await w.close();return}
   catch(e){if(e&&e.name==="AbortError")throw e;fileH=null}}
  const a=document.createElement("a");a.href=URL.createObjectURL(f);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000)}
-async function saveFile(){await writeOut(data.user+".json",await enc(data,pw))}
+async function saveFile(){await writeOut(data.user+".json",await enc(data,pw));ui.savedAt=Date.now();remHide()}
+function remMin(){const v=(data||{}).remind;return v===undefined?60:Number(v)||0}
+function remHide(){const e=document.getElementById("rembar");if(e)e.remove()}
+function remCheck(){try{if(!data||!data.user||!ui.savedAt||$("main").classList.contains("hide"))return remHide();const m=remMin();if(!m)return remHide();const age=(Date.now()-ui.savedAt)/60000;if(age<m||document.getElementById("rembar"))return;
+ const d=document.createElement("div");d.id="rembar";d.style.cssText="position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top) + 8px);z-index:60;background:#b45309;color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 6px 20px rgba(0,0,0,.35);display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:620px;margin:0 auto";
+ const t=Math.round(age),txt=t>=60?(Math.floor(t/60)+" Std"+(t%60?" "+(t%60)+" Min":"")):t+" Min";
+ d.innerHTML=`<b style="flex:1;min-width:180px">⚠️ ${esc(tx("Seit"))} ${txt} ${esc(tx("nicht gespeichert"))}</b><button data-a="savekeep" style="width:auto;background:#fff;color:#b45309">💾 ${esc(tx("Jetzt speichern"))}</button><button class="sec" data-a="remlater" style="width:auto">${esc(tx("Später"))}</button>`;document.body.appendChild(d)}catch(_){}}
+setInterval(remCheck,30000);
 $("bSave").onclick=async()=>{
  const name=data.user+".json";let text;
  try{text=await enc(data,pw);
@@ -378,10 +395,16 @@ $("bSave").onclick=async()=>{
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
-function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg","stat","cert"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
- const nv=["kasse","orders","set","more","notes","trips","pkg","stat","cert"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
-act.go=d=>{if(d.v==="prod"&&ui.s==="prod"&&ui.pd){act.pback();return}go(d.v)};
-function render(){snoSync();({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat,cert:rCert})[ui.s]()}
+function go(s){ui.s=s;["home","kasse","konten","lager","prod","verkauf","orders","set","more","notes","trips","pkg","stat","cert","imp","help"].forEach(x=>$("s-"+x).classList.toggle("hide",x!==s));
+ const nv=["kasse","orders","set","more","notes","trips","pkg","stat","cert","imp","help"].includes(s)?"more":s;document.querySelectorAll(".nb button").forEach(b=>b.classList.toggle("on",b.dataset.v===nv));render();window.scrollTo(0,0)}
+const NVM=["kasse","orders","set","more","notes","trips","pkg","stat","cert","imp","help"];
+function navReset(v){const R={konten:()=>{ui.pid=null;ui.kf=null;ui.pe=false;ui.pf=null;ui.wx=null;ui.sd={};ui.mx={};ui.cov={}},
+ lager:()=>{ui.se=null;ui.sb=null;ui.lq=""},prod:()=>{ui.pd=null;ui.lp=null;ui.cp=null;ui.pq="";ui.ps="";ui.pg="";ui.pqm=false;ui.sq={}},
+ verkauf:()=>{ui.sv=null;ui.svl=false;ui.vbk=false;ui.sd={}},more:()=>{ui.imp=null;ui.cfs={};ui.cfr=[];ui.hlp=null;ui.wx=null;ui.pk=null},home:()=>{}};(R[v]||(()=>{}))()}
+act.go=d=>{const now=Date.now(),cur=NVM.includes(ui.s)?"more":ui.s,T=ui._tap;
+ if(d.v===cur){if(T&&T.v===d.v&&now-T.t<1500){navReset(d.v);ui._tap=null;go(d.v);toast("Neu geladen");return}ui._tap={v:d.v,t:now}}else ui._tap=null;
+ if(d.v==="prod"&&ui.s==="prod"&&ui.pd){act.pback();return}go(d.v)};
+function render(){snoSync();({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat,cert:rCert,imp:rImp,help:rHelp})[ui.s]()}
 function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
@@ -398,6 +421,8 @@ function hook(p){
  if(p==="ui.te.car"&&ui.te){const c=carOf(ui.te.car);if(c){ui.te.cons=String(c.cons||"");ui.te.price=String(c.price||"")}}
  if(p.startsWith("ui.of.cur.")&&ui.of)ui.of.dirty=true;
  if(p==="ui.kf.prod")kProd();
+ if(p.startsWith("ui.imp.map."))impRemember();
+ if(p==="ui.imp.t"&&ui.imp){const I=ui.imp;I.sel={};I.tab="neu";if(I.rows){const s=(data.impMap||{})[I.t+"|"+I.rows[0].join("|").toLowerCase()];I.map=s?s.slice():impGuess(I.rows[0],I.t)}}
  if(p==="ui.wx.from"&&ui.wx){ui.wx=wxDef(ui.wx.pid,ui.wx.from);wxCalc()}
  if(p==="ui.wx.to"&&ui.wx){const w=ui.wx;if(w.to===w.from){ui.wx=wxDef(w.pid,w.to==="EUR"?"USD":"EUR")}else{const r=cvC(1,w.from,w.to);w.rate=r?String(Math.round(r*10000)/10000).replace(".",","):"";w.bm=0}wxCalc()}
  if(p==="ui.wx.a"&&ui.wx){wxCalc();setV("ui.wx.b",ui.wx.b)}
@@ -727,6 +752,66 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Werkstattpakete können leer angelegt werden ~ Workshop packages can be created empty ~ Atölye paketleri boş oluşturulabilir
+Fertigung: bei jeder Ware „📦 Zu Werkstattpaket hinzufügen“ – Paket wählen, Hinzufügen (auch für neue, noch nicht fertige Waren); zeigt, in welchem Paket die Ware ist, mit Öffnen/Entfernen ~ Production: “📦 Add to workshop package” on every item – choose package, add (also for new, unfinished items); shows which package the item is in, with open/remove ~ Üretim: her üründe “📦 Atölye paketine ekle” – paket seç, ekle (yeni, bitmemiş ürünler için de); ürünün hangi pakette olduğunu aç/çıkar ile gösterir
+📦 Werkstattpaket ~ 📦 Workshop package ~ 📦 Atölye paketi
+📦 Zu Werkstattpaket hinzufügen ~ 📦 Add to workshop package ~ 📦 Atölye paketine ekle
+➕ Hinzufügen ~ ➕ Add ~ ➕ Ekle
+Noch kein offenes Paket – unter Mehr → Werkstatt ein Paket anlegen (geht auch leer). ~ No open package yet – create one under More → Workshop (can be empty). ~ Henüz açık paket yok – Daha Fazla → Atölye altında oluşturun (boş olabilir).
+Lager: „🔎 IGI-Zertifikat übernehmen“ – 9-stellige Nummer eintragen, IGI-Seite öffnen, Text einfügen oder IGI-PDF wählen; Form, Karat, Farbe, Reinheit, Schliff, CVD/HPHT und Nummer werden automatisch eingetragen ~ Stock: “🔎 Take over IGI certificate” – enter the 9-digit number, open the IGI page, paste the text or choose the IGI PDF; shape, carat, colour, clarity, cut, CVD/HPHT and number are filled in automatically ~ Stok: “🔎 IGI sertifikasını al” – 9 haneli numarayı girin, IGI sayfasını açın, metni yapıştırın veya IGI PDF'sini seçin; şekil, karat, renk, berraklık, kesim, CVD/HPHT ve numara otomatik girilir
+🔎 IGI-Zertifikat übernehmen ~ 🔎 Take over IGI certificate ~ 🔎 IGI sertifikasını al
+Nummer eintragen (ohne „LG“) → „Bei IGI öffnen“ → dort den Text der Ergebnisseite kopieren und unten einfügen. Oder das PDF-Zertifikat wählen. Die App trägt Form, Karat, Farbe, Reinheit, Schliff und CVD/HPHT selbst ein. ~ Enter the number (without “LG”) → “Open at IGI” → copy the text of the result page there and paste it below. Or choose the PDF certificate. The app fills in shape, carat, colour, clarity, cut and CVD/HPHT itself. ~ Numarayı girin (“LG” olmadan) → “IGI'de aç” → sonuç sayfasının metnini kopyalayıp aşağıya yapıştırın. Veya PDF sertifikayı seçin. Uygulama şekil, karat, renk, berraklık, kesim ve CVD/HPHT'yi kendisi girer.
+IGI-Nummer ~ IGI number ~ IGI numarası
+🌐 Bei IGI öffnen ~ 🌐 Open at IGI ~ 🌐 IGI'de aç
+Text der IGI-Seite hier einfügen ~ Paste the text of the IGI page here ~ IGI sayfasının metnini buraya yapıştırın
+✅ Übernehmen ~ ✅ Apply ~ ✅ Uygula
+📄 IGI-PDF wählen ~ 📄 Choose IGI PDF ~ 📄 IGI PDF seç
+Speicher-Erinnerung: Warnhinweis oben, wenn 30 Min / 1 Std / 1,5 Std / 2 Std nicht gespeichert wurde (Standard 1 Std) – mit „Jetzt speichern“ und „Später“; einstellbar unter Einstellungen ~ Save reminder: warning at the top if not saved for 30 min / 1 h / 1.5 h / 2 h (default 1 h) – with “Save now” and “Later”; adjustable in settings ~ Kaydetme hatırlatıcısı: 30 dk / 1 sa / 1,5 sa / 2 sa kaydedilmezse üstte uyarı (varsayılan 1 sa) – “Şimdi kaydet” ve “Sonra” ile; ayarlarda değiştirilebilir
+⏰ Speicher-Erinnerung ~ ⏰ Save reminder ~ ⏰ Kaydetme hatırlatıcısı
+Warnt oben, wenn so lange nicht gespeichert wurde. „Später“ erinnert in 15 Minuten wieder. ~ Warns at the top if not saved for this long. “Later” reminds again in 15 minutes. ~ Bu süre kaydedilmezse üstte uyarır. “Sonra” 15 dakika sonra tekrar hatırlatır.
+Aus ~ Off ~ Kapalı
+nach 30 Minuten ~ after 30 minutes ~ 30 dakika sonra
+nach 1 Stunde ~ after 1 hour ~ 1 saat sonra
+nach 1,5 Stunden ~ after 1.5 hours ~ 1,5 saat sonra
+nach 2 Stunden ~ after 2 hours ~ 2 saat sonra
+Seit ~ For ~ Süre:
+nicht gespeichert ~ not saved ~ kaydedilmedi
+Jetzt speichern ~ Save now ~ Şimdi kaydet
+Später ~ Later ~ Sonra
+Untere Leiste: den aktiven Bereich zweimal schnell antippen lädt ihn neu – offene Ware, Person, Formulare und Filter werden geschlossen, Seite startet oben ~ Bottom bar: tapping the active section twice quickly reloads it – open item, person, forms and filters are closed, page starts at the top ~ Alt çubuk: etkin bölüme hızlıca iki kez dokunmak yeniden yükler – açık ürün, kişi, formlar ve filtreler kapanır, sayfa en üstten başlar
+Neu geladen ~ Reloaded ~ Yeniden yüklendi
+Neu unter Mehr: 🤖 Helfer – sucht überall (Personen mit Saldo und letzten Verkäufen, Waren, Steine auch über letzte 4 Ziffern, Verkäufe, Bestellungen, Pakete) und springt per „Öffnen“ direkt hin; „KI fragen“ beantwortet Fragen in eigenen Worten (in der Claude-Version) ~ New under More: 🤖 Helper – searches everywhere (people with balance and recent sales, items, stones also by last 4 digits, sales, orders, packages) and jumps there via “Open”; “Ask AI” answers questions in your own words (in the Claude version) ~ Daha Fazla altında yeni: 🤖 Yardımcı – her yerde arar (bakiye ve son satışlarıyla kişiler, ürünler, son 4 haneyle taşlar, satışlar, siparişler, paketler) ve “Aç” ile oraya gider; “Yapay zekaya sor” kendi cümlelerinizle soruları yanıtlar (Claude sürümünde)
+Verkauf → Verkaufsliste zeigt jetzt alle Verkäufe, auch die bei Personen eingetragenen, mit Nummer, Stückzahl, Betrag und Auswertung ~ Sales → sales list now shows all sales, also those entered at people, with number, quantity, amount and analysis ~ Satış → satış listesi artık kişilerde girilenler dahil tüm satışları numara, adet, tutar ve analizle gösterir
+Helfer ~ Helper ~ Yardımcı
+Alles suchen – Personen, Waren, Steine, Verkäufe – und KI fragen ~ Search everything – people, items, stones, sales – and ask AI ~ Her şeyi ara – kişiler, ürünler, taşlar, satışlar – ve yapay zekaya sor
+🤖 KI fragen ~ 🤖 Ask AI ~ 🤖 Yapay zekaya sor
+🤖 Antwort ~ 🤖 Answer ~ 🤖 Yanıt
+Suche funktioniert immer, auch offline. „KI fragen“ beantwortet Fragen in eigenen Worten (z. B. „Was schuldet mir Emirhan und was hat er zuletzt gekauft?“) – nur verfügbar, wenn die App in Claude geöffnet ist. ~ Search always works, also offline. “Ask AI” answers questions in your own words (e.g. “What does Emirhan owe me and what did he buy last?”) – only available when the app is opened in Claude. ~ Arama her zaman, çevrimdışı da çalışır. “Yapay zekaya sor” soruları kendi cümlelerinizle yanıtlar (örn. “Emirhan bana ne borçlu ve en son ne aldı?”) – sadece uygulama Claude'da açıkken.
+Tippe einen Namen, eine Nummer oder die letzten 4 Ziffern eines Zertifikats. ~ Type a name, a number or the last 4 digits of a certificate. ~ Bir ad, numara veya sertifikanın son 4 hanesini yazın.
+Nichts gefunden. ~ Nothing found. ~ Bir şey bulunamadı.
+Alle Verkäufe – aus dem Verkauf-Tab und aus den Personen (Konten). ~ All sales – from the sales tab and from people (accounts). ~ Tüm satışlar – satış sekmesinden ve kişilerden (hesaplar).
+Person ~ Person ~ Kişi
+Neu unter Mehr: 📥 Import & Abgleich – Excel (.xlsx), CSV, PDF-Tabelle oder eingefügten Text mit Lagersteinen, fertigen Waren oder einem Verkauf vergleichen; Spalten zuordnen (wird gemerkt), Ergebnis: gleich / abweichend / nur in Datei / nur in App; Fehlendes per Häkchen hinzufügen ~ New under More: 📥 Import & compare – compare Excel (.xlsx), CSV, PDF table or pasted text with stock stones, finished items or a sale; map columns (remembered), result: same / different / only in file / only in app; add missing ones by tick ~ Daha Fazla altında yeni: 📥 İçe aktar ve karşılaştır – Excel (.xlsx), CSV, PDF tablo veya yapıştırılan metni stok taşları, hazır ürünler veya bir satışla karşılaştırın; sütunları eşleyin (hatırlanır), sonuç: aynı / farklı / sadece dosyada / sadece uygulamada; eksikleri işaretleyerek ekleyin
+Import & Abgleich ~ Import & compare ~ İçe aktar ve karşılaştır
+Excel/PDF mit Lager oder Verkauf vergleichen, Fehlendes hinzufügen ~ Compare Excel/PDF with stock or sale, add missing ~ Excel/PDF'yi stok veya satışla karşılaştır, eksikleri ekle
+1. Was vergleichen? ~ 1. What to compare? ~ 1. Neyi karşılaştırmalı?
+Bereich ~ Area ~ Alan
+2. Datei laden ~ 2. Load file ~ 2. Dosya yükle
+📂 Datei wählen ~ 📂 Choose file ~ 📂 Dosya seç
+Eingefügten Text übernehmen ~ Use pasted text ~ Yapıştırılan metni al
+3. Welche Spalte ist was? ~ 3. Which column is what? ~ 3. Hangi sütun ne?
+Erste Zeile ist Überschrift ~ First row is header ~ İlk satır başlık
+4. Ergebnis ~ 4. Result ~ 4. Sonuç
+Keine Einträge. ~ No entries. ~ Kayıt yok.
+Lagersteine (Einzelsteine) ~ Stock stones (single) ~ Stok taşları (tek)
+Fertige Waren ~ Finished items ~ Hazır ürünler
+Verkauf (nur vergleichen) ~ Sale (compare only) ~ Satış (sadece karşılaştır)
+– ignorieren – ~ – ignore – ~ – yoksay –
+Zertifikat-Finder: 🔍 Gegenprüfung – Zertifikatsnummer (ganz oder letzte 4 Ziffern) eintippen/scannen; die App meldet ✅ gehört dazu (und hakt ab) oder ⚠️ gehört nicht dazu – mit Hinweis, wo es hingehört ~ Certificate finder: 🔍 double check – type/scan the certificate number (full or last 4 digits); the app reports ✅ belongs (and ticks it) or ⚠️ does not belong – with a hint where it belongs ~ Sertifika bulucu: 🔍 çapraz kontrol – sertifika numarasını (tam veya son 4 hane) yazın/tarayın; uygulama ✅ ait (ve işaretler) veya ⚠️ ait değil – nereye ait olduğuyla bildirir
+3. 🔍 Gegenprüfung ~ 3. 🔍 Double check ~ 3. 🔍 Çapraz kontrol
+Nummer vom Zertifikat in der Hand eintippen oder scannen (ganze Nummer oder letzte 4 Ziffern) und Enter. Die App sagt, ob es zu diesen Verkäufen gehört – und hakt es dann ab. ~ Type or scan the number of the certificate in your hand (full number or last 4 digits) and press Enter. The app tells you whether it belongs to these sales – and ticks it. ~ Elinizdeki sertifikanın numarasını yazın veya tarayın (tam numara veya son 4 hane) ve Enter. Uygulama bu satışlara ait olup olmadığını söyler – ve işaretler.
+Prüfen ~ Check ~ Kontrol et
+Prüfliste leeren ~ Clear check list ~ Kontrol listesini temizle
 Zertifikat-Finder: Häkchen je Zertifikat – gefundene werden durchgestrichen, Zähler „x von y gefunden“, Häkchen zurücksetzbar; bleibt gespeichert ~ Certificate finder: tick per certificate – found ones are struck through, counter “x of y found”, ticks can be reset; saved ~ Sertifika bulucu: her sertifika için işaret – bulunanların üstü çizilir, “x / y bulundu” sayacı, işaretler sıfırlanabilir; kaydedilir
 Häkchen zurücksetzen ~ Reset ticks ~ İşaretleri sıfırla
 Zertifikat-Finder: neben der Ware steht, für wen sie ist (Käufer bzw. Kunde der Bestellung) – auch in der kopierten Liste ~ Certificate finder: next to the item it shows who it is for (buyer or customer of the order) – also in the copied list ~ Sertifika bulucu: ürünün yanında kimin için olduğu yazar (alıcı veya sipariş müşterisi) – kopyalanan listede de
@@ -1965,18 +2050,204 @@ function rCert(){const sel=ui.cfs||(ui.cfs={}),q=String(ui.cfq||"").trim().toLow
  <div class="card"><b>2. Zertifikate – nach letzten 4 Ziffern</b>${C.length?`<p class="mu" style="margin:4px 0 8px">${C.length} Zertifikat${C.length>1?"e":""} aus ${n} Verkauf${n>1?"en":""}</p>
  ${(()=>{const ok=data.cfok||{},f=C.filter(c=>ok[c.cert]).length;return `<p style="margin:0 0 6px"><b>${f} von ${C.length} gefunden</b>${f?` <button class="sec sm" data-a="cfreset">Häkchen zurücksetzen</button>`:""}</p>`})()}
  ${C.map(c=>{const ok=!!(data.cfok||{})[c.cert];return `<label class="it" style="cursor:pointer;${ok?"opacity:.45;text-decoration:line-through;":""}"><div style="display:flex;gap:12px;align-items:center"><input type="checkbox" data-cfk="${esc(c.cert)}"${ok?" checked":""} style="width:24px;height:24px;flex:none"><div><b style="font-size:26px;letter-spacing:1px">${esc(c.l4)}</b><small>${esc(c.cert)} · ${esc(c.type)} ${c.ct?f2(c.ct)+" ct":""}</small></div></div><div class="r"><b>${esc(shortCode(c.code))} · ${esc(c.for||c.buyer)}</b><small>${c.for?"über "+esc(c.buyer)+" · ":""}${c.ono?esc(c.ono)+" · ":""}${esc(c.sno)}</small></div></label>`}).join("")}
- <div class="row" style="margin-top:8px"><button class="sec" data-a="cfcopy">📋 Liste kopieren</button></div>`:'<p class="mu" style="margin:6px 0 0">Oben einen oder mehrere Verkäufe anhaken.</p>'}</div>`}
+ <div class="row" style="margin-top:8px"><button class="sec" data-a="cfcopy">📋 Liste kopieren</button></div>`:'<p class="mu" style="margin:6px 0 0">Oben einen oder mehrere Verkäufe anhaken.</p>'}</div>
+ ${C.length?`<div class="card"><b>3. 🔍 Gegenprüfung</b><p class="mu" style="margin:4px 0 8px">Nummer vom Zertifikat in der Hand eintippen oder scannen (ganze Nummer oder letzte 4 Ziffern) und Enter. Die App sagt, ob es zu diesen Verkäufen gehört – und hakt es dann ab.</p>
+ <input id="cfchk" placeholder="z. B. LG803620573 oder 0573" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="text" style="width:100%;margin-bottom:8px"><button data-a="cfcheck">Prüfen</button>
+ ${(ui.cfr||[]).map(r=>`<div class="it" style="border-left:4px solid ${r.ok?"var(--in)":"var(--out)"};padding-left:10px;margin-top:6px"><div><b>${r.ok?"✅":"⚠️"} ${esc(r.q)}</b><small style="color:${r.ok?"inherit":"var(--out)"}">${esc(r.msg)}</small></div></div>`).join("")}
+ ${(ui.cfr||[]).length?`<button class="sec sm" data-a="cfrclr" style="margin-top:8px">Prüfliste leeren</button>`:""}</div>`:""}`}
 function cfList(S,sel){return S.map(s=>{const k=s.ms.reduce((a,m)=>a+mProds(m).length,0);return `<label class="it" style="cursor:pointer"><div style="display:flex;gap:10px;align-items:center"><input type="checkbox" data-cf="${esc(s.sno)}"${sel[s.sno]?" checked":""} style="width:22px;height:22px"><div><b>${esc(s.sno)}</b> · ${esc(pnm(s.pid))}<small>${dt(s.date)} · ${k} Stück</small></div></div></label>`}).join("")||'<p class="mu">Keine Verkäufe mit Barcode gefunden.</p>'}
 function uCf(){const e=$("cfl");if(!e)return;const q=String(ui.cfq||"").trim().toLowerCase();e.innerHTML=cfList(cfSales().filter(s=>!q||(s.sno+" "+pnm(s.pid)).toLowerCase().includes(q)),ui.cfs||{})}
 document.addEventListener("change",e=>{const el=e.target;if(!el||!el.dataset||el.dataset.cfk===undefined)return;data.cfok=data.cfok||{};if(el.checked)data.cfok[el.dataset.cfk]=1;else delete data.cfok[el.dataset.cfk];rCert()});
 act.cfreset=()=>{const C=cfCerts(ui.cfs||{});C.forEach(c=>{if(data.cfok)delete data.cfok[c.cert]});rCert()};
 document.addEventListener("change",e=>{const el=e.target;if(!el||!el.dataset||el.dataset.cf===undefined)return;ui.cfs=ui.cfs||{};ui.cfs[el.dataset.cf]=el.checked;rCert()});
+function cfWhere(st){const p=stoneIn(st.id);if(!p)return qtyOf(st.id)>1e-9?"liegt noch im Lager (nicht verbaut)":"nicht verbaut";
+ const m=data.moves.find(x=>(x.type==="VB")&&mProds(x).some(q=>q.id===p.id));
+ return shortCode(p.code)+(p.status==="sold"?" · verkauft"+(m&&m.sno?" in "+m.sno:"")+(p.soldTo?" an "+pnm(p.soldTo):""):p.status==="prod"?" · in Fertigung":" · im Lager (fertig)")}
+act.cfcheck=()=>{const e=$("cfchk");if(!e)return;const q=String(e.value||"").trim();if(!q)return;e.value="";
+ const n=q.toUpperCase().replace(/\s+/g,""),dg=n.replace(/\D/g,""),C=cfCerts(ui.cfs||{});
+ const stones=data.stock.filter(s=>s.name&&(String(s.name).toUpperCase().replace(/\s+/g,"")===n||(dg.length>=4&&String(s.name).replace(/\D/g,"").endsWith(dg))));
+ const R=ui.cfr=ui.cfr||[];
+ if(!stones.length)R.unshift({q,ok:false,msg:"Nicht im System gefunden – gehört nicht zu diesen Verkäufen"});
+ else stones.forEach(s=>{const c=C.find(x=>x.cert===s.name);
+  if(c){data.cfok=data.cfok||{};data.cfok[c.cert]=1;R.unshift({q:s.name,ok:true,msg:"Gehört dazu: "+shortCode(c.code)+" · "+(c.for||c.buyer)+" · "+c.sno})}
+  else R.unshift({q:s.name,ok:false,msg:"Gehört NICHT dazu – "+cfWhere(s)})});
+ rCert();setTimeout(()=>{const x=$("cfchk");if(x)x.focus()},30)};
+act.cfrclr=()=>{ui.cfr=[];rCert()};
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target&&e.target.id==="cfchk"){e.preventDefault();act.cfcheck()}});
 act.cfclr=()=>{ui.cfs={};rCert()};
 act.cfcopy=()=>{const t=cfCerts(ui.cfs||{}).map(c=>c.l4+"  "+c.cert+"  "+shortCode(c.code)+"  "+(c.for||c.buyer)+"  "+c.sno).join("\n");try{navigator.clipboard.writeText(t).then(()=>toast("Liste kopiert"),()=>toast("Kopieren nicht möglich"))}catch(_){toast("Kopieren nicht möglich")}};
+/* ---------- Import & Abgleich (Excel / CSV / PDF / Text) ---------- */
+async function unzipFiles(buf,want){const u=new Uint8Array(buf),dv=new DataView(buf),out={};let e=-1;
+ for(let i=u.length-22;i>=Math.max(0,u.length-70000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break}}if(e<0)throw new Error("zip");
+ let p=dv.getUint32(e+16,true);const n=dv.getUint16(e+10,true),td=new TextDecoder();
+ for(let k=0;k<n;k++){const meth=dv.getUint16(p+10,true),cs=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),el=dv.getUint16(p+30,true),cl=dv.getUint16(p+32,true),off=dv.getUint32(p+42,true),name=td.decode(u.subarray(p+46,p+46+nl));
+  if(want(name)){const ln=dv.getUint16(off+26,true),le=dv.getUint16(off+28,true),st=off+30+ln+le,raw=u.slice(st,st+cs);
+   out[name]=meth===0?td.decode(raw):await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text()}
+  p+=46+nl+el+cl}return out}
+async function readXlsx(buf){const f=await unzipFiles(buf,n=>n==="xl/sharedStrings.xml"||/^xl\/worksheets\/sheet\d+\.xml$/.test(n));
+ const dp=new DOMParser(),ss=[];if(f["xl/sharedStrings.xml"]){const d=dp.parseFromString(f["xl/sharedStrings.xml"],"application/xml");[...d.getElementsByTagName("si")].forEach(si=>ss.push([...si.getElementsByTagName("t")].map(t=>t.textContent).join("")))}
+ const sn=Object.keys(f).filter(n=>n.includes("worksheets")).sort((a,b)=>parseInt(a.match(/\d+/))-parseInt(b.match(/\d+/)))[0];if(!sn)return[];
+ const d=dp.parseFromString(f[sn],"application/xml"),rows=[];
+ [...d.getElementsByTagName("row")].forEach(r=>{const row=[];[...r.getElementsByTagName("c")].forEach(c=>{const ref=c.getAttribute("r")||"",col=(ref.match(/[A-Z]+/)||["A"])[0].split("").reduce((a,ch)=>a*26+ch.charCodeAt(0)-64,0)-1,t=c.getAttribute("t"),v=c.getElementsByTagName("v")[0];
+  let val=t==="s"?(ss[Number(v&&v.textContent)]||""):t==="inlineStr"?[...c.getElementsByTagName("t")].map(x=>x.textContent).join(""):(v?v.textContent:"");row[col]=val});
+  rows.push([...row].map(x=>x??""))});return rows.filter(r=>r.some(x=>String(x).trim()))}
+function readText(t){const L=String(t).replace(/\r/g,"").split("\n").filter(l=>l.trim());if(!L.length)return[];
+ const sep=L[0].includes("\t")?"\t":(L[0].split(";").length>2?";":(L[0].split(",").length>2&&!/\d,\d/.test(L[0])?",":null));
+ return L.map(l=>sep?l.split(sep).map(x=>x.replace(/^"|"$/g,"").trim()):l.trim().split(/\s{2,}|\s+(?=LG\d)|\s+/).map(x=>x.trim()))}
+function a85(s){s=s.replace(/\s/g,"");const e=s.indexOf("~>");if(e>=0)s=s.slice(0,e);if(s.startsWith("<~"))s=s.slice(2);const o=[];let t=[];
+ for(const ch of s){if(ch==="z"&&!t.length){o.push(0,0,0,0);continue}t.push(ch.charCodeAt(0)-33);if(t.length===5){let v=0;t.forEach(c=>v=v*85+c);o.push(v>>>24&255,v>>>16&255,v>>>8&255,v&255);t=[]}}
+ if(t.length){const n=t.length;while(t.length<5)t.push(84);let v=0;t.forEach(c=>v=v*85+c);o.push(...[v>>>24&255,v>>>16&255,v>>>8&255,v&255].slice(0,n-1))}return new Uint8Array(o)}
+async function inflateLoose(raw){const ds=new DecompressionStream("deflate"),w=ds.writable.getWriter();w.write(raw).catch(()=>{});w.close().catch(()=>{});
+ const r=ds.readable.getReader(),ch=[];try{for(;;){const {done,value}=await r.read();if(done)break;ch.push(value)}}catch(_){}return new TextDecoder("latin1").decode(await new Blob(ch).arrayBuffer())}
+async function readPdf(buf){const u=new Uint8Array(buf),s=new TextDecoder("latin1").decode(u),objs={};
+ const re=/(\d+)\s+0\s+obj\b/g;let m;const pos=[];while((m=re.exec(s)))pos.push([Number(m[1]),m.index+m[0].length]);
+ for(let i=0;i<pos.length;i++){const [n,st]=pos[i],en=i+1<pos.length?pos[i+1][1]:s.length,body=s.slice(st,en),e=body.indexOf("endobj");objs[n]={body:e>=0?body.slice(0,e):body,st}}
+ const dec=async n=>{const o=objs[n];if(!o)return"";if(o.txt!==undefined)return o.txt;const b=o.body,si=b.search(/stream\r?\n/);if(si<0)return o.txt="";
+  const hs=b.slice(0,si),off=o.st+si+(b.slice(si).startsWith("stream\r\n")?8:7),ei=s.indexOf("endstream",off);let raw=u.slice(off,ei);
+  try{if(/ASCII85Decode/.test(hs))raw=a85(new TextDecoder("latin1").decode(raw));o.txt=/FlateDecode/.test(hs)?await inflateLoose(raw):new TextDecoder("latin1").decode(raw)}catch(_){o.txt=""}return o.txt};
+ const cmaps={};const cmapOf=async n=>{if(cmaps[n])return cmaps[n];const t=await dec(n),M={};let w=1;
+  t.replace(/beginbfchar([\s\S]*?)endbfchar/g,(_,b)=>{b.replace(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>/g,(_,a,c)=>{w=a.length/2;M[parseInt(a,16)]=hx2s(c)})});
+  t.replace(/beginbfrange([\s\S]*?)endbfrange/g,(_,b)=>{b.replace(/<([0-9a-fA-F]+)>\s*<([0-9a-fA-F]+)>\s*(<([0-9a-fA-F]+)>|\[([^\]]*)\])/g,(_,a,z,_3,c,arr)=>{w=a.length/2;const A=parseInt(a,16),Z=parseInt(z,16);
+   if(c){const base=parseInt(c,16);for(let k=A;k<=Z;k++)M[k]=String.fromCodePoint(base+k-A)}else{const L=[...arr.matchAll(/<([0-9a-fA-F]+)>/g)];for(let k=A;k<=Z;k++)if(L[k-A])M[k]=hx2s(L[k-A][1])}})});
+  return cmaps[n]={M,w}};
+ const fonts={},isFont=r=>objs[r]&&/\/Type\s*\/Font\b/.test(objs[r].body);for(const n in objs){const b=objs[n].body;if(/stream/.test(b))continue;b.replace(/\/([^\s\/<>\[\]()]+)\s+(\d+)\s+0\s+R/g,(_,nm,r)=>{if(isFont(Number(r)))fonts[nm]=Number(r)})}
+ const fcm={};for(const nm in fonts){const fo=objs[fonts[nm]];const tu=fo&&fo.body.match(/\/ToUnicode\s+(\d+)\s+0\s+R/);if(tu)fcm[nm]=await cmapOf(Number(tu[1]))}
+ const items=[];
+ for(const n in objs){const b=objs[n].body;if(!/stream/.test(b)||/\/(Type\s*\/XObject|Subtype\s*\/Image|Type\s*\/XRef|Type\s*\/ObjStm|Length1|FontFile)/.test(b.slice(0,b.search(/stream/))))continue;
+  const t=await dec(Number(n));if(!/BT[\s\S]*?ET/.test(t))continue;let x=0,y=0,lx=0,ly=0,cf=null,lead=0;
+  const tok=/\bBT\b|\/([^\s\/<>\[\]()]+)\s+(-?[\d.]+)\s+Tf|(-?[\d.]+)\s+(-?[\d.]+)\s+(Td|TD)|(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s+(-?[\d.]+)\s+Tm|(-?[\d.]+)\s+TL|T\*|(\((?:\\.|[^\\)])*\)|<[0-9a-fA-F\s]*>)\s*(Tj|'|")|\[((?:\((?:\\.|[^\\)])*\)|<[0-9a-fA-F\s]*>|[^\]])*)\]\s*TJ/g;let k;
+  while((k=tok.exec(t))){if(k[0]==="BT"){x=y=lx=ly=0;continue}if(k[1]){cf=k[1];continue}if(k[5]){lx+=parseFloat(k[3]);ly+=parseFloat(k[4]);if(k[5]==="TD")lead=-parseFloat(k[4]);x=lx;y=ly;continue}
+   if(k[6]!==undefined){lx=x=parseFloat(k[10]);ly=y=parseFloat(k[11]);continue}if(k[12]){lead=parseFloat(k[12]);continue}if(k[0]==="T*"){ly-=lead;y=ly;x=lx;continue}
+   const parts=k[13]?[k[13]]:[...(k[15]||"").matchAll(/\((?:\\.|[^\\)])*\)|<[0-9a-fA-F\s]*>/g)].map(q=>q[0]);
+   const str=parts.map(pp=>pdfStr(pp,fcm[cf])).join("");if(str.trim())items.push({x,y,str})}}
+ const rows={};items.forEach(i=>{const k=Math.round(i.y/2)*2;(rows[k]=rows[k]||[]).push(i)});
+ return Object.keys(rows).map(Number).sort((a,b)=>b-a).map(k=>rows[k].sort((a,b)=>a.x-b.x).map(i=>i.str.trim()).filter(Boolean)).filter(r=>r.length)}
+function hx2s(h){let o="";for(let i=0;i+3<h.length+0;i+=4)o+=String.fromCharCode(parseInt(h.substr(i,4),16));if(h.length===2)o=String.fromCharCode(parseInt(h,16));return o}
+function pdfStr(p,cm){if(p[0]==="("){const s=p.slice(1,-1).replace(/\\([nrtbf()\\]|[0-7]{1,3})/g,(_,c)=>/[0-7]/.test(c)?String.fromCharCode(parseInt(c,8)):({n:"\n",r:"\r",t:"\t",b:"",f:""})[c]??c);
+  if(cm){let o="";for(let i=0;i<s.length;i+=cm.w){const c=cm.w===2?(s.charCodeAt(i)<<8)|s.charCodeAt(i+1):s.charCodeAt(i);o+=cm.M[c]??""}return o}return s}
+ const h=p.slice(1,-1).replace(/\s/g,"");if(cm){let o="";const w=cm.w*2;for(let i=0;i<h.length;i+=w)o+=cm.M[parseInt(h.substr(i,w),16)]??"";return o}
+ let o="";for(let i=0;i<h.length;i+=2)o+=String.fromCharCode(parseInt(h.substr(i,2),16));return o}
+const IMPT={stone:{lab:"Lagersteine (Einzelsteine)",key:"name",F:[["","– ignorieren –"],["name","Zertifikat-/Steinnummer (Schlüssel)"],["ct","Karat"],["type","Form"],["color","Farbe"],["clar","Reinheit"],["cut","Schliff"],["nat","Steinart (CVD/HPHT/Echt)"],["price","Preis"],["note","Notiz"]]},
+ prod:{lab:"Fertige Waren",key:"code",F:[["","– ignorieren –"],["code","Warennummer (Schlüssel)"],["grp","Gruppe (Ring …)"],["name","Name"],["model","Modell"],["w","Gold g"],["tw","Gesamtgewicht g"],["cert","Zertifikatsnummer"],["ct","Karat"],["p1","VK-Preis"],["p2","Etikettenpreis"],["cost","Kosten"],["cur","Währung"],["note","Notiz"]]},
+ sale:{lab:"Verkauf (nur vergleichen)",key:"code",F:[["","– ignorieren –"],["code","Warennummer"],["cert","Zertifikatsnummer"],["price","Preis"],["note","Notiz"]]}};
+const IMPG={name:/zert|cert|stein.?n|nummer|^no\.?$|^nr|report|lg/i,code:/ware|artikel|model.?no|code|barcode|yzd|serien|sku|nummer|^nr|^no\.?$/i,ct:/karat|carat|^ct|gewicht.?ct|weight/i,type:/form|shape|schliffform/i,color:/farbe|colou?r/i,clar:/rein|clar|quali/i,cut:/schliff|^cut/i,nat:/art|cvd|hpht|origin|herkunft|natur/i,price:/preis|price|betrag|amount|usd|eur/i,w:/gold|gramm|^g$|gram/i,tw:/gesamt/i,grp:/gruppe|group|typ|kategorie/i,p1:/vk|verkauf|price|preis/i,p2:/etikett/i,cost:/kosten|cost|ek/i,cur:/währung|curr/i,cert:/zert|cert|lg/i,model:/modell|style/i,note:/notiz|note|bemerk/i};
+function impGuess(h,t){const used=new Set();return h.map(x=>{const s=String(x||"");const f=IMPT[t].F.map(a=>a[0]).filter(k=>k&&!used.has(k)&&IMPG[k]&&IMPG[k].test(s))[0]||"";if(f)used.add(f);return f})}
+const nKey=v=>String(v||"").toUpperCase().replace(/\s+/g,"");
+const nCode=v=>{const s=nKey(v),m=s.match(/^([A-Z]+)0*(\d+)$/);return m?m[1]+m[2]:s};
+function impObjs(){const I=ui.imp;if(!I||!I.rows)return[];const body=I.head?I.rows.slice(1):I.rows;
+ return body.map(r=>{const o={};I.map.forEach((f,i)=>{if(f&&r[i]!==undefined&&String(r[i]).trim()!=="")o[f]=String(r[i]).trim()});return o}).filter(o=>Object.keys(o).length)}
+function impCompare(){const I=ui.imp,t=I.t,O=impObjs(),R={match:[],diff:[],neu:[],miss:[]};
+ if(t==="stone"){const S=data.stock.filter(isSingle),by=new Map(S.map(s=>[nKey(s.name),s]));const seen=new Set();
+  O.forEach((o,i)=>{if(!o.name)return;const k=nKey(o.name),s=by.get(k)||[...by.entries()].find(([kk])=>kk.replace(/^LG/,"")===k.replace(/^LG/,""))?.[1];
+   if(!s){R.neu.push({i,o,lab:o.name});return}seen.add(s.id);const d=[];
+   if(o.ct&&Math.abs(parse(o.ct)-parse(s.ct))>0.0051)d.push("Karat: Datei "+o.ct+" / App "+(s.ct||"–"));["type","color","clar"].forEach(f=>{if(o[f]&&s[f]&&nKey(o[f])!==nKey(s[f]))d.push(f+": Datei "+o[f]+" / App "+s[f])});
+   (d.length?R.diff:R.match).push({o,lab:s.name,d,sub:singleTxt(s)})});
+  if(I.cmpMiss)S.filter(s=>!seen.has(s.id)&&qtyOf(s.id)>1e-9).forEach(s=>R.miss.push({lab:s.name,sub:singleTxt(s)}))}
+ else if(t==="prod"){const P=data.prods.filter(p=>p.status!=="sold"),A=data.prods,byc=new Map(A.map(p=>[nCode(p.code),p])),seen=new Set();
+  O.forEach((o,i)=>{let p=o.code?byc.get(nCode(o.code)):null;if(!p&&o.cert)p=A.find(q=>(q.stones||[]).some(x=>{const st=data.stock.find(y=>y.id===x.sid);return st&&nKey(st.name)===nKey(o.cert)}));
+   if(!p){R.neu.push({i,o,lab:o.code||o.cert||"?"});return}seen.add(p.id);const d=[];if(p.status==="sold")d.push("in der App schon verkauft"+(p.soldTo?" an "+pnm(p.soldTo):""));
+   if(o.w&&Math.abs(parse(o.w)-(p.w||0))>0.011)d.push("Gold: Datei "+o.w+" / App "+f3(p.w||0));if(o.p1&&p.p1&&Math.abs(parse(o.p1)-parse(p.p1))>0.5)d.push("VK: Datei "+o.p1+" / App "+p.p1);
+   (d.length?R.diff:R.match).push({o,lab:p.code,d,sub:pLbl(p)})});
+  if(I.cmpMiss)P.filter(p=>p.status==="done"&&!seen.has(p.id)).forEach(p=>R.miss.push({lab:p.code,sub:pLbl(p)}))}
+ else{const ms=data.moves.filter(m=>m.sno===I.sno),ps=[];ms.forEach(m=>mProds(m).forEach(p=>ps.push(p)));const seen=new Set();
+  const certOf=p=>(p.stones||[]).filter(x=>!x.d2&&x.sid).map(x=>(data.stock.find(y=>y.id===x.sid)||{}).name).filter(Boolean);
+  O.forEach((o,i)=>{const p=ps.find(q=>(o.code&&nCode(q.code)===nCode(o.code))||(o.cert&&certOf(q).some(c=>nKey(c)===nKey(o.cert))));
+   if(p){seen.add(p.id);R.match.push({o,lab:p.code,d:[],sub:pLbl(p)})}else{const q=o.code?data.prods.find(x=>nCode(x.code)===nCode(o.code)):null;R.neu.push({i,o,lab:o.code||o.cert||"?",note:q?"Ware existiert, aber nicht in "+I.sno+(q.status==="sold"&&q.soldTo?" (verkauft an "+pnm(q.soldTo)+")":""):"nicht im System"})}});
+  ps.filter(p=>!seen.has(p.id)).forEach(p=>R.miss.push({lab:p.code,sub:pLbl(p)}))}
+ return R}
+function rImp(){const I=ui.imp||(ui.imp={t:"stone",head:true,map:[],sel:{},cmpMiss:true});const T=IMPT[I.t];
+ let h=`<div class="bar"><span>Import & Abgleich</span><span>📥</span></div>
+ <div class="card"><b>1. Was vergleichen?</b>${F("Bereich",S("ui.imp.t",I.t,Object.keys(IMPT).map(k=>[k,IMPT[k].lab]),'data-r="1"'))}
+ ${I.t==="sale"?F("Verkauf",S("ui.imp.sno",I.sno||"",[["","– Verkauf wählen –"],...cfSales().map(s=>[s.sno,s.sno+" · "+pnm(s.pid)+" · "+dt(s.date)])],'data-r="1"')):""}
+ <b style="display:block;margin-top:6px">2. Datei laden</b><p class="mu" style="margin:4px 0 8px">Excel (.xlsx), CSV oder PDF. Bei PDF wird der Text herausgelesen – klappt bei normalen Tabellen-PDFs, nicht bei eingescannten. Alternativ Tabelle kopieren und unten einfügen.</p>
+ <label class="btn sec" style="display:block;text-align:center;cursor:pointer;margin-bottom:8px">📂 Datei wählen${I.file?` · ${esc(I.file)}`:""}<input type="file" id="impf" accept=".xlsx,.csv,.tsv,.txt,.pdf" style="display:none"></label>
+ <textarea id="impt" rows="3" placeholder="…oder Tabelle hier einfügen (aus Excel/PDF kopiert)" style="width:100%;box-sizing:border-box"></textarea><button class="sec" data-a="impp" style="margin-top:6px">Eingefügten Text übernehmen</button></div>`;
+ if(I.rows&&I.rows.length){const head=I.head?I.rows[0]:I.rows[0].map((_,i)=>"Spalte "+(i+1)),n=Math.max(...I.rows.slice(0,50).map(r=>r.length));
+  h+=`<div class="card"><b>3. Welche Spalte ist was?</b><p class="mu" style="margin:4px 0 8px">${I.rows.length-(I.head?1:0)} Zeilen gefunden. Ordne die Spalten zu – die App merkt sich die Zuordnung für das nächste Mal.</p>
+  ${CB("ui.imp.head",!!I.head,"Erste Zeile ist Überschrift",'data-r="1"')}
+  ${Array.from({length:n},(_,i)=>`<div class="g2" style="align-items:end"><div><small class="mu">${esc(String(head[i]??"Spalte "+(i+1)))}</small><div style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc((I.rows[I.head?1:0]||[])[i]??"")}</div></div>${S("ui.imp.map."+i,I.map[i]||"",T.F,'data-r="1"')}</div>`).join("")}</div>`;
+  const hasKey=I.map.includes(T.key)||(I.t!=="stone"&&I.map.includes("cert"));
+  if(!hasKey)h+=`<div class="card"><p style="margin:0">⚠️ Bitte die Spalte <b>${esc(T.F.find(f=>f[0]===T.key)[1])}</b> zuordnen.</p></div>`;
+  else if(I.t==="sale"&&!I.sno)h+=`<div class="card"><p style="margin:0">Bitte oben einen Verkauf wählen.</p></div>`;
+  else{const R=impCompare(),row=(x,col,cb)=>`<div class="it" style="border-left:4px solid ${col};padding-left:10px;margin-top:6px">${cb?`<input type="checkbox" data-impi="${x.i}"${I.sel[x.i]!==false?" checked":""} style="width:22px;height:22px;margin-right:10px;flex:none">`:""}<div style="flex:1"><b>${esc(x.lab)}</b><small>${esc(x.sub||x.note||Object.entries(x.o||{}).filter(([k])=>k!==T.key).map(([k,v])=>k+": "+v).join(" · "))}</small>${(x.d||[]).map(d=>`<small style="color:var(--out)">≠ ${esc(d)}</small>`).join("")}</div></div>`;
+   h+=`<div class="card"><b>4. Ergebnis</b>
+   <div class="chips" style="margin:8px 0">${[["match","✅ Gleich",R.match.length],["diff","≠ Abweichend",R.diff.length],["neu","🆕 Nur in Datei",R.neu.length],["miss","❓ Nur in App",R.miss.length]].map(([k,l,c])=>`<button class="${(I.tab||"neu")===k?"":"sec"}" data-a="imptab" data-v="${k}">${l} (${c})</button>`).join("")}</div>
+   ${I.t!=="sale"?CB("ui.imp.cmpMiss",!!I.cmpMiss,I.t==="stone"?"„Nur in App“ zeigen (Steine im Lager, die in der Datei fehlen)":"„Nur in App“ zeigen (fertige Waren im Lager, die in der Datei fehlen)",'data-r="1"'):""}
+   ${(()=>{const k=I.tab||"neu",L=R[k],col={match:"var(--in)",diff:"#d99a00",neu:"var(--ac)",miss:"var(--out)"}[k];
+    if(!L.length)return'<p class="mu">Keine Einträge.</p>';
+    if(k==="neu"&&I.t!=="sale"){const c=L.filter(x=>I.sel[x.i]!==false).length;return `<p class="mu" style="margin:0 0 6px">Diese stehen in der Datei, aber nicht in der App. Anhaken und hinzufügen:</p>${L.map(x=>row(x,col,1)).join("")}
+     <div class="row" style="margin-top:10px"><button data-a="impadd"${c?"":" disabled"}>➕ ${c} hinzufügen</button></div>${I.t==="prod"?'<p class="mu" style="margin:6px 0 0">Neue Waren werden als „Fertig (Lager)“ mit den Werten aus der Datei angelegt; Gold, Steine und Kosten kannst du danach in der Ware ergänzen.</p>':""}`}
+    return L.map(x=>row(x,col,0)).join("")})()}</div>`}}
+ $("s-imp").innerHTML=h}
+document.addEventListener("change",async e=>{const el=e.target;if(!el)return;
+ if(el.dataset&&el.dataset.impi!==undefined){ui.imp.sel[el.dataset.impi]=el.checked;rImp();return}
+ if(el.id!=="impf"||!el.files||!el.files[0])return;const f=el.files[0],I=ui.imp;
+ try{const buf=await f.arrayBuffer(),n=f.name.toLowerCase();let rows;
+  if(n.endsWith(".xlsx"))rows=await readXlsx(buf);else if(n.endsWith(".pdf"))rows=await readPdf(buf);else rows=readText(new TextDecoder().decode(buf));
+  impSet(rows,f.name)}catch(err){toast("Datei konnte nicht gelesen werden")}});
+function impSet(rows,name){const I=ui.imp;rows=(rows||[]).map(r=>r.map(x=>String(x??"").trim()));if(!rows.length){toast("Keine Tabelle gefunden");return}
+ I.rows=rows;I.file=name;I.sel={};I.tab="neu";I.head=true;const sig=I.t+"|"+rows[0].join("|").toLowerCase(),saved=(data.impMap||{})[sig];
+ I.map=saved?saved.slice():impGuess(rows[0],I.t);rImp();toast(rows.length+" Zeilen gelesen"+(saved?" – Zuordnung von letztem Mal übernommen":""))}
+act.impp=()=>{const e=$("impt");if(!e||!e.value.trim()){toast("Bitte Tabelle einfügen");return}impSet(readText(e.value),"eingefügter Text")};
+act.imptab=d=>{ui.imp.tab=d.v;rImp()};
+function impRemember(){const I=ui.imp;if(!I||!I.rows)return;data.impMap=data.impMap||{};data.impMap[I.t+"|"+I.rows[0].join("|").toLowerCase()]=I.map.slice()}
+act.impadd=()=>{const I=ui.imp,R=impCompare(),L=R.neu.filter(x=>I.sel[x.i]!==false);let n=0;
+ L.forEach(({o})=>{if(I.t==="stone"){const s={id:uid(),name:o.name,group:"Stein",unit:"CT",single:true,ct:o.ct?String(o.ct).replace(".",","):"",type:o.type||"",color:o.color||"",clar:o.clar||"",cut:o.cut||"",nat:o.nat||"",code:"",active:true,note:[o.note,o.price?"Preis: "+o.price:""].filter(Boolean).join(" · ")||"Import"};
+   data.stock.push(s);if(parse(s.ct)>0)data.smoves.push({id:uid(),sid:s.id,qty:parse(s.ct),date:today(),note:"Einzelstein (Import)",ref:"init"});n++}
+  else{const p=newP();Object.assign(p,{code:o.code||p.code,grp:o.grp||p.grp,name:o.name||"",model:o.model||"",status:"done",doneAt:Date.now(),w:parse(o.w),tw:o.tw||"",p1:o.p1||"",p2:o.p2||"",cost:parse(o.cost),cur:/usd|\$/i.test(o.cur||"")?"USD":/eur|€/i.test(o.cur||"")?"EUR":p.cur,note:[o.note,o.cert?"Zertifikat: "+o.cert:"",o.ct?"Karat: "+o.ct:""].filter(Boolean).join(" · ")||"Import"});data.prods.push(p);n++}});
+ impRemember();rImp();toast(n+" hinzugefügt")};
+/* ---------- 🤖 Helfer: Suche überall + KI (wenn verfügbar) ---------- */
+function allSales(){const g={};data.moves.filter(m=>(m.type==="VB"||m.type==="VO")&&m.sno).forEach(m=>{(g[m.sno]=g[m.sno]||{sno:m.sno,date:m.date,pid:m.pid,ms:[],saleId:m.saleId}).ms.push(m)});
+ return Object.values(g).sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.sno.localeCompare(a.sno))}
+function hSearch(q){q=String(q||"").trim();const lq=q.toLowerCase(),R=[];if(q.length<2)return R;const dg=q.replace(/\D/g,"");
+ data.people.forEach(p=>{const t=[p.name,p.company,p.city,p.cc,p.phone].filter(Boolean).join(" ").toLowerCase();if(t.includes(lq))R.push({k:"person",id:p.id,o:p})});
+ data.prods.forEach(p=>{if(pMatch(p,q))R.push({k:"prod",id:p.id,o:p})});
+ data.stock.filter(isSingle).forEach(s=>{const n=String(s.name||"");if(n.toLowerCase().includes(lq)||(dg.length>=4&&n.replace(/\D/g,"").endsWith(dg)))R.push({k:"stone",id:s.id,o:s})});
+ allSales().forEach(s=>{if(s.sno.toLowerCase().includes(lq))R.push({k:"sale",id:s.sno,o:s})});
+ data.orders.forEach(o=>{if(String(o.no||"").toLowerCase().includes(lq))R.push({k:"order",id:o.id,o})});
+ (data.pkgs||[]).forEach(g=>{if(String(g.no||"").toLowerCase().includes(lq))R.push({k:"pkg",id:g.id,o:g})});
+ return R.slice(0,40)}
+function hBal(pid){const b=balOf(pid);return Object.keys(b).filter(u=>Math.abs(b[u])>1e-9).map(u=>(b[u]>0?"schuldet mir ":"ich schulde ")+fu(Math.abs(b[u]),u)).join(", ")||"ausgeglichen"}
+function hCard(r){const o=r.o,B=(a,id,t)=>`<button class="sec sm" data-a="${a}" data-id="${id}">${t}</button>`;
+ if(r.k==="person"){const ls=allSales().filter(s=>s.pid===o.id),oo=data.orders.filter(x=>x.pid===o.id&&!x.done).length;
+  return `<div class="it"><div>👤 <b>${esc(o.name)}</b>${o.company?" · "+esc(o.company):""}<small>${esc([o.city,o.cc].filter(Boolean).join(" · "))}</small><small>Saldo: ${esc(hBal(o.id))}</small><small>${ls.length} Verkäufe${ls[0]?" · zuletzt "+ls[0].sno+" ("+dt(ls[0].date)+")":""} · ${oo} offene Bestellungen</small></div><div class="r">${B("gop",o.id,"Öffnen")}</div></div>`}
+ if(r.k==="prod")return `<div class="it"><div>💍 <b>${esc(o.code)}</b><small>${esc(pLbl(o))}</small><small>${o.status==="sold"?"verkauft"+(o.soldTo?" an "+esc(pnm(o.soldTo)):"")+(o.soldDate?" am "+dt(o.soldDate):""):o.status==="prod"?"in Fertigung":"fertig im Lager"}</small></div><div class="r">${B("hpo",o.id,"Öffnen")}</div></div>`;
+ if(r.k==="stone")return `<div class="it"><div>💎 <b>${esc(o.name)}</b><small>${esc([o.type,o.ct?o.ct+" ct":"",o.color,o.clar].filter(Boolean).join(" "))}</small><small>${esc(singleTxt(o))}</small></div><div class="r">${B("hso",o.id,"Öffnen")}</div></div>`;
+ if(r.k==="sale"){const t={};o.ms.forEach(m=>t[m.unit]=(t[m.unit]||0)+m.amount);return `<div class="it"><div>🧾 <b>${esc(o.sno)}</b> · ${esc(pnm(o.pid))}<small>${dt(o.date)} · ${o.ms.reduce((a,m)=>a+mCnt(m),0)} Stück · ${Object.keys(t).map(u=>fu(t[u],u)).join(" + ")}</small></div><div class="r">${B("gop",o.pid,"Person")}</div></div>`}
+ if(r.k==="order")return `<div class="it"><div>📋 <b>${esc(o.no||"")}</b> · ${esc(pnm(o.pid))}<small>${o.done?"erledigt":"aktiv"} · ${dt(o.date)}</small></div><div class="r">${B("oedit",o.id,"Öffnen")}</div></div>`;
+ if(r.k==="pkg")return `<div class="it"><div>📦 <b>${esc(o.no)}</b> · ${esc(pnm(o.pid))}<small>${o.items.length} Teile · ${esc(o.status||"")}</small></div><div class="r">${B("hpk",o.id,"Öffnen")}</div></div>`;return""}
+act.hpo=d=>{ui.s="prod";act.pedit({id:Number(d.id)});go("prod")};
+act.hso=d=>{const s=data.stock.find(x=>x.id===Number(d.id));if(!s)return;ui.se={...s};ui.sb={qty:"",note:""};go("lager")};
+act.hpk=d=>{go("pkg");act.pkedit({id:Number(d.id)})};
+function hCtx(q){const hits=hSearch(q).slice(0,12).map(r=>{const o=r.o;
+  if(r.k==="person")return{typ:"Person",name:o.name,firma:o.company,stadt:o.city,saldo:hBal(o.id),verkaeufe:allSales().filter(s=>s.pid===o.id).slice(0,5).map(s=>s.sno+" "+s.date),offeneBestellungen:data.orders.filter(x=>x.pid===o.id&&!x.done).map(x=>x.no)};
+  if(r.k==="prod")return{typ:"Ware",nr:o.code,info:pLbl(o),status:o.status,verkauftAn:o.soldTo?pnm(o.soldTo):"",vk:o.p1,kosten:o.cost,waehrung:o.cur};
+  if(r.k==="stone")return{typ:"Stein",nr:o.name,form:o.type,ct:o.ct,farbe:o.color,reinheit:o.clar,ort:singleTxt(o)};
+  if(r.k==="sale")return{typ:"Verkauf",nr:o.sno,kunde:pnm(o.pid),datum:o.date,betraege:o.ms.map(m=>m.amount+" "+m.unit)};
+  if(r.k==="order")return{typ:"Bestellung",nr:o.no,kunde:pnm(o.pid),erledigt:!!o.done};return{typ:r.k,nr:o.no}});
+ const open=data.people.map(p=>({n:p.name,s:hBal(p.id)})).filter(x=>x.s!=="ausgeglichen").slice(0,15);
+ const st=data.prods.filter(p=>p.status==="done").length,pr=data.prods.filter(p=>p.status==="prod").length;
+ return JSON.stringify({heute:today(),hauptwaehrung:BC(),treffer:hits,offeneKonten:open,lager:{fertig:st,inFertigung:pr,einzelsteine:data.stock.filter(s=>isSingle(s)&&qtyOf(s.id)>1e-9).length},letzteVerkaeufe:allSales().slice(0,8).map(s=>({nr:s.sno,kunde:pnm(s.pid),datum:s.date}))}).slice(0,9000)}
+function rHelp(){const H=ui.hlp||(ui.hlp={q:"",ans:"",busy:false});const R=hSearch(H.q);
+ $("s-help").innerHTML=`<div class="bar"><span>Helfer</span><span>🤖</span></div>
+ <div class="card"><input data-f="ui.hlp.q" data-u="uHelp" value="${esc(H.q)}" placeholder="z. B. Emirhan, YZD101, 0573, S2611001, B2611…" autocorrect="off" autocomplete="off" spellcheck="false">
+ <div class="row" style="margin-top:8px"><button data-a="hask"${H.busy?" disabled":""}>🤖 KI fragen</button></div>
+ <p class="mu" style="margin:6px 0 0">Suche funktioniert immer, auch offline. „KI fragen“ beantwortet Fragen in eigenen Worten (z. B. „Was schuldet mir Emirhan und was hat er zuletzt gekauft?“) – nur verfügbar, wenn die App in Claude geöffnet ist.</p></div>
+ ${H.ans?`<div class="card"><b>🤖 Antwort</b><div id="hans" style="white-space:pre-wrap;margin-top:6px">${esc(H.ans)}</div></div>`:""}
+ <div class="card" id="hres">${hRes(R,H.q)}</div>`}
+function hRes(R,q){return String(q||"").trim().length<2?'<p class="mu">Tippe einen Namen, eine Nummer oder die letzten 4 Ziffern eines Zertifikats.</p>':(R.length?`<b>${R.length} Treffer</b>`+R.map(hCard).join(""):'<p class="mu">Nichts gefunden.</p>')}
+function uHelp(){const e=$("hres");if(e)e.innerHTML=hRes(hSearch(ui.hlp.q),ui.hlp.q)}
+act.hask=async()=>{const H=ui.hlp,q=String(H.q||"").trim();if(!q){toast("Bitte eine Frage eingeben");return}
+ let s=null;try{s=await claude.use("sample")}catch(_){}if(!s){H.ans="Die KI ist hier nicht verfügbar. Sie funktioniert nur, wenn die App in Claude (claude.ai) geöffnet ist. Die Suche unten funktioniert trotzdem.";rHelp();return}
+ H.busy=true;H.ans="…";rHelp();
+ const prompt=`Du bist der Helfer in der Juwelier-Buchhaltungs-App „Pusula Mobile“. Antworte kurz, freundlich und auf Deutsch, nur anhand der folgenden Daten (JSON). Wenn etwas nicht in den Daten steht, sag das. Beträge mit Währung nennen.\n\nDATEN:\n${hCtx(q)}\n\nFRAGE: ${q}`;
+ try{const r=await s(prompt,{onText:({text})=>{H.ans=text;const e=$("hans");if(e)e.textContent=text}});H.ans=r.text||H.ans}
+ catch(e){H.ans=e&&e.code==="not_granted"?"Die KI wurde nicht erlaubt.":e&&e.code==="rate_limited"?"Gerade zu viele Anfragen – bitte kurz warten.":"Die KI konnte nicht antworten."}
+ H.busy=false;rHelp()};
 function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.length;
  const T=(v,i,t,s)=>`<button class="sec tile" data-a="go" data-v="${v}" style="text-align:left;padding:16px;display:flex;gap:14px;align-items:center"><span style="font-size:26px">${i}</span><span><b>${t}</b><br><small class="mu">${s}</small></span></button>`;
  $("s-more").innerHTML=`<div class="bar"><span>Mehr</span><span>☰</span></div><button data-a="savekeep" style="margin-bottom:10px">💾 Zwischenspeichern (App bleibt offen)</button><div class="card" style="display:grid;gap:10px">
- ${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("stat","📊","Statistik","Umsatz, Kosten, Lager, Kunden-Vorlieben")}${T("cert","📜","Zertifikat-Finder","Zertifikate eines Verkaufs nach letzten 4 Ziffern")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
+ ${T("help","🤖","Helfer","Alles suchen – Personen, Waren, Steine, Verkäufe – und KI fragen")}${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("stat","📊","Statistik","Umsatz, Kosten, Lager, Kunden-Vorlieben")}${T("cert","📜","Zertifikat-Finder","Zertifikate eines Verkaufs nach letzten 4 Ziffern")}${T("imp","📥","Import & Abgleich","Excel/PDF mit Lager oder Verkauf vergleichen, Fehlendes hinzufügen")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
 const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
  return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
@@ -2202,6 +2473,13 @@ act.pkadd=()=>{const g=ui.pk,a=g.add;let x;
   if((a.k==="mat"||(a.k==="stone"&&!isSingle(s)))&&!(parse(a.qty)>0)){toast("Bitte Menge eingeben");return}
   x={k:a.k,ref:a.ref,qty:a.k==="prod"||(a.k==="stone"&&isSingle(s))?"1":a.qty,pcs:a.pcs||""}}
  if(a.note)x.note=String(a.note).trim();g.items.push(x);g.add={k:a.k,ref:0,qty:"",pcs:"",txt:"",note:""};rPkg()};
+function pkPHTML(d){const g=pkgOf("prod",d.id);
+ if(g)return `<div class="rowc"><b>📦 Werkstattpaket</b><div class="it"><div>In <b>${esc(g.no)}</b> · ${esc(pnm(g.pid))}<small>${g.status==="ready"?"abholbereit":"in der Werkstatt"}${g.step?" · "+esc(g.step):""}</small></div><div class="r" style="display:flex;gap:6px"><button class="sec sm" data-a="hpk" data-id="${g.id}">Öffnen</button><button class="sec sm" data-a="pkprm" data-id="${g.id}">Entfernen</button></div></div></div>`;
+ const L=(data.pkgs||[]).filter(x=>x.status!=="back").sort((a,b)=>String(b.no).localeCompare(String(a.no),"de",{numeric:true}));
+ return `<div class="rowc"><b>📦 Zu Werkstattpaket hinzufügen</b>${L.length?`<div class="g2" style="align-items:end;margin-top:6px">${S("ui.pkto",ui.pkto||L[0].id,L.map(x=>[x.id,x.no+" · "+pnm(x.pid)+" ("+(x.items||[]).length+" Teile)"]),'data-n="1"')}<button class="sec" data-a="pkpadd">➕ Hinzufügen</button></div>`:'<p class="mu" style="margin:4px 0 0">Noch kein offenes Paket – unter Mehr → Werkstatt ein Paket anlegen (geht auch leer).</p>'}</div>`}
+act.pkpadd=()=>{const d=ui.pd;if(!d)return;if(ui.pnew&&!pSave(false))return;const L=(data.pkgs||[]).filter(x=>x.status!=="back"),g=L.find(x=>x.id===Number(ui.pkto))||L.sort((a,b)=>String(b.no).localeCompare(String(a.no),"de",{numeric:true}))[0];if(!g)return;
+ if(!g.items.some(x=>x.k==="prod"&&x.ref===d.id)){g.items.push({k:"prod",ref:d.id,qty:"1",pcs:""});pkSortItems(g.items);pkLog(g,"Ware hinzugefügt",d.code)}render();toast(shortCode(d.code)+" → Paket "+g.no)};
+act.pkprm=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id)),p=ui.pd;if(!g||!p)return;g.items=g.items.filter(x=>!(x.k==="prod"&&x.ref===p.id));pkLog(g,"Ware entfernt",p.code);render();toast("Aus Paket "+g.no+" entfernt")};
 function pkSortItems(items){const K={prod:0,stone:1,mat:2,free:3},lab=x=>x.k==="prod"?((data.prods.find(p=>p.id===x.ref)||{}).code||""):x.k==="free"?(x.txt||""):((data.stock.find(s=>s.id===x.ref)||{}).name||"");
  if(Array.isArray(items))items.sort((a,b)=>(K[a.k]??9)-(K[b.k]??9)||String(lab(a)).localeCompare(String(lab(b)),"de",{numeric:true}));return items}
 function pkSorted(l){return [...l].sort((a,b)=>String(a.code||"").localeCompare(String(b.code||""),"de",{numeric:true}))}
@@ -2209,7 +2487,7 @@ act.pkrange=()=>{const g=ui.pk,a=g.add,used=new Set(g.items.filter(x=>x.k==="pro
  if(i1<0||i2<0){toast("Bitte Von und Bis wählen");return}const L=cs.slice(Math.min(i1,i2),Math.max(i1,i2)+1).filter(s=>!used.has(s.id));
  L.forEach(s=>g.items.push({k:"prod",ref:s.id,qty:"1",pcs:""}));a.r1=0;a.r2=0;rPkg();toast(L.length+" Waren hinzugefügt")};
 act.pkdel=d=>{ui.pk.items.splice(Number(d.i),1);rPkg()};
-act.pksave=()=>{const g=ui.pk;if(!g.pid){toast("Bitte eine Werkstatt wählen (Person mit Typ „Werkstatt“ anlegen)");return}if(!g.items.length){toast("Paket ist leer");return}
+act.pksave=()=>{const g=ui.pk;if(!g.pid){toast("Bitte eine Werkstatt wählen (Person mit Typ „Werkstatt“ anlegen)");return}
  const no=String(g.no).trim();if(!no){toast("Nummer fehlt");return}if(data.pkgs.some(x=>x.no===no&&x.id!==g.id)){toast("Diese Nummer gibt es schon");return}
  const o={id:g.id||uid(),no,pid:g.pid,fpid:g.fpid||0,oid:g.oid||0,step:g.step||"",date:g.date||today(),due:dueOf(g.date,g.dk,g.due),note:String(g.note||"").trim(),items:g.items,status:g.status||"out",backDate:g.backDate||""};
  o.log=g.log||[];o.sub=g.sub||"";if(!g.id)pkLog(o,"Paket angelegt",g.step?"Arbeit: "+g.step:"");
@@ -2445,6 +2723,29 @@ act.wxbook=()=>{const w=ui.wx;if(!w)return;const a=parse(w.a),bb=parse(w.b);if(w
 function singleUse(s){const m=data.smoves.find(x=>x.sid===s.id&&x.qty<0&&x.ref&&x.ref[0]==="p");return m?data.prods.find(p=>"p"+p.id===m.ref):stoneIn(s.id)}
 const stoneIn=(sid,ex)=>data.prods.find(p=>p.id!==ex&&(p.stones||[]).some(x=>x.sid===sid))||null;
 function singleTxt(s){const ip=stoneIn(s.id);if(ip&&ip.status==="prod")return"Reserviert in Fertigung: "+shortCode(ip.code)+" ("+ip.code+")";if(qtyOf(s.id)>1e-9)return"Im Lager ("+f3(qtyOf(s.id))+" ct)";const p=singleUse(s);return p?"Verbaut in "+shortCode(p.code)+" ("+p.code+")"+(p.status==="sold"?" · verkauft":""):"Nicht im Lager"}
+/* ---------- IGI-Zertifikat übernehmen ---------- */
+function igiParse(t){t=String(t||"").replace(/ /g," ");const g=(re)=>{const m=t.match(re);return m?m[1].trim():""};const r={};
+ r.no=g(/(?:Report\s*(?:number|No\.?)\s*[\/:]?\s*)(LG\s*\d{6,})/i)||g(/\b(LG\s?\d{8,10})\b/);if(r.no)r.no=r.no.replace(/\s+/g,"");
+ const sh=g(/Shape\s*(?:and|&)\s*Cutting\s*Style\s*[:\/]?\s*([A-Z][A-Z \-]+?)(?:\s{2,}|\n|Measurements|Grading|$)/i).toUpperCase();
+ const SM=[["ROUND","Rund (Brillant)"],["RADIANT","Radiant"],["PRINCESS","Prinzess"],["OVAL","Oval"],["MARQUISE","Marquise"],["PEAR","Birne"],["HEART","Herz"],["EMERALD","Smaragd"],["CUSHION","Kissen (Cushion)"],["BAGUETTE","Baguette"],["ASSCHER","Ascher"]];
+ const f=SM.find(([k])=>sh.includes(k));if(f)r.type=f[1];
+ const ct=g(/Carat\s*Weight\s*[:\/]?\s*([\d.,]+)\s*(?:Carat|ct)?/i);if(ct)r.ct=ct.replace(".",",");
+ const col=g(/Colou?r\s*Grade\s*[:\/]?\s*([D-Z](?:\s*-\s*[D-Z])?|FANCY[A-Z ]*)/i);if(col)r.color=col.replace(/\s+/g,"").toUpperCase();
+ const cl=g(/Clarity\s*Grade\s*[:\/]?\s*(FL|IF|VVS\s*[12]|VS\s*[12]|SI\s*[12]|I\s*[123])/i);if(cl)r.clar=cl.replace(/\s+/g,"").toUpperCase();
+ const cu=g(/Cut\s*Grade\s*[:\/]?\s*(IDEAL|EXCELLENT|VERY\s*GOOD|GOOD|FAIR|POOR)/i).toUpperCase().replace(/\s+/g," ");
+ if(cu)r.cut={IDEAL:"Ideal",EXCELLENT:"Excellent","VERY GOOD":"Very Good",GOOD:"Good",FAIR:"Fair",POOR:"Poor"}[cu]||"";
+ if(/HPHT/i.test(t))r.nat="HPHT";else if(/CVD|Chemical\s*Vapou?r\s*Deposition/i.test(t))r.nat="CVD";else if(/NATURAL\s*DIAMOND/i.test(t))r.nat="Echt";
+ const ms=g(/Measurements?\s*[:\/]?\s*([\d.]+\s*[x×-]\s*[\d.]+\s*[x×]\s*[\d.]+\s*mm)/i);if(ms)r.meas=ms;
+ return r}
+function igiApply(r){const s=ui.se;if(!s)return 0;let n=0;["type","ct","color","clar","cut","nat"].forEach(k=>{if(r[k]){s[k]=r[k];n++}});
+ if(r.no){s.name=r.no;s.code=s.code||r.no;n++}if(r.meas)s.note=(s.note?s.note+" · ":"")+r.meas;s.group="Stein";s.unit="CT";if(s.single===false)s.single=true;return n}
+act.igiopen=()=>{const s=ui.se,d=String((s&&s.igi)||"").replace(/\D/g,"");if(d.length<6){toast("Bitte die 9-stellige Nummer eintragen");return}
+ if(s&&!s.name)s.name="LG"+d;window.open("https://www.igi.org/verify-your-report/?r=LG"+d,"_blank","noopener")};
+act.igipaste=()=>{const e=$("igip");if(!e||!e.value.trim()){toast("Bitte den Text der IGI-Seite einfügen");return}const r=igiParse(e.value),n=igiApply(r);
+ if(!n){toast("Keine IGI-Daten erkannt");return}rL();toast("IGI übernommen: "+[r.no,r.type,r.ct&&r.ct+" ct",r.color,r.clar,r.nat].filter(Boolean).join(" · "))};
+document.addEventListener("change",async e=>{const el=e.target;if(!el||el.id!=="igif"||!el.files||!el.files[0])return;
+ try{const rows=await readPdf(await el.files[0].arrayBuffer()),txt=rows.map(r=>r.join("  ")).join("\n"),r=igiParse(txt),n=igiApply(r);
+  if(!n){toast("Im PDF keine IGI-Daten erkannt");return}rL();toast("IGI-PDF übernommen: "+[r.no,r.type,r.ct&&r.ct+" ct",r.color,r.clar,r.nat].filter(Boolean).join(" · "))}catch(_){toast("PDF konnte nicht gelesen werden")}});
 function syncInit(s){if(!isSingle(s))return;const c=parse(s.ct),m=data.smoves.find(x=>x.sid===s.id&&x.ref==="init");
  if(c>0){if(m)m.qty=c;else data.smoves.push({id:uid(),sid:s.id,qty:c,date:today(),note:"Einzelstein",ref:"init"})}else if(m)data.smoves=data.smoves.filter(x=>x!==m)}
 function rLE(){const s=ui.se,isNew=!data.stock.some(x=>x.id===s.id);
@@ -2454,6 +2755,10 @@ function rLE(){const s=ui.se,isNew=!data.stock.some(x=>x.id===s.id);
  <div class="g2">${F("Feingehalt ‰ (z. B. 585)",N("ui.se.fine",s.fine))}${F("Nummer / Barcode",I("ui.se.code",s.code))}</div>
  <div class="f"><span>Status</span><div class="tg">${TG("sact",s.active===false?"p":"a",[["p","Passiv"],["a","Aktiv"]])}</div></div>
  ${s.group==="Stein"?`${CB("ui.se.single",s.single!==false,"Einzelstein (Bestand = Karat je Stein)",'data-r="1"')}
+ <div class="rowc"><b>🔎 IGI-Zertifikat übernehmen</b><p class="mu" style="margin:4px 0 8px">Nummer eintragen (ohne „LG“) → „Bei IGI öffnen“ → dort den Text der Ergebnisseite kopieren und unten einfügen. Oder das PDF-Zertifikat wählen. Die App trägt Form, Karat, Farbe, Reinheit, Schliff und CVD/HPHT selbst ein.</p>
+ <div class="g2">${F("IGI-Nummer",I("ui.se.igi",s.igi||String(s.name||"").replace(/^LG/i,""),"z. B. 811606660",'inputmode="numeric" autocomplete="off"'))}<button class="sec" data-a="igiopen" style="align-self:end;margin-bottom:10px">🌐 Bei IGI öffnen</button></div>
+ <textarea id="igip" rows="3" placeholder="Text der IGI-Seite hier einfügen" style="width:100%;box-sizing:border-box"></textarea>
+ <div class="row" style="margin-top:6px"><button class="sec" data-a="igipaste">✅ Übernehmen</button><label class="btn sec" style="text-align:center;cursor:pointer">📄 IGI-PDF wählen<input type="file" id="igif" accept=".pdf" style="display:none"></label></div></div>
  ${F("Steinart / Herkunft",S("ui.se.nat",s.nat||"",SNAT))}
  <div class="g2">${F("Art / Form",SX("ui.se.type",s.type,L_FORM))}${F("Karat je Stein (ct)",I("ui.se.ct",s.ct||"","z. B. 1,07",'inputmode="decimal" data-u="uCt" autocomplete="off"'))}</div>
  <p class="mu" id="ctd" style="margin:-4px 0 8px">${diaTxt(parse(s.ct))}</p>
@@ -2681,6 +2986,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  <div class="row">${d.status==="sold"?"":`<button class="sec" data-a="pfin">${d.status==="done"?"Wieder in Fertigung":"Fertigstellen"}</button>`}</div>
  <div class="row"><button class="sec" data-a="lbl" data-k="fin">🏷️ Etikett drucken</button><button class="sec" data-a="lbl" data-k="ws">🔧 Werkstatt-Etikett</button></div>${ui.lp?lpHTML():""}
  <div class="row"><button class="sec" data-a="card">💳 Zertifikatskarte drucken</button></div>${ui.cp?cpHTML():""}
+ ${d.status==="sold"?"":pkPHTML(d)}
  <div class="row"><button class="sec" data-a="pback">← Zurück zur Liste</button></div>
  ${idx>=0?`<div class="row"><button class="sec" data-a="pnav" data-v="-1">◀ Vorheriges</button><button class="sec" data-a="pnav" data-v="1">Nächstes ▶</button></div>`:""}`;
  $("s-prod").innerHTML=h;calcP()}
@@ -2752,8 +3058,10 @@ function rV(){const s=ui.sv||(ui.sv=newSale());
  ${tiles(ui.vdir==="in"?["NT","KK","EO","RB","RA"]:["VB","VO","NO","GH"],"vop")}${s.lf?lfHTML(s):""}</div>
  <div class="card"><b>Zeilen</b>${s.lines.map((l,i)=>`<div class="it"><div>${OP[l.k][0]}<small>${esc(l.desc||"")}${l.qty?" · "+f3(parse(l.qty))+" g":""}</small></div><div class="r"><b>${OP[l.k][1]==="out"?"+":"−"}${f2(l.amount)} ${s.cur}</b><br><button class="sec sm" data-a="vldel" data-i="${i}">Entfernen</button></div></div>`).join("")||'<p class="mu">Noch keine Zeilen.</p>'}
  ${s.lines.length?`<div class="it"><b>Offen aus diesem Vorgang</b><b>${f2(tot)} ${s.cur}</b></div>${F("Beschreibung",I("ui.sv.note",s.note))}<div class="row"><button data-a="vsave">Verkauf speichern</button><button class="sec" data-a="vdisc">${dl("vdisc","Verwerfen")}</button></div>`:""}</div>`;
- if(ui.svl)h+=`<div class="card"><b>Verkaufsliste</b>${data.sales.slice().sort((a,b)=>b.no-a.no).map(x=>{const p=data.people.find(y=>y.id===x.pid),t=x.lines.reduce((a,l)=>a+(OP[l.k][1]==="out"?l.amount:-l.amount),0);
-  return `<div class="it"><div><b>Nr. ${x.no}</b> ${esc(p?p.name:"?")}<small>${dt(x.date)} · ${x.lines.length} Zeilen${x.note?" · "+esc(x.note):""}</small></div><div class="r"><b>${f2(t)} ${x.cur}</b><br><button class="sec sm" data-a="vsdel" data-id="${x.id}">${dl("vs"+x.id,"Löschen")}</button></div></div>`}).join("")||'<p class="mu">Noch keine Verkäufe.</p>'}</div>`;
+ if(ui.svl)h+=`<div class="card"><b>Verkaufsliste</b><p class="mu" style="margin:4px 0 6px">Alle Verkäufe – aus dem Verkauf-Tab und aus den Personen (Konten).</p>${allSales().map(s=>{const t={};s.ms.forEach(m=>t[m.unit]=(t[m.unit]||0)+m.amount);const n=s.ms.reduce((a,m)=>a+mCnt(m),0),m0=s.ms[0];
+  return `<div class="it"><div><b>${esc(s.sno)}</b> · ${esc(pnm(s.pid))}<small>${dt(s.date)}${n?" · "+n+" Stück":""} · ${s.saleId?"Verkauf-Tab":"Konten"}</small><button class="sec sm" data-a="sdet" data-id="${m0.id}" style="margin-top:6px">${(ui.sd||{})[m0.id]?"Auswertung zu":"📊 Auswertung"}</button></div><div class="r"><b>${Object.keys(t).map(u=>fu(t[u],u)).join("<br>")}</b><br><button class="sec sm" data-a="gop" data-id="${s.pid}">Person</button></div></div>${(ui.sd||{})[m0.id]?saleHTML(m0):""}`}).join("")||'<p class="mu">Noch keine Verkäufe.</p>'}
+ ${data.sales.length?`<details style="margin-top:8px"><summary class="mu">Belege aus dem Verkauf-Tab (${data.sales.length})</summary>${data.sales.slice().sort((a,b)=>b.no-a.no).map(x=>{const p=data.people.find(y=>y.id===x.pid),t=x.lines.reduce((a,l)=>a+(OP[l.k][1]==="out"?l.amount:-l.amount),0);
+  return `<div class="it"><div><b>Nr. ${x.no}</b> ${esc(p?p.name:"?")}<small>${dt(x.date)} · ${x.lines.length} Zeilen${x.note?" · "+esc(x.note):""}</small></div><div class="r"><b>${f2(t)} ${x.cur}</b><br><button class="sec sm" data-a="vsdel" data-id="${x.id}">${dl("vs"+x.id,"Löschen")}</button></div></div>`}).join("")}</details>`:""}</div>`;
  $("s-verkauf").innerHTML=h}
 function lfHTML(s){const l=s.lf,k=l.k,isP=k==="VB"||k==="RB",free=k==="VO"||k==="EO";
  const inCart=s.lines.map(x=>x.prod),ps=data.prods.filter(p=>p.status===(k==="VB"?"done":"sold")&&!inCart.includes(p.id)&&pMatch(p,l.q));
@@ -3079,6 +3387,7 @@ function lbSet(){LB();const b=data.lbl;
 function lsPrev(){const c=LB(),sc=Math.min(2.4,320/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne("fin",LSAMP)}</div></div>`}
 function uLs(){const e=$("lsv");if(e)e.innerHTML=lsPrev()}
 act.fs=()=>{const d=document;try{if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen();else toast("Vollbild: Taste F11")}catch(_){toast("Vollbild: Taste F11")}};
+act.remlater=()=>{ui.savedAt=Date.now()-Math.max(0,remMin()-15)*60000;remHide()};
 act.savekeep=async()=>{try{await saveFile();data.savedAt=nowIso();toast("Zwischengespeichert – du kannst weiterarbeiten");render()}catch(e){if(e&&e.name==="AbortError"){toast("Nicht gespeichert");return}toast("Nicht gespeichert")}};
 act.pwchg=()=>{const f=ui.pwf;
  const tri=data.sec===3,cur=tri?pwParts()[0]:pw;
@@ -3090,6 +3399,7 @@ act.pwchg=()=>{const f=ui.pwf;
 
 function rSet(){
  $("s-set").innerHTML=`
+ <div class="card"><b>⏰ Speicher-Erinnerung</b><p class="mu" style="margin:4px 0 8px">Warnt oben, wenn so lange nicht gespeichert wurde. „Später“ erinnert in 15 Minuten wieder.</p>${S("data.remind",String(remMin()),[["0","Aus"],["30","nach 30 Minuten"],["60","nach 1 Stunde"],["90","nach 1,5 Stunden"],["120","nach 2 Stunden"]])}</div>
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  ${ctpSet()}
  ${cdSet()}
