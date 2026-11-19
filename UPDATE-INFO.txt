@@ -1,10 +1,21 @@
-Pusula Mobile – Update 1.09 (Komplettpaket)
+Pusula Mobile – Update 1.12 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.09.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.12.
 
 Änderungen:
+
+1.12 (19.11.2026)
+  - Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt)
+
+1.11 (19.11.2026)
+  - Lager: Einzelsteine, die in einer noch nicht fertigen Ware stecken, zeigen „in Fertigung“ mit der Warennummer (z. B. YZD294) statt nur den Karat
+
+1.10 (19.11.2026)
+  - Wichtig: Notfall-Sicherung – die App legt laufend eine verschlüsselte Kopie im Gerät ab; lädt die App neu (z. B. nach dem IGI-Link), erscheint beim Start „↩️ Wiederherstellen“
+  - IGI-Suche: in der Handy-App wird der Link nur kopiert statt die App zu verlassen
+  - Warnung, wenn man bei vorhandener Notfall-Sicherung ein neues leeres Buch anlegt
 
 1.09 (19.11.2026)
   - Werkstattpakete können leer angelegt werden

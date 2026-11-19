@@ -98,6 +98,7 @@ body{max-width:none;padding:20px 28px 40px}
   <label class="f"><span>Hauptwährung (nur bei neuem Benutzer)</span><select id="newBase"><option value="EUR">Euro (€)</option><option value="USD">US-Dollar ($)</option></select></label>
   <button class="sec" id="bNew">Neu beginnen (mit obigem Passwort)</button>
  </div>
+ <div id="rcbox" class="hide" style="border:1px solid #f59e0b;border-radius:12px;padding:10px;margin:8px 0"><div id="rct" style="font-weight:600"></div><p class="mu" style="margin:4px 0 8px">Passwort oben eingeben, dann wiederherstellen.</p><div class="row"><button id="bRc">↩️ Wiederherstellen</button><button id="bRcX" class="sec">Verwerfen</button></div></div>
  <p class="mu" id="msg"></p>
  <p class="mu" id="verS"></p>
 </div>
@@ -157,8 +158,11 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.09";
+const VER="1.12";
 const HIST=[
+ ["1.12","19.11.2026",["Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt)"]],
+ ["1.11","19.11.2026",["Lager: Einzelsteine, die in einer noch nicht fertigen Ware stecken, zeigen „in Fertigung“ mit der Warennummer (z. B. YZD294) statt nur den Karat"]],
+ ["1.10","19.11.2026",["Wichtig: Notfall-Sicherung – die App legt laufend eine verschlüsselte Kopie im Gerät ab; lädt die App neu (z. B. nach dem IGI-Link), erscheint beim Start „↩️ Wiederherstellen“","IGI-Suche: in der Handy-App wird der Link nur kopiert statt die App zu verlassen","Warnung, wenn man bei vorhandener Notfall-Sicherung ein neues leeres Buch anlegt"]],
  ["1.09","19.11.2026",["Werkstattpakete können leer angelegt werden","Fertigung: bei jeder Ware „📦 Zu Werkstattpaket hinzufügen“ – Paket wählen, Hinzufügen (auch für neue, noch nicht fertige Waren); zeigt, in welchem Paket die Ware ist, mit Öffnen/Entfernen"]],
  ["1.08","19.11.2026",["Lager: „🔎 IGI-Zertifikat übernehmen“ – 9-stellige Nummer eintragen, IGI-Seite öffnen, Text einfügen oder IGI-PDF wählen; Form, Karat, Farbe, Reinheit, Schliff, CVD/HPHT und Nummer werden automatisch eingetragen"]],
  ["1.07","19.11.2026",["Speicher-Erinnerung: Warnhinweis oben, wenn 30 Min / 1 Std / 1,5 Std / 2 Std nicht gespeichert wurde (Standard 1 Std) – mit „Jetzt speichern“ und „Später“; einstellbar unter Einstellungen"]],
@@ -349,10 +353,26 @@ function open(d){ui.savedAt=Date.now();
  rRates();show(true);go("home");if(data.rates.auto)fetchRates(true)}
 $("bNew").onclick=()=>{const n=$("newName").value.trim().replace(/[\/\\"']/g,"");
  if(!n||$("pw").value.length<6){$("msg").textContent="Name und Passwort (mind. 6 Zeichen) eingeben.";return}
+ if(rcCur&&rcCur.text&&!confirm(tx("Es gibt eine nicht gespeicherte Sitzung. Trotzdem ein NEUES leeres Buch anlegen?")))return;
  pw=$("pw").value;open({app:"kasse",user:n,entries:[],base:$("newBase").value==="USD"?"USD":"EUR"})};
 $("bLoad").onclick=()=>{if(!$("pw").value){$("msg").textContent="Bitte zuerst das Passwort eingeben.";return}$("file").click()};
 $("file").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;
- try{const j=JSON.parse(await f.text());pw=$("pw").value;
+ try{await loadJ(JSON.parse(await f.text()))}catch(_){$("msg").textContent="Datei nicht lesbar oder Passwort falsch."}};
+/* Notfall-Sicherung: verschlüsselte Kopie im Gerät, falls die App neu lädt */
+const RCK="pusula-rc";function rcDB(){return new Promise((ok,no)=>{try{const r=indexedDB.open("pusula",1);r.onupgradeneeded=()=>r.result.createObjectStore("rc");r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)}catch(e){no(e)}})}
+async function rcOp(mode,fn){try{const db=await rcDB();return await new Promise((ok,no)=>{const t=db.transaction("rc",mode),st=t.objectStore("rc"),r=fn(st);t.oncomplete=()=>ok(r&&r.result);t.onerror=()=>no(t.error)})}catch(_){return null}}
+const rcGet=()=>rcOp("readonly",s=>s.get(RCK)),rcDel=()=>rcOp("readwrite",s=>s.delete(RCK));
+let rcBusy=false,rcLast="";
+async function rcSnap(){if(!data||!data.user||!pw||rcBusy)return;if((data.people||[]).length<2&&!["moves","stock","prods","entries","orders","pkgs","notes"].some(k=>(data[k]||[]).length))return;rcBusy=true;try{const j=JSON.stringify(data);if(j!==rcLast){const text=await enc(data,pw);await rcOp("readwrite",s=>s.put({user:data.user,t:Date.now(),text},RCK));rcLast=j}}catch(_){}rcBusy=false}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")rcSnap()});
+window.addEventListener("pagehide",()=>rcSnap());setInterval(rcSnap,120000);
+let rcCur=null;
+async function rcShow(){const b=$("rcbox");if(!b)return;rcCur=await rcGet();if(!rcCur||!rcCur.text){b.classList.add("hide");return}
+ const d=new Date(rcCur.t);$("rct").textContent=tx("⚠️ Nicht gespeicherte Sitzung gefunden")+": „"+rcCur.user+"“ · "+d.toLocaleDateString("de-DE")+" "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});b.classList.remove("hide")}
+$("bRc").onclick=async()=>{if(!rcCur)return;if(!$("pw").value){$("msg").textContent=tx("Bitte zuerst das Passwort eingeben.");return}
+ try{await loadJ(JSON.parse(rcCur.text));if(data){ui.savedAt=0;toast(tx("Sitzung wiederhergestellt – bitte gleich speichern 💾"))}}catch(_){$("msg").textContent=tx("Passwort falsch.")}};
+$("bRcX").onclick=async()=>{if(!confirm(tx("Notfall-Sicherung wirklich verwerfen?")))return;await rcDel();rcCur=null;rcShow()};
+async function loadJ(j){pw=$("pw").value;
   if(j.v===2&&j.n===3){pend3=j;const q=Array.isArray(j.q)?j.q:null;
    $("pw3t").textContent=q?"🔐 Bitte die Sicherheitsfragen beantworten.":"🔐 Diese Datei ist 3-fach geschützt. Bitte Passwort 2 und 3 eingeben.";
    $("pwBl").textContent=q?q[0]:"";$("pwCl").textContent=q?q[1]:"";["pwB","pwC"].forEach((id,i)=>{const e=$(id);e.type=q?"text":"password";e.placeholder=q?"Antwort":"Passwort "+(i+2);e.value=""});
@@ -360,7 +380,6 @@ $("file").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)r
   if(j.v===2)open(await dec(j,pw));
   else if(j.app==="kasse"&&Array.isArray(j.entries))open(j);
   else throw 0}
- catch(_){$("msg").textContent="Datei nicht lesbar oder Passwort falsch."}};
 let pend3=null;
 $("bOpen3").onclick=async()=>{if(!pend3)return;const a=$("pw").value,b=$("pwB").value,c=$("pwC").value;
  if(!a||!b||!c){$("msg").textContent=Array.isArray(pend3.q)?"Bitte Passwort und beide Antworten eingeben.":"Bitte alle drei Passwörter eingeben.";return}
@@ -389,9 +408,10 @@ setInterval(remCheck,30000);
 $("bSave").onclick=async()=>{
  const name=data.user+".json";let text;
  try{text=await enc(data,pw);
-  await writeOut(name,text);
+  await writeOut(name,text);await rcDel();rcLast="";
  }catch(e){alert(tx("Nicht gespeichert – die Daten bleiben noch in der App."));return}
- data=null;pw="";pend3=null;$("pw").value="";$("pw3box").classList.add("hide");$("msg").textContent="Gespeichert. Die App ist jetzt leer.";show(false)};
+ data=null;pw="";pend3=null;$("pw").value="";$("pw3box").classList.add("hide");$("msg").textContent="Gespeichert. Die App ist jetzt leer.";show(false);rcShow()};
+rcShow();
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
@@ -752,6 +772,29 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt) ~ Production → stones: “💎 New stone” – enter number, carat, shape, colour, clarity; the stone is created as a single stone in stock and set into the item right away (digits only → LG is added) ~ Üretim → taşlar: “💎 Yeni taş” – numara, karat, form, renk, berraklık girin; taş otomatik olarak depoda tek taş olarak oluşturulur ve ürüne hemen takılır (sadece rakam → başına LG eklenir)
+💎 Neuer Stein (direkt ins Lager + einsetzen) ~ 💎 New stone (straight to stock + set) ~ 💎 Yeni taş (doğrudan depoya + tak)
+💎 Neuer Stein ~ 💎 New stone ~ 💎 Yeni taş
+Wird als Einzelstein im Lager angelegt und hier eingesetzt. ~ Created as a single stone in stock and set here. ~ Depoda tek taş olarak oluşturulur ve buraya takılır.
+Zertifikat-/Steinnummer (z. B. LG762580849 oder nur 762580849) ~ Certificate/stone number (e.g. LG762580849 or just 762580849) ~ Sertifika/taş numarası (ör. LG762580849 veya sadece 762580849)
+D2 – seitlicher Stein ~ D2 – side stone ~ D2 – yan taş
+✓ Anlegen & einsetzen ~ ✓ Create & set ~ ✓ Oluştur ve tak
+Bitte die Steinnummer eintragen ~ Please enter the stone number ~ Lütfen taş numarasını girin
+Bitte Karat eintragen ~ Please enter the carat ~ Lütfen karat girin
+Stein ist schon eingesetzt ~ Stone is already set ~ Taş zaten takılı
+Lager: Einzelsteine, die in einer noch nicht fertigen Ware stecken, zeigen „in Fertigung“ mit der Warennummer (z. B. YZD294) statt nur den Karat ~ Stock: single stones in an unfinished item show “in production” with the item number (e.g. YZD294) instead of just the carat ~ Depo: bitmemiş bir üründeki tek taşlar sadece karat yerine ürün numarasıyla (ör. YZD294) “üretimde” gösterir
+Wichtig: Notfall-Sicherung – die App legt laufend eine verschlüsselte Kopie im Gerät ab; lädt die App neu (z. B. nach dem IGI-Link), erscheint beim Start „↩️ Wiederherstellen“ ~ Important: emergency backup – the app keeps an encrypted copy on the device; if the app reloads (e.g. after the IGI link), “↩️ Restore” appears at start ~ Önemli: acil yedek – uygulama cihazda sürekli şifreli bir kopya tutar; uygulama yeniden yüklenirse (ör. IGI bağlantısından sonra) başlangıçta “↩️ Geri yükle” görünür
+IGI-Suche: in der Handy-App wird der Link nur kopiert statt die App zu verlassen ~ IGI search: in the phone app the link is only copied instead of leaving the app ~ IGI arama: telefon uygulamasında uygulamadan çıkmak yerine bağlantı sadece kopyalanır
+Warnung, wenn man bei vorhandener Notfall-Sicherung ein neues leeres Buch anlegt ~ Warning when creating a new empty book while an emergency backup exists ~ Acil yedek varken yeni boş defter oluşturulursa uyarı
+⚠️ Nicht gespeicherte Sitzung gefunden ~ ⚠️ Unsaved session found ~ ⚠️ Kaydedilmemiş oturum bulundu
+Passwort oben eingeben, dann wiederherstellen. ~ Enter the password above, then restore. ~ Yukarıya şifreyi girin, sonra geri yükleyin.
+↩️ Wiederherstellen ~ ↩️ Restore ~ ↩️ Geri yükle
+Verwerfen ~ Discard ~ Sil
+Sitzung wiederhergestellt – bitte gleich speichern 💾 ~ Session restored – please save now 💾 ~ Oturum geri yüklendi – lütfen hemen kaydedin 💾
+Passwort falsch. ~ Wrong password. ~ Şifre yanlış.
+Notfall-Sicherung wirklich verwerfen? ~ Really discard the emergency backup? ~ Acil yedek gerçekten silinsin mi?
+Es gibt eine nicht gespeicherte Sitzung. Trotzdem ein NEUES leeres Buch anlegen? ~ There is an unsaved session. Create a NEW empty book anyway? ~ Kaydedilmemiş bir oturum var. Yine de YENİ boş defter oluşturulsun mu?
+Link kopiert – in Safari einfügen, Text kopieren und hier einfügen ~ Link copied – paste it in Safari, copy the text and paste it here ~ Bağlantı kopyalandı – Safari'ye yapıştırın, metni kopyalayıp buraya yapıştırın
 Werkstattpakete können leer angelegt werden ~ Workshop packages can be created empty ~ Atölye paketleri boş oluşturulabilir
 Fertigung: bei jeder Ware „📦 Zu Werkstattpaket hinzufügen“ – Paket wählen, Hinzufügen (auch für neue, noch nicht fertige Waren); zeigt, in welchem Paket die Ware ist, mit Öffnen/Entfernen ~ Production: “📦 Add to workshop package” on every item – choose package, add (also for new, unfinished items); shows which package the item is in, with open/remove ~ Üretim: her üründe “📦 Atölye paketine ekle” – paket seç, ekle (yeni, bitmemiş ürünler için de); ürünün hangi pakette olduğunu aç/çıkar ile gösterir
 📦 Werkstattpaket ~ 📦 Workshop package ~ 📦 Atölye paketi
@@ -2632,7 +2675,7 @@ function uL(){const q=ui.lq.toLowerCase();
  const rows=data.stock.filter(s=>(!ui.lg||s.group===ui.lg)&&(!q||(s.name+" "+(s.code||"")).toLowerCase().includes(q)))
   .sort((a,b)=>SG.indexOf(a.group)-SG.indexOf(b.group)||(a.fine-b.fine)||a.name.localeCompare(b.name));
  $("lrows").innerHTML=rows.map(s=>{const q=qtyOf(s.id);
-  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small>${(g=>g?`<small style="color:${g.status==="ready"?"var(--in)":"#f0a020"}">${g.status==="ready"?"📦":"🔧"} ${esc(g.no)} · ${esc(pnm(g.pid))}${g.status==="ready"?" · abholbereit":g.sub?" · "+esc(g.sub):g.step?" · "+esc(g.step):""}</small>`:"")(pkgOf("stone",s.id)||pkgOf("mat",s.id))}</div><div class="r ${q<0?"out":""}">${isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
+  return `<div class="it click" data-a="sedit" data-id="${s.id}"><div><b>${esc(s.name)}</b>${s.active===false?' <span class="pill">passiv</span>':""}<small>${s.group}${s.fine?" · "+s.fine+" ‰":""}${s.code?" · Nr. "+esc(s.code):""}${s.group==="Stein"?[s.nat,s.type,s.color,s.clar,s.cut,s.ct?s.ct+" ct":""].filter(Boolean).map(x=>" · "+esc(x)).join(""):""}</small>${(g=>g?`<small style="color:${g.status==="ready"?"var(--in)":"#f0a020"}">${g.status==="ready"?"📦":"🔧"} ${esc(g.no)} · ${esc(pnm(g.pid))}${g.status==="ready"?" · abholbereit":g.sub?" · "+esc(g.sub):g.step?" · "+esc(g.step):""}</small>`:"")(pkgOf("stone",s.id)||pkgOf("mat",s.id))}</div><div class="r ${q<0?"out":""}">${isSingle(s)&&(u=>u&&u.status==="prod")(stoneIn(s.id))?(u=>'<span class="pill" style="color:#f0a020;border-color:#f0a020">'+esc(tx("in Fertigung"))+'</span><small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>')(stoneIn(s.id)):isSingle(s)&&q<=1e-9?(u=>'<span class="pill">'+esc(u?"verbaut":"nicht im Lager")+'</span>'+(u?'<small style="margin-top:4px"><b>'+esc(shortCode(u.code))+'</b></small>':""))(singleUse(s)):`<b>${f3(q)} ${UL[s.unit]}</b>`}</div></div>`}).join("")||'<p class="mu">Keine Lagerkarten.</p>'}
 /* 4C: Standard-Karat mit ungefährem Durchmesser (Rund, Brillantschliff) */
 const CTD=[[0.05,2.5],[0.10,3.0],[0.20,3.8],[0.25,4.1],[0.30,4.5],[0.40,4.8],[0.50,5.2],[0.70,5.8],[0.90,6.3],[1.00,6.5],[1.25,6.9],[1.50,7.4],[1.75,7.8],[2.00,8.2],[2.50,8.8],[3.00,9.4]];
 function ctDiam(ct){if(!(ct>0))return 0;const t=CTD;
@@ -2740,7 +2783,10 @@ function igiParse(t){t=String(t||"").replace(/ /g," ");const g=(re)=>{const m=t
 function igiApply(r){const s=ui.se;if(!s)return 0;let n=0;["type","ct","color","clar","cut","nat"].forEach(k=>{if(r[k]){s[k]=r[k];n++}});
  if(r.no){s.name=r.no;s.code=s.code||r.no;n++}if(r.meas)s.note=(s.note?s.note+" · ":"")+r.meas;s.group="Stein";s.unit="CT";if(s.single===false)s.single=true;return n}
 act.igiopen=()=>{const s=ui.se,d=String((s&&s.igi)||"").replace(/\D/g,"");if(d.length<6){toast("Bitte die 9-stellige Nummer eintragen");return}
- if(s&&!s.name)s.name="LG"+d;window.open("https://www.igi.org/verify-your-report/?r=LG"+d,"_blank","noopener")};
+ if(s&&!s.name)s.name="LG"+d;const u="https://www.igi.org/verify-your-report/?r=LG"+d;
+ const sa=navigator.standalone||(window.matchMedia&&matchMedia("(display-mode: standalone)").matches);
+ rcSnap();if(sa){const c=()=>toast(tx("Link kopiert – in Safari einfügen, Text kopieren und hier einfügen"));if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(u).then(c,()=>prompt("IGI-Link:",u));else prompt("IGI-Link:",u);return}
+ window.open(u,"_blank","noopener")};
 act.igipaste=()=>{const e=$("igip");if(!e||!e.value.trim()){toast("Bitte den Text der IGI-Seite einfügen");return}const r=igiParse(e.value),n=igiApply(r);
  if(!n){toast("Keine IGI-Daten erkannt");return}rL();toast("IGI übernommen: "+[r.no,r.type,r.ct&&r.ct+" ct",r.color,r.clar,r.nat].filter(Boolean).join(" · "))};
 document.addEventListener("change",async e=>{const el=e.target;if(!el||el.id!=="igif"||!el.files||!el.files[0])return;
@@ -2849,8 +2895,8 @@ act.pdup=()=>{const s=ui.pd;if(!s)return;const d=JSON.parse(JSON.stringify(s));l
  d.stones=(d.stones||[]).map(x=>{const st=data.stock.find(y=>y.id===x.sid);if(st&&isSingle(st)){cut++;return Object.assign({},x,{sid:0,qty:"",pauto:0})}return x});
  d.steps=(d.steps||[]).map(x=>Object.assign({},x,{in:"",out:"",state:"Offen"}));d.tw="";d.wm="a";
  ui.lp=null;ui.pd=d;ui.pnew=true;render();scrollTo(0,0);toast("Kopie "+d.code+" – Nummer prüfen"+(cut?", Hauptstein neu wählen":"")+", dann Speichern")};
-act.pnew=()=>{ui.lp=null;ui.cp=null;ui.pd=newP();ui.pnew=true;render()};
-act.pedit=d=>{ui.lp=null;ui.cp=null;ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
+act.pnew=()=>{ui.lp=null;ui.cp=null;ui.nst=null;ui.pd=newP();ui.pnew=true;render()};
+act.pedit=d=>{ui.lp=null;ui.cp=null;ui.nst=null;ui.pd=openP(data.prods.find(p=>p.id===Number(d.id)));ui.pnew=false;render()};
 act.pback=()=>{const id=ui.pd&&ui.pd.id;ui.lp=null;ui.cp=null;ui.pd=null;render();
  setTimeout(()=>{const e=id&&document.querySelector(`#s-prod [data-a="pedit"][data-id="${id}"]`);if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"});else scrollTo(0,0)},30)};
 act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
@@ -2880,6 +2926,24 @@ function mHook(p){const d=ui.pd;if(!d||!p.startsWith("ui.pd."))return;const k=p.
  if(/^stones/.test(k))d.steps.forEach((s,i)=>{if(s.type==="Montage"&&s.mAuto){mCalc(s,i);ch=true}});
  if(ch)calcP()}
 function pEdit(p){pEdit0(p);mHook(p)}
+function nstHTML(){const n=ui.nst;if(!n)return`<button data-a="nst" style="width:100%;margin-bottom:10px">💎 Neuer Stein (direkt ins Lager + einsetzen)</button>`;
+ return `<div class="rowc" style="border-color:var(--ac);margin-bottom:10px"><b>💎 Neuer Stein</b><p class="mu" style="margin:2px 0 8px">Wird als Einzelstein im Lager angelegt und hier eingesetzt.</p>
+ ${F("Zertifikat-/Steinnummer (z. B. LG762580849 oder nur 762580849)",I("ui.nst.name",n.name,"LG…",'autocorrect="off" autocomplete="off" spellcheck="false"'))}
+ <div class="g2">${F("Steinart / Herkunft",S("ui.nst.nat",n.nat,SNAT))}${F("Karat ct",I("ui.nst.ct",n.ct,"z. B. 2,06",'inputmode="decimal" autocomplete="off"'))}</div>
+ <div class="g2">${F("Art / Form",SX("ui.nst.type",n.type,L_FORM))}${F("Farbe",SX("ui.nst.color",n.color,L_COL))}</div>
+ <div class="g2">${F("Reinheit",SX("ui.nst.clar",n.clar,L_CLAR))}${F("Schliff",SX("ui.nst.cut",n.cut,L_CUT))}</div>
+ ${CB("ui.nst.d2",!!n.d2,"D2 – seitlicher Stein")}
+ <div class="row"><button data-a="nstok">✓ Anlegen & einsetzen</button><button class="sec" data-a="nstx">Abbrechen</button></div></div>`}
+act.nst=()=>{ui.nst={name:"",nat:"CVD",type:"",ct:"",color:"",clar:"",cut:"",d2:false};render()};
+act.nstx=()=>{ui.nst=null;render()};
+act.nstok=()=>{const n=ui.nst,d=ui.pd;if(!n||!d)return;let nm=String(n.name||"").trim().toUpperCase().replace(/\s+/g,"");if(/^\d{6,}$/.test(nm))nm="LG"+nm;
+ const ct=parse(n.ct);if(!nm){toast("Bitte die Steinnummer eintragen");return}if(!(ct>0)){toast("Bitte Karat eintragen");return}
+ let st=data.stock.find(x=>x.group==="Stein"&&(x.name.toUpperCase()===nm||String(x.code||"").toUpperCase()===nm));
+ if(st){const u=stoneIn(st.id,d.id);if(u){toast("Stein "+nm+" steckt schon in "+shortCode(u.code));return}}
+ else{st={id:uid(),name:nm,code:nm,group:"Stein",unit:"CT",single:true,active:true,fine:0,ct:String(n.ct).replace(".",","),nat:n.nat||"",type:n.type||"",color:n.color||"",clar:n.clar||"",cut:n.cut||"",note:""};data.stock.push(st);syncInit(st)}
+ if(d.stones.some(x=>x.sid===st.id)){toast("Stein ist schon eingesetzt");return}
+ let i=d.stones.findIndex(x=>!x.sid&&!String(x.qty||"").trim());if(i<0){d.stones.push({sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""});i=d.stones.length-1}
+ d.stones[i].sid=st.id;d.stones[i].d2=!!n.d2;pEdit("ui.pd.stones."+i+".sid");ui.nst=null;render();toast("💎 "+nm+" im Lager angelegt und eingesetzt")};
 function pEdit0(p){const d=ui.pd,k=p.slice(6);
  const sp=k.match(/^stones\.(\d+)\.(qty|pcs|nat|d2|sid|price)$/);
  if(sp){const s=d.stones[sp[1]];if(s){if(sp[2]==="price")s.pauto=0;
@@ -2952,7 +3016,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
   <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="metal">+ Metall-Zeile</button></div>
  <div class="bar"><span>Steine</span><span>💎</span></div><div class="card">`;
- ui.sq=ui.sq||{};ui.sOpt=sOpt;
+ ui.sq=ui.sq||{};ui.sOpt=sOpt;h+=nstHTML();
  d.stones.forEach((s,i)=>{h+=`<div class="rowc"${s.d2?' style="border-style:dashed"':""}>${s.d2?'<b style="display:block;margin-bottom:6px">💎 D2 (seitlich)</b>':""}${s.sid?"":`<input data-f="ui.sq.${i}" data-u="uSq" value="${esc((ui.sq||{})[i]||"")}" placeholder="🔍 Stein suchen (Nummer, Form, ct, Farbe …)" autocorrect="off" autocomplete="off" spellcheck="false" style="margin-bottom:8px">`}${F("Stein (Lagerartikel)",`<select data-f="ui.pd.stones.${i}.sid" data-n="1" data-r="1" id="ssel_${i}">${sqOpts(i,s.sid)}</select>`)}
   ${F("Steinart / Herkunft",S(`ui.pd.stones.${i}.nat`,s.nat||"",SNAT))}
   <div class="g2">${F("Karat ct",I(`ui.pd.stones.${i}.qty`,s.qty,"z. B. 1,07",'inputmode="decimal" autocomplete="off"'))}${F("Stück",N(`ui.pd.stones.${i}.pcs`,s.pcs))}</div>
