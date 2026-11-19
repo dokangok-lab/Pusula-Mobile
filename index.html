@@ -158,8 +158,10 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.15";
+const VER="1.17";
 const HIST=[
+ ["1.17","19.11.2026",["Zertifikat-Finder: Gegenprüfung hakt nur noch Zertifikate der gewählten Verkäufe ab – offene Zertifikate anderer Kunden werden nur angezeigt (mit Knopf „✓ Abgegeben“), nicht automatisch abgehakt","Per Gegenprüfung abgehakte Zertifikate sind mit „🔍 per Gegenprüfung“ markiert; Meldung sagt „jetzt abgehakt“ oder „war schon abgehakt“"]],
+ ["1.16","19.11.2026",["Neues Übersetzungssystem: Texte mit Zahlen (z. B. „3 von 5 gefunden“), zusammengesetzte Zeilen (mit · – : Klammern) und einzelne Fachbegriffe werden jetzt übersetzt; viele fehlende Texte ergänzt","Einstellungen → „🌐 Eigene Übersetzungen“: selbst geschriebene deutsche Texte (Modelle, Arbeitsschritte, Notizen …) automatisch mit KI (in claude.ai) oder selbst übersetzen; die App sammelt dafür alles, was noch nicht übersetzt ist"]],
  ["1.15","19.11.2026",["Zertifikat-Finder: „💾 Übergabe speichern“ – abgehakte gelten als abgegeben, die übrigen als „noch abzugeben“","Offene Zertifikate erscheinen oben im Finder (nach Kunde, mit „✓ Abgegeben“) und auf der Übersicht; Gegenprüfung hakt sie automatisch ab"]],
  ["1.14","19.11.2026",["Zertifikat-Finder → Gegenprüfung: nur Ziffern-Tastatur; bei 9 Ziffern wird sofort automatisch geprüft (kein LG nötig)"]],
  ["1.13","19.11.2026",["💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt","Einstellungen → Nummern-Kürzel: „Stein-Kürzel (Zertifikat)“ frei festlegen"]],
@@ -332,7 +334,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 /* ---------- Start / Laden / Speichern ---------- */
 $("verS").textContent="Version "+VER;
 function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
-function open(d){ui.savedAt=Date.now();
+function open(d){ui.savedAt=Date.now();if(typeof txReset==="function")txReset();
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
  if(!Array.isArray(data.pkSt))data.pkSt=["Wird gerade gemacht","Wartet auf Steine","Wartet auf Gold","Etikett muss gedruckt werden","Gravur fehlt","Qualitätskontrolle","Rückfrage an Werkstatt"];
@@ -775,6 +777,30 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zertifikat-Finder: Gegenprüfung hakt nur noch Zertifikate der gewählten Verkäufe ab – offene Zertifikate anderer Kunden werden nur angezeigt (mit Knopf „✓ Abgegeben“), nicht automatisch abgehakt ~ Certificate finder: the cross-check only ticks certificates of the chosen sales – open certificates of other customers are only shown (with “✓ Handed over” button), not ticked automatically ~ Sertifika bulucu: çapraz kontrol yalnızca seçilen satışların sertifikalarını işaretler – diğer müşterilerin açık sertifikaları sadece gösterilir (“✓ Teslim edildi” düğmesiyle), otomatik işaretlenmez
+Per Gegenprüfung abgehakte Zertifikate sind mit „🔍 per Gegenprüfung“ markiert; Meldung sagt „jetzt abgehakt“ oder „war schon abgehakt“ ~ Certificates ticked by cross-check are marked “🔍 by cross-check”; the message says “ticked now” or “was already ticked” ~ Çapraz kontrolle işaretlenen sertifikalar “🔍 çapraz kontrolle” olarak işaretlenir; mesaj “şimdi işaretlendi” veya “zaten işaretliydi” der
+war schon abgehakt ~ was already ticked ~ zaten işaretliydi
+jetzt abgehakt ~ ticked now ~ şimdi işaretlendi
+🔍 per Gegenprüfung ~ 🔍 by cross-check ~ 🔍 çapraz kontrolle
+Gehört NICHT zu den gewählten Verkäufen ~ Does NOT belong to the chosen sales ~ Seçilen satışlara ait DEĞİL
+offenes Zertifikat von ~ open certificate of ~ açık sertifika:
+Nicht abgehakt. ~ Not ticked. ~ İşaretlenmedi.
+Neues Übersetzungssystem: Texte mit Zahlen (z. B. „3 von 5 gefunden“), zusammengesetzte Zeilen (mit · – : Klammern) und einzelne Fachbegriffe werden jetzt übersetzt; viele fehlende Texte ergänzt ~ New translation system: texts with numbers (e.g. “3 of 5 found”), combined lines (with · – : brackets) and single trade terms are now translated; many missing texts added ~ Yeni çeviri sistemi: sayılı metinler (ör. “5'ten 3 bulundu”), birleşik satırlar (· – : parantez) ve tek tek terimler artık çevriliyor; birçok eksik metin eklendi
+Einstellungen → „🌐 Eigene Übersetzungen“: selbst geschriebene deutsche Texte (Modelle, Arbeitsschritte, Notizen …) automatisch mit KI (in claude.ai) oder selbst übersetzen; die App sammelt dafür alles, was noch nicht übersetzt ist ~ Settings → “🌐 Own translations”: translate your own German texts (models, work steps, notes …) automatically with AI (in claude.ai) or yourself; the app collects everything not yet translated ~ Ayarlar → “🌐 Kendi çevirilerim”: kendi yazdığınız Almanca metinleri (modeller, iş adımları, notlar …) yapay zekâ ile (claude.ai'de) otomatik veya kendiniz çevirin; uygulama henüz çevrilmemiş her şeyi toplar
+🌐 Eigene Übersetzungen ~ 🌐 Own translations ~ 🌐 Kendi çevirilerim
+Die App-Texte sind fest übersetzt. Was du selbst auf Deutsch schreibst (Modelle, Arbeitsschritte, Notizen, Status …), kannst du hier übersetzen – automatisch mit KI oder selbst eintragen. Tipp: Sprache kurz auf English/Türkçe stellen und die Seiten durchblättern – dann sammelt die App alles, was noch nicht übersetzt ist. ~ The app texts are translated already. What you write yourself in German (models, work steps, notes, status …) can be translated here – automatically with AI or by hand. Tip: switch to English/Türkçe briefly and browse the pages – the app then collects everything not yet translated. ~ Uygulama metinleri zaten çevrili. Kendi Almanca yazdıklarınızı (modeller, iş adımları, notlar, durum …) burada çevirebilirsiniz – yapay zekâ ile otomatik veya elle. İpucu: dili kısa süre English/Türkçe yapıp sayfalara göz atın – uygulama çevrilmemiş her şeyi toplar.
+🤖 Automatisch übersetzen (KI) ~ 🤖 Translate automatically (AI) ~ 🤖 Otomatik çevir (yapay zekâ)
+🤖 Automatisch übersetzen (KI) – # ~ 🤖 Translate automatically (AI) – # ~ 🤖 Otomatik çevir (yapay zekâ) – #
+Noch nicht übersetzt (#) ~ Not yet translated (#) ~ Henüz çevrilmedi (#)
+💾 Eingetragene übernehmen ~ 💾 Apply entered ~ 💾 Girilenleri uygula
+Alles übersetzt ✓ ~ Everything translated ✓ ~ Her şey çevrildi ✓
+Mein Wörterbuch (#) ~ My dictionary (#) ~ Sözlüğüm (#)
+# Übersetzung(en) gespeichert ~ # translation(s) saved ~ # çeviri kaydedildi
+KI nur verfügbar, wenn die App in claude.ai geöffnet ist – bitte unten selbst eintragen ~ AI only available when the app is opened in claude.ai – please enter below yourself ~ Yapay zekâ yalnızca uygulama claude.ai'de açıkken kullanılabilir – lütfen aşağıya kendiniz girin
+🤖 Übersetze # Texte … ~ 🤖 Translating # texts … ~ 🤖 # metin çevriliyor …
+🤖 # Texte übersetzt ~ 🤖 # texts translated ~ 🤖 # metin çevrildi
+KI wurde nicht erlaubt ~ AI was not allowed ~ Yapay zekâya izin verilmedi
+KI-Fehler – bitte später nochmal ~ AI error – please try again later ~ Yapay zekâ hatası – lütfen sonra tekrar deneyin
 Zertifikat-Finder: „💾 Übergabe speichern“ – abgehakte gelten als abgegeben, die übrigen als „noch abzugeben“ ~ Certificate finder: “💾 Save handover” – ticked ones count as handed over, the rest as “still to hand over” ~ Sertifika bulucu: “💾 Teslimi kaydet” – işaretliler teslim edildi, kalanlar “teslim edilecek” sayılır
 Offene Zertifikate erscheinen oben im Finder (nach Kunde, mit „✓ Abgegeben“) und auf der Übersicht; Gegenprüfung hakt sie automatisch ab ~ Open certificates appear at the top of the finder (by customer, with “✓ Handed over”) and on the overview; the cross-check ticks them off automatically ~ Açık sertifikalar bulucunun üstünde (müşteriye göre, “✓ Teslim edildi” ile) ve genel bakışta görünür; çapraz kontrol otomatik işaretler
 💾 Übergabe speichern ~ 💾 Save handover ~ 💾 Teslimi kaydet
@@ -1730,13 +1756,167 @@ Anhänger ~ Pendant ~ Kolye ucu
 Altgold ~ Scrap gold ~ Hurda altın
 Stein ~ Stone ~ Taş
 Sonderware ~ Special items ~ Özel ürün
-Gold ~ Gold ~ Altın`;
-TXT.split("\n").forEach(l=>{const p=l.split(" ~ ");if(p.length===3)DICT[p[0].trim()]={en:p[1].trim(),tr:p[2].trim()}});
-DYT.split("\n").map(l=>l.split(" ~ ")).filter(p=>p.length===3).sort((a,b)=>b[0].length-a[0].length).forEach(p=>
- DYN.push([new RegExp("(^|[^\\p{L}\\p{N}])"+p[0].trim().replace(/[.*+?^${}()|[\]\\]/g,"\\$&")+"(?=$|[^\\p{L}\\p{N}])","gu"),{en:p[1].trim(),tr:p[2].trim()}]));
-function tx(s){if(lang==="de"||!s)return s;const m=String(s).match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return s;
- const d=DICT[c];if(d)return m[1]+d[lang]+m[3];
- let r=c;for(const[re,o]of DYN)r=r.replace(re,(x,a)=>a+o[lang]);return m[1]+r+m[3]}
+Gold ~ Gold ~ Altın
+Prinzess ~ Princess ~ Prenses
+Birne ~ Pear ~ Armut
+Herz ~ Heart ~ Kalp
+Smaragd ~ Emerald ~ Zümrüt
+Kissen (Cushion) ~ Cushion ~ Yastık (Cushion)
+Ascher ~ Asscher ~ Asscher
+Einzelstein ~ Single stone ~ Tek taş
+rund ~ round ~ yuvarlak
+in Fertigung ~ in production ~ üretimde
+Einstellungen ~ Settings ~ Ayarlar
+Bestellung ~ Order ~ Sipariş
+leer ~ empty ~ boş
+vorgedruckt ~ preprinted ~ önceden basılı
+# Paket(e) unterwegs ~ # package(s) out ~ # paket yolda
+# aktiv ~ # active ~ # aktif
+# Teile ~ # pcs ~ # parça
+Paket # ~ Package # ~ Paket #
+Ist # g der Eingang für … ~ Is # g the incoming weight for … ~ # g şunun girişi mi …
+# Käufe ~ # purchases ~ # alım
+# offene/eigene Bestellpositionen ~ # open/own order items ~ # açık/kendi sipariş kalemi
+# Stück ~ # pcs ~ # adet
+# Stück offen ~ # pcs open ~ # adet açık
+# offen ~ # open ~ # açık
+# von # gefunden ~ # of # found ~ # / # bulundu
+# Zertifikate aus # Verkauf ~ # certificates from # sale ~ # sertifika, # satıştan
+# Zertifikate aus # Verkäufen ~ # certificates from # sales ~ # sertifika, # satıştan
+# Zertifikat aus # Verkauf ~ # certificate from # sale ~ # sertifika, # satıştan
+Auswahl leeren (#) ~ Clear selection (#) ~ Seçimi temizle (#)
+📜 Zertifikate noch abzugeben (#) ~ 📜 Certificates still to hand over (#) ~ 📜 Teslim edilecek sertifikalar (#)
+⚠️ Noch abzugeben (#) ~ ⚠️ Still to hand over (#) ~ ⚠️ Teslim edilecek (#)
+# abgegeben · # noch fällig ~ # handed over · # still due ~ # teslim edildi · # bekliyor
+# von # abgegeben ~ # of # handed over ~ # / # teslim edildi
+seit # ~ since # ~ # tarihinden beri
+# Tg. überfällig ~ # days overdue ~ # gün gecikmiş
+noch # Tage ~ # days left ~ # gün kaldı
+… und # weitere ~ … and # more ~ … ve # tane daha
+Abruf läuft … ~ Fetching … ~ Alınıyor …
+Alle Beträge in ~ All amounts in ~ Tüm tutarlar
+Andere … selbst eingeben ~ Other … enter yourself ~ Diğer … kendiniz girin
+Betrag und Ergebnis prüfen ~ Check amount and result ~ Tutarı ve sonucu kontrol edin
+Bitte Tabelle einfügen ~ Please paste a table ~ Lütfen tablo yapıştırın
+Bitte Von und Bis wählen ~ Please choose from and to ~ Lütfen başlangıç ve bitiş seçin
+Bitte den Text der IGI-Seite einfügen ~ Please paste the text of the IGI page ~ Lütfen IGI sayfasının metnini yapıştırın
+Bitte die 9-stellige Nummer eintragen ~ Please enter the 9-digit number ~ Lütfen 9 haneli numarayı girin
+Bitte eine Frage eingeben ~ Please enter a question ~ Lütfen bir soru girin
+Bitte oben einen Verkauf wählen. ~ Please choose a sale above. ~ Lütfen yukarıdan bir satış seçin.
+Bitte zwei verschiedene Währungen wählen ~ Please choose two different currencies ~ Lütfen iki farklı para birimi seçin
+Datei verschlüsselt mit deinem Passwort ~ File encrypted with your password ~ Dosya şifrenizle şifrelendi
+Die KI ist hier nicht verfügbar. Sie funktioniert nur, wenn die App in Claude (claude.ai) geöffnet ist. Die Suche unten funktioniert trotzdem. ~ The AI is not available here. It only works when the app is opened in Claude (claude.ai). The search below still works. ~ Yapay zekâ burada kullanılamıyor. Yalnızca uygulama Claude'da (claude.ai) açıldığında çalışır. Aşağıdaki arama yine de çalışır.
+Die KI konnte nicht antworten. ~ The AI could not answer. ~ Yapay zekâ yanıt veremedi.
+Die KI wurde nicht erlaubt. ~ The AI was not allowed. ~ Yapay zekâya izin verilmedi.
+Excel (.xlsx), CSV oder PDF. Bei PDF wird der Text herausgelesen – klappt bei normalen Tabellen-PDFs, nicht bei eingescannten. Alternativ Tabelle kopieren und unten einfügen. ~ Excel (.xlsx), CSV or PDF. For PDFs the text is extracted – works with normal table PDFs, not with scanned ones. Alternatively copy the table and paste it below. ~ Excel (.xlsx), CSV veya PDF. PDF'de metin okunur – normal tablo PDF'lerinde çalışır, taranmışlarda çalışmaz. Alternatif olarak tabloyu kopyalayıp aşağıya yapıştırın.
+…oder Tabelle hier einfügen (aus Excel/PDF kopiert) ~ …or paste a table here (copied from Excel/PDF) ~ …veya tabloyu buraya yapıştırın (Excel/PDF'den kopyalanmış)
+Für ~ For ~ İçin
+Gedruckt auf ~ Printed on ~ Basıldığı yer
+gedruckt auf ~ printed on ~ basıldığı yer
+Gehört NICHT dazu ~ Does NOT belong ~ Ait DEĞİL
+Gehört dazu ~ Belongs to ~ Ait
+Gerade zu viele Anfragen – bitte kurz warten. ~ Too many requests right now – please wait a moment. ~ Şu an çok fazla istek var – lütfen biraz bekleyin.
+Geändert ~ Changed ~ Değiştirildi
+IGI übernommen ~ IGI applied ~ IGI aktarıldı
+IGI-PDF übernommen ~ IGI PDF applied ~ IGI PDF aktarıldı
+Im PDF keine IGI-Daten erkannt ~ No IGI data found in the PDF ~ PDF'de IGI verisi bulunamadı
+Keine IGI-Daten erkannt ~ No IGI data found ~ IGI verisi bulunamadı
+Keine Tabelle gefunden ~ No table found ~ Tablo bulunamadı
+Kopieren nicht möglich ~ Copying not possible ~ Kopyalanamıyor
+Nicht im System gefunden – gehört nicht zu diesen Verkäufen ~ Not found in the system – does not belong to these sales ~ Sistemde bulunamadı – bu satışlara ait değil
+PDF konnte nicht gelesen werden ~ PDF could not be read ~ PDF okunamadı
+Suchen (S2611… oder Kunde) ~ Search (S2611… or customer) ~ Ara (S2611… veya müşteri)
+Verkauf mit Barcode für ~ Barcode sale for ~ Barkodlu satış:
+Ware existiert, aber nicht in ~ Item exists, but not in ~ Ürün var ama şurada değil:
+Ware hinzugefügt ~ Item added ~ Ürün eklendi
+Ware entfernt ~ Item removed ~ Ürün çıkarıldı
+Paket angelegt ~ Package created ~ Paket oluşturuldu
+Waren hinzugefügt ~ Items added ~ Ürünler eklendi
+Warennummer (Schlüssel) ~ Item number (key) ~ Ürün numarası (anahtar)
+Zahlung von ~ Payment from ~ Ödeme:
+Zeilen gefunden. Ordne die Spalten zu – die App merkt sich die Zuordnung für das nächste Mal. ~ rows found. Assign the columns – the app remembers the mapping for next time. ~ satır bulundu. Sütunları eşleştirin – uygulama eşleştirmeyi bir dahaki sefere hatırlar.
+Zertifikat-/Steinnummer (Schlüssel) ~ Certificate/stone number (key) ~ Sertifika/taş numarası (anahtar)
+Zurück am ~ Back on ~ Dönüş tarihi
+als Zebra-Datei gespeichert ~ saved as Zebra file ~ Zebra dosyası olarak kaydedildi
+eingefügter Text ~ pasted text ~ yapıştırılan metin
+hinzugefügt ~ added ~ eklendi
+im Lager angelegt und eingesetzt ~ created in stock and set ~ depoda oluşturuldu ve takıldı
+in der App schon verkauft ~ already sold in the app ~ uygulamada zaten satıldı
+in der Werkstatt ~ at the workshop ~ atölyede
+ist abholbereit ~ is ready for pickup ~ teslim almaya hazır
+abholbereit ~ ready for pickup ~ teslime hazır
+liegt noch im Lager (nicht verbaut) ~ still in stock (not set) ~ hâlâ depoda (takılmadı)
+nicht im System ~ not in the system ~ sistemde yok
+nicht verbaut ~ not set ~ takılmadı
+noch ~ still ~ hâlâ
+noch fällig ~ still due ~ bekliyor
+noch keine Kurse ~ no rates yet ~ henüz kur yok
+pro Stück ~ per piece ~ adet başına
+von ~ of ~ /
+vorbereitet – Betrag prüfen und Buchen ~ prepared – check amount and post ~ hazırlandı – tutarı kontrol edip kaydedin
+wieder in der Werkstatt ~ back at the workshop ~ tekrar atölyede
+wird bearbeitet ~ in progress ~ işleniyor
+z. B. Größe 54, bis Freitag ~ e.g. size 54, by Friday ~ ör. 54 numara, cumaya kadar
+zurück erhalten ~ received back ~ geri alındı
+zurück ~ back ~ geri
+Für das Goldgewicht bitte eine Metall-Zeile anlegen ~ Please add a metal row for the gold weight ~ Altın ağırlığı için lütfen bir metal satırı ekleyin
+Mehrere Metall-Zeilen: Goldgewicht bitte selbst aufteilen ~ Several metal rows: please split the gold weight yourself ~ Birden fazla metal satırı: altın ağırlığını lütfen kendiniz bölün
+Weiß ~ White ~ Beyaz
+für ~ for ~ için
+Übertragen ~ Transferred ~ Aktarıldı
+über ~ via ~ üzerinden
+Nummer prüfen ~ check number ~ numarayı kontrol edin
+– Verkauf wählen – ~ – choose sale – ~ – satış seçin –
+Zuordnung von letztem Mal übernommen ~ mapping from last time applied ~ geçen seferki eşleştirme alındı
+mit „Bestellung speichern“ übernehmen ~ apply with “Save order” ~ “Siparişi kaydet” ile uygula
+nächster Termin ~ next date ~ sonraki tarih
+„Nur in App“ zeigen (Steine im Lager, die in der Datei fehlen) ~ Show “only in app” (stones in stock missing from the file) ~ “Sadece uygulamada” göster (dosyada olmayan depo taşları)
+„Nur in App“ zeigen (fertige Waren im Lager, die in der Datei fehlen) ~ Show “only in app” (finished items in stock missing from the file) ~ “Sadece uygulamada” göster (dosyada olmayan bitmiş ürünler)
+⇄ Übertrag ← ~ ⇄ Transfer ← ~ ⇄ Aktarım ←
+⇄ Übertrag → ~ ⇄ Transfer → ~ ⇄ Aktarım →
+Bitte die Spalte ~ Please the column ~ Lütfen sütun
+Keine Verbindung ~ No connection ~ Bağlantı yok
+Quelle antwortet nicht ~ Source not responding ~ Kaynak yanıt vermiyor
+📒 Hauptbuch (alle) ~ 📒 Main book (all) ~ 📒 Ana defter (tümü)
+änderbar ~ editable ~ değiştirilebilir
+Hauptstein neu wählen ~ choose main stone again ~ ana taşı yeniden seçin
+dann Speichern ~ then save ~ sonra kaydet
+Türkçe ~ Türkçe ~ Türkçe
+GUARANTEE CERTIFICATE ~ GUARANTEE CERTIFICATE ~ GARANTİ BELGESİ
+z. B. Emirhan, YZD101, 0573, S2611001, B2611… ~ e.g. Emirhan, YZD101, 0573, S2611001, B2611… ~ ör. Emirhan, YZD101, 0573, S2611001, B2611…
+Solitär ~ Solitaire ~ Tektaş
+Lieferung ~ Delivery ~ Teslimat
+Rechnung ~ Invoice ~ Fatura
+Kunde ~ Customer ~ Müşteri
+Werkstatt ~ Workshop ~ Atölye
+Ware ~ Item ~ Ürün
+Steine ~ Stones ~ Taşlar`;
+/* Übersetzung: 1) exakt  2) Vorlage mit Zahlen (#)  3) Teile (· – : ( ))  4) Wörter/Begriffe  + eigenes Wörterbuch (data.udict) */
+const TM={},DYW=[],TXC=new Map(),UNT=new Set();let DRE=null,DMAP={};
+const NUMRE=/[A-Z]{0,4}\d[\dA-Z]*(?:[.,:\/][\dA-Z]+)*/g;
+const GERRE=/[äöüÄÖÜß]|\b(der|die|das|den|dem|und|oder|nicht|mit|für|ein|eine|einen|noch|bitte|Bitte|wird|ist|sind|von|zu|auf|aus|nach|alle|keine|Keine|Stück|neu|Neue|neuer|wählen|eingeben|speichern|gespeichert|offen|fertig|Werkstatt|Ware|Stein|Steine|Kunde|Zahlung|Rechnung|Lieferung|abholen|Gewicht|Preis)\b/;
+function addTr(a,b,c){const de=String(a).trim();if(!de)return;const o={en:String(b).trim(),tr:String(c).trim()};if(de.includes("#"))TM[de]=o;else DICT[de]=o}
+TXT.split("\n").forEach(l=>{const p=l.split(" ~ ");if(p.length===3)addTr(p[0],p[1],p[2])});
+DYT.split("\n").forEach(l=>{const p=l.split(" ~ ");if(p.length===3){addTr(p[0],p[1],p[2]);if(!p[0].includes("#"))DYW.push(p[0].trim())}});
+const udi=()=>(typeof data!=="undefined"&&data&&data.udict)||{};
+const reEsc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+function buildDRE(){DMAP={};const ws=[],add=(k,o)=>{if(!k||k.length<2||/^[\d\W_]+$/u.test(k)||DMAP[k])return;DMAP[k]=o;ws.push(k)};
+ Object.entries(udi()).forEach(([k,o])=>add(k,o));
+ DYW.forEach(k=>DICT[k]&&add(k,DICT[k]));
+ Object.keys(DICT).forEach(k=>{if(k.split(/\s+/).length<=3&&k.length<=30)add(k,DICT[k])});
+ ws.sort((a,b)=>b.length-a.length);DRE=ws.length?new RegExp("(^|[^\\p{L}\\p{N}])("+ws.map(reEsc).join("|")+")(?=$|[^\\p{L}\\p{N}])","gu"):null}
+function txReset(){DRE=null;TXC.clear()}
+function txL(c){const u=udi()[c];if(u&&u[lang])return u[lang];const d=DICT[c];return d&&d[lang]?d[lang]:null}
+function txT(c){const n=[];const k=c.replace(NUMRE,x=>{n.push(x);return"#"});if(!n.length)return null;const o=TM[k];if(!o||!o[lang])return null;let i=0;return o[lang].replace(/#/g,()=>n[i++]??"")}
+const SEPRE=/(\s+·\s+|\s+[–—]\s+|:\s+|\s*\(\s*|\s*\)\s*|\s+\|\s+|\s*\n\s*|\s+→\s+|\s*›\s*|\s*,\s+)/;
+function txCore(c,dep){let r=txL(c);if(r!=null)return r;r=txT(c);if(r!=null)return r;
+ const em=c.match(/^([^\p{L}\p{N}„"“#]+)(\S[\s\S]*)$/u);if(em&&dep<4){const x=txCore(em[2],dep+1);if(x!==em[2])return em[1]+x}
+ const tp=c.match(/^([\s\S]+?)([.:!?…]+|\s+…)$/u);if(tp&&dep<4){const y=txL(tp[1])??txT(tp[1]);if(y!=null)return y+tp[2]}
+ if(dep<3){const parts=c.split(SEPRE);if(parts.length>1){let ch=false;const o=parts.map((q,i)=>{if(i%2||!q.trim())return q;const t=txCore(q,dep+1);if(t!==q)ch=true;return t});if(ch)return o.join("")}}
+ if(!DRE)buildDRE();const w=DRE?c.replace(DRE,(x,a,k)=>a+((DMAP[k]&&DMAP[k][lang])||k)):c;
+ if(w===c&&GERRE.test(c)&&c.length<400&&UNT.size<500)UNT.add(c);return w}
+function tx(s){if(lang==="de"||!s)return s;s=String(s);const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return s;
+ const ck=lang+"\u0001"+c;let r=TXC.get(ck);if(r===undefined){r=txCore(c,0);if(TXC.size>8000)TXC.clear();TXC.set(ck,r)}return m[1]+r+m[3]}
 let obs=null,busy=false,pend=false;
 function watch(){if(typeof MutationObserver==="undefined")return;
  if(!obs)obs=new MutationObserver(()=>{if(busy||pend)return;pend=true;requestAnimationFrame(()=>{pend=false;applyLang()})});
@@ -1752,7 +1932,7 @@ function applyLang(){
    const o=tx(e.__po);if(e.placeholder!==o)e.placeholder=o;e.__pt=o})
  }finally{busy=false;watch()}}
 function langBtns(){document.querySelectorAll("#langS button").forEach(b=>b.classList.toggle("sec",b.dataset.v!==lang))}
-act.lang=d=>{lang=d.v;picked=true;document.documentElement.lang=lang;if(data){data.lang=lang;render()}langBtns();applyLang()};
+act.lang=d=>{lang=d.v;txReset();picked=true;document.documentElement.lang=lang;if(data){data.lang=lang;render()}langBtns();applyLang()};
 watch();
 
 /* ---------- Kurse ---------- */
@@ -2121,13 +2301,13 @@ function rCert(){const sel=ui.cfs||(ui.cfs={}),q=String(ui.cfq||"").trim().toLow
  ${n?`<button class="sec sm" data-a="cfclr" style="margin-top:6px">Auswahl leeren (${n})</button>`:""}</div>
  <div class="card"><b>2. Zertifikate – nach letzten 4 Ziffern</b>${C.length?`<p class="mu" style="margin:4px 0 8px">${C.length} Zertifikat${C.length>1?"e":""} aus ${n} Verkauf${n>1?"en":""}</p>
  ${(()=>{const ok=data.cfok||{},f=C.filter(c=>ok[c.cert]).length;return `<p style="margin:0 0 6px"><b>${f} von ${C.length} gefunden</b>${f?` <button class="sec sm" data-a="cfreset">Häkchen zurücksetzen</button>`:""}</p>`})()}
- ${C.map(c=>{const ok=!!(data.cfok||{})[c.cert];return `<label class="it" style="cursor:pointer;${ok?"opacity:.45;text-decoration:line-through;":""}"><div style="display:flex;gap:12px;align-items:center"><input type="checkbox" data-cfk="${esc(c.cert)}"${ok?" checked":""} style="width:24px;height:24px;flex:none"><div><b style="font-size:26px;letter-spacing:1px">${esc(c.l4)}</b><small>${esc(c.cert)} · ${esc(c.type)} ${c.ct?f2(c.ct)+" ct":""}</small></div></div><div class="r"><b>${esc(shortCode(c.code))} · ${esc(c.for||c.buyer)}</b><small>${c.for?"über "+esc(c.buyer)+" · ":""}${c.ono?esc(c.ono)+" · ":""}${esc(c.sno)}</small></div></label>`}).join("")}
+ ${C.map(c=>{const ok=!!(data.cfok||{})[c.cert];return `<label class="it" style="cursor:pointer;${ok?"opacity:.45;text-decoration:line-through;":""}"><div style="display:flex;gap:12px;align-items:center"><input type="checkbox" data-cfk="${esc(c.cert)}"${ok?" checked":""} style="width:24px;height:24px;flex:none"><div><b style="font-size:26px;letter-spacing:1px">${esc(c.l4)}</b><small>${esc(c.cert)} · ${esc(c.type)} ${c.ct?f2(c.ct)+" ct":""}${(data.cfok||{})[c.cert]===2?" · 🔍 per Gegenprüfung":""}</small></div></div><div class="r"><b>${esc(shortCode(c.code))} · ${esc(c.for||c.buyer)}</b><small>${c.for?"über "+esc(c.buyer)+" · ":""}${c.ono?esc(c.ono)+" · ":""}${esc(c.sno)}</small></div></label>`}).join("")}
  <div class="row" style="margin-top:8px"><button data-a="cfsave">💾 Übergabe speichern</button><button class="sec" data-a="cfcopy">📋 Liste kopieren</button></div>
  <p class="mu" style="margin:6px 0 0">Speichert: abgehakte = abgegeben, die übrigen erscheinen als „noch abzugeben“ (auch auf der Übersicht).</p>
  ${(data.cfh||[]).filter(x=>x.snos.some(s=>(ui.cfs||{})[s])).slice(0,3).map(x=>`<p class="mu" style="margin:4px 0 0">📝 ${dt(x.date)}: ${x.given} von ${x.total} abgegeben${x.open.length?" · "+x.open.length+" offen":""}</p>`).join("")}`:'<p class="mu" style="margin:6px 0 0">Oben einen oder mehrere Verkäufe anhaken.</p>'}</div>
  ${C.length||DU.length?`<div class="card"><b>3. 🔍 Gegenprüfung</b><p class="mu" style="margin:4px 0 8px">Nur die Ziffern vom Zertifikat eintippen: alle 9 Ziffern → prüft sofort automatisch; oder letzte 4 Ziffern + „Prüfen“.</p>
  <input id="cfchk" name="cfchk-x" placeholder="z. B. 803620573 oder 0573" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="numeric" pattern="[0-9]*" style="width:100%;margin-bottom:8px"><button data-a="cfcheck">Prüfen</button>
- ${(ui.cfr||[]).map(r=>`<div class="it" style="border-left:4px solid ${r.ok?"var(--in)":"var(--out)"};padding-left:10px;margin-top:6px"><div><b>${r.ok?"✅":"⚠️"} ${esc(r.q)}</b><small style="color:${r.ok?"inherit":"var(--out)"}">${esc(r.msg)}</small></div></div>`).join("")}
+ ${(ui.cfr||[]).map(r=>`<div class="it" style="border-left:4px solid ${r.ok?"var(--in)":"var(--out)"};padding-left:10px;margin-top:6px"><div><b>${r.ok?"✅":"⚠️"} ${esc(r.q)}</b><small style="color:${r.ok?"inherit":"var(--out)"}">${esc(r.msg)}</small></div>${r.due&&!(data.cfok||{})[r.due]?`<div class="r"><button class="sec sm" data-a="cfgive" data-v="${esc(r.due)}">✓ Abgegeben</button></div>`:""}</div>`).join("")}
  ${(ui.cfr||[]).length?`<button class="sec sm" data-a="cfrclr" style="margin-top:8px">Prüfliste leeren</button>`:""}</div>`:""}`}
 function cfList(S,sel){return S.map(s=>{const k=s.ms.reduce((a,m)=>a+mProds(m).length,0);return `<label class="it" style="cursor:pointer"><div style="display:flex;gap:10px;align-items:center"><input type="checkbox" data-cf="${esc(s.sno)}"${sel[s.sno]?" checked":""} style="width:22px;height:22px"><div><b>${esc(s.sno)}</b> · ${esc(pnm(s.pid))}<small>${dt(s.date)} · ${k} Stück</small></div></div></label>`}).join("")||'<p class="mu">Keine Verkäufe mit Barcode gefunden.</p>'}
 function uCf(){const e=$("cfl");if(!e)return;const q=String(ui.cfq||"").trim().toLowerCase();e.innerHTML=cfList(cfSales().filter(s=>!q||(s.sno+" "+pnm(s.pid)).toLowerCase().includes(q)),ui.cfs||{})}
@@ -2142,8 +2322,9 @@ act.cfcheck=()=>{const e=$("cfchk");if(!e)return;const q=String(e.value||"").tri
  const stones=data.stock.filter(s=>s.name&&(String(s.name).toUpperCase().replace(/\s+/g,"")===n||(dg.length>=4&&String(s.name).replace(/\D/g,"").endsWith(dg))));
  const R=ui.cfr=ui.cfr||[];
  if(!stones.length)R.unshift({q,ok:false,msg:"Nicht im System gefunden – gehört nicht zu diesen Verkäufen"});
- else stones.forEach(s=>{const c=C.find(x=>x.cert===s.name)||cfDue().find(x=>x.cert===s.name);
-  if(c){data.cfok=data.cfok||{};data.cfok[c.cert]=1;R.unshift({q:s.name,ok:true,msg:"Gehört dazu: "+shortCode(c.code)+" · "+(c.for||c.buyer)+" · "+c.sno})}
+ else stones.forEach(s=>{const c=C.find(x=>x.cert===s.name),du=!c&&cfDue().find(x=>x.cert===s.name);
+  if(c){data.cfok=data.cfok||{};const was=data.cfok[c.cert];if(!was)data.cfok[c.cert]=2;R.unshift({q:s.name,ok:true,msg:"Gehört dazu: "+shortCode(c.code)+" · "+(c.for||c.buyer)+" · "+c.sno+(was?" · war schon abgehakt":" · jetzt abgehakt")})}
+  else if(du)R.unshift({q:s.name,ok:false,due:du.cert,msg:"Gehört NICHT zu den gewählten Verkäufen – offenes Zertifikat von "+(du.for||du.buyer)+" ("+du.sno+"). Nicht abgehakt."})
   else R.unshift({q:s.name,ok:false,msg:"Gehört NICHT dazu – "+cfWhere(s)})});
  rCert();setTimeout(()=>{const x=$("cfchk");if(x)x.focus()},30)};
 act.cfrclr=()=>{ui.cfr=[];rCert()};
@@ -3494,10 +3675,33 @@ act.pwchg=()=>{const f=ui.pwf;
  if(f.b===cur){toast("Neues Passwort ist gleich dem alten");return}
  if(tri){const q=pwParts();q[0]=f.b;pw=pwJoin(...q)}else pw=f.b;ui.pwf={a:"",b:"",c:""};render();toast("Passwort geändert – jetzt „Speichern & Beenden“")};
 
+/* Eigene Übersetzungen */
+function udTexts(){const S=new Set(),a=v=>{v=String(v||"").trim();if(v&&v.length<300&&/\p{L}{3}/u.test(v))S.add(v)};
+ (data.models||[]).forEach(a);(data.pkSt||[]).forEach(a);(data.prods||[]).forEach(p=>{a(p.name);a(p.model);a(p.desc);(p.steps||[]).forEach(s=>a(s.type))});
+ (data.orders||[]).forEach(o=>{a(o.note);(o.items||[]).forEach(i=>a(i.txt))});(data.notes||[]).forEach(n=>{a(n.t);a(n.title)});(data.books||[]).forEach(b=>a(b.name));
+ (data.stock||[]).filter(s=>s.group!=="Stein").forEach(s=>a(s.name));(data.pkgs||[]).forEach(g=>{a(g.note);a(g.step);a(g.sub)});
+ UNT.forEach(a);const U=data.udict||{};return[...S].filter(v=>!U[v]&&!DICT[v]&&!DICT[v.replace(/^[^\p{L}\p{N}]+/u,"")]&&!(data.people||[]).some(p=>p.name===v))}
+function udSet(){const U=data.udict||{},K=Object.keys(U).sort(),M=udTexts().slice(0,40);ui.ut=ui.ut||{};
+ return `<div class="card"><b>🌐 Eigene Übersetzungen</b><p class="mu" style="margin:4px 0 8px">Die App-Texte sind fest übersetzt. Was du selbst auf Deutsch schreibst (Modelle, Arbeitsschritte, Notizen, Status …), kannst du hier übersetzen – automatisch mit KI oder selbst eintragen. Tipp: Sprache kurz auf English/Türkçe stellen und die Seiten durchblättern – dann sammelt die App alles, was noch nicht übersetzt ist.</p>
+ <div class="row"><button data-a="udai">🤖 Automatisch übersetzen (KI)${M.length?" – "+M.length:""}</button></div>
+ ${M.length?`<p style="margin:10px 0 4px"><b>Noch nicht übersetzt (${M.length})</b></p>${M.map((v,i)=>`<div class="rowc"><div style="margin-bottom:6px">${esc(v)}</div><div class="g2"><input data-f="ui.ut.${i}.en" value="${esc((ui.ut[i]||{}).en||"")}" placeholder="English" autocomplete="off"><input data-f="ui.ut.${i}.tr" value="${esc((ui.ut[i]||{}).tr||"")}" placeholder="Türkçe" autocomplete="off"></div></div>`).join("")}<button class="sec" data-a="udsave" style="margin-top:6px">💾 Eingetragene übernehmen</button>`:'<p class="mu" style="margin:8px 0 0">Alles übersetzt ✓</p>'}
+ ${K.length?`<details style="margin-top:10px"><summary>Mein Wörterbuch (${K.length})</summary>${K.map(k=>`<div class="it"><div>${esc(k)}<small>🇬🇧 ${esc(U[k].en||"–")} · 🇹🇷 ${esc(U[k].tr||"–")}</small></div><div class="r"><button class="sec sm" data-a="uddel" data-v="${esc(k)}">✕</button></div></div>`).join("")}</details>`:""}</div>`}
+act.udsave=()=>{const M=udTexts().slice(0,40),U=data.udict=data.udict||{};let n=0;M.forEach((v,i)=>{const t=(ui.ut||{})[i];if(t&&(String(t.en||"").trim()||String(t.tr||"").trim())){U[v]={en:String(t.en||"").trim()||v,tr:String(t.tr||"").trim()||v};n++}});
+ ui.ut={};txReset();render();toast(n+" Übersetzung(en) gespeichert")};
+act.uddel=d=>{if(data.udict)delete data.udict[d.v];txReset();render()};
+act.udai=async()=>{const M=udTexts();if(!M.length){toast("Alles übersetzt ✓");return}let s=null;try{s=await claude.use("sample")}catch(_){}
+ if(!s){toast("KI nur verfügbar, wenn die App in claude.ai geöffnet ist – bitte unten selbst eintragen");return}
+ toast("🤖 Übersetze "+M.length+" Texte …");const U=data.udict=data.udict||{};let n=0;
+ try{for(let i=0;i<M.length;i+=60){const part=M.slice(i,i+60);
+   const r=await s.json("Du übersetzt Texte aus einer Juwelier-/Goldschmiede-Buchhaltungs-App (Ringe, Diamanten, Gold, Werkstatt) vom Deutschen ins Englische und Türkische. Fachbegriffe passend für Juweliere. Eigennamen, Nummern, Kürzel und Markennamen unverändert lassen. Antworte NUR mit JSON: ein Objekt, Schlüssel = deutscher Originaltext genau wie gegeben, Wert = {\"en\":\"…\",\"tr\":\"…\"}.\n\nTexte:\n"+JSON.stringify(part),{modelTier:"quick",cache:false});
+   if(r&&typeof r==="object")part.forEach(v=>{const o=r[v];if(o&&(o.en||o.tr)){U[v]={en:String(o.en||v),tr:String(o.tr||v)};n++}})}}
+ catch(e){toast(e&&e.code==="not_granted"?"KI wurde nicht erlaubt":"KI-Fehler – bitte später nochmal");if(!n)return}
+ txReset();render();toast("🤖 "+n+" Texte übersetzt")};
 function rSet(){
  $("s-set").innerHTML=`
  <div class="card"><b>⏰ Speicher-Erinnerung</b><p class="mu" style="margin:4px 0 8px">Warnt oben, wenn so lange nicht gespeichert wurde. „Später“ erinnert in 15 Minuten wieder.</p>${S("data.remind",String(remMin()),[["0","Aus"],["30","nach 30 Minuten"],["60","nach 1 Stunde"],["90","nach 1,5 Stunden"],["120","nach 2 Stunden"]])}</div>
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
+ ${udSet()}
  ${ctpSet()}
  ${cdSet()}
  ${lbSet()}

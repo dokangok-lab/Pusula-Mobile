@@ -1,10 +1,18 @@
-Pusula Mobile – Update 1.15 (Komplettpaket)
+Pusula Mobile – Update 1.17 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.15.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.17.
 
 Änderungen:
+
+1.17 (19.11.2026)
+  - Zertifikat-Finder: Gegenprüfung hakt nur noch Zertifikate der gewählten Verkäufe ab – offene Zertifikate anderer Kunden werden nur angezeigt (mit Knopf „✓ Abgegeben“), nicht automatisch abgehakt
+  - Per Gegenprüfung abgehakte Zertifikate sind mit „🔍 per Gegenprüfung“ markiert; Meldung sagt „jetzt abgehakt“ oder „war schon abgehakt“
+
+1.16 (19.11.2026)
+  - Neues Übersetzungssystem: Texte mit Zahlen (z. B. „3 von 5 gefunden“), zusammengesetzte Zeilen (mit · – : Klammern) und einzelne Fachbegriffe werden jetzt übersetzt; viele fehlende Texte ergänzt
+  - Einstellungen → „🌐 Eigene Übersetzungen“: selbst geschriebene deutsche Texte (Modelle, Arbeitsschritte, Notizen …) automatisch mit KI (in claude.ai) oder selbst übersetzen; die App sammelt dafür alles, was noch nicht übersetzt ist
 
 1.15 (19.11.2026)
   - Zertifikat-Finder: „💾 Übergabe speichern“ – abgehakte gelten als abgegeben, die übrigen als „noch abzugeben“
