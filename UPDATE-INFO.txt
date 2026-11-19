@@ -1,10 +1,13 @@
-Pusula Mobile – Update 1.00 (Komplettpaket)
+Pusula Mobile – Update 1.01 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.00.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.01.
 
 Änderungen:
+
+1.01 (19.11.2026)
+  - Zertifikat-Finder: neben der Ware steht, für wen sie ist (Käufer bzw. Kunde der Bestellung) – auch in der kopierten Liste
 
 1.00 (18.11.2026)
   - Neu unter Mehr: 📜 Zertifikat-Finder – einen oder mehrere Verkäufe anhaken, die App zeigt alle Zertifikate sortiert nach den letzten 4 Ziffern (mit voller Nummer, Ware und Verkauf), Liste kopierbar
