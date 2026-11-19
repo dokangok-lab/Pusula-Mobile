@@ -158,8 +158,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.13";
+const VER="1.14";
 const HIST=[
+ ["1.14","19.11.2026",["Zertifikat-Finder → Gegenprüfung: nur Ziffern-Tastatur; bei 9 Ziffern wird sofort automatisch geprüft (kein LG nötig)"]],
  ["1.13","19.11.2026",["💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt","Einstellungen → Nummern-Kürzel: „Stein-Kürzel (Zertifikat)“ frei festlegen"]],
  ["1.12","19.11.2026",["Fertigung → Steine: „💎 Neuer Stein“ – Nummer, Karat, Form, Farbe, Reinheit eintragen; der Stein wird automatisch als Einzelstein im Lager angelegt und direkt in die Ware eingesetzt (nur Ziffern → LG wird vorangestellt)"]],
  ["1.11","19.11.2026",["Lager: Einzelsteine, die in einer noch nicht fertigen Ware stecken, zeigen „in Fertigung“ mit der Warennummer (z. B. YZD294) statt nur den Karat"]],
@@ -773,6 +774,9 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zertifikat-Finder → Gegenprüfung: nur Ziffern-Tastatur; bei 9 Ziffern wird sofort automatisch geprüft (kein LG nötig) ~ Certificate finder → cross-check: digits-only keyboard; with 9 digits it checks automatically right away (no LG needed) ~ Sertifika bulucu → çapraz kontrol: sadece rakam klavyesi; 9 rakamda hemen otomatik kontrol eder (LG gerekmez)
+Nur die Ziffern vom Zertifikat eintippen: alle 9 Ziffern → prüft sofort automatisch; oder letzte 4 Ziffern + „Prüfen“. ~ Type only the certificate digits: all 9 digits → checks automatically; or last 4 digits + “Check”. ~ Sertifikanın sadece rakamlarını yazın: 9 rakamın tamamı → otomatik kontrol; veya son 4 rakam + “Kontrol”.
+z. B. 803620573 oder 0573 ~ e.g. 803620573 or 0573 ~ ör. 803620573 veya 0573
 💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt ~ 💎 New stone: prefix (LG, ER …) to pick next to the number, digits-only keyboard; last prefix is remembered ~ 💎 Yeni taş: numaranın yanında seçilebilir kısaltma (LG, ER …), sadece rakam klavyesi; son kısaltma hatırlanır
 Einstellungen → Nummern-Kürzel: „Stein-Kürzel (Zertifikat)“ frei festlegen ~ Settings → number prefixes: set “stone prefixes (certificate)” freely ~ Ayarlar → numara kısaltmaları: “taş kısaltmaları (sertifika)” serbestçe belirlenir
 Zertifikat-/Steinnummer ~ Certificate/stone number ~ Sertifika/taş numarası
@@ -2102,8 +2106,8 @@ function rCert(){const sel=ui.cfs||(ui.cfs={}),q=String(ui.cfq||"").trim().toLow
  ${(()=>{const ok=data.cfok||{},f=C.filter(c=>ok[c.cert]).length;return `<p style="margin:0 0 6px"><b>${f} von ${C.length} gefunden</b>${f?` <button class="sec sm" data-a="cfreset">Häkchen zurücksetzen</button>`:""}</p>`})()}
  ${C.map(c=>{const ok=!!(data.cfok||{})[c.cert];return `<label class="it" style="cursor:pointer;${ok?"opacity:.45;text-decoration:line-through;":""}"><div style="display:flex;gap:12px;align-items:center"><input type="checkbox" data-cfk="${esc(c.cert)}"${ok?" checked":""} style="width:24px;height:24px;flex:none"><div><b style="font-size:26px;letter-spacing:1px">${esc(c.l4)}</b><small>${esc(c.cert)} · ${esc(c.type)} ${c.ct?f2(c.ct)+" ct":""}</small></div></div><div class="r"><b>${esc(shortCode(c.code))} · ${esc(c.for||c.buyer)}</b><small>${c.for?"über "+esc(c.buyer)+" · ":""}${c.ono?esc(c.ono)+" · ":""}${esc(c.sno)}</small></div></label>`}).join("")}
  <div class="row" style="margin-top:8px"><button class="sec" data-a="cfcopy">📋 Liste kopieren</button></div>`:'<p class="mu" style="margin:6px 0 0">Oben einen oder mehrere Verkäufe anhaken.</p>'}</div>
- ${C.length?`<div class="card"><b>3. 🔍 Gegenprüfung</b><p class="mu" style="margin:4px 0 8px">Nummer vom Zertifikat in der Hand eintippen oder scannen (ganze Nummer oder letzte 4 Ziffern) und Enter. Die App sagt, ob es zu diesen Verkäufen gehört – und hakt es dann ab.</p>
- <input id="cfchk" placeholder="z. B. LG803620573 oder 0573" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="text" style="width:100%;margin-bottom:8px"><button data-a="cfcheck">Prüfen</button>
+ ${C.length?`<div class="card"><b>3. 🔍 Gegenprüfung</b><p class="mu" style="margin:4px 0 8px">Nur die Ziffern vom Zertifikat eintippen: alle 9 Ziffern → prüft sofort automatisch; oder letzte 4 Ziffern + „Prüfen“.</p>
+ <input id="cfchk" name="cfchk-x" placeholder="z. B. 803620573 oder 0573" autocorrect="off" autocomplete="off" spellcheck="false" inputmode="numeric" pattern="[0-9]*" style="width:100%;margin-bottom:8px"><button data-a="cfcheck">Prüfen</button>
  ${(ui.cfr||[]).map(r=>`<div class="it" style="border-left:4px solid ${r.ok?"var(--in)":"var(--out)"};padding-left:10px;margin-top:6px"><div><b>${r.ok?"✅":"⚠️"} ${esc(r.q)}</b><small style="color:${r.ok?"inherit":"var(--out)"}">${esc(r.msg)}</small></div></div>`).join("")}
  ${(ui.cfr||[]).length?`<button class="sec sm" data-a="cfrclr" style="margin-top:8px">Prüfliste leeren</button>`:""}</div>`:""}`}
 function cfList(S,sel){return S.map(s=>{const k=s.ms.reduce((a,m)=>a+mProds(m).length,0);return `<label class="it" style="cursor:pointer"><div style="display:flex;gap:10px;align-items:center"><input type="checkbox" data-cf="${esc(s.sno)}"${sel[s.sno]?" checked":""} style="width:22px;height:22px"><div><b>${esc(s.sno)}</b> · ${esc(pnm(s.pid))}<small>${dt(s.date)} · ${k} Stück</small></div></div></label>`}).join("")||'<p class="mu">Keine Verkäufe mit Barcode gefunden.</p>'}
@@ -2124,6 +2128,7 @@ act.cfcheck=()=>{const e=$("cfchk");if(!e)return;const q=String(e.value||"").tri
   else R.unshift({q:s.name,ok:false,msg:"Gehört NICHT dazu – "+cfWhere(s)})});
  rCert();setTimeout(()=>{const x=$("cfchk");if(x)x.focus()},30)};
 act.cfrclr=()=>{ui.cfr=[];rCert()};
+document.addEventListener("input",e=>{const el=e.target;if(el&&el.id==="cfchk"&&/^\d{9,}$/.test(String(el.value).trim()))act.cfcheck()});
 document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target&&e.target.id==="cfchk"){e.preventDefault();act.cfcheck()}});
 act.cfclr=()=>{ui.cfs={};rCert()};
 act.cfcopy=()=>{const t=cfCerts(ui.cfs||{}).map(c=>c.l4+"  "+c.cert+"  "+shortCode(c.code)+"  "+(c.for||c.buyer)+"  "+c.sno).join("\n");try{navigator.clipboard.writeText(t).then(()=>toast("Liste kopiert"),()=>toast("Kopieren nicht möglich"))}catch(_){toast("Kopieren nicht möglich")}};

@@ -1,10 +1,13 @@
-Pusula Mobile – Update 1.13 (Komplettpaket)
+Pusula Mobile – Update 1.14 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.13.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.14.
 
 Änderungen:
+
+1.14 (19.11.2026)
+  - Zertifikat-Finder → Gegenprüfung: nur Ziffern-Tastatur; bei 9 Ziffern wird sofort automatisch geprüft (kein LG nötig)
 
 1.13 (19.11.2026)
   - 💎 Neuer Stein: Kürzel (LG, ER …) zum Antippen neben der Nummer, nur Ziffern-Tastatur; letztes Kürzel wird gemerkt
