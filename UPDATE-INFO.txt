@@ -1,10 +1,13 @@
-Pusula Mobile – Update 1.29 (Komplettpaket)
+Pusula Mobile – Update 1.30 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.29.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.30.
 
 Änderungen:
+
+1.30 (22.11.2026)
+  - Fertigung → Metall: „Festpreis je g (statt Goldkurs)“ – z. B. 140 $ je g eingeben; gerechnet wird Gewicht × Festpreis, ohne aktuellen Goldkurs und ohne Zuschlag (ersetzt „fix (gesamt)“)
 
 1.29 (22.11.2026)
   - Zebra-Etikett rechter Teil wie das ZebraDesigner-Vorbild: LG-Nummer oben und Seriennummer unten fett, links bündig mit dem Barcode; Barcode höher; 14K gleich groß wie die Nummern, direkt neben dem Barcode in dessen Mitte

@@ -158,8 +158,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.29";
+const VER="1.30";
 const HIST=[
+ ["1.30","22.11.2026",["Fertigung → Metall: „Festpreis je g (statt Goldkurs)“ – z. B. 140 $ je g eingeben; gerechnet wird Gewicht × Festpreis, ohne aktuellen Goldkurs und ohne Zuschlag (ersetzt „fix (gesamt)“)"]],
  ["1.29","22.11.2026",["Zebra-Etikett rechter Teil wie das ZebraDesigner-Vorbild: LG-Nummer oben und Seriennummer unten fett, links bündig mit dem Barcode; Barcode höher; 14K gleich groß wie die Nummern, direkt neben dem Barcode in dessen Mitte"]],
  ["1.28","22.11.2026",["Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt"]],
  ["1.27","22.11.2026",["Zebra-Etikett: LG- und Seriennummer etwas größer und links bündig mit dem Barcode-Anfang; Barcode startet direkt nach dem Strich, 14K enger daneben"]],
@@ -790,6 +791,11 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Fertigung → Metall: „Festpreis je g (statt Goldkurs)“ – z. B. 140 $ je g eingeben; gerechnet wird Gewicht × Festpreis, ohne aktuellen Goldkurs und ohne Zuschlag (ersetzt „fix (gesamt)“) ~ Production → metal: “fixed price per g (instead of gold rate)” – e.g. enter 140 $ per g; calculated as weight × fixed price, without current gold rate and surcharge (replaces “fixed (total)”) ~ Üretim → maden: “gram başı sabit fiyat (altın kuru yerine)” – ör. gram başı 140 $ girin; ağırlık × sabit fiyat hesaplanır, güncel altın kuru ve ilave olmadan (“sabit (toplam)” yerine)
+Goldkurs + Zuschlag pro g ~ Gold rate + surcharge per g ~ Altın kuru + gram başı ilave
+Festpreis je g (statt Goldkurs) ~ Fixed price per g (instead of gold rate) ~ Gram başı sabit fiyat (altın kuru yerine)
+Festpreis je g ~ Fixed price per g ~ Gram başı sabit fiyat
+Festpreis, ohne Goldkurs ~ fixed price, without gold rate ~ sabit fiyat, altın kuru olmadan
 Zebra-Etikett rechter Teil wie das ZebraDesigner-Vorbild: LG-Nummer oben und Seriennummer unten fett, links bündig mit dem Barcode; Barcode höher; 14K gleich groß wie die Nummern, direkt neben dem Barcode in dessen Mitte ~ Zebra label right part like the ZebraDesigner original: LG number on top and serial below in bold, left-aligned with the barcode; taller barcode; 14K same size as the numbers, right next to the barcode at its centre ~ Zebra etiketi sağ kısım ZebraDesigner örneği gibi: LG numarası üstte ve seri numarası altta kalın, barkodla sola hizalı; barkod daha yüksek; 14K numaralarla aynı boyutta, barkodun hemen yanında ortasında
 Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt ~ Barcode scanner with wrong keyboard setting (reads ZYD instead of YZD): the search still finds the item – swapped Y and Z is detected automatically ~ Yanlış klavye ayarlı barkod okuyucu (YZD yerine ZYD okur): arama ürünü yine bulur – Y ve Z yer değişimi otomatik tanınır
 Zebra-Etikett: LG- und Seriennummer etwas größer und links bündig mit dem Barcode-Anfang; Barcode startet direkt nach dem Strich, 14K enger daneben ~ Zebra label: LG and serial number a bit bigger and left-aligned with the start of the barcode; barcode starts right after the line, 14K closer next to it ~ Zebra etiketi: LG ve seri numarası biraz daha büyük ve barkodun başlangıcıyla sola hizalı; barkod çizgiden hemen sonra başlar, 14K daha yakın
@@ -3309,7 +3315,7 @@ function calcP(){
  const g=R("gold");let w=0,has=0,eu=0,fire=0,usd=false;
  const cu=c=>{if(c==="USD")usd=true};cu(d.cur);
  d.metal.forEach((m,i)=>{const q=parse(m.qty),fe=pm(m.fine)+pm(m.wg),hv=q*fe/1000;w+=q;has+=hv;cu(m.lc);
-  const lb=m.lt==="fix"?parse(m.lab):q*parse(m.lab),t=hv*g+toEUR(lb,m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g · je g ${f2(fromEUR(fe/1000*g,m.lc)+(q>0?lb/q:0))} ${m.lc}${m.lt==="fix"&&lb?" (inkl. fix "+f2(lb)+")":""} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
+  const fx=m.lt==="fix",lb=q*parse(m.lab),t=fx?toEUR(lb,m.lc):hv*g+toEUR(lb,m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g · je g ${f2(fx?parse(m.lab):fromEUR(fe/1000*g,m.lc)+parse(m.lab))} ${m.lc}${fx?" (Festpreis, ohne Goldkurs)":""} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
  d.stones.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.qty)*parse(s.price),s.cur);eu+=t;const pc=parse(s.pcs)||1,dd=diaTxt(parse(s.qty)/pc);sT("tt_"+i,`Summe ${f2(fromEUR(t,d.cur))} ${d.cur}${dd?" · "+dd+(pc>1?" je Stein":""):""}`)});
  d.steps.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.amt),s.cur),fr=parse(s.out)-parse(s.in);eu+=t;fire+=fr;sT("st_"+i,`Verlust ${f3(fr)} g · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
  const cost=fromEUR(eu,d.cur);
@@ -3341,7 +3347,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  d.metal.forEach((m,i)=>{h+=`<div class="rowc">${F("Lagerartikel (Metall)",S(`ui.pd.metal.${i}.sid`,m.sid,gOpt,'data-n="1" data-r="1"'))}
   <div class="g2">${F("Menge g",N(`ui.pd.metal.${i}.qty`,m.qty))}${F("Feingehalt ‰ (z. B. 585 oder 0,585)",N(`ui.pd.metal.${i}.fine`,m.fine))}</div>
   ${F("Arbeit in Gold ‰ (z. B. 115 oder 0,115)",N(`ui.pd.metal.${i}.wg`,m.wg||""))}
-  <div class="g2">${F("Zuschlag",S(`ui.pd.metal.${i}.lt`,m.lt||"g",[["g","pro g"],["fix","fix (gesamt)"]],'data-r="1"'))}${F(m.lt==="fix"?"Zuschlag fix":"Zuschlag pro g",N(`ui.pd.metal.${i}.lab`,m.lab))}</div>
+  <div class="g2">${F("Zuschlag",S(`ui.pd.metal.${i}.lt`,m.lt||"g",[["g","Goldkurs + Zuschlag pro g"],["fix","Festpreis je g (statt Goldkurs)"]],'data-r="1"'))}${F(m.lt==="fix"?"Festpreis je g":"Zuschlag pro g",N(`ui.pd.metal.${i}.lab`,m.lab))}</div>
    ${F("Währung",S(`ui.pd.metal.${i}.lc`,m.lc,CUR))}
   ${F("Hersteller",I(`ui.pd.metal.${i}.maker`,m.maker))}
   <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
