@@ -1,10 +1,32 @@
-Pusula Mobile – Update 1.17 (Komplettpaket)
+Pusula Mobile – Update 1.23 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.17.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.23.
 
 Änderungen:
+
+1.23 (22.11.2026)
+  - Fertigung → Metall: Zuschlag wählbar „pro g“ oder „fix (gesamt)“ – fester Betrag für die ganze Ware statt pro Gramm
+
+1.22 (22.11.2026)
+  - Fertigung → Werkstattpaket: zeigt jetzt auch, für welchen Kunden das Paket ist (👤 für …) – in der Paket-Auswahl und wenn die Ware schon im Paket liegt
+
+1.21 (21.11.2026)
+  - Gold: Feingold wird automatisch kaufmännisch auf 2 Nachkommastellen gerundet (z. B. 20,475 → 20,48); Gold-Salden immer mit 2 Stellen; Aufrunden-Knöpfe beim Gold entfernt, „↺ neu rechnen“ bleibt
+
+1.20 (21.11.2026)
+  - Gold-Buchungen: Anzahl (Stück) eintragbar; Feingold-Betrag änderbar mit Aufrunden-Knöpfen (⬆ 0,1 · 0,5 · 1, ↺ zurück)
+  - Gold-Buchungen: 🔨 Arbeit (Arbeitslohn) gleich mit eintragen – € oder $ pro g, pro Stück oder gesamt, oder Milyem ‰ in Feingold; wird als eigene Zeile mitgebucht (Löschen löscht beide)
+  - Saldo umrechnen: Ergebnis mit Aufrunden-Knöpfen
+
+1.19 (21.11.2026)
+  - Konten: bei Gold-Buchungen (Goldeingang, Altgold-Ausgang …) Karat wählbar (24K, 22K, 21K, 18K, 14K, 10K, 8K) – Gewicht eingeben, die App bucht automatisch das Feingold (z. B. 35 g 14K = 20,475 g Feingold); letztes Karat wird gemerkt
+  - „💱 Saldo umrechnen“ jetzt auch mit Gold: Euro/Dollar ⇄ g Feingold mit Goldpreis je g (änderbar)
+
+1.18 (21.11.2026)
+  - Zebra ohne Druckfenster: neues Zebra-Druck.bat + Zebra-Druck.ps1 – einmal doppelklicken, findet den Zebra selbst (kein Freigeben nötig), startet mit Windows und druckt jedes Etikett sofort direkt (ZPL)
+  - Am Laptop ist der Druckweg jetzt „Zebra-Datei“ voreingestellt (vorher öffnete sich das Windows-Druckfenster, bei dem der Zebra nur blinkt)
 
 1.17 (19.11.2026)
   - Zertifikat-Finder: Gegenprüfung hakt nur noch Zertifikate der gewählten Verkäufe ab – offene Zertifikate anderer Kunden werden nur angezeigt (mit Knopf „✓ Abgegeben“), nicht automatisch abgehakt

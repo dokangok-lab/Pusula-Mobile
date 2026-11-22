@@ -1,33 +1,37 @@
-Pusula Mobile – Etiketten direkt auf den Zebra drucken (ohne Zusatzprogramm)
-============================================================================
+Pusula Mobile - Etiketten ohne Druckfenster direkt auf den Zebra
+================================================================
 
-Einmalig am Laptop einrichten (ca. 5 Minuten):
+Warum? Das normale Druckfenster (Windows/Edge) schickt eine "Seite" mit
+falscher Groesse an den Zebra - er blinkt und druckt nicht. Der Weg unten
+schickt das Etikett direkt in der Zebra-Sprache (ZPL) - wie ZebraDesigner.
 
-1) Drucker freigeben
-   Windows-Einstellungen > Bluetooth und Geräte > Drucker und Scanner
-   > "Dia. Etikettdrucker" > Druckereigenschaften > Reiter "Freigabe"
-   > Haken bei "Drucker freigeben", Freigabename: ZEBRA > OK
+Einmalig am Laptop (2 Minuten):
 
-2) Zebra-Druck.bat ablegen
-   Die Datei Zebra-Druck.bat aus diesem Paket in einen festen Ordner kopieren,
-   z. B. C:\Pusula\Zebra-Druck.bat  (nicht im Download-Ordner lassen)
+1) Update-ZIP entpacken (Rechtsklick > "Alle extrahieren").
+   Wichtig: nicht direkt im ZIP doppelklicken.
 
-3) .zpl-Dateien damit öffnen lassen
-   In der App unter Einstellungen > Etiketten > Druckweg: "Zebra-Datei" wählen
-   und einmal "Testetikett drucken". Es wird pusula-etikett.zpl heruntergeladen.
-   Im Download-Ordner Rechtsklick auf pusula-etikett.zpl > Öffnen mit
-   > Andere App auswählen > "Weitere Apps" > "Andere App auf diesem PC suchen"
-   > C:\Pusula\Zebra-Druck.bat wählen > "Immer" bestätigen.
-   -> Das Etikett wird gedruckt.
+2) Zebra-Druck.bat doppelklicken.
+   - Ein blaues/schwarzes Fenster oeffnet sich: "Pusula Zebra-Druck laeuft".
+   - Der Zebra-Drucker wird automatisch gefunden (bei mehreren: Nummer eingeben).
+   - Es richtet sich selbst im Autostart ein - ab jetzt startet es mit Windows.
+   - Falls Windows "Der Computer wurde durch Windows geschuetzt" zeigt:
+     "Weitere Informationen" > "Trotzdem ausfuehren".
 
-4) Browser: automatisch öffnen
-   Edge/Chrome: Bei der nächsten heruntergeladenen pusula-etikett.zpl in der
-   Download-Liste auf "..." klicken > "Dateien dieses Typs immer öffnen".
+3) In der App: Einstellungen > Etiketten > Druckweg: "Zebra-Datei" (ist am
+   Laptop jetzt voreingestellt) > "Testetikett drucken".
+   -> Die App speichert pusula-etikett.zpl im Download-Ordner, der Waechter
+      druckt es sofort und loescht die Datei wieder.
 
-Fertig: Ab jetzt druckt jeder Klick auf 🏷️ in der App sofort auf dem Zebra.
+Fertig. Jeder Klick auf Etikett drucken / 🏷️ druckt sofort, ohne Fenster.
 Mehrere Etiketten (Von/Bis) gehen in einem Rutsch raus.
 
-Wenn die Position nicht passt:
-Einstellungen > Etiketten > "Verschieben" (mm) und "Schriftgröße" anpassen.
-Am genauesten: in ZebraDesigner bei einem Etikett "Drucke in Datei" anhaken,
-drucken und die .prn-Datei an Claude schicken – dann wird das Layout 1:1 übernommen.
+Hilfe:
+- Nichts passiert: Laeuft das Fenster "Pusula Zebra-Druck"? Sonst
+  Zebra-Druck.bat nochmal doppelklicken.
+- Downloads landen woanders (Edge fragt nach Speicherort)?
+  Edge > Einstellungen > Downloads > "Vor dem Download fragen" ausschalten.
+- Falscher Drucker: %LOCALAPPDATA%\PusulaZebra\drucker.txt loeschen,
+  Zebra-Druck.bat neu starten.
+- Position passt nicht: App > Einstellungen > Etiketten > "Verschieben" (mm).
+  Am genauesten: in ZebraDesigner ein Etikett mit "Drucke in Datei" als .prn
+  speichern und an Claude schicken - dann wird das Layout 1:1 uebernommen.

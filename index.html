@@ -158,8 +158,14 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.17";
+const VER="1.23";
 const HIST=[
+ ["1.23","22.11.2026",["Fertigung → Metall: Zuschlag wählbar „pro g“ oder „fix (gesamt)“ – fester Betrag für die ganze Ware statt pro Gramm"]],
+ ["1.22","22.11.2026",["Fertigung → Werkstattpaket: zeigt jetzt auch, für welchen Kunden das Paket ist (👤 für …) – in der Paket-Auswahl und wenn die Ware schon im Paket liegt"]],
+ ["1.21","21.11.2026",["Gold: Feingold wird automatisch kaufmännisch auf 2 Nachkommastellen gerundet (z. B. 20,475 → 20,48); Gold-Salden immer mit 2 Stellen; Aufrunden-Knöpfe beim Gold entfernt, „↺ neu rechnen“ bleibt"]],
+ ["1.20","21.11.2026",["Gold-Buchungen: Anzahl (Stück) eintragbar; Feingold-Betrag änderbar mit Aufrunden-Knöpfen (⬆ 0,1 · 0,5 · 1, ↺ zurück)","Gold-Buchungen: 🔨 Arbeit (Arbeitslohn) gleich mit eintragen – € oder $ pro g, pro Stück oder gesamt, oder Milyem ‰ in Feingold; wird als eigene Zeile mitgebucht (Löschen löscht beide)","Saldo umrechnen: Ergebnis mit Aufrunden-Knöpfen"]],
+ ["1.19","21.11.2026",["Konten: bei Gold-Buchungen (Goldeingang, Altgold-Ausgang …) Karat wählbar (24K, 22K, 21K, 18K, 14K, 10K, 8K) – Gewicht eingeben, die App bucht automatisch das Feingold (z. B. 35 g 14K = 20,475 g Feingold); letztes Karat wird gemerkt","„💱 Saldo umrechnen“ jetzt auch mit Gold: Euro/Dollar ⇄ g Feingold mit Goldpreis je g (änderbar)"]],
+ ["1.18","21.11.2026",["Zebra ohne Druckfenster: neues Zebra-Druck.bat + Zebra-Druck.ps1 – einmal doppelklicken, findet den Zebra selbst (kein Freigeben nötig), startet mit Windows und druckt jedes Etikett sofort direkt (ZPL)","Am Laptop ist der Druckweg jetzt „Zebra-Datei“ voreingestellt (vorher öffnete sich das Windows-Druckfenster, bei dem der Zebra nur blinkt)"]],
  ["1.17","19.11.2026",["Zertifikat-Finder: Gegenprüfung hakt nur noch Zertifikate der gewählten Verkäufe ab – offene Zertifikate anderer Kunden werden nur angezeigt (mit Knopf „✓ Abgegeben“), nicht automatisch abgehakt","Per Gegenprüfung abgehakte Zertifikate sind mit „🔍 per Gegenprüfung“ markiert; Meldung sagt „jetzt abgehakt“ oder „war schon abgehakt“"]],
  ["1.16","19.11.2026",["Neues Übersetzungssystem: Texte mit Zahlen (z. B. „3 von 5 gefunden“), zusammengesetzte Zeilen (mit · – : Klammern) und einzelne Fachbegriffe werden jetzt übersetzt; viele fehlende Texte ergänzt","Einstellungen → „🌐 Eigene Übersetzungen“: selbst geschriebene deutsche Texte (Modelle, Arbeitsschritte, Notizen …) automatisch mit KI (in claude.ai) oder selbst übersetzen; die App sammelt dafür alles, was noch nicht übersetzt ist"]],
  ["1.15","19.11.2026",["Zertifikat-Finder: „💾 Übergabe speichern“ – abgehakte gelten als abgegeben, die übrigen als „noch abzugeben“","Offene Zertifikate erscheinen oben im Finder (nach Kunde, mit „✓ Abgegeben“) und auf der Übersicht; Gegenprüfung hakt sie automatisch ab"]],
@@ -298,7 +304,7 @@ const eur=n=>f2(n)+" "+SYM(BC());
 const fx=n=>(Math.round(n*100)/100).toFixed(2).replace(".",",");
 const fs=n=>String(Math.round(n*100)/100).replace(".",",");
 const UN={EUR:"€",USD:"USD",HAS:"g Gold",Stk:"Stück"},CUR=["EUR","USD"];
-const fn=(n,u)=>u==="EUR"||u==="USD"?f2(n):f3(n);
+const fn=(n,u)=>u==="EUR"||u==="USD"||u==="HAS"?f2(n):f3(n);
 const fu=(n,u)=>fn(n,u)+" "+UN[u];
 function toast(t){const e=$("toast");e.textContent=tx(t);e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>e.classList.remove("on"),2400)}
 function sT(id,t){const e=$(id);if(e)e.textContent=t}
@@ -777,6 +783,61 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Fertigung → Metall: Zuschlag wählbar „pro g“ oder „fix (gesamt)“ – fester Betrag für die ganze Ware statt pro Gramm ~ Production → metal: surcharge selectable “per g” or “fixed (total)” – a fixed amount for the whole item instead of per gram ~ Üretim → maden: ilave “gram başı” veya “sabit (toplam)” seçilebilir – gram başı yerine tüm ürün için sabit tutar
+Zuschlag ~ Surcharge ~ İlave
+pro g ~ per g ~ gram başı
+fix (gesamt) ~ fixed (total) ~ sabit (toplam)
+Zuschlag fix ~ Fixed surcharge ~ Sabit ilave
+inkl. fix ~ incl. fixed ~ sabit dahil
+Fertigung → Werkstattpaket: zeigt jetzt auch, für welchen Kunden das Paket ist (👤 für …) – in der Paket-Auswahl und wenn die Ware schon im Paket liegt ~ Production → workshop package: now also shows which customer the package is for (👤 for …) – in the package choice and when the item is already in a package ~ Üretim → atölye paketi: paketin hangi müşteri için olduğunu da gösterir (👤 … için) – paket seçiminde ve ürün zaten paketteyken
+für ~ for ~ için
+ist für ~ is for ~ şunun için:
+Gold: Feingold wird automatisch kaufmännisch auf 2 Nachkommastellen gerundet (z. B. 20,475 → 20,48); Gold-Salden immer mit 2 Stellen; Aufrunden-Knöpfe beim Gold entfernt, „↺ neu rechnen“ bleibt ~ Gold: fine gold is rounded normally to 2 decimals automatically (e.g. 20.475 → 20.48); gold balances always with 2 decimals; round-up buttons for gold removed, “↺ recalculate” stays ~ Altın: has otomatik olarak normal şekilde 2 ondalığa yuvarlanır (ör. 20,475 → 20,48); altın bakiyeleri her zaman 2 haneli; altın için yuvarlama düğmeleri kaldırıldı, “↺ yeniden hesapla” kaldı
+↺ neu rechnen ~ ↺ recalculate ~ ↺ yeniden hesapla
+gerundet ~ rounded ~ yuvarlanmış
+Gold-Buchungen: Anzahl (Stück) eintragbar; Feingold-Betrag änderbar mit Aufrunden-Knöpfen (⬆ 0,1 · 0,5 · 1, ↺ zurück) ~ Gold postings: number of pieces can be entered; fine gold amount editable with round-up buttons (⬆ 0.1 · 0.5 · 1, ↺ reset) ~ Altın kayıtları: adet girilebilir; has miktarı yukarı yuvarlama düğmeleriyle değiştirilebilir (⬆ 0,1 · 0,5 · 1, ↺ geri)
+Gold-Buchungen: 🔨 Arbeit (Arbeitslohn) gleich mit eintragen – € oder $ pro g, pro Stück oder gesamt, oder Milyem ‰ in Feingold; wird als eigene Zeile mitgebucht (Löschen löscht beide) ~ Gold postings: enter 🔨 labour right away – € or $ per g, per piece or total, or milyem ‰ in fine gold; booked as its own line (deleting removes both) ~ Altın kayıtları: 🔨 işçilik hemen girilebilir – gram başı, adet başı veya toplam € ya da $, veya has olarak milyem ‰; ayrı satır olarak kaydedilir (silince ikisi de silinir)
+Saldo umrechnen: Ergebnis mit Aufrunden-Knöpfen ~ Convert balance: result with round-up buttons ~ Bakiye çevir: sonuç için yukarı yuvarlama düğmeleri
+Anzahl (Stück) ~ Number (pcs) ~ Adet
+Feingold (g) – wird gebucht, änderbar ~ Fine gold (g) – booked, editable ~ Has (g) – kaydedilir, değiştirilebilir
+🔨 Arbeit (Arbeitslohn) – optional ~ 🔨 Labour – optional ~ 🔨 İşçilik – isteğe bağlı
+Berechnung ~ Calculation ~ Hesaplama
+– keine Arbeit – ~ – no labour – ~ – işçilik yok –
+€ pro g ~ € per g ~ gram başı €
+€ pro Stück ~ € per piece ~ adet başı €
+€ gesamt ~ € total ~ toplam €
+$ pro g ~ $ per g ~ gram başı $
+$ pro Stück ~ $ per piece ~ adet başı $
+$ gesamt ~ $ total ~ toplam $
+Milyem ‰ (in Feingold) ~ Milyem ‰ (in fine gold) ~ Milyem ‰ (has olarak)
+Milyem (‰) ~ Milyem (‰) ~ Milyem (‰)
+Arbeit ~ Labour ~ İşçilik
+wird zusätzlich gebucht ~ is booked additionally ~ ayrıca kaydedilir
+Gewicht und Milyem eingeben ~ Enter weight and milyem ~ Ağırlık ve milyem girin
+Anzahl (Stück) und Betrag eingeben ~ Enter number of pieces and amount ~ Adet ve tutar girin
+Gewicht und Betrag eingeben ~ Enter weight and amount ~ Ağırlık ve tutar girin
+Betrag eingeben ~ Enter amount ~ Tutar girin
+24K: Gewicht = Feingold ~ 24K: weight = fine gold ~ 24K: ağırlık = has
+gebucht ~ booked ~ kaydedilen
+geändert ~ changed ~ değiştirildi
+gesamt ~ total ~ toplam
+Konten: bei Gold-Buchungen (Goldeingang, Altgold-Ausgang …) Karat wählbar (24K, 22K, 21K, 18K, 14K, 10K, 8K) – Gewicht eingeben, die App bucht automatisch das Feingold (z. B. 35 g 14K = 20,475 g Feingold); letztes Karat wird gemerkt ~ Accounts: for gold postings (gold in, scrap gold out …) choose the karat (24K, 22K, 21K, 18K, 14K, 10K, 8K) – enter the weight, the app books the fine gold automatically (e.g. 35 g 14K = 20.475 g fine gold); last karat is remembered ~ Hesaplar: altın kayıtlarında (altın girişi, hurda altın çıkışı …) ayar seçilebilir (24K, 22K, 21K, 18K, 14K, 10K, 8K) – ağırlığı girin, uygulama has altını otomatik kaydeder (ör. 35 g 14K = 20,475 g has); son ayar hatırlanır
+„💱 Saldo umrechnen“ jetzt auch mit Gold: Euro/Dollar ⇄ g Feingold mit Goldpreis je g (änderbar) ~ “💱 Convert balance” now also with gold: euro/dollar ⇄ g fine gold with gold price per g (editable) ~ “💱 Bakiye çevir” artık altınla da: euro/dolar ⇄ g has altın, gram fiyatıyla (değiştirilebilir)
+💱 Saldo umrechnen (€ ⇄ $ ⇄ Gold) ~ 💱 Convert balance (€ ⇄ $ ⇄ gold) ~ 💱 Bakiye çevir (€ ⇄ $ ⇄ altın)
+g Gold (Feingold) ~ g gold (fine gold) ~ g altın (has)
+Gewicht (g) ~ Weight (g) ~ Ağırlık (g)
+Karat ~ Karat ~ Ayar
+24K · Feingold (Has) ~ 24K · fine gold ~ 24K · Has altın
+Wird als Feingold gebucht. ~ Booked as fine gold. ~ Has altın olarak kaydedilir.
+g Feingold (Has) wird gebucht ~ g fine gold will be booked ~ g has altın kaydedilir
+wird in Feingold (Has) umgerechnet: Gewicht × ~ converted to fine gold: weight × ~ has altına çevrilir: ağırlık ×
+g Feingold ~ g fine gold ~ g has
+Goldpreis ~ Gold price ~ Altın fiyatı
+1 g Feingold ~ 1 g fine gold ~ 1 g has altın
+Zebra ohne Druckfenster: neues Zebra-Druck.bat + Zebra-Druck.ps1 – einmal doppelklicken, findet den Zebra selbst (kein Freigeben nötig), startet mit Windows und druckt jedes Etikett sofort direkt (ZPL) ~ Zebra without print dialog: new Zebra-Druck.bat + Zebra-Druck.ps1 – double-click once, finds the Zebra by itself (no sharing needed), starts with Windows and prints every label instantly (ZPL) ~ Yazdırma penceresi olmadan Zebra: yeni Zebra-Druck.bat + Zebra-Druck.ps1 – bir kez çift tıklayın, Zebra'yı kendisi bulur (paylaşım gerekmez), Windows ile başlar ve her etiketi anında yazdırır (ZPL)
+Am Laptop ist der Druckweg jetzt „Zebra-Datei“ voreingestellt (vorher öffnete sich das Windows-Druckfenster, bei dem der Zebra nur blinkt) ~ On the laptop the print method is now “Zebra file” by default (before, the Windows print dialog opened and the Zebra only blinked) ~ Dizüstüde yazdırma yolu artık varsayılan “Zebra dosyası” (önceden Windows yazdırma penceresi açılıyordu ve Zebra sadece yanıp sönüyordu)
+Zebra-Datei (mit Zebra-Druck.bat – ohne Druckfenster) ~ Zebra file (with Zebra-Druck.bat – no print dialog) ~ Zebra dosyası (Zebra-Druck.bat ile – yazdırma penceresi yok)
+Ohne Druckfenster: Update-ZIP entpacken und einmal Zebra-Druck.bat doppelklicken – es findet den Zebra selbst, startet ab dann mit Windows und druckt jedes Etikett aus der App sofort. Anleitung: ZEBRA-EINRICHTUNG.txt im Update-Paket. ~ No print dialog: unzip the update ZIP and double-click Zebra-Druck.bat once – it finds the Zebra itself, then starts with Windows and prints every label from the app instantly. Guide: ZEBRA-EINRICHTUNG.txt in the update package. ~ Yazdırma penceresi yok: güncelleme ZIP'ini açın ve Zebra-Druck.bat'a bir kez çift tıklayın – Zebra'yı kendisi bulur, Windows ile başlar ve uygulamadaki her etiketi anında yazdırır. Kılavuz: güncelleme paketindeki ZEBRA-EINRICHTUNG.txt.
 Zertifikat-Finder: Gegenprüfung hakt nur noch Zertifikate der gewählten Verkäufe ab – offene Zertifikate anderer Kunden werden nur angezeigt (mit Knopf „✓ Abgegeben“), nicht automatisch abgehakt ~ Certificate finder: the cross-check only ticks certificates of the chosen sales – open certificates of other customers are only shown (with “✓ Handed over” button), not ticked automatically ~ Sertifika bulucu: çapraz kontrol yalnızca seçilen satışların sertifikalarını işaretler – diğer müşterilerin açık sertifikaları sadece gösterilir (“✓ Teslim edildi” düğmesiyle), otomatik işaretlenmez
 Per Gegenprüfung abgehakte Zertifikate sind mit „🔍 per Gegenprüfung“ markiert; Meldung sagt „jetzt abgehakt“ oder „war schon abgehakt“ ~ Certificates ticked by cross-check are marked “🔍 by cross-check”; the message says “ticked now” or “was already ticked” ~ Çapraz kontrolle işaretlenen sertifikalar “🔍 çapraz kontrolle” olarak işaretlenir; mesaj “şimdi işaretlendi” veya “zaten işaretliydi” der
 war schon abgehakt ~ was already ticked ~ zaten işaretliydi
@@ -2729,10 +2790,11 @@ act.pkadd=()=>{const g=ui.pk,a=g.add;let x;
   if((a.k==="mat"||(a.k==="stone"&&!isSingle(s)))&&!(parse(a.qty)>0)){toast("Bitte Menge eingeben");return}
   x={k:a.k,ref:a.ref,qty:a.k==="prod"||(a.k==="stone"&&isSingle(s))?"1":a.qty,pcs:a.pcs||""}}
  if(a.note)x.note=String(a.note).trim();g.items.push(x);g.add={k:a.k,ref:0,qty:"",pcs:"",txt:"",note:""};rPkg()};
+function pkFor(g){if(g.fpid)return g.fpid;const o=g.oid&&data.orders.find(x=>x.id===g.oid);return o?o.pid:0}
 function pkPHTML(d){const g=pkgOf("prod",d.id);
- if(g)return `<div class="rowc"><b>📦 Werkstattpaket</b><div class="it"><div>In <b>${esc(g.no)}</b> · ${esc(pnm(g.pid))}<small>${g.status==="ready"?"abholbereit":"in der Werkstatt"}${g.step?" · "+esc(g.step):""}</small></div><div class="r" style="display:flex;gap:6px"><button class="sec sm" data-a="hpk" data-id="${g.id}">Öffnen</button><button class="sec sm" data-a="pkprm" data-id="${g.id}">Entfernen</button></div></div></div>`;
+ if(g)return `<div class="rowc"><b>📦 Werkstattpaket</b><div class="it"><div>In <b>${esc(g.no)}</b> · ${esc(pnm(g.pid))}${pkFor(g)?`<div style="margin-top:2px">👤 für <b>${esc(pnm(pkFor(g)))}</b></div>`:""}<small>${g.status==="ready"?"abholbereit":"in der Werkstatt"}${g.step?" · "+esc(g.step):""}</small></div><div class="r" style="display:flex;gap:6px"><button class="sec sm" data-a="hpk" data-id="${g.id}">Öffnen</button><button class="sec sm" data-a="pkprm" data-id="${g.id}">Entfernen</button></div></div></div>`;
  const L=(data.pkgs||[]).filter(x=>x.status!=="back").sort((a,b)=>String(b.no).localeCompare(String(a.no),"de",{numeric:true}));
- return `<div class="rowc"><b>📦 Zu Werkstattpaket hinzufügen</b>${L.length?`<div class="g2" style="align-items:end;margin-top:6px">${S("ui.pkto",ui.pkto||L[0].id,L.map(x=>[x.id,x.no+" · "+pnm(x.pid)+" ("+(x.items||[]).length+" Teile)"]),'data-n="1"')}<button class="sec" data-a="pkpadd">➕ Hinzufügen</button></div>`:'<p class="mu" style="margin:4px 0 0">Noch kein offenes Paket – unter Mehr → Werkstatt ein Paket anlegen (geht auch leer).</p>'}</div>`}
+ return `<div class="rowc"><b>📦 Zu Werkstattpaket hinzufügen</b>${L.length?`${(()=>{const g=L.find(x=>x.id===Number(ui.pkto))||L[0],c=pkFor(g);return c?`<p style="margin:6px 0 0">👤 Paket ${esc(g.no)} ist für <b>${esc(pnm(c))}</b></p>`:""})()}<div class="g2" style="align-items:end;margin-top:6px">${S("ui.pkto",ui.pkto||L[0].id,L.map(x=>[x.id,x.no+" · "+pnm(x.pid)+(pkFor(x)?" · für "+pnm(pkFor(x)):"")+" ("+(x.items||[]).length+" Teile)"]),'data-n="1" data-r="1"')}<button class="sec" data-a="pkpadd">➕ Hinzufügen</button></div>`:'<p class="mu" style="margin:4px 0 0">Noch kein offenes Paket – unter Mehr → Werkstatt ein Paket anlegen (geht auch leer).</p>'}</div>`}
 act.pkpadd=()=>{const d=ui.pd;if(!d)return;if(ui.pnew&&!pSave(false))return;const L=(data.pkgs||[]).filter(x=>x.status!=="back"),g=L.find(x=>x.id===Number(ui.pkto))||L.sort((a,b)=>String(b.no).localeCompare(String(a.no),"de",{numeric:true}))[0];if(!g)return;
  if(!g.items.some(x=>x.k==="prod"&&x.ref===d.id)){g.items.push({k:"prod",ref:d.id,qty:"1",pcs:""});pkSortItems(g.items);pkLog(g,"Ware hinzugefügt",d.code)}render();toast(shortCode(d.code)+" → Paket "+g.no)};
 act.pkprm=d=>{const g=data.pkgs.find(x=>x.id===Number(d.id)),p=ui.pd;if(!g||!p)return;g.items=g.items.filter(x=>!(x.k==="prod"&&x.ref===p.id));pkLog(g,"Ware entfernt",p.code);render();toast("Aus Paket "+g.no+" entfernt")};
@@ -2847,7 +2909,7 @@ function rKo(){
    ${ui.kdir==="ord"?"":tiles(ui.kdir==="in"?["AG","NT","KK","MG","AL"]:["VB","VO","HC","NO","GH","MC","BR","KB","KU"],"kop")}`;
   if(ui.kdir==="ord")h+=ordForm()+ordList(ui.pid);
   if(ui.kf&&ui.kdir!=="ord"){const f=ui.kf;
-   h+=`<div class="bar">${OP[f.k][0]}</div>${kExtra(f)}<div class="g2">${F("Betrag / Menge",N("ui.kf.amount",f.amount))}${F("Einheit",S("ui.kf.unit",f.unit,Object.keys(UN).map(u=>[u,UN[u]])))}</div>${f.k==="VB"?`<p class="mu" id="kconv" style="margin:-4px 0 10px">${kConvT()}</p>`:""}
+   h+=`<div class="bar">${OP[f.k][0]}</div>${kExtra(f)}<div class="g2">${F(f.unit==="HAS"?"Gewicht (g)":"Betrag / Menge",I("ui.kf.amount",f.amount,"",'inputmode="decimal" data-u="uKt"'))}${F("Einheit",S("ui.kf.unit",f.unit,Object.keys(UN).map(u=>[u,UN[u]]),'data-r="1"'))}</div>${f.unit==="HAS"?goldForm(f):""}${f.k==="VB"?`<p class="mu" id="kconv" style="margin:-4px 0 10px">${kConvT()}</p>`:""}
    ${F("Notiz (z. B. Ring, 14K)",I("ui.kf.note",f.note))}${F("Datum",`<input type="date" data-f="ui.kf.date" value="${f.date}" data-r="1">`)}${dueForm("ui.kf")}
    <div class="row"><button data-a="kbook">Buchen</button><button class="sec" data-a="kcancel">Abbrechen</button></div>`}
   h+=`</div><div class="card"><b>Verlauf</b>${histHTML(ui.pid)}</div>`}
@@ -2859,13 +2921,34 @@ act.addP=()=>{const p=addPerson("pNew");if(p){ui.pid=p.id;ui.pf={...p};ui.pe=tru
 act.kdir=d=>{ui.kdir=d.v;ui.kf=null;render()};
 act.kop=d=>{ui.kf={k:d.k,unit:OP[d.k][2]==="EUR"?BC():OP[d.k][2],amount:"",note:"",date:today(),prod:0,prods:[],sid:0,qty:"",q:""};render()};
 act.kcancel=()=>{ui.kf=null;render()};
-act.kbook=()=>{const f=ui.kf,a=parse(f.amount);if(!(a>0)||!ui.pid){toast("Bitte Betrag eingeben");return}
+const KTO=[["999","24K · Feingold (Has)"],["916","22K (916)"],["875","21K (875)"],["750","18K (750)"],["585","14K (585)"],["417","10K (417)"],["333","8K (333)"]],KTN={999:"24K",916:"22K",875:"21K",750:"18K",585:"14K",417:"10K",333:"8K"};
+function goldForm(f){if(!f.fm)f.fine=ktFine();
+ return `<div class="g2">${F("Karat",S("ui.kf.kt",f.kt||data.lastKt||"999",KTO,'data-r="1"'))}${F("Anzahl (Stück)",I("ui.kf.pcs",f.pcs||"","z. B. 12",'inputmode="numeric" data-u="uKt"'))}</div>
+ <div class="g2" style="align-items:end">${F("Feingold (g) – wird gebucht, änderbar",I("ui.kf.fine",f.fine||"","",'inputmode="decimal" data-u="uKf"'))}<div class="row" style="margin:0 0 12px"><button class="sec sm" data-a="kround" data-v="0">↺ neu rechnen</button></div></div>
+ <p class="mu" id="kkt" style="margin:-6px 0 10px">${ktInfo()}</p>
+ <div class="rowc" style="margin-bottom:10px"><b>🔨 Arbeit (Arbeitslohn) – optional</b><div class="g2" style="margin-top:6px">${F("Berechnung",S("ui.kf.lm",f.lm||"",LMO,'data-r="1"'))}${f.lm?F(f.lm==="MIL"?"Milyem (‰)":"Betrag",I("ui.kf.lv",f.lv||"","",'inputmode="decimal" data-u="uKt"')):""}</div>${f.lm?`<p class="mu" id="kar" style="margin:0">${labInfo()}</p>`:""}</div>`}
+const LMO=[["","– keine Arbeit –"],["EUR_g","€ pro g"],["EUR_pc","€ pro Stück"],["EUR_t","€ gesamt"],["USD_g","$ pro g"],["USD_pc","$ pro Stück"],["USD_t","$ gesamt"],["MIL","Milyem ‰ (in Feingold)"]];
+function ktFine(){const f=ui.kf;if(!f)return"";const kt=Number(f.kt||data.lastKt||999),a=parse(f.amount);return a>0?r2s(a*Math.min(kt,1000)/1000):""}
+const r2=v=>Math.round(Number((+v||0).toFixed(8)+"e2"))/100,r2s=v=>r2(v).toFixed(2).replace(".",",");
+function labCalc(){const f=ui.kf;if(!f||!f.lm)return null;const v=parse(f.lv),g=parse(f.amount),n=parse(f.pcs);if(!(v>0))return null;
+ if(f.lm==="MIL")return g>0?{unit:"HAS",amount:r2(g*v/1000),txt:f3(g)+" g × "+fs(v)+" ‰"}:null;
+ const [u,b]=f.lm.split("_"),q=b==="g"?g:b==="pc"?n:1;if(!(q>0))return null;return{unit:u,amount:Math.round(v*q*100)/100,txt:b==="t"?"gesamt":(b==="g"?f3(q)+" g":fs(q)+" Stück")+" × "+f2(v)+" "+UN[u]}}
+function labInfo(){const f=ui.kf;if(!f||!f.lm)return"";const l=labCalc();if(l)return"Arbeit = "+fu(l.amount,l.unit)+" ("+l.txt+") – wird zusätzlich gebucht";return f.lm==="MIL"?"Gewicht und Milyem eingeben":/_pc$/.test(f.lm)?"Anzahl (Stück) und Betrag eingeben":/_g$/.test(f.lm)?"Gewicht und Betrag eingeben":"Betrag eingeben"}
+function uKf(){ui.kf.fm=1;const e=$("kkt");if(e)e.textContent=tx(ktInfo())}
+act.kround=d=>{const f=ui.kf;if(!f)return;const s=parse(d.v);if(!s){f.fm=0;f.fine=ktFine()}else{const v=parse(f.fine||ktFine());if(v>0){f.fine=String(Math.round(Math.ceil(v/s-1e-9)*s*1000)/1000).replace(".",",");f.fm=1}}setV("ui.kf.fine",f.fine);uKt()};
+function ktInfo(){const f=ui.kf;if(!f||f.unit!=="HAS")return"";const kt=Number(f.kt||data.lastKt||999),a=parse(f.amount),fi=parse(f.fine);
+ const calc=kt<999&&a>0?f3(a)+" g × "+(kt/1000).toFixed(3).replace(".",",")+" = "+f3(a*kt/1000)+" g → gerundet "+r2s(a*kt/1000)+" g":"";
+ return (calc?calc:kt>=999?"24K: Gewicht = Feingold":"Gewicht × "+(kt/1000).toFixed(3).replace(".",","))+(f.fm&&fi>0?" · gebucht: "+f2(fi)+" g (geändert)":"")}
+function uKt(){const f=ui.kf;if(f&&f.unit==="HAS"&&!f.fm){f.fine=ktFine();setV("ui.kf.fine",f.fine)}const e=$("kkt");if(e)e.textContent=tx(ktInfo());const l=$("kar");if(l)l.textContent=tx(labInfo())}
+act.kbook=()=>{const f=ui.kf;let a=parse(f.amount);const kt=f.unit==="HAS"?Number(f.kt||data.lastKt||999):999,raw=a;if(f.unit==="HAS"&&a>0){data.lastKt=String(kt);const fi=parse(f.fine);a=fi>0?r2(fi):kt<999?r2(a*kt/1000):r2(a)}if(!(a>0)||!ui.pid){toast("Bitte Betrag eingeben");return}
  if(f.k==="VB"&&!(f.prods||[]).length){toast("Bitte eine Ware wählen");return}
  const mv={id:uid(),pid:ui.pid,type:f.k,dir:OP[f.k][1],unit:f.unit,amount:a,note:f.note.trim(),date:f.date||today(),due:dueOf(f.date,f.dk,f.due)},date=mv.date;
+ let lab=null;if(f.unit==="HAS"){const pc=parse(f.pcs);if(pc>0)mv.pcs=pc;if(kt<999||Math.abs(a-raw)>1e-9){mv.kt=kt;mv.gw=raw;mv.note=f3(raw)+" g "+(KTN[kt]||"")+" = "+f2(a)+" g Feingold"+(pc>0?" · "+fs(pc)+" Stück":"")+(mv.note?" · "+mv.note:"")}else if(pc>0)mv.note=fs(pc)+" Stück"+(mv.note?" · "+mv.note:"");
+  lab=labCalc();if(lab){mv.wx=mv.wx||uid()}}
  if(NODEBT[f.k])mv.cat=f.cat||"Produktionskosten";
  if(f.k==="VB"){mv.prods=[];(f.prods||[]).forEach(id=>{const p=data.prods.find(x=>x.id===id);if(!p)return;p.status="sold";p.soldTo=ui.pid;p.soldDate=date;mv.prods.push(p.id);if(f.ord){const[oi,ii]=String(f.ord).split(":");oAssign(oi,Number(ii),p.id)}});if(mv.prods.length===1){mv.prod=mv.prods[0];delete mv.prods}}
  if(f.k==="VO"&&f.sid){const q=parse(f.qty);if(q>0){const s=data.stock.find(x=>x.id===f.sid);data.smoves.push({id:uid(),sid:f.sid,qty:-q,date,note:"Verkauf an "+pnm(ui.pid),ref:"m"+mv.id});mv.ref="m"+mv.id;if(s&&!mv.note)mv.note=s.name}}
- data.moves.push(mv);autoBook(mv);ui.kf=null;render();toast(MONEY[mv.type]&&data.ab&&data.ab.on?"Gebucht – auch im Kontobuch":"Gebucht")};
+ data.moves.push(mv);if(lab)data.moves.push({id:uid(),pid:ui.pid,type:f.k,dir:mv.dir,unit:lab.unit,amount:lab.amount,note:"🔨 Arbeit: "+lab.txt+" (zu "+f3(raw)+" g "+(KTN[kt]||"Gold")+")",date,wx:mv.wx,lab:1});autoBook(mv);ui.kf=null;render();toast(MONEY[mv.type]&&data.ab&&data.ab.on?"Gebucht – auch im Kontobuch":"Gebucht")};
 act.kdel=d=>{const id=Number(d.id),m=data.moves.find(x=>x.id===id);data.entries=data.entries.filter(e=>e.mref!==id);if(m&&m.wx){data.moves=data.moves.filter(x=>x.wx!==m.wx);render();return}
  if(m)[...(m.prods||[]),m.prod].filter(Boolean).forEach(pid=>{const p=data.prods.find(x=>x.id===pid);if(p&&p.status==="sold"&&!p.saleId){p.status="done";delete p.soldTo;delete p.soldDate}});
  if(m&&m.ref)data.smoves=data.smoves.filter(x=>x.ref!==m.ref);
@@ -2950,31 +3033,34 @@ function saleHTML(m){const s=saleStat(m),n=s.n||mCnt(m),u=m.unit,a=(t,v,sm)=>`<d
  ${s.n&&s.ct?a("Karat gesamt (Hauptsteine)",f2(s.ct)+" ct","Ø "+f2(s.ct/s.n)+" ct"+(s.d2?" · D2 "+f2(s.d2)+" ct":"")):""}
  ${!s.n?'<p class="mu" style="margin:4px 0 0">Ohne Barcode-Waren – Kosten/Gold/Karat nicht bekannt.</p>':""}</div>`}
 act.sdet=d=>{ui.sd=ui.sd||{};const id=Number(d.id);ui.sd[id]=!ui.sd[id];render()};
-function mCnt(m){if(Array.isArray(m.prods)&&m.prods.length)return m.prods.length;if(m.prod)return 1;if(["VB","VO","MC","MA"].includes(m.type)){const c=(String(m.note||"").match(/\b[A-Z]{2,4}\d{3,}\b/g)||[]).length;return c}return 0}
+function mCnt(m){if(m.pcs)return Number(m.pcs);if(m.lab)return 0;if(Array.isArray(m.prods)&&m.prods.length)return m.prods.length;if(m.prod)return 1;if(["VB","VO","MC","MA"].includes(m.type)){const c=(String(m.note||"").match(/\b[A-Z]{2,4}\d{3,}\b/g)||[]).length;return c}return 0}
 function mNote(m){const n=String(m.note||"");if(n.length<=110||(ui.mx||{})[m.id])return esc(n)+(n.length>110?` <button class="sec sm" data-a="mx" data-id="${m.id}">weniger</button>`:"");
  return esc(n.slice(0,100).replace(/[ ,]+[^ ,]*$/,""))+` … <button class="sec sm" data-a="mx" data-id="${m.id}">alle anzeigen</button>`}
 act.mx=d=>{ui.mx=ui.mx||{};const id=Number(d.id);ui.mx[id]=!ui.mx[id];render()};
 /* ---------- Währung umrechnen (Saldo € ⇄ $) ---------- */
-function wxHTML(pid){const b=balOf(pid),has=["EUR","USD"].some(u=>Math.abs(b[u]||0)>1e-9);if(!has&&!ui.wx)return"";
- if(!ui.wx||ui.wx.pid!==pid)return `<div class="row" style="margin:-4px 0 12px"><button class="sec" data-a="wxo">💱 Saldo umrechnen (€ ⇄ $)</button></div>`;
- const w=ui.wx,o=[["EUR","€ Euro"],["USD","$ Dollar"]];
+function wxHTML(pid){const b=balOf(pid),has=["EUR","USD","HAS"].some(u=>Math.abs(b[u]||0)>1e-9);if(!has&&!ui.wx)return"";
+ if(!ui.wx||ui.wx.pid!==pid)return `<div class="row" style="margin:-4px 0 12px"><button class="sec" data-a="wxo">💱 Saldo umrechnen (€ ⇄ $ ⇄ Gold)</button></div>`;
+ const w=ui.wx,o=[["EUR","€ Euro"],["USD","$ Dollar"],["HAS","g Gold (Feingold)"]];wxKey(w);const G=w.from==="HAS"||w.to==="HAS",M=w.from==="HAS"?w.to:w.from;
  return `<div class="card"><div class="nav" style="margin:0"><b>💱 Währung umrechnen</b><button class="sec sm" data-a="wxx">Schließen</button></div>
  <p class="mu" style="margin:4px 0 10px">Bucht einen Betrag von einer Währung in die andere um – ohne Kasse und Kontobuch. Der Gesamtsaldo bleibt gleich, nur die Währung wechselt.</p>
  <div class="g2">${F("Von",S("ui.wx.from",w.from,o,'data-r="1"'))}${F("Nach",S("ui.wx.to",w.to,o,'data-r="1"'))}</div>
- <div class="g2">${F("Betrag ("+w.from+")",N("ui.wx.a",w.a))}${F("Kurs (1 "+w.from+" = … "+w.to+")",I("ui.wx.rate",w.rate,"",'inputmode="decimal" data-u="uWx"'))}</div>
- ${F("Ergebnis ("+w.to+") – änderbar",N("ui.wx.b",w.b))}
+ <div class="g2">${F("Betrag ("+UN[w.from]+")",I("ui.wx.a",w.a,"",'inputmode="decimal" data-u="uWx"'))}${F(G&&M!=="HAS"?"Goldpreis (1 g Feingold = … "+UN[M]+")":"Kurs (1 "+w.from+" = … "+w.to+")",I("ui.wx.rate",w.rate,"",'inputmode="decimal" data-u="uWx"'))}</div>
+ <div class="g2" style="align-items:end">${F("Ergebnis ("+UN[w.to]+") – änderbar",N("ui.wx.b",w.b))}<div class="row" style="margin:0 0 12px;flex-wrap:wrap">${(w.to==="HAS"?[]:["1","10","100"]).map(s=>`<button class="sec sm" data-a="wxround" data-v="${s}">⬆ ${s.replace(".",",")}</button>`).join("")}<button class="sec sm" data-a="wxround" data-v="0">↺</button></div></div>
  <p class="mu" id="wxi" style="margin:-4px 0 10px">${wxInfo()}</p>
  <div class="row"><button data-a="wxbook">Umrechnen &amp; buchen</button></div></div>`}
-function wxDef(pid,from){const b=balOf(pid),to=from==="EUR"?"USD":"EUR",r=cvC(1,from,to);return{pid,from,to,a:Math.abs(b[from]||0)?String(Math.round(Math.abs(b[from])*100)/100).replace(".",","):"",rate:r?String(Math.round(r*10000)/10000).replace(".",","):"",b:"",bm:0}}
-function wxCalc(){const w=ui.wx;if(!w||w.bm)return;const a=parse(w.a),r=parse(w.rate);w.b=a>0&&r>0?String(Math.round(a*r*100)/100).replace(".",","):""}
-function wxInfo(){const w=ui.wx;if(!w)return"";const b=balOf(w.pid),s=v=>v>0?"er schuldet "+f2(v):v<0?"ich schulde "+f2(-v):"0";return `Jetzt: ${w.from} ${s(b[w.from]||0)} · ${w.to} ${s(b[w.to]||0)}`}
+function wxRate(from,to){if(from===to||!from||!to)return"";const m=from==="HAS"?to:to==="HAS"?from:"",r=m&&m!=="HAS"?cvC(1,"HAS",m):cvC(1,from,to);return r?String(Math.round(r*10000)/10000).replace(".",","):""}
+function wxDef(pid,from){const b=balOf(pid),to=from!=="HAS"&&Math.abs(b.HAS||0)>1e-9?"HAS":from==="EUR"?"USD":"EUR";return{pid,from,to,key:from+">"+to,a:Math.abs(b[from]||0)?String(Math.round(Math.abs(b[from])*100)/100).replace(".",","):"",rate:wxRate(from,to),b:"",bm:0}}
+function wxKey(w){const k=w.from+">"+w.to;if(w.key===k)return;w.key=k;w.rate=wxRate(w.from,w.to);const b=balOf(w.pid);w.a=Math.abs(b[w.from]||0)?String(Math.round(Math.abs(b[w.from])*100)/100).replace(".",","):"";w.bm=0;wxCalc()}
+function wxCalc(){const w=ui.wx;if(!w||w.bm)return;const a=parse(w.a),r=parse(w.rate);if(!(a>0&&r>0)){w.b="";return}const v=w.to==="HAS"&&w.from!=="HAS"?a/r:a*r;w.b=w.to==="HAS"?r2s(v):String(Math.round(v*100)/100).replace(".",",")}
+function wxInfo(){const w=ui.wx;if(!w)return"";const b=balOf(w.pid),s=(v,u)=>v>0?"er schuldet "+fu(v,u):v<0?"ich schulde "+fu(-v,u):"0";return `Jetzt: ${s(b[w.from]||0,w.from)} · ${s(b[w.to]||0,w.to)}`}
 function uWx(){wxCalc();setV("ui.wx.b",ui.wx.b)}
 act.wxo=()=>{const b=balOf(ui.pid),from=Math.abs(b.EUR||0)>1e-9?"EUR":"USD";ui.wx=wxDef(ui.pid,from);wxCalc();render()};
 act.wxx=()=>{ui.wx=null;render()};
+act.wxround=d=>{const w=ui.wx;if(!w)return;const s=parse(d.v);if(!s){w.bm=0;wxCalc()}else{const v=parse(w.b);if(v>0){w.b=String(Math.round(Math.ceil(v/s-1e-9)*s*1000)/1000).replace(".",",");w.bm=1}}setV("ui.wx.b",w.b)};
 act.wxbook=()=>{const w=ui.wx;if(!w)return;const a=parse(w.a),bb=parse(w.b);if(w.from===w.to){toast("Bitte zwei verschiedene Währungen wählen");return}
  if(!(a>0)||!(bb>0)){toast("Betrag und Ergebnis prüfen");return}
- const cur=balOf(w.pid)[w.from]||0,d1=cur<0?"out":"in",d2=d1==="out"?"in":"out",id=uid(),t=today(),note=`${f2(a)} ${w.from} → ${f2(bb)} ${w.to} (Kurs ${w.rate})`;
- data.moves.push({id:uid(),pid:w.pid,type:"WX",dir:d1,unit:w.from,amount:Math.round(a*100)/100,note,date:t,wx:id},{id:uid(),pid:w.pid,type:"WX",dir:d2,unit:w.to,amount:Math.round(bb*100)/100,note,date:t,wx:id});
+ const cur=balOf(w.pid)[w.from]||0,d1=cur<0?"out":"in",d2=d1==="out"?"in":"out",id=uid(),t=today(),rd=(v,u)=>Math.round(v*100)/100,G=w.from==="HAS"||w.to==="HAS",note=`${fu(a,w.from)} → ${fu(bb,w.to)} (${G?"Goldpreis "+w.rate+" "+UN[w.from==="HAS"?w.to:w.from]+"/g":"Kurs "+w.rate})`;
+ data.moves.push({id:uid(),pid:w.pid,type:"WX",dir:d1,unit:w.from,amount:rd(a,w.from),note,date:t,wx:id},{id:uid(),pid:w.pid,type:"WX",dir:d2,unit:w.to,amount:rd(bb,w.to),note,date:t,wx:id});
  ui.wx=null;render();toast("Umgerechnet: "+note)};
 function singleUse(s){const m=data.smoves.find(x=>x.sid===s.id&&x.qty<0&&x.ref&&x.ref[0]==="p");return m?data.prods.find(p=>"p"+p.id===m.ref):stoneIn(s.id)}
 const stoneIn=(sid,ex)=>data.prods.find(p=>p.id!==ex&&(p.stones||[]).some(x=>x.sid===sid))||null;
@@ -3193,7 +3279,7 @@ function calcP(){
  const g=R("gold");let w=0,has=0,eu=0,fire=0,usd=false;
  const cu=c=>{if(c==="USD")usd=true};cu(d.cur);
  d.metal.forEach((m,i)=>{const q=parse(m.qty),fe=pm(m.fine)+pm(m.wg),hv=q*fe/1000;w+=q;has+=hv;cu(m.lc);
-  const t=hv*g+toEUR(q*parse(m.lab),m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g · je g ${f2(fromEUR(fe/1000*g,m.lc)+parse(m.lab))} ${m.lc} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
+  const lb=m.lt==="fix"?parse(m.lab):q*parse(m.lab),t=hv*g+toEUR(lb,m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g · je g ${f2(fromEUR(fe/1000*g,m.lc)+(q>0?lb/q:0))} ${m.lc}${m.lt==="fix"&&lb?" (inkl. fix "+f2(lb)+")":""} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
  d.stones.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.qty)*parse(s.price),s.cur);eu+=t;const pc=parse(s.pcs)||1,dd=diaTxt(parse(s.qty)/pc);sT("tt_"+i,`Summe ${f2(fromEUR(t,d.cur))} ${d.cur}${dd?" · "+dd+(pc>1?" je Stein":""):""}`)});
  d.steps.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.amt),s.cur),fr=parse(s.out)-parse(s.in);eu+=t;fire+=fr;sT("st_"+i,`Verlust ${f3(fr)} g · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
  const cost=fromEUR(eu,d.cur);
@@ -3225,7 +3311,8 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  d.metal.forEach((m,i)=>{h+=`<div class="rowc">${F("Lagerartikel (Metall)",S(`ui.pd.metal.${i}.sid`,m.sid,gOpt,'data-n="1" data-r="1"'))}
   <div class="g2">${F("Menge g",N(`ui.pd.metal.${i}.qty`,m.qty))}${F("Feingehalt ‰ (z. B. 585 oder 0,585)",N(`ui.pd.metal.${i}.fine`,m.fine))}</div>
   ${F("Arbeit in Gold ‰ (z. B. 115 oder 0,115)",N(`ui.pd.metal.${i}.wg`,m.wg||""))}
-  <div class="g2">${F("Zuschlag pro g",N(`ui.pd.metal.${i}.lab`,m.lab))}${F("Währung",S(`ui.pd.metal.${i}.lc`,m.lc,CUR))}</div>
+  <div class="g2">${F("Zuschlag",S(`ui.pd.metal.${i}.lt`,m.lt||"g",[["g","pro g"],["fix","fix (gesamt)"]],'data-r="1"'))}${F(m.lt==="fix"?"Zuschlag fix":"Zuschlag pro g",N(`ui.pd.metal.${i}.lab`,m.lab))}</div>
+   ${F("Währung",S(`ui.pd.metal.${i}.lc`,m.lc,CUR))}
   ${F("Hersteller",I(`ui.pd.metal.${i}.maker`,m.maker))}
   <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="metal">+ Metall-Zeile</button></div>
@@ -3504,8 +3591,8 @@ function c128(t){t=String(t||"").replace(/[^\x20-\x7e]/g,"");if(!t)return null;c
  let s=v[0];for(let k=1;k<v.length;k++)s+=v[k]*k;v.push(s%103,106);
  let x=0,r="";v.forEach(c=>{const p=C128[c];for(let k=0;k<p.length;k++){const w=Number(p[k]);if(k%2===0)r+=`<rect x="${x}" y="0" width="${w}" height="10"/>`;x+=w}});
  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${x} 10" preserveAspectRatio="none" style="width:100%;height:100%;display:block" shape-rendering="crispEdges">${r}</svg>`}
-const LBD={v:2,w:"84",h:"13",l:"27",r:"25",m:"1",fs:"100",x:"0",y:"0",rot:true,way:"bp",dpi:"203"};
-const LB=()=>{if(!data.lbl||data.lbl.v!==2)data.lbl=Object.assign({},LBD);const c=data.lbl,n=k=>parse(c[k]);return{w:n("w")||84,h:n("h")||13,l:n("l")||27,r:n("r")||25,m:n("m")||0,fs:(n("fs")||100)/100,x:n("x")||0,y:n("y")||0,rot:!!c.rot}};
+const LBD={v:2,w:"84",h:"13",l:"27",r:"25",m:"1",fs:"100",x:"0",y:"0",rot:true,dpi:"203",w3:1};
+const LB=()=>{if(!data.lbl||data.lbl.v!==2)data.lbl=Object.assign({},LBD);const c=data.lbl;if(!c.w3){if(c.way==="bp")delete c.way;c.w3=1}const n=k=>parse(c[k]);return{w:n("w")||84,h:n("h")||13,l:n("l")||27,r:n("r")||25,m:n("m")||0,fs:(n("fs")||100)/100,x:n("x")||0,y:n("y")||0,rot:!!c.rot}};
 const KAR={333:"8K",375:"9K",417:"10K",585:"14K",750:"18K",833:"20K",875:"21K",916:"22K",999:"24K"};
 const karOf=f=>{const n=Math.round(pm(f));return KAR[n]||(n?n+"‰":"")};
 const st4=no=>{const d=String(no||"").replace(/\D/g,"");return d.slice(-4)};
@@ -3627,17 +3714,18 @@ async function zplFile(z,n){const name="pusula-etikett.zpl";
  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([z],{type:"application/octet-stream"}));a.download=name;document.body.appendChild(a);a.click();
  setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast(n+" Etikett"+(n>1?"en":"")+" → Zebra")}
 async function lbMulti(fs){if(!fs.length){toast("Keine Ware ausgewählt");return}const b=data.lbl||{};
- if(b.way==="zpl"){zplFile(fs.map(f=>zplOf("fin",f,1)).join(""),fs.length);return}
- if(b.way==="bp"){try{const dev=await bpSend(fs.map(f=>zplOf("fin",f,1)).join(""));toast(fs.length+" Etikett"+(fs.length>1?"en":"")+" gedruckt auf "+(dev.name||"Zebra"));return}catch(e){toast("Druckfenster wird geöffnet")}}
+ if(lbWay()==="zpl"){zplFile(fs.map(f=>zplOf("fin",f,1)).join(""),fs.length);return}
+ if(lbWay()==="bp"){try{const dev=await bpSend(fs.map(f=>zplOf("fin",f,1)).join(""));toast(fs.length+" Etikett"+(fs.length>1?"en":"")+" gedruckt auf "+(dev.name||"Zebra"));return}catch(e){toast("Druckfenster wird geöffnet")}}
  lbPrint(fs.map(f=>lbDoc("fin",f,1)).join(""))}
 act.pql=d=>{const p=data.prods.find(x=>x.id===Number(d.id));if(p)lbMulti([lbFields(p)])};
 act.pqm=()=>{ui.pqm=!ui.pqm;rP()};
 act.pqr=()=>{const cs=pkSorted(plist()),i1=cs.findIndex(s=>s.id===ui.pq1),i2=cs.findIndex(s=>s.id===ui.pq2);if(i1<0||i2<0){toast("Bitte Von und Bis wählen");return}
  lbMulti(cs.slice(Math.min(i1,i2),Math.max(i1,i2)+1).map(lbFields))};
 act.pqa=()=>lbMulti(pkSorted(plist()).map(lbFields));
+function lbWay(){LB();const b=data.lbl||{};return b.way||(/Windows/i.test(navigator.userAgent)?"zpl":"win")}
 async function lbGo(k,f,n){const b=data.lbl||{};
- if(b.way==="zpl"){zplFile(zplOf(k,f,n),n);return}
- if(b.way==="bp"){try{const dev=await bpSend(zplOf(k,f,n));toast("Gedruckt auf "+(dev.name||"Zebra"))}
+ if(lbWay()==="zpl"){zplFile(zplOf(k,f,n),n);return}
+ if(lbWay()==="bp"){try{const dev=await bpSend(zplOf(k,f,n));toast("Gedruckt auf "+(dev.name||"Zebra"))}
   catch(e){toast("Browser Print nicht da – Druckfenster wird geöffnet");lbPrint(lbDoc(k,f,n))}return}
  lbPrint(lbDoc(k,f,n))}
 act.bptest=async()=>{try{const d=await bpDev();toast("Verbunden: "+(d.name||"Drucker"))}catch(e){toast(e&&e.message==="noprinter"?"Zebra Browser Print: kein Standarddrucker gewählt":"Zebra Browser Print nicht erreichbar – Programm gestartet?")}};
@@ -3657,10 +3745,10 @@ function lbSet(){LB();const b=data.lbl;
  return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße in mm. Breite = ganzes Etikett inkl. Schwanz (wie im Druckertreiber). Linker / rechter Teil = die beiden Flächen vor und nach dem schwarzen Strich.</p>
  <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("r","Rechter Teil (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div><div class="g2">${n("fs","Schriftgröße (%)")}${n("m","Innenrand (mm)")}</div>
  ${CB("data.lbl.auto",!!b.auto,"Nach „Fertigstellen“ Etikett automatisch drucken")}
- ${(b.way||"bp")==="bp"?CB("data.lbl.zrot",!!b.zrot,"Beim Drucken um 180° drehen"):CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
- <div class="g2">${F("Druckweg",S("data.lbl.way",b.way||"bp",[["zpl","Zebra-Datei (mit Zebra-Druck.bat, ohne Zusatzprogramm)"],["bp","Direkt (Zebra Browser Print)"],["win","Druckfenster des Browsers"]],'data-r="1"'))}${F("Drucker-Auflösung",S("data.lbl.dpi",b.dpi||"203",[["203","203 dpi"],["300","300 dpi"]]))}</div>
- ${b.way==="zpl"?`<p class="mu" style="margin:0 0 8px">Die App speichert das Etikett als Zebra-Datei (pusula-etikett.zpl). Einmal einrichten: Drucker freigeben (Name „ZEBRA“), Zebra-Druck.bat aus dem Update-Paket in einen festen Ordner legen und .zpl-Dateien damit öffnen lassen, im Browser „Dateien dieses Typs immer öffnen“. Danach druckt jeder Klick sofort – Anleitung: ZEBRA-EINRICHTUNG.txt im Update-Paket.</p>`:""}
- ${(b.way||"bp")==="bp"?`<p class="mu" style="margin:0 0 8px">Einmalig am Laptop das kostenlose Programm „Zebra Browser Print“ von zebra.com installieren und starten, dort den Etikettdrucker als Standard wählen und diese Seite erlauben. Dann druckt die App direkt – ohne Druckfenster, wie ZebraDesigner.</p><button class="sec" data-a="bptest" style="margin-bottom:8px">🔌 Verbindung prüfen</button>`:""}
+ ${lbWay()==="bp"?CB("data.lbl.zrot",!!b.zrot,"Beim Drucken um 180° drehen"):CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
+ <div class="g2">${F("Druckweg",S("data.lbl.way",lbWay(),[["zpl","Zebra-Datei (mit Zebra-Druck.bat – ohne Druckfenster)"],["bp","Direkt (Zebra Browser Print)"],["win","Druckfenster des Browsers"]],'data-r="1"'))}${F("Drucker-Auflösung",S("data.lbl.dpi",b.dpi||"203",[["203","203 dpi"],["300","300 dpi"]]))}</div>
+ ${lbWay()==="zpl"?`<p class="mu" style="margin:0 0 8px">Ohne Druckfenster: Update-ZIP entpacken und einmal <b>Zebra-Druck.bat</b> doppelklicken – es findet den Zebra selbst, startet ab dann mit Windows und druckt jedes Etikett aus der App sofort. Anleitung: ZEBRA-EINRICHTUNG.txt im Update-Paket.</p>`:""}
+ ${lbWay()==="bp"?`<p class="mu" style="margin:0 0 8px">Einmalig am Laptop das kostenlose Programm „Zebra Browser Print“ von zebra.com installieren und starten, dort den Etikettdrucker als Standard wählen und diese Seite erlauben. Dann druckt die App direkt – ohne Druckfenster, wie ZebraDesigner.</p><button class="sec" data-a="bptest" style="margin-bottom:8px">🔌 Verbindung prüfen</button>`:""}
  <div style="background:var(--fld);border-radius:10px;padding:10px;overflow:hidden;margin-bottom:10px" id="lsv">${lsPrev()}</div><button class="sec" data-a="ltest">🖨️ Testetikett drucken</button></div>`}
 function lsPrev(){const c=LB(),sc=Math.min(2.4,320/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne("fin",LSAMP)}</div></div>`}
 function uLs(){const e=$("lsv");if(e)e.innerHTML=lsPrev()}
