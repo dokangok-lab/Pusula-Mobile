@@ -158,8 +158,10 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.23";
+const VER="1.25";
 const HIST=[
+ ["1.25","22.11.2026",["Fertigung → Steine: „Ohne Zertifikat“ wird automatisch gesetzt, wenn der Stein unter 1,00 ct liegt (pro Stein gerechnet), und entfernt ab 1,00 ct – Häkchen bleibt selbst änderbar; Grenze und An/Aus unter Einstellungen → Nummern-Kürzel","Einstellungen: Stein-Kürzel-Feld nimmt jetzt Komma und Leerzeichen korrekt an"]],
+ ["1.24","22.11.2026",["Zebra-Etikett: LG-Nummer und Seriennummer größer und breiter (Buchstaben berühren sich nicht mehr); Barcode kürzer (Zahlen werden kompakt codiert) – 14K wird nicht mehr überdeckt, sonst rückt 14K nach oben rechts","Neue Klebe-Markierung: kurzer Strich auf dem Schwänzchen (Position in mm und Lage einstellbar, abschaltbar)","Drehen um 180° wirkt jetzt auch beim Druckweg „Zebra-Datei“"]],
  ["1.23","22.11.2026",["Fertigung → Metall: Zuschlag wählbar „pro g“ oder „fix (gesamt)“ – fester Betrag für die ganze Ware statt pro Gramm"]],
  ["1.22","22.11.2026",["Fertigung → Werkstattpaket: zeigt jetzt auch, für welchen Kunden das Paket ist (👤 für …) – in der Paket-Auswahl und wenn die Ware schon im Paket liegt"]],
  ["1.21","21.11.2026",["Gold: Feingold wird automatisch kaufmännisch auf 2 Nachkommastellen gerundet (z. B. 20,475 → 20,48); Gold-Salden immer mit 2 Stellen; Aufrunden-Knöpfe beim Gold entfernt, „↺ neu rechnen“ bleibt"]],
@@ -446,6 +448,7 @@ function apply(el,ch){
  if(el.dataset.up){v=String(v).toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,Number(el.dataset.up)>1?Number(el.dataset.up):5);if(el.value!==v)el.value=v}
  if(el.tagName==="SELECT"){if(!ui.oth)ui.oth={};if(v===OTH){v="";ui.oth[p]=true}else ui.oth[p]=false}
  setPath(p,v);hook(p);
+ if(ch&&ui.rrPend){ui.rrPend=0;render();return}
  if(!ch&&el.dataset.u)window[el.dataset.u]();
  if(ch&&el.dataset.r)render()}
 function hook(p){
@@ -783,6 +786,20 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Fertigung → Steine: „Ohne Zertifikat“ wird automatisch gesetzt, wenn der Stein unter 1,00 ct liegt (pro Stein gerechnet), und entfernt ab 1,00 ct – Häkchen bleibt selbst änderbar; Grenze und An/Aus unter Einstellungen → Nummern-Kürzel ~ Production → stones: “No certificate” is set automatically when the stone is below 1.00 ct (per stone) and removed from 1.00 ct – the tick stays changeable by hand; limit and on/off under Settings → number prefixes ~ Üretim → taşlar: taş 1,00 ct altındaysa (taş başına) “Sertifikasız” otomatik işaretlenir, 1,00 ct'den itibaren kaldırılır – işaret elle değiştirilebilir; sınır ve aç/kapat Ayarlar → numara kısaltmaları altında
+Einstellungen: Stein-Kürzel-Feld nimmt jetzt Komma und Leerzeichen korrekt an ~ Settings: stone prefix field now accepts commas and spaces correctly ~ Ayarlar: taş kısaltma alanı artık virgül ve boşlukları doğru kabul ediyor
+Zertifikat automatisch erkennen: Steine unter der Grenze = „Ohne Zertifikat“ ~ Detect certificate automatically: stones below the limit = “No certificate” ~ Sertifikayı otomatik tanı: sınırın altındaki taşlar = “Sertifikasız”
+Zertifikat ab (ct pro Stein) ~ Certificate from (ct per stone) ~ Sertifika sınırı (taş başına ct)
+Z. B. 0,8 ct → automatisch ohne Zertifikat. Häkchen in der Ware jederzeit selbst änderbar. ~ E.g. 0.8 ct → automatically without certificate. The tick in the item can always be changed by hand. ~ Ör. 0,8 ct → otomatik sertifikasız. Üründeki işaret her zaman elle değiştirilebilir.
+Zebra-Etikett: LG-Nummer und Seriennummer größer und breiter (Buchstaben berühren sich nicht mehr); Barcode kürzer (Zahlen werden kompakt codiert) – 14K wird nicht mehr überdeckt, sonst rückt 14K nach oben rechts ~ Zebra label: LG number and serial number bigger and wider (letters no longer touch); barcode shorter (digits encoded compactly) – 14K is no longer covered, otherwise 14K moves to the top right ~ Zebra etiketi: LG numarası ve seri numarası daha büyük ve geniş (harfler artık birbirine değmiyor); barkod daha kısa (rakamlar sıkıştırılmış kodlanır) – 14K artık örtülmüyor, gerekirse sağ üste geçer
+Neue Klebe-Markierung: kurzer Strich auf dem Schwänzchen (Position in mm und Lage einstellbar, abschaltbar) ~ New sticking mark: short line on the tail (position in mm and placement adjustable, can be turned off) ~ Yeni yapıştırma işareti: kuyruk üzerinde kısa çizgi (mm konumu ve yeri ayarlanabilir, kapatılabilir)
+Drehen um 180° wirkt jetzt auch beim Druckweg „Zebra-Datei“ ~ Rotate 180° now also works with the “Zebra file” print method ~ 180° döndürme artık “Zebra dosyası” yolunda da çalışır
+Klebe-Markierung auf dem Schwänzchen drucken ~ Print sticking mark on the tail ~ Kuyruğa yapıştırma işareti bas
+Markierung bei (mm von links) ~ Mark at (mm from left) ~ İşaret konumu (soldan mm)
+Markierung Lage ~ Mark placement ~ İşaret yeri
+oben ~ top ~ üst
+Mitte ~ middle ~ orta
+unten ~ bottom ~ alt
 Fertigung → Metall: Zuschlag wählbar „pro g“ oder „fix (gesamt)“ – fester Betrag für die ganze Ware statt pro Gramm ~ Production → metal: surcharge selectable “per g” or “fixed (total)” – a fixed amount for the whole item instead of per gram ~ Üretim → maden: ilave “gram başı” veya “sabit (toplam)” seçilebilir – gram başı yerine tüm ürün için sabit tutar
 Zuschlag ~ Surcharge ~ İlave
 pro g ~ per g ~ gram başı
@@ -3245,6 +3262,9 @@ act.nstok=()=>{const n=ui.nst,d=ui.pd;if(!n||!d)return;let nm=String(n.name||"")
  let i=d.stones.findIndex(x=>!x.sid&&!String(x.qty||"").trim());if(i<0){d.stones.push({sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""});i=d.stones.length-1}
  d.stones[i].sid=st.id;d.stones[i].d2=!!n.d2;pEdit("ui.pd.stones."+i+".sid");ui.nst=null;render();toast("💎 "+nm+" im Lager angelegt und eingesetzt")};
 function pEdit0(p){const d=ui.pd,k=p.slice(6);
+ const rq=k.match(/^stones\.(\d+)\.(qty|pcs|rng|sid)$/);
+ if(rq){const s=d.stones[rq[1]];if(s){if(rq[2]==="rng")s.rngm=1;else if(!s.sid&&!s.rngm&&data.certAuto!==false){const per=parse(s.qty)/(parse(s.pcs)||1),thr=parse(data.certMin)||1;
+  if(per>0){const want=per<thr-1e-9;if(want!==!!s.rng){s.rng=want;const cb=document.querySelector(`[data-f="ui.pd.stones.${rq[1]}.rng"]`);if(cb)cb.checked=want;ui.rrPend=1}}}}}
  const sp=k.match(/^stones\.(\d+)\.(qty|pcs|nat|d2|sid|price)$/);
  if(sp){const s=d.stones[sp[1]];if(s){if(sp[2]==="price")s.pauto=0;
   else if(!String(s.price||"").trim()||s.pauto){const r=ctRule(s);if(r){s.price=String(r.price);s.cur=r.cur||s.cur;s.pauto=1;setV(`ui.pd.stones.${sp[1]}.price`,s.price);setV(`ui.pd.stones.${sp[1]}.cur`,s.cur)}}}}
@@ -3687,6 +3707,8 @@ function cdSet(){const c=CD(),n=(k,l)=>F(l,I("data.card."+k,c[k]||"",CDD[k],'inp
 function uCs(){const e=$("csv");if(e)e.innerHTML=cdOne({model:"YZD0000256",gold:"14K",gram:"2.58 gr",d1:"0.60 + 0.13 ct",col:"D-E",cl:"VVS"},1)}
 
 /* Direktdruck über Zebra Browser Print (ZPL) */
+function zbw(t){t=String(t||"");if(!t)return 0;let mods=35,i=0,cur="";while(i<t.length){const r=(t.slice(i).match(/^\d+/)||[""])[0];const useC=r.length>=4&&(r.length>=6||i===0||i+r.length===t.length);
+  if(useC){const pairs=Math.floor(r.length/2);if(cur!=="C"){mods+=cur?11:0;cur="C"}mods+=pairs*11;i+=pairs*2}else{if(cur!=="B"){mods+=cur?11:0;cur="B"}mods+=11;i++}}return mods}
 const c128n=t=>{const s=c128(t);return s?Number((s.match(/viewBox="0 0 (\d+)/)||[])[1]||0):0};
 const zs=v=>String(v??"").replace(/[\^~]/g," ");
 function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4,D=v=>Math.max(0,Math.round(v*d));
@@ -3700,11 +3722,13 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
   if(f.ct)z+=T(x0,ya,fa,"D :"+f.ct+"ct");z+=T(c2,ya,fa,[f.col,f.cl].filter(Boolean).join(" "));if(f.d2)z+=T(x0,ya+F(fa)+D(0.4),fa,"D2 :"+f.d2+"ct");
   if(f.gr)z+=T(x0,y2,fs,f.gr+"gr");if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
-  const xr=L+bw+Math.round(m*1.5),cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,bh=Math.round(H*0.3),yb=Math.round(H*0.36),bcw=c128n(f.bc)*mod;
-  if(cert)z+=T(xr,Math.round(H*0.1),fs*0.9,cert,0.8);
-  if(f.bc)z+=`^FO${xr},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N^FD${zs(f.bc)}^FS`;
-  if(f.kar)z+=T(xr+bcw+D(0.8),yb+Math.round(bh*0.2),fs*0.95,f.kar);
-  if(f.ser)z+=T(xr,yb+bh+D(0.5),fs*0.9,f.ser,0.85)}
+  const xr=L+bw+Math.round(m*1.1),cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,bh=Math.round(H*0.27),yb=Math.round(H*0.36),bcw=zbw(f.bc)*mod,xe=L+R-m;
+  const kwf=q=>String(f.kar||"").length*Math.round(F(q)*0.6)+D(0.5);let kh=fs*0.95;if(f.kar&&xr+bcw+D(0.6)+kwf(kh)>xe)kh=fs*0.75;const side=f.kar&&xr+bcw+D(0.6)+kwf(kh)<=xe;
+  if(cert)z+=T(xr,Math.round(H*0.06),fs*1.1,cert,1.0);
+  if(f.bc)z+=`^FO${xr},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N,A^FD${zs(f.bc)}^FS`;
+  if(f.kar){if(side)z+=T(xr+bcw+D(0.6),yb+Math.round((bh-F(kh))/2),kh,f.kar);else z+=`^FO${xr},${Math.round(H*0.06)}^FB${xe-xr},1,0,R^A0N,${F(kh)},${F(kh*0.9)}^FD${zs(f.kar)}^FS`}
+  if(f.ser)z+=T(xr,yb+bh+D(0.4),fs*1.15,f.ser,1.05);
+  const lb=data.lbl||{};if(lb.mk!==false){const mx=D(parse(lb.mx)||73),v=lb.mv||"o",y0=Math.round(H*(v==="o"?0.14:v==="m"?0.33:0.54)),lh=Math.round(H*0.32);if(mx>L+R&&mx<D(c.w))z+=`^FO${mx},${y0}^GB${Math.max(3,D(0.5))},${lh},${Math.max(3,D(0.5))}^FS`}}
  return z+`^PQ${n||1}^XZ`}
 const BPU="https://127.0.0.1:9101/";
 async function bpDev(){const r=await fetch(BPU+"default?type=printer",{cache:"no-store"});const t=await r.text();if(!t||!t.trim())throw new Error("noprinter");return JSON.parse(t)}
@@ -3744,8 +3768,9 @@ function lbSet(){LB();const b=data.lbl;
  const n=(k,l)=>F(l,I("data.lbl."+k,b[k],LBD[k],'inputmode="decimal" data-u="uLs"'));
  return `<div class="card"><b>🦓 Etiketten (Zebra)</b><p class="mu" style="margin:4px 0 10px">Maße in mm. Breite = ganzes Etikett inkl. Schwanz (wie im Druckertreiber). Linker / rechter Teil = die beiden Flächen vor und nach dem schwarzen Strich.</p>
  <div class="g2">${n("w","Breite (mm)")}${n("h","Höhe (mm)")}</div><div class="g2">${n("l","Linker Teil (mm)")}${n("r","Rechter Teil (mm)")}</div><div class="g2">${n("x","Verschieben → (mm)")}${n("y","Verschieben ↓ (mm)")}</div><div class="g2">${n("fs","Schriftgröße (%)")}${n("m","Innenrand (mm)")}</div>
+ ${CB("data.lbl.mk",b.mk!==false,"Klebe-Markierung auf dem Schwänzchen drucken",'data-r="1"')}${b.mk!==false?`<div class="g2">${F("Markierung bei (mm von links)",I("data.lbl.mx",b.mx||"73","73",'inputmode="decimal"'))}${F("Markierung Lage",S("data.lbl.mv",b.mv||"o",[["o","oben"],["m","Mitte"],["u","unten"]]))}</div>`:""}
  ${CB("data.lbl.auto",!!b.auto,"Nach „Fertigstellen“ Etikett automatisch drucken")}
- ${lbWay()==="bp"?CB("data.lbl.zrot",!!b.zrot,"Beim Drucken um 180° drehen"):CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
+ ${lbWay()!=="win"?CB("data.lbl.zrot",!!b.zrot,"Beim Drucken um 180° drehen"):CB("data.lbl.rot",!!b.rot,"Beim Drucken um 180° drehen")}
  <div class="g2">${F("Druckweg",S("data.lbl.way",lbWay(),[["zpl","Zebra-Datei (mit Zebra-Druck.bat – ohne Druckfenster)"],["bp","Direkt (Zebra Browser Print)"],["win","Druckfenster des Browsers"]],'data-r="1"'))}${F("Drucker-Auflösung",S("data.lbl.dpi",b.dpi||"203",[["203","203 dpi"],["300","300 dpi"]]))}</div>
  ${lbWay()==="zpl"?`<p class="mu" style="margin:0 0 8px">Ohne Druckfenster: Update-ZIP entpacken und einmal <b>Zebra-Druck.bat</b> doppelklicken – es findet den Zebra selbst, startet ab dann mit Windows und druckt jedes Etikett aus der App sofort. Anleitung: ZEBRA-EINRICHTUNG.txt im Update-Paket.</p>`:""}
  ${lbWay()==="bp"?`<p class="mu" style="margin:0 0 8px">Einmalig am Laptop das kostenlose Programm „Zebra Browser Print“ von zebra.com installieren und starten, dort den Etikettdrucker als Standard wählen und diese Seite erlauben. Dann druckt die App direkt – ohne Druckfenster, wie ZebraDesigner.</p><button class="sec" data-a="bptest" style="margin-bottom:8px">🔌 Verbindung prüfen</button>`:""}
@@ -3795,7 +3820,8 @@ function rSet(){
  ${lbSet()}
  <div class="card"><b>Nummern-Kürzel</b><p class="mu" style="margin:4px 0 10px">Die ersten Buchstaben der automatischen Nummer, z. B. YZD für Ring (YZD0000001). Gilt für neue Ware.</p>
  <div class="g2">${Object.keys(PG).map(g=>F(g,I("data.prefix."+g,pfx(g),PG[g],'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))).join("")}</div>
- <div class="g2">${F("Stein-Kürzel (Zertifikat)",I("data.stPre",data.stPre===undefined?"LG, ER":data.stPre,"LG, ER",'data-up="1" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Mit Komma trennen. Bei „💎 Neuer Stein“ wählbar, dann nur Ziffern tippen.</p></div>
+ <div class="g2">${F("Stein-Kürzel (Zertifikat)",I("data.stPre",data.stPre===undefined?"LG, ER":data.stPre,"LG, ER",'autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Mit Komma trennen. Bei „💎 Neuer Stein“ wählbar, dann nur Ziffern tippen.</p></div>
+ ${CB("data.certAuto",data.certAuto!==false,"Zertifikat automatisch erkennen: Steine unter der Grenze = „Ohne Zertifikat“",'data-r="1"')}${data.certAuto!==false?`<div class="g2">${F("Zertifikat ab (ct pro Stein)",I("data.certMin",data.certMin||"1,00","1,00",'inputmode="decimal"'))}<p class="mu" style="margin:0;align-self:end">Z. B. 0,8 ct → automatisch ohne Zertifikat. Häkchen in der Ware jederzeit selbst änderbar.</p></div>`:""}
  <div class="g2">${F("Bestellung",I("data.prefix.Bestellung",pfxO(),"B",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Bestellnr.: Kürzel + Jahr + Monat + Zähler, z. B. B2611001</p></div>
  <div class="g2">${F("Werkstatt-Paket",I("data.prefix.Paket",pfxK(),"P",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Paketnr.: Kürzel + Zähler, z. B. P0001</p></div>
  <div class="g2">${F("Verkauf",I("data.prefix.Verkauf",pfxS(),"S",'data-up="1" maxlength="5" autocapitalize="characters" autocorrect="off" autocomplete="off" spellcheck="false"'))}<p class="mu" style="margin:0;align-self:end">Verkaufsnr.: Kürzel + Jahr + Monat + Zähler, z. B. S2611001</p></div></div>

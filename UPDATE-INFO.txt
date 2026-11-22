@@ -1,10 +1,19 @@
-Pusula Mobile – Update 1.23 (Komplettpaket)
+Pusula Mobile – Update 1.25 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.23.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.25.
 
 Änderungen:
+
+1.25 (22.11.2026)
+  - Fertigung → Steine: „Ohne Zertifikat“ wird automatisch gesetzt, wenn der Stein unter 1,00 ct liegt (pro Stein gerechnet), und entfernt ab 1,00 ct – Häkchen bleibt selbst änderbar; Grenze und An/Aus unter Einstellungen → Nummern-Kürzel
+  - Einstellungen: Stein-Kürzel-Feld nimmt jetzt Komma und Leerzeichen korrekt an
+
+1.24 (22.11.2026)
+  - Zebra-Etikett: LG-Nummer und Seriennummer größer und breiter (Buchstaben berühren sich nicht mehr); Barcode kürzer (Zahlen werden kompakt codiert) – 14K wird nicht mehr überdeckt, sonst rückt 14K nach oben rechts
+  - Neue Klebe-Markierung: kurzer Strich auf dem Schwänzchen (Position in mm und Lage einstellbar, abschaltbar)
+  - Drehen um 180° wirkt jetzt auch beim Druckweg „Zebra-Datei“
 
 1.23 (22.11.2026)
   - Fertigung → Metall: Zuschlag wählbar „pro g“ oder „fix (gesamt)“ – fester Betrag für die ganze Ware statt pro Gramm
