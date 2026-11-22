@@ -1,10 +1,13 @@
-Pusula Mobile – Update 1.25 (Komplettpaket)
+Pusula Mobile – Update 1.26 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.25.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.26.
 
 Änderungen:
+
+1.26 (22.11.2026)
+  - Zebra-Etikett rechter Teil neu ausgerichtet: LG-Nummer und Seriennummer etwas kleiner und mittig, Barcode + 14K als Block mittig, 14K etwas größer und immer genau auf Höhe der Barcode-Mitte; Barcode-Breite wird exakt berechnet und reicht nie in die 14K hinein
 
 1.25 (22.11.2026)
   - Fertigung → Steine: „Ohne Zertifikat“ wird automatisch gesetzt, wenn der Stein unter 1,00 ct liegt (pro Stein gerechnet), und entfernt ab 1,00 ct – Häkchen bleibt selbst änderbar; Grenze und An/Aus unter Einstellungen → Nummern-Kürzel
