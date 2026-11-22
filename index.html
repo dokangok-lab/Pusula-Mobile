@@ -158,8 +158,9 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.28";
+const VER="1.29";
 const HIST=[
+ ["1.29","22.11.2026",["Zebra-Etikett rechter Teil wie das ZebraDesigner-Vorbild: LG-Nummer oben und Seriennummer unten fett, links bündig mit dem Barcode; Barcode höher; 14K gleich groß wie die Nummern, direkt neben dem Barcode in dessen Mitte"]],
  ["1.28","22.11.2026",["Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt"]],
  ["1.27","22.11.2026",["Zebra-Etikett: LG- und Seriennummer etwas größer und links bündig mit dem Barcode-Anfang; Barcode startet direkt nach dem Strich, 14K enger daneben"]],
  ["1.26","22.11.2026",["Zebra-Etikett rechter Teil neu ausgerichtet: LG-Nummer und Seriennummer etwas kleiner und mittig, Barcode + 14K als Block mittig, 14K etwas größer und immer genau auf Höhe der Barcode-Mitte; Barcode-Breite wird exakt berechnet und reicht nie in die 14K hinein"]],
@@ -789,6 +790,7 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zebra-Etikett rechter Teil wie das ZebraDesigner-Vorbild: LG-Nummer oben und Seriennummer unten fett, links bündig mit dem Barcode; Barcode höher; 14K gleich groß wie die Nummern, direkt neben dem Barcode in dessen Mitte ~ Zebra label right part like the ZebraDesigner original: LG number on top and serial below in bold, left-aligned with the barcode; taller barcode; 14K same size as the numbers, right next to the barcode at its centre ~ Zebra etiketi sağ kısım ZebraDesigner örneği gibi: LG numarası üstte ve seri numarası altta kalın, barkodla sola hizalı; barkod daha yüksek; 14K numaralarla aynı boyutta, barkodun hemen yanında ortasında
 Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt ~ Barcode scanner with wrong keyboard setting (reads ZYD instead of YZD): the search still finds the item – swapped Y and Z is detected automatically ~ Yanlış klavye ayarlı barkod okuyucu (YZD yerine ZYD okur): arama ürünü yine bulur – Y ve Z yer değişimi otomatik tanınır
 Zebra-Etikett: LG- und Seriennummer etwas größer und links bündig mit dem Barcode-Anfang; Barcode startet direkt nach dem Strich, 14K enger daneben ~ Zebra label: LG and serial number a bit bigger and left-aligned with the start of the barcode; barcode starts right after the line, 14K closer next to it ~ Zebra etiketi: LG ve seri numarası biraz daha büyük ve barkodun başlangıcıyla sola hizalı; barkod çizgiden hemen sonra başlar, 14K daha yakın
 Zebra-Etikett rechter Teil neu ausgerichtet: LG-Nummer und Seriennummer etwas kleiner und mittig, Barcode + 14K als Block mittig, 14K etwas größer und immer genau auf Höhe der Barcode-Mitte; Barcode-Breite wird exakt berechnet und reicht nie in die 14K hinein ~ Zebra label right part realigned: LG number and serial a bit smaller and centred, barcode + 14K centred as a block, 14K a bit bigger and always level with the barcode centre; barcode width is calculated exactly and never runs into the 14K ~ Zebra etiketi sağ kısım yeniden hizalandı: LG ve seri numarası biraz küçük ve ortada, barkod + 14K blok olarak ortada, 14K biraz büyük ve her zaman barkodun ortasıyla aynı hizada; barkod genişliği tam hesaplanır ve 14K'ye asla taşmaz
@@ -3734,14 +3736,13 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
   if(f.ct)z+=T(x0,ya,fa,"D :"+f.ct+"ct");z+=T(c2,ya,fa,[f.col,f.cl].filter(Boolean).join(" "));if(f.d2)z+=T(x0,ya+F(fa)+D(0.4),fa,"D2 :"+f.d2+"ct");
   if(f.gr)z+=T(x0,y2,fs,f.gr+"gr");if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
-  const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,pad=D(0.7),A=xe-xs-2*pad,mid=Math.round((xs+xe)/2);
-  const tH=fs*0.9,kh=fs*0.86,bh=Math.round(H*0.28),g1=D(0.6),Fc=cert?F(tH):0,Fs=f.ser?F(tH):0,blk=Fc+(cert?g1:0)+(f.bc?bh:0)+(f.ser?g1:0)+Fs,top=Math.max(0,Math.round((H-blk)/2));
-  const B=zbc(f.bc),bcw=B.mods*mod,kw=f.kar?Math.round(String(f.kar).length*F(kh)*0.55)+D(0.2):0,gap=f.kar&&f.bc?D(0.6):0,G=bcw+gap+kw,gx=xs+pad;
-  const C=(y,t)=>`^FO${gx},${y}^A0N,${F(tH)},${F(tH*0.95)}^FD${zs(t)}^FS`;
-  let y=top;if(cert){z+=C(y,cert);y+=Fc+g1}
+  const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,gx=xs+D(0.7);
+  const tH=Math.min(fs*0.95,c.h*0.22),bh=Math.round(H*0.36),g1=D(0.4),Ft=F(tH),blk=(cert?Ft+g1:0)+(f.bc?bh:0)+(f.ser?g1+Ft:0),top=Math.max(0,Math.round((H-blk)/2));
+  const B=zbc(f.bc),bcw=B.mods*mod,bold=(x,y,hh,t,wr)=>{const a=`^A0N,${F(hh)},${F(hh*(wr||0.92))}^FD${zs(t)}^FS`;return `^FO${x},${y}${a}^FO${x+1},${y}${a}`};
+  let y=top;if(cert){z+=bold(gx,y,tH,cert);y+=Ft+g1}
   const yb=y;if(f.bc){z+=`^FO${gx},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N,N^FD${B.data}^FS`;y+=bh+g1}
-  if(f.kar)z+=`^FO${gx+bcw+gap},${(f.bc?yb+Math.round((bh-F(kh))/2):Math.round((H-F(kh))/2))}^A0N,${F(kh)},${F(kh*0.8)}^FD${zs(f.kar)}^FS`;
-  if(f.ser)z+=C(y,f.ser);
+  if(f.kar)z+=bold(gx+bcw+D(0.5),f.bc?yb+Math.round((bh-Ft)/2):Math.round((H-Ft)/2),tH,f.kar,0.85);
+  if(f.ser)z+=bold(gx,y,tH,f.ser);
   const lb=data.lbl||{};if(lb.mk!==false){const mx=D(parse(lb.mx)||73),v=lb.mv||"o",y0=Math.round(H*(v==="o"?0.14:v==="m"?0.33:0.54)),lh=Math.round(H*0.32);if(mx>L+R&&mx<D(c.w))z+=`^FO${mx},${y0}^GB${Math.max(3,D(0.5))},${lh},${Math.max(3,D(0.5))}^FS`}}
  return z+`^PQ${n||1}^XZ`}
 const BPU="https://127.0.0.1:9101/";
