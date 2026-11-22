@@ -158,8 +158,10 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.26";
+const VER="1.28";
 const HIST=[
+ ["1.28","22.11.2026",["Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt"]],
+ ["1.27","22.11.2026",["Zebra-Etikett: LG- und Seriennummer etwas größer und links bündig mit dem Barcode-Anfang; Barcode startet direkt nach dem Strich, 14K enger daneben"]],
  ["1.26","22.11.2026",["Zebra-Etikett rechter Teil neu ausgerichtet: LG-Nummer und Seriennummer etwas kleiner und mittig, Barcode + 14K als Block mittig, 14K etwas größer und immer genau auf Höhe der Barcode-Mitte; Barcode-Breite wird exakt berechnet und reicht nie in die 14K hinein"]],
  ["1.25","22.11.2026",["Fertigung → Steine: „Ohne Zertifikat“ wird automatisch gesetzt, wenn der Stein unter 1,00 ct liegt (pro Stein gerechnet), und entfernt ab 1,00 ct – Häkchen bleibt selbst änderbar; Grenze und An/Aus unter Einstellungen → Nummern-Kürzel","Einstellungen: Stein-Kürzel-Feld nimmt jetzt Komma und Leerzeichen korrekt an"]],
  ["1.24","22.11.2026",["Zebra-Etikett: LG-Nummer und Seriennummer größer und breiter (Buchstaben berühren sich nicht mehr); Barcode kürzer (Zahlen werden kompakt codiert) – 14K wird nicht mehr überdeckt, sonst rückt 14K nach oben rechts","Neue Klebe-Markierung: kurzer Strich auf dem Schwänzchen (Position in mm und Lage einstellbar, abschaltbar)","Drehen um 180° wirkt jetzt auch beim Druckweg „Zebra-Datei“"]],
@@ -787,6 +789,8 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt ~ Barcode scanner with wrong keyboard setting (reads ZYD instead of YZD): the search still finds the item – swapped Y and Z is detected automatically ~ Yanlış klavye ayarlı barkod okuyucu (YZD yerine ZYD okur): arama ürünü yine bulur – Y ve Z yer değişimi otomatik tanınır
+Zebra-Etikett: LG- und Seriennummer etwas größer und links bündig mit dem Barcode-Anfang; Barcode startet direkt nach dem Strich, 14K enger daneben ~ Zebra label: LG and serial number a bit bigger and left-aligned with the start of the barcode; barcode starts right after the line, 14K closer next to it ~ Zebra etiketi: LG ve seri numarası biraz daha büyük ve barkodun başlangıcıyla sola hizalı; barkod çizgiden hemen sonra başlar, 14K daha yakın
 Zebra-Etikett rechter Teil neu ausgerichtet: LG-Nummer und Seriennummer etwas kleiner und mittig, Barcode + 14K als Block mittig, 14K etwas größer und immer genau auf Höhe der Barcode-Mitte; Barcode-Breite wird exakt berechnet und reicht nie in die 14K hinein ~ Zebra label right part realigned: LG number and serial a bit smaller and centred, barcode + 14K centred as a block, 14K a bit bigger and always level with the barcode centre; barcode width is calculated exactly and never runs into the 14K ~ Zebra etiketi sağ kısım yeniden hizalandı: LG ve seri numarası biraz küçük ve ortada, barkod + 14K blok olarak ortada, 14K biraz büyük ve her zaman barkodun ortasıyla aynı hizada; barkod genişliği tam hesaplanır ve 14K'ye asla taşmaz
 Fertigung → Steine: „Ohne Zertifikat“ wird automatisch gesetzt, wenn der Stein unter 1,00 ct liegt (pro Stein gerechnet), und entfernt ab 1,00 ct – Häkchen bleibt selbst änderbar; Grenze und An/Aus unter Einstellungen → Nummern-Kürzel ~ Production → stones: “No certificate” is set automatically when the stone is below 1.00 ct (per stone) and removed from 1.00 ct – the tick stays changeable by hand; limit and on/off under Settings → number prefixes ~ Üretim → taşlar: taş 1,00 ct altındaysa (taş başına) “Sertifikasız” otomatik işaretlenir, 1,00 ct'den itibaren kaldırılır – işaret elle değiştirilebilir; sınır ve aç/kapat Ayarlar → numara kısaltmaları altında
 Einstellungen: Stein-Kürzel-Feld nimmt jetzt Komma und Leerzeichen korrekt an ~ Settings: stone prefix field now accepts commas and spaces correctly ~ Ayarlar: taş kısaltma alanı artık virgül ve boşlukları doğru kabul ediyor
@@ -3176,7 +3180,9 @@ document.addEventListener("change",e=>{const el=e.target;if(!el||el.id!=="pimg"|
 act.pimgdel=()=>{if(ui.pd){delete ui.pd.img;render()}};
 function openP(p){const d=JSON.parse(JSON.stringify(p));d.ov=false;d.code0=p.code;return d}
 /* Nummernsuche: "YZD178" findet "YZD0000178" (führende Nullen egal) */
-function codeMatch(code,q){const c=String(code).toLowerCase();if(c.includes(q))return true;
+const yzSwap=s=>String(s).replace(/[yzYZ]/g,ch=>({y:"z",z:"y",Y:"Z",Z:"Y"})[ch]);
+function codeMatch(code,q){return codeMatch0(code,q)||(/[yz]/i.test(q)&&codeMatch0(code,yzSwap(q).toLowerCase()))}
+function codeMatch0(code,q){const c=String(code).toLowerCase();if(c.includes(q))return true;
  const m=q.match(/^([a-z0-9]*?[a-z])?\s*0*(\d+)$/);if(!m)return false;
  const seven=c.length>7&&/^\d{7}$/.test(c.slice(-7)),mm=c.match(/^(.*?)0*(\d+)$/);if(!mm)return false;
  const pre=seven?c.slice(0,-7):mm[1],num=seven?c.slice(-7):mm[2];
@@ -3728,13 +3734,13 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
   if(f.ct)z+=T(x0,ya,fa,"D :"+f.ct+"ct");z+=T(c2,ya,fa,[f.col,f.cl].filter(Boolean).join(" "));if(f.d2)z+=T(x0,ya+F(fa)+D(0.4),fa,"D2 :"+f.d2+"ct");
   if(f.gr)z+=T(x0,y2,fs,f.gr+"gr");if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
-  const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,pad=Math.max(m,D(0.8)),A=xe-xs-2*pad,mid=Math.round((xs+xe)/2);
-  const tH=fs*0.82,kh=fs*0.86,bh=Math.round(H*0.28),g1=D(0.6),Fc=cert?F(tH):0,Fs=f.ser?F(tH):0,blk=Fc+(cert?g1:0)+(f.bc?bh:0)+(f.ser?g1:0)+Fs,top=Math.max(0,Math.round((H-blk)/2));
-  const B=zbc(f.bc),bcw=B.mods*mod,kw=f.kar?Math.round(String(f.kar).length*F(kh)*0.62)+D(0.3):0,gap=f.kar&&f.bc?D(0.8):0,G=bcw+gap+kw,gx=Math.max(xs+pad,Math.round(mid-G/2));
-  const C=(y,t)=>`^FO${xs+pad},${y}^FB${A},1,0,C^A0N,${F(tH)},${F(tH*0.95)}^FD${zs(t)}^FS`;
+  const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,pad=D(0.7),A=xe-xs-2*pad,mid=Math.round((xs+xe)/2);
+  const tH=fs*0.9,kh=fs*0.86,bh=Math.round(H*0.28),g1=D(0.6),Fc=cert?F(tH):0,Fs=f.ser?F(tH):0,blk=Fc+(cert?g1:0)+(f.bc?bh:0)+(f.ser?g1:0)+Fs,top=Math.max(0,Math.round((H-blk)/2));
+  const B=zbc(f.bc),bcw=B.mods*mod,kw=f.kar?Math.round(String(f.kar).length*F(kh)*0.55)+D(0.2):0,gap=f.kar&&f.bc?D(0.6):0,G=bcw+gap+kw,gx=xs+pad;
+  const C=(y,t)=>`^FO${gx},${y}^A0N,${F(tH)},${F(tH*0.95)}^FD${zs(t)}^FS`;
   let y=top;if(cert){z+=C(y,cert);y+=Fc+g1}
   const yb=y;if(f.bc){z+=`^FO${gx},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N,N^FD${B.data}^FS`;y+=bh+g1}
-  if(f.kar)z+=`^FO${gx+bcw+gap},${(f.bc?yb+Math.round((bh-F(kh))/2):Math.round((H-F(kh))/2))}^A0N,${F(kh)},${F(kh*0.9)}^FD${zs(f.kar)}^FS`;
+  if(f.kar)z+=`^FO${gx+bcw+gap},${(f.bc?yb+Math.round((bh-F(kh))/2):Math.round((H-F(kh))/2))}^A0N,${F(kh)},${F(kh*0.8)}^FD${zs(f.kar)}^FS`;
   if(f.ser)z+=C(y,f.ser);
   const lb=data.lbl||{};if(lb.mk!==false){const mx=D(parse(lb.mx)||73),v=lb.mv||"o",y0=Math.round(H*(v==="o"?0.14:v==="m"?0.33:0.54)),lh=Math.round(H*0.32);if(mx>L+R&&mx<D(c.w))z+=`^FO${mx},${y0}^GB${Math.max(3,D(0.5))},${lh},${Math.max(3,D(0.5))}^FS`}}
  return z+`^PQ${n||1}^XZ`}

@@ -1,10 +1,16 @@
-Pusula Mobile – Update 1.26 (Komplettpaket)
+Pusula Mobile – Update 1.28 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.26.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.28.
 
 Änderungen:
+
+1.28 (22.11.2026)
+  - Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt
+
+1.27 (22.11.2026)
+  - Zebra-Etikett: LG- und Seriennummer etwas größer und links bündig mit dem Barcode-Anfang; Barcode startet direkt nach dem Strich, 14K enger daneben
 
 1.26 (22.11.2026)
   - Zebra-Etikett rechter Teil neu ausgerichtet: LG-Nummer und Seriennummer etwas kleiner und mittig, Barcode + 14K als Block mittig, 14K etwas größer und immer genau auf Höhe der Barcode-Mitte; Barcode-Breite wird exakt berechnet und reicht nie in die 14K hinein
