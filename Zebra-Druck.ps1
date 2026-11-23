@@ -48,9 +48,11 @@ public class PusulaRaw {
 }
 "@
 
+Add-Type -AssemblyName System.Drawing
 $Home2  = Join-Path $env:LOCALAPPDATA "PusulaZebra"
 $CfgPrn = Join-Path $Home2 "drucker.txt"
 $CfgDir = Join-Path $Home2 "ordner.txt"
+$CfgCard = Join-Path $Home2 "kartendrucker.txt"
 if (!(Test-Path $Home2)) { New-Item -ItemType Directory -Path $Home2 | Out-Null }
 
 function Get-ZebraPrinter {
@@ -72,6 +74,60 @@ function Get-ZebraPrinter {
   } else { $n = $z[0].Name }
   Set-Content -Path $CfgPrn -Value $n -Encoding UTF8
   return $n
+}
+
+function Get-CardPrinter {
+  if (Test-Path $CfgCard) { $n = (Get-Content $CfgCard -Raw).Trim(); if ($n) { return $n } }
+  $all = @(Get-CimInstance Win32_Printer)
+  $c = @($all | Where-Object { ($_.Name + " " + $_.DriverName) -match "Smart|IDP|Evolis|Card|Karte|Datacard|Magicard|Fargo|Seaory|Pointman|Entrust|Zenius|Primacy|Badgy" -and $_.DriverName -notmatch "ZDesigner" })
+  if ($c.Count -eq 1) { $n = $c[0].Name }
+  else {
+    $list = if ($c.Count -gt 1) { $c } else { $all }
+    Write-Host ""
+    Write-Host "Welcher Drucker ist der KARTENDRUCKER?" -ForegroundColor Yellow
+    for ($i = 0; $i -lt $list.Count; $i++) { Write-Host ("  [" + ($i + 1) + "] " + $list[$i].Name) }
+    $k = Read-Host "Nummer eingeben"
+    $n = $list[[int]$k - 1].Name
+  }
+  Set-Content -Path $CfgCard -Value $n -Encoding UTF8
+  return $n
+}
+
+function Send-Card([string]$path) {
+  $bytes = $null
+  for ($t = 0; $t -lt 20 -and $null -eq $bytes; $t++) {
+    try { $bytes = [System.IO.File]::ReadAllBytes($path) } catch { Start-Sleep -Milliseconds 250 }
+  }
+  if ($null -eq $bytes -or $bytes.Length -eq 0) { return }
+  $ms = New-Object System.IO.MemoryStream(,$bytes)
+  $img = [System.Drawing.Image]::FromStream($ms)
+  $cardPrn = Get-CardPrinter
+  $doc = New-Object System.Drawing.Printing.PrintDocument
+  $doc.DocumentName = "Pusula Karte"
+  $doc.PrinterSettings.PrinterName = $cardPrn
+  if (-not $doc.PrinterSettings.IsValid) { $img.Dispose(); throw ("Kartendrucker nicht gefunden: " + $cardPrn) }
+  $doc.PrintController = New-Object System.Drawing.Printing.StandardPrintController
+  $doc.DefaultPageSettings.Margins = New-Object System.Drawing.Printing.Margins(0,0,0,0)
+  $best = $null
+  foreach ($ps in $doc.PrinterSettings.PaperSizes) {
+    $a = [Math]::Max($ps.Width, $ps.Height); $b = [Math]::Min($ps.Width, $ps.Height)
+    if ([Math]::Abs($a - 337) -le 12 -and [Math]::Abs($b - 213) -le 12) { $best = $ps; break }
+  }
+  if ($best) { $doc.DefaultPageSettings.PaperSize = $best }
+  $cur = $doc.DefaultPageSettings.PaperSize
+  $doc.DefaultPageSettings.Landscape = ($cur.Width -lt $cur.Height)
+  $script:cardImg = $img
+  $doc.add_PrintPage({
+    param($sender, $e)
+    $e.Graphics.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
+    $pb = $e.PageBounds
+    $hx = $e.PageSettings.HardMarginX; $hy = $e.PageSettings.HardMarginY
+    $e.Graphics.DrawImage($script:cardImg, [single](-$hx), [single](-$hy), [single]$pb.Width, [single]$pb.Height)
+    $e.HasMorePages = $false
+  })
+  try { $doc.Print() } finally { $img.Dispose(); $ms.Dispose(); $doc.Dispose() }
+  Remove-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue
+  Write-Host ((Get-Date -Format "HH:mm:ss") + "  Karte gedruckt auf " + $cardPrn) -ForegroundColor Green
 }
 
 function Get-DownloadDir {
@@ -121,18 +177,25 @@ $printer = Get-ZebraPrinter
 
 # --- Einzeldatei (z. B. per Doppelklick / Oeffnen mit)
 if ($File) {
-  try { Send-Zpl $File $printer } catch { Write-Host $_.Exception.Message -ForegroundColor Red; Read-Host "Enter druecken" }
+  try { if ($File -match "\.png$") { Send-Card $File } else { Send-Zpl $File $printer } } catch { Write-Host $_.Exception.Message -ForegroundColor Red; Read-Host "Enter druecken" }
   exit
 }
+
+# --- alte, noch laufende Waechter beenden (nach einem Update)
+if (-not $File) { try {
+  Get-CimInstance Win32_Process -Filter "Name='powershell.exe'" | Where-Object { $_.ProcessId -ne $PID -and $_.CommandLine -match "Zebra-Druck\.ps1" } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }
+} catch {} }
 
 $dir = Get-DownloadDir
 Write-Host ""
 Write-Host "  Pusula Zebra-Druck laeuft" -ForegroundColor Cyan
 Write-Host ("  Drucker : " + $printer)
 Write-Host ("  Ordner  : " + $dir)
-Write-Host "  Etiketten aus der App werden jetzt sofort gedruckt."
+Write-Host "  Etiketten (Zebra) und Zertifikatskarten (Kartendrucker) aus der App"
+Write-Host "  werden jetzt sofort gedruckt."
 Write-Host "  Dieses Fenster offen lassen (darf minimiert sein)."
-Write-Host "  Anderen Drucker waehlen: Datei drucker.txt in $Home2 loeschen und neu starten."
+Write-Host "  Anderen Drucker waehlen: drucker.txt (Zebra) bzw. kartendrucker.txt"
+Write-Host "  in $Home2 loeschen und neu starten."
 Write-Host ""
 
 while ($true) {
@@ -141,6 +204,11 @@ while ($true) {
     foreach ($f in $files) {
       try { Send-Zpl $f.FullName $printer }
       catch { Write-Host ((Get-Date -Format "HH:mm:ss") + "  FEHLER: " + $_.Exception.Message) -ForegroundColor Red; Start-Sleep -Seconds 3 }
+    }
+    $cards = @(Get-ChildItem -LiteralPath $dir -Filter "pusula-karte*.png" -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime)
+    foreach ($f in $cards) {
+      try { Send-Card $f.FullName }
+      catch { Write-Host ((Get-Date -Format "HH:mm:ss") + "  FEHLER Karte: " + $_.Exception.Message) -ForegroundColor Red; Start-Sleep -Seconds 3 }
     }
   } catch {}
   Start-Sleep -Milliseconds 600

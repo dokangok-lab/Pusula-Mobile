@@ -25,6 +25,16 @@ Einmalig am Laptop (2 Minuten):
 Fertig. Jeder Klick auf Etikett drucken / 🏷️ druckt sofort, ohne Fenster.
 Mehrere Etiketten (Von/Bis) gehen in einem Rutsch raus.
 
+Zertifikatskarten (Kartendrucker) - ebenfalls ohne Druckfenster:
+- Nach diesem Update Zebra-Druck.bat EINMAL neu doppelklicken (die alte
+  Version wird automatisch beendet und ersetzt).
+- App > Einstellungen > Zertifikatskarte > Druckweg "Direkt" (am Laptop
+  voreingestellt) > "Testkarte drucken".
+- Beim ersten Mal fragt das Fenster, welcher Drucker der KARTENDRUCKER ist
+  (Nummer eingeben). Danach druckt jede Karte sofort randlos.
+- Falscher Kartendrucker: %LOCALAPPDATA%\PusulaZebra\kartendrucker.txt
+  loeschen, Zebra-Druck.bat neu starten.
+
 Hilfe:
 - Nichts passiert: Laeuft das Fenster "Pusula Zebra-Druck"? Sonst
   Zebra-Druck.bat nochmal doppelklicken.

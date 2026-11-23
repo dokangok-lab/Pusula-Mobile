@@ -1,10 +1,30 @@
-Pusula Mobile – Update 1.30 (Komplettpaket)
+Pusula Mobile – Update 1.36 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.30.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.36.
 
 Änderungen:
+
+1.36 (23.11.2026)
+  - Zertifikatskarte ohne Druckfenster: App speichert die Karte als Bild, Zebra-Druck druckt sie sofort randlos auf dem Kartendrucker (Druckweg unter Einstellungen → Zertifikatskarte; am Laptop voreingestellt)
+  - Zebra-Druck: druckt jetzt Etiketten UND Karten, fragt einmal nach dem Kartendrucker, beendet beim Update die alte Version selbst
+
+1.35 (22.11.2026)
+  - Design: Auswahl LOW/HIGH nur noch in den Einstellungen (nicht mehr auf dem Startbildschirm)
+  - HIGH: Kurzbuchstaben (VB, VO, NO …) auf den Buchungs-Knöpfen in Goldgelb mit dünnem dunklem Rand, Knopftexte mit feiner Kontur – besser lesbar
+
+1.34 (22.11.2026)
+  - Notizen: Fotos (auch direkt mit der Kamera) und PDFs anhängen; Antippen öffnet sie groß; in der Liste steht 📎 mit Anzahl
+
+1.33 (22.11.2026)
+  - Neu: Design wählbar – „Einfach (LOW)“ wie bisher oder „Modern (HIGH)“ mit moderner Schrift, animiertem Farbhintergrund, Glas-Karten und eigenen Icons statt Emojis; Auswahl auf dem Startbildschirm und unter Einstellungen → 🎨 Design (pro Gerät gemerkt)
+
+1.32 (22.11.2026)
+  - Einstellungen übersichtlicher: jeder Bereich ist zugeklappt und öffnet sich per Tipp auf die Überschrift (▸/▾); oben „Alle öffnen“ / „Alle schließen“
+
+1.31 (22.11.2026)
+  - Fertigung → Metall: Festpreis gilt jetzt je g Feingold – gerechnet wird Gewicht × (Feingehalt + Arbeit in Gold) = Feingold × Festpreis (z. B. 2,374 g × 0,700 = 1,662 g × 140 $), ohne Goldkurs und ohne Zuschlag
 
 1.30 (22.11.2026)
   - Fertigung → Metall: „Festpreis je g (statt Goldkurs)“ – z. B. 140 $ je g eingeben; gerechnet wird Gewicht × Festpreis, ohne aktuellen Goldkurs und ohne Zuschlag (ersetzt „fix (gesamt)“)

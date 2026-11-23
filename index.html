@@ -78,6 +78,30 @@ body{max-width:none;padding:20px 28px 40px}
 
 #ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:16px}#ov img{max-width:100%;max-height:85vh;object-fit:contain;border-radius:10px}#ov .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px}
 .att{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.att .a{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;background:var(--fld);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:4px}.att .a img{width:100%;height:100%;object-fit:cover}.att .d{position:absolute;top:2px;right:2px;min-width:22px;height:22px;padding:0 4px;border-radius:11px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;border:0}.attbtn{display:block;text-align:center;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--fld);font-weight:600;cursor:pointer;margin:6px 0}
+.sfh{all:unset;box-sizing:border-box;display:flex;justify-content:space-between;align-items:center;width:100%;cursor:pointer;gap:10px;padding:2px 0}
+.sfh>span:first-child{flex:1;min-width:0}.sfh>span:first-child>.nav{margin:0!important}.sfc{font-size:18px;opacity:.7;flex:none}.sfb{margin-top:8px}
+
+/* ---- Design HIGH ---- */
+html.hi body{font-family:"Plus Jakarta Sans",-apple-system,system-ui,"Segoe UI",sans-serif;letter-spacing:-.005em;background:transparent}
+html.hi{background:var(--bg)}
+html.hi body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;
+ background:radial-gradient(40% 35% at 20% 25%,color-mix(in srgb,var(--ac) 55%,transparent),transparent 70%),radial-gradient(35% 30% at 80% 20%,rgba(255,170,60,.38),transparent 70%),radial-gradient(45% 40% at 70% 80%,rgba(40,200,190,.32),transparent 70%),radial-gradient(40% 35% at 15% 85%,rgba(255,80,160,.28),transparent 70%);
+ filter:blur(30px);animation:hiBg 26s ease-in-out infinite alternate}
+@keyframes hiBg{0%{transform:translate(0,0) rotate(0deg) scale(1)}50%{transform:translate(4%,-3%) rotate(8deg) scale(1.08)}100%{transform:translate(-4%,3%) rotate(-6deg) scale(1.02)}}
+@media (prefers-reduced-motion:reduce){html.hi body::before{animation:none}}
+html.hi .card{background:color-mix(in srgb,var(--card) 78%,transparent);backdrop-filter:blur(14px) saturate(1.3);-webkit-backdrop-filter:blur(14px) saturate(1.3);border:1px solid color-mix(in srgb,var(--bd) 70%,transparent);box-shadow:0 8px 28px rgba(20,10,60,.12);border-radius:18px}
+html.hi button{border-radius:14px;transition:transform .12s,box-shadow .2s}
+html.hi button:not(.sec):not(.sfh){background:linear-gradient(135deg,var(--ac),color-mix(in srgb,var(--ac) 60%,#ff5fa2));box-shadow:0 4px 14px color-mix(in srgb,var(--ac) 35%,transparent)}
+html.hi button:active{transform:scale(.97)}
+html.hi .nb{background:linear-gradient(135deg,color-mix(in srgb,var(--hd) 88%,transparent),color-mix(in srgb,var(--ac) 80%,transparent));backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+html.hi .nb button:not(.sec){background:none;box-shadow:none}html.hi .nb button.on{background:rgba(255,255,255,.2)}
+html.hi h1{font-weight:800;letter-spacing:-.02em;background:linear-gradient(90deg,var(--tx),var(--ac));-webkit-background-clip:text;background-clip:text;color:transparent}
+.ic{display:inline-flex;width:1.15em;height:1.15em;vertical-align:-.2em;flex:none}.ic svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.nb .ic{width:22px;height:22px}
+html.hi button:not(.sec):not(.sfh){text-shadow:0 0 1px rgba(0,0,0,.55),0 1px 2px rgba(0,0,0,.35)}
+html.hi .tiles button b{color:#ffe08a;font-size:17px;letter-spacing:.02em;-webkit-text-stroke:.5px rgba(0,0,0,.6);text-shadow:0 1px 3px rgba(0,0,0,.5)}
+html.hi .tiles button{color:#fff}
+.dsel{display:flex;gap:8px}.dsel button{flex:1}
 </style></head><body>
 
 <div id="start">
@@ -158,8 +182,14 @@ body{max-width:none;padding:20px 28px 40px}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.30";
+const VER="1.36";
 const HIST=[
+ ["1.36","23.11.2026",["Zertifikatskarte ohne Druckfenster: App speichert die Karte als Bild, Zebra-Druck druckt sie sofort randlos auf dem Kartendrucker (Druckweg unter Einstellungen → Zertifikatskarte; am Laptop voreingestellt)","Zebra-Druck: druckt jetzt Etiketten UND Karten, fragt einmal nach dem Kartendrucker, beendet beim Update die alte Version selbst"]],
+ ["1.35","22.11.2026",["Design: Auswahl LOW/HIGH nur noch in den Einstellungen (nicht mehr auf dem Startbildschirm)","HIGH: Kurzbuchstaben (VB, VO, NO …) auf den Buchungs-Knöpfen in Goldgelb mit dünnem dunklem Rand, Knopftexte mit feiner Kontur – besser lesbar"]],
+ ["1.34","22.11.2026",["Notizen: Fotos (auch direkt mit der Kamera) und PDFs anhängen; Antippen öffnet sie groß; in der Liste steht 📎 mit Anzahl"]],
+ ["1.33","22.11.2026",["Neu: Design wählbar – „Einfach (LOW)“ wie bisher oder „Modern (HIGH)“ mit moderner Schrift, animiertem Farbhintergrund, Glas-Karten und eigenen Icons statt Emojis; Auswahl auf dem Startbildschirm und unter Einstellungen → 🎨 Design (pro Gerät gemerkt)"]],
+ ["1.32","22.11.2026",["Einstellungen übersichtlicher: jeder Bereich ist zugeklappt und öffnet sich per Tipp auf die Überschrift (▸/▾); oben „Alle öffnen“ / „Alle schließen“"]],
+ ["1.31","22.11.2026",["Fertigung → Metall: Festpreis gilt jetzt je g Feingold – gerechnet wird Gewicht × (Feingehalt + Arbeit in Gold) = Feingold × Festpreis (z. B. 2,374 g × 0,700 = 1,662 g × 140 $), ohne Goldkurs und ohne Zuschlag"]],
  ["1.30","22.11.2026",["Fertigung → Metall: „Festpreis je g (statt Goldkurs)“ – z. B. 140 $ je g eingeben; gerechnet wird Gewicht × Festpreis, ohne aktuellen Goldkurs und ohne Zuschlag (ersetzt „fix (gesamt)“)"]],
  ["1.29","22.11.2026",["Zebra-Etikett rechter Teil wie das ZebraDesigner-Vorbild: LG-Nummer oben und Seriennummer unten fett, links bündig mit dem Barcode; Barcode höher; 14K gleich groß wie die Nummern, direkt neben dem Barcode in dessen Mitte"]],
  ["1.28","22.11.2026",["Barcode-Scanner mit falscher Tastatur-Einstellung (liest ZYD statt YZD): Die Suche findet die Ware trotzdem – Y und Z vertauscht wird automatisch erkannt"]],
@@ -791,6 +821,32 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zertifikatskarte ohne Druckfenster: App speichert die Karte als Bild, Zebra-Druck druckt sie sofort randlos auf dem Kartendrucker (Druckweg unter Einstellungen → Zertifikatskarte; am Laptop voreingestellt) ~ Certificate card without print dialog: the app saves the card as an image, Zebra-Druck prints it borderless on the card printer right away (print method under Settings → Certificate card; default on the laptop) ~ Yazdırma penceresi olmadan sertifika kartı: uygulama kartı resim olarak kaydeder, Zebra-Druck hemen kenarsız olarak kart yazıcısına basar (yazdırma yolu Ayarlar → Sertifika kartı; dizüstünde varsayılan)
+Zebra-Druck: druckt jetzt Etiketten UND Karten, fragt einmal nach dem Kartendrucker, beendet beim Update die alte Version selbst ~ Zebra-Druck: now prints labels AND cards, asks once for the card printer, closes the old version itself on update ~ Zebra-Druck: artık etiket VE kart basar, kart yazıcısını bir kez sorar, güncellemede eski sürümü kendisi kapatır
+Direkt (mit Zebra-Druck.bat – ohne Druckfenster) ~ Direct (with Zebra-Druck.bat – no print dialog) ~ Doğrudan (Zebra-Druck.bat ile – yazdırma penceresi yok)
+Druckfenster (Windows/Browser) ~ Print dialog (Windows/browser) ~ Yazdırma penceresi (Windows/tarayıcı)
+Die App speichert die Karte als Bild (pusula-karte.png), das Programm Zebra-Druck druckt sie sofort randlos auf dem Kartendrucker. Neues Zebra-Druck.bat aus dem Update einmal doppelklicken – beim ersten Kartendruck fragt es einmal, welcher Drucker der Kartendrucker ist. ~ The app saves the card as an image (pusula-karte.png), the Zebra-Druck program prints it borderless on the card printer right away. Double-click the new Zebra-Druck.bat from the update once – on the first card print it asks once which printer is the card printer. ~ Uygulama kartı resim olarak kaydeder (pusula-karte.png), Zebra-Druck programı hemen kenarsız olarak kart yazıcısına basar. Güncellemedeki yeni Zebra-Druck.bat'a bir kez çift tıklayın – ilk kart baskısında kart yazıcısının hangisi olduğunu bir kez sorar.
+Druckt direkt ohne Fenster (Zebra-Druck muss laufen). ~ Prints directly without a dialog (Zebra-Druck must be running). ~ Pencere olmadan doğrudan basar (Zebra-Druck çalışıyor olmalı).
+💳 Karte → Kartendrucker ~ 💳 Card → card printer ~ 💳 Kart → kart yazıcısı
+Karte konnte nicht erzeugt werden – Druckfenster wird geöffnet ~ Card could not be created – opening print dialog ~ Kart oluşturulamadı – yazdırma penceresi açılıyor
+Design: Auswahl LOW/HIGH nur noch in den Einstellungen (nicht mehr auf dem Startbildschirm) ~ Design: LOW/HIGH choice only in the settings (no longer on the start screen) ~ Tasarım: LOW/HIGH seçimi artık sadece ayarlarda (başlangıç ekranında değil)
+HIGH: Kurzbuchstaben (VB, VO, NO …) auf den Buchungs-Knöpfen in Goldgelb mit dünnem dunklem Rand, Knopftexte mit feiner Kontur – besser lesbar ~ HIGH: short codes (VB, VO, NO …) on the posting buttons in gold-yellow with a thin dark outline, button texts with a fine outline – easier to read ~ HIGH: kayıt düğmelerindeki kısaltmalar (VB, VO, NO …) ince koyu kenarlı altın sarısı, düğme yazıları ince konturlu – daha okunaklı
+Notizen: Fotos (auch direkt mit der Kamera) und PDFs anhängen; Antippen öffnet sie groß; in der Liste steht 📎 mit Anzahl ~ Notes: attach photos (also straight from the camera) and PDFs; tapping opens them large; the list shows 📎 with the count ~ Notlar: fotoğraf (doğrudan kameradan da) ve PDF eklenebilir; dokununca büyük açılır; listede sayısıyla 📎 görünür
+📎 Fotos &amp; PDFs ~ 📎 Photos & PDFs ~ 📎 Fotoğraflar ve PDF'ler
+📎 Fotos & PDFs ~ 📎 Photos & PDFs ~ 📎 Fotoğraflar ve PDF'ler
+Neu: Design wählbar – „Einfach (LOW)“ wie bisher oder „Modern (HIGH)“ mit moderner Schrift, animiertem Farbhintergrund, Glas-Karten und eigenen Icons statt Emojis; Auswahl auf dem Startbildschirm und unter Einstellungen → 🎨 Design (pro Gerät gemerkt) ~ New: choose the design – “Simple (LOW)” as before or “Modern (HIGH)” with a modern font, animated colour background, glass cards and custom icons instead of emojis; choose on the start screen and under Settings → 🎨 Design (remembered per device) ~ Yeni: tasarım seçilebilir – eskisi gibi “Sade (LOW)” veya modern yazı tipi, hareketli renkli arka plan, cam kartlar ve emoji yerine özel ikonlarla “Modern (HIGH)”; başlangıç ekranında ve Ayarlar → 🎨 Tasarım altında seçilir (cihaz başına hatırlanır)
+🎨 Design ~ 🎨 Design ~ 🎨 Tasarım
+◻︎ Einfach (LOW) ~ ◻︎ Simple (LOW) ~ ◻︎ Sade (LOW)
+✨ Modern (HIGH) ~ ✨ Modern (HIGH) ~ ✨ Modern (HIGH)
+LOW = einfach &amp; schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird pro Gerät gemerkt. ~ LOW = simple & fast with emojis. HIGH = modern font, animated colour background, custom icons instead of emojis. Remembered per device. ~ LOW = emojilerle sade ve hızlı. HIGH = modern yazı tipi, hareketli renkli arka plan, emoji yerine özel ikonlar. Cihaz başına hatırlanır.
+LOW = einfach & schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird pro Gerät gemerkt. ~ LOW = simple & fast with emojis. HIGH = modern font, animated colour background, custom icons instead of emojis. Remembered per device. ~ LOW = emojilerle sade ve hızlı. HIGH = modern yazı tipi, hareketli renkli arka plan, emoji yerine özel ikonlar. Cihaz başına hatırlanır.
+Einstellungen übersichtlicher: jeder Bereich ist zugeklappt und öffnet sich per Tipp auf die Überschrift (▸/▾); oben „Alle öffnen“ / „Alle schließen“ ~ Clearer settings: each section is collapsed and opens by tapping its heading (▸/▾); “Open all” / “Close all” at the top ~ Daha düzenli ayarlar: her bölüm kapalı, başlığa dokununca açılır (▸/▾); üstte “Tümünü aç” / “Tümünü kapat”
+Alle öffnen ~ Open all ~ Tümünü aç
+Alle schließen ~ Close all ~ Tümünü kapat
+Fertigung → Metall: Festpreis gilt jetzt je g Feingold – gerechnet wird Gewicht × (Feingehalt + Arbeit in Gold) = Feingold × Festpreis (z. B. 2,374 g × 0,700 = 1,662 g × 140 $), ohne Goldkurs und ohne Zuschlag ~ Production → metal: the fixed price now applies per g of fine gold – calculated as weight × (fineness + labour in gold) = fine gold × fixed price (e.g. 2.374 g × 0.700 = 1.662 g × 140 $), without gold rate and surcharge ~ Üretim → maden: sabit fiyat artık gram has başına – ağırlık × (milyem + altın işçilik) = has × sabit fiyat (ör. 2,374 g × 0,700 = 1,662 g × 140 $), altın kuru ve ilave olmadan
+Festpreis je g Feingold (statt Goldkurs) ~ Fixed price per g fine gold (instead of gold rate) ~ Gram has başı sabit fiyat (altın kuru yerine)
+Festpreis je g Feingold ~ Fixed price per g fine gold ~ Gram has başı sabit fiyat
+Festpreis Feingold, ohne Goldkurs ~ fixed fine gold price, without gold rate ~ sabit has fiyatı, altın kuru olmadan
 Fertigung → Metall: „Festpreis je g (statt Goldkurs)“ – z. B. 140 $ je g eingeben; gerechnet wird Gewicht × Festpreis, ohne aktuellen Goldkurs und ohne Zuschlag (ersetzt „fix (gesamt)“) ~ Production → metal: “fixed price per g (instead of gold rate)” – e.g. enter 140 $ per g; calculated as weight × fixed price, without current gold rate and surcharge (replaces “fixed (total)”) ~ Üretim → maden: “gram başı sabit fiyat (altın kuru yerine)” – ör. gram başı 140 $ girin; ağırlık × sabit fiyat hesaplanır, güncel altın kuru ve ilave olmadan (“sabit (toplam)” yerine)
 Goldkurs + Zuschlag pro g ~ Gold rate + surcharge per g ~ Altın kuru + gram başı ilave
 Festpreis je g (statt Goldkurs) ~ Fixed price per g (instead of gold rate) ~ Gram başı sabit fiyat (altın kuru yerine)
@@ -2016,13 +2072,41 @@ function watch(){if(typeof MutationObserver==="undefined")return;
 function applyLang(){
  if(busy||typeof document.createTreeWalker!=="function")return;busy=true;
  try{if(obs)obs.disconnect();
-  const w=document.createTreeWalker(document.body,4);let n;
-  while((n=w.nextNode())){const p=n.parentNode&&n.parentNode.tagName;if(p==="SCRIPT"||p==="STYLE")continue;
+  const w=document.createTreeWalker(document.body,4);let n;const icn=[];
+  while((n=w.nextNode())){const p=n.parentNode&&n.parentNode.tagName;if(p==="SCRIPT"||p==="STYLE")continue;if(design==="high"&&ICRE.test(n.nodeValue))icn.push(n);ICRE.lastIndex=0;
    if(n.__t===undefined||n.nodeValue!==n.__t)n.__o=n.nodeValue;
    const o=tx(n.__o);if(n.nodeValue!==o)n.nodeValue=o;n.__t=o}
   document.querySelectorAll("[placeholder]").forEach(e=>{if(e.__pt===undefined||e.placeholder!==e.__pt)e.__po=e.placeholder;
-   const o=tx(e.__po);if(e.placeholder!==o)e.placeholder=o;e.__pt=o})
+   const o=tx(e.__po);if(e.placeholder!==o)e.placeholder=o;e.__pt=o});
+  iconize(icn)
  }finally{busy=false;watch()}}
+
+/* ---------- Design LOW / HIGH ---------- */
+const ICP={home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>',users:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.6 3.3-5.5 6.5-5.5s5.9 1.9 6.5 5.5"/><circle cx="17" cy="9" r="2.6"/><path d="M16.5 14.6c2.6.2 4.4 1.9 5 4.9"/>',user:'<circle cx="12" cy="8" r="4"/><path d="M4 21c.8-4.2 4-6.5 8-6.5s7.2 2.3 8 6.5"/>',
+ box:'<path d="M3 7.5L12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5l9 4.5 9-4.5M12 12v9"/>',ring:'<circle cx="12" cy="15" r="6"/><path d="M9 6.5L10.5 4h3L15 6.5 12 9.5z"/>',tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.4"/>',menu:'<path d="M4 7h16M4 12h16M4 17h16"/>',
+ clip:'<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 4.5h6v2.5H9zM8.5 11h7M8.5 15h5"/>',gear:'<circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/>',
+ gem:'<path d="M6 4h12l3 5-9 11L3 9z"/><path d="M3 9h18M9 4l3 16 3-16"/>',barcode:'<path d="M4 5v14M7 5v14M10 5v14M14 5v14M17 5v14M20 5v14"/>',card:'<rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 9.5h19M6 15h4"/>',clock:'<circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M5 3.5L2.5 6M19 3.5L21.5 6"/>',
+ globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.8 2.6 15.2 0 18M12 3c-2.6 2.8-2.6 15.2 0 18"/>',key:'<circle cx="8" cy="14" r="4"/><path d="M11 11l9-9M16 6l3 3M14 8l2 2"/>',wrench:'<path d="M14.5 5.5a4 4 0 0 0 5 5L11 19a2.1 2.1 0 0 1-3-3l8.5-8.5"/><path d="M14.5 5.5l3-3"/>',lock:'<rect x="4.5" y="10.5" width="15" height="10" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/>',
+ chart:'<path d="M4 20V4M4 20h16"/><path d="M8 16v-5M12 16V8M16 16v-3"/>',book:'<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5V4.5M8 7h8"/>',cert:'<rect x="4" y="3" width="16" height="13" rx="1.5"/><path d="M8 7h8M8 10.5h5"/><circle cx="15.5" cy="17" r="2.5"/><path d="M14 19l-1 3 2.5-1 2.5 1-1-3"/>',
+ search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5L21 21"/>',hammer:'<path d="M14 6l4 4-2 2-4-4z"/><path d="M12 8L4 16l3 3 8-8M15 5l2-2 4 4-2 2"/>',swap:'<path d="M4 8h14l-3-3M20 16H6l3 3"/>',bot:'<rect x="4" y="8" width="16" height="11" rx="3"/><path d="M12 4v4M8.5 13h.01M15.5 13h.01M9 16.5h6"/>',
+ note:'<path d="M5 3h10l4 4v14H5z"/><path d="M14 3v5h5M8.5 13h7M8.5 17h5"/>',alert:'<path d="M12 3l9.5 17h-19z"/><path d="M12 10v4.5M12 17.5h.01"/>',check:'<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.7 2.7L16.5 9"/>',printer:'<path d="M6 9V3h12v6"/><rect x="3" y="9" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/>',
+ cash:'<rect x="2.5" y="6" width="19" height="12" rx="2"/><circle cx="12" cy="12" r="2.8"/><path d="M6 9.5v.01M18 14.5v.01"/>',coin:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5v9M9.5 9.5h4a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3h4"/>',inbox:'<path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1.5 2.5h5L16 13h5"/>',car:'<path d="M3 16v-4l2-5h14l2 5v4z"/><circle cx="7.5" cy="16.5" r="1.8"/><circle cx="16.5" cy="16.5" r="1.8"/>',
+ scale:'<path d="M12 3v18M7 21h10M4 7h16"/><path d="M4 7l-2.5 6a3 3 0 0 0 5 0zM20 7l-2.5 6a3 3 0 0 0 5 0z"/>',undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/>',plus:'<path d="M12 5v14M5 12h14"/>',palette:'<path d="M12 3a9 9 0 1 0 0 18c1.2 0 2-.8 2-1.8 0-1.4-1.2-1.6-1.2-2.8 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10.5" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/>',
+ star:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/>',pin:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/>',bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'};
+const ICE={"🏠":"home","👥":"users","👤":"user","📦":"box","💍":"ring","🏷":"tag","☰":"menu","📋":"clip","⚙":"gear","💾":"save","💎":"gem","🦓":"barcode","💳":"card","⏰":"clock","🌐":"globe","🔑":"key","🔧":"wrench","🔐":"lock","📊":"chart","📒":"book","📜":"cert","🔍":"search","🔨":"hammer","💱":"swap","🤖":"bot","📝":"note","⚠":"alert","✅":"check","🖨":"printer","💶":"cash","💵":"cash","💰":"cash","🟡":"coin","📥":"inbox","🚗":"car","⚖":"scale","↩":"undo","➕":"plus","🎨":"palette","✨":"star","📍":"pin","📅":"cal","🗑":"trash","🔔":"bell"};
+const ICRE=new RegExp("("+Object.keys(ICE).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\uFE0F?","gu");
+var design="low";try{design=localStorage.getItem("pusula-design")==="high"?"high":"low"}catch(_){}
+function icSvg(k){return `<svg viewBox="0 0 24 24" aria-hidden="true">${ICP[k]||""}</svg>`}
+function iconize(nodes){if(design!=="high")return;nodes.forEach(n=>{const pt=n.parentNode;if(!pt||/^(OPTION|TEXTAREA|SCRIPT|STYLE|TITLE)$/.test(pt.tagName)||pt.closest&&pt.closest("svg,select"))return;const v=n.nodeValue;ICRE.lastIndex=0;if(!ICRE.test(v))return;ICRE.lastIndex=0;
+ const fr=document.createDocumentFragment();let last=0,m;while((m=ICRE.exec(v))){if(m.index>last){const t=document.createTextNode(v.slice(last,m.index));t.__o=t.nodeValue;t.__t=t.nodeValue;fr.appendChild(t)}const s=document.createElement("span");s.className="ic";s.dataset.e=m[0];s.innerHTML=icSvg(ICE[m[1]]);fr.appendChild(s);last=m.index+m[0].length}
+ if(last<v.length){const t=document.createTextNode(v.slice(last));t.__o=t.nodeValue;t.__t=t.nodeValue;fr.appendChild(t)}pt.replaceChild(fr,n)})}
+let fontLoaded=false;
+function applyDesign(){document.documentElement.classList.toggle("hi",design==="high");
+ if(design==="high"&&!fontLoaded){fontLoaded=true;try{const l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";document.head.appendChild(l)}catch(_){}}
+ document.querySelectorAll("[data-a='design']").forEach(b=>b.classList.toggle("sec",b.dataset.v!==design))}
+act.design=d=>{const nv=d.v==="high"?"high":"low";if(nv===design)return;design=nv;try{localStorage.setItem("pusula-design",design)}catch(_){}
+ if(typeof data!=="undefined"&&data)data.design=design;applyDesign();if(design==="low"){document.querySelectorAll("span.ic[data-e]").forEach(s=>s.replaceWith(document.createTextNode(s.dataset.e)))}if(typeof data!=="undefined"&&data)render();applyLang()};
+applyDesign();
 function langBtns(){document.querySelectorAll("#langS button").forEach(b=>b.classList.toggle("sec",b.dataset.v!==lang))}
 act.lang=d=>{lang=d.v;txReset();picked=true;document.documentElement.lang=lang;if(data){data.lang=lang;render()}langBtns();applyLang()};
 watch();
@@ -2598,12 +2682,13 @@ function rMore(){const a=data.orders.filter(o=>!o.done).length,n=data.notes.leng
  ${T("help","🤖","Helfer","Alles suchen – Personen, Waren, Steine, Verkäufe – und KI fragen")}${T("kasse","📒","Kontobuch","Einnahmen und Ausgaben")}${T("stat","📊","Statistik","Umsatz, Kosten, Lager, Kunden-Vorlieben")}${T("cert","📜","Zertifikat-Finder","Zertifikate eines Verkaufs nach letzten 4 Ziffern")}${T("imp","📥","Import & Abgleich","Excel/PDF mit Lager oder Verkauf vergleichen, Fehlendes hinzufügen")}${T("notes","📝","Notizen",n+" Notiz"+(n===1?"":"en"))}${T("pkg","🔧","Werkstatt",data.pkgs.filter(k=>k.status!=="back").length+" Paket(e) unterwegs")}${T("trips","🚗","Fahrtenbuch",data.trips.length+" Fahrt"+(data.trips.length===1?"":"en")+" · "+data.cars.length+" Fahrzeug"+(data.cars.length===1?"":"e"))}${T("orders","📋","Bestellungen",a+" aktiv")}${T("set","⚙️","Einstellungen","Sprache, Kürzel, Export, Passwort")}</div>`}
 const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
- return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
+ return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(x.att||[]).length?"📎 "+x.att.length+" · ":""}${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
 function uNq(){const e=$("nrows");if(e)e.innerHTML=noteRows()}
 function rNotes(){const e=$("s-notes");
  if(ui.ne){const n=ui.ne;e.innerHTML=`<div class="nav"><b>${n.id?"Notiz":"Neue Notiz"}</b><button class="sec sm" data-a="nback">Liste</button></div>
   <div class="card">${F("Titel",I("ui.ne.title",n.title,"z. B. Werkstatt Freitag"))}
   ${F("Text",`<textarea data-f="ui.ne.text" rows="10" style="width:100%" placeholder="Notiz …">${esc(n.text||"")}</textarea>`)}
+  <div style="margin:4px 0 10px"><b>📎 Fotos &amp; PDFs</b>${attHTML(n.att||[],"n")}</div>
   ${CB("ui.ne.pin",!!n.pin,"Oben anheften 📌")}
   <div class="row"><button data-a="nsave">Speichern</button>${n.id?`<button class="sec" data-a="ndel">${dl("ndel","Löschen")}</button>`:""}</div>
   ${n.id?`<p class="mu" style="margin:8px 0 0">Zuletzt geändert: ${dt(String(n.upd).slice(0,10))} ${String(n.upd).slice(11,16)}</p>`:""}</div>`;return}
@@ -2612,10 +2697,10 @@ function rNotes(){const e=$("s-notes");
  <div class="card" id="nrows">${noteRows()}</div>`}
 const nowIso=()=>{const d=new Date(),z=n=>String(n).padStart(2,"0");return d.getFullYear()+"-"+z(d.getMonth()+1)+"-"+z(d.getDate())+"T"+z(d.getHours())+":"+z(d.getMinutes())};
 act.nnew=()=>{ui.ne={id:0,title:"",text:"",pin:false};rNotes()};
-act.nedit=d=>{const x=data.notes.find(n=>n.id===Number(d.id));if(x){ui.ne={...x};rNotes();window.scrollTo(0,0)}};
+act.nedit=d=>{const x=data.notes.find(n=>n.id===Number(d.id));if(x){ui.ne={...x,att:[...(x.att||[])]};rNotes();window.scrollTo(0,0)}};
 act.nback=()=>{ui.ne=null;rNotes()};
-act.nsave=()=>{const n=ui.ne;if(!n)return;if(!String(n.title).trim()&&!String(n.text).trim()){toast("Notiz ist leer");return}
- const o={id:n.id||uid(),title:String(n.title||"").trim(),text:String(n.text||""),pin:!!n.pin,upd:nowIso()};
+act.nsave=()=>{const n=ui.ne;if(!n)return;if(!String(n.title).trim()&&!String(n.text).trim()&&!(n.att||[]).length){toast("Notiz ist leer");return}
+ const o={id:n.id||uid(),title:String(n.title||"").trim(),text:String(n.text||""),pin:!!n.pin,upd:nowIso()};if((n.att||[]).length)o.att=n.att;
  const i=data.notes.findIndex(x=>x.id===o.id);if(i<0)data.notes.push(o);else data.notes[i]=o;ui.ne=null;rNotes();toast("Gespeichert")};
 act.ndel=()=>{if(!confirmTap("ndel"))return;data.notes=data.notes.filter(x=>x.id!==ui.ne.id);ui.ne=null;rNotes()};
 function xNotes(){return["Notizen",[["Titel","Text","Angeheftet","Geändert"],...data.notes.map(n=>[n.title,n.text,n.pin?"ja":"",String(n.upd).replace("T"," ")])]]}
@@ -2625,12 +2710,12 @@ function xNotes(){return["Notizen",[["Titel","Text","Angeheftet","Geändert"],..
 function attHTML(list,oid){
  return `<div class="att">${list.map(a=>`<div class="a">${a.type.startsWith("image/")?`<img src="${a.data}" alt="" data-a="aopen" data-oid="${oid}" data-aid="${a.id}" style="pointer-events:auto">`:`<span data-a="aopen" data-oid="${oid}" data-aid="${a.id}" style="pointer-events:auto">📄<br>${esc(String(a.name||"Datei").slice(0,18))}</span>`}<button class="d" data-a="adel" data-oid="${oid}" data-aid="${a.id}">${armed("ad"+a.id)?"Weg?":"×"}</button></div>`).join("")}</div>
  <div class="row" style="margin:0"><label class="attbtn" style="flex:1">📷 Kamera<input class="attin" data-oid="${oid}" type="file" accept="image/*" capture="environment" style="display:none"></label><label class="attbtn" style="flex:1">🖼️ Foto / Datei<input class="attin" data-oid="${oid}" type="file" accept="image/*,application/pdf" multiple style="display:none"></label></div>`}
-const attList=oid=>oid?((data.orders.find(o=>o.id===Number(oid))||{}).att||null):(ui.of?(ui.of.att=ui.of.att||[]):null);
-function attAdd(oid,a){if(oid){const o=data.orders.find(x=>x.id===Number(oid));if(!o)return;(o.att=o.att||[]).push(a)}else{ui.of.att=ui.of.att||[];ui.of.att.push(a)}}
+const attList=oid=>oid==="n"?(ui.ne?(ui.ne.att=ui.ne.att||[]):null):oid?((data.orders.find(o=>o.id===Number(oid))||{}).att||null):(ui.of?(ui.of.att=ui.of.att||[]):null);
+function attAdd(oid,a){if(oid==="n"){if(ui.ne)(ui.ne.att=ui.ne.att||[]).push(a);return}if(oid){const o=data.orders.find(x=>x.id===Number(oid));if(!o)return;(o.att=o.att||[]).push(a)}else{ui.of.att=ui.of.att||[];ui.of.att.push(a)}}
 function imgShrink(src,cb){const im=new Image();im.onload=()=>{try{const sc=Math.min(1,1400/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*sc)),hh=Math.max(1,Math.round(im.height*sc)),c=document.createElement("canvas");c.width=w;c.height=hh;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,hh);x.drawImage(im,0,0,w,hh);cb(c.toDataURL("image/jpeg",.78))}catch(_){cb(null)}};im.onerror=()=>cb(null);im.src=src}
 document.addEventListener("change",e=>{const el=e.target;if(!el||!el.classList||!el.classList.contains("attin")||!el.files||!el.files.length)return;
  const oid=el.dataset.oid||"",files=[...el.files];let left=files.length;
- const done=()=>{if(--left<=0){render();toast("Anhang hinzugefügt"+(oid?"":" – mit „Bestellung speichern“ übernehmen"))}};
+ const done=()=>{if(--left<=0){render();toast("Anhang hinzugefügt"+(oid==="n"?" – mit „Speichern“ übernehmen":oid?"":" – mit „Bestellung speichern“ übernehmen"))}};
  files.forEach(f=>{const fr=new FileReader();fr.onload=()=>{
   if(String(f.type).startsWith("image/"))imgShrink(fr.result,u=>{if(u)attAdd(oid,{id:uid(),name:f.name||"Foto",type:"image/jpeg",data:u,added:today()});else toast("Bild konnte nicht gelesen werden");done()});
   else if(f.type==="application/pdf"){if(f.size>5*1024*1024){toast("PDF zu groß (max. 5 MB)");done();return}attAdd(oid,{id:uid(),name:f.name||"Dokument.pdf",type:"application/pdf",data:fr.result,added:today()});done()}
@@ -3315,7 +3400,7 @@ function calcP(){
  const g=R("gold");let w=0,has=0,eu=0,fire=0,usd=false;
  const cu=c=>{if(c==="USD")usd=true};cu(d.cur);
  d.metal.forEach((m,i)=>{const q=parse(m.qty),fe=pm(m.fine)+pm(m.wg),hv=q*fe/1000;w+=q;has+=hv;cu(m.lc);
-  const fx=m.lt==="fix",lb=q*parse(m.lab),t=fx?toEUR(lb,m.lc):hv*g+toEUR(lb,m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g · je g ${f2(fx?parse(m.lab):fromEUR(fe/1000*g,m.lc)+parse(m.lab))} ${m.lc}${fx?" (Festpreis, ohne Goldkurs)":""} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
+  const fx=m.lt==="fix",lb=q*parse(m.lab),t=fx?toEUR(hv*parse(m.lab),m.lc):hv*g+toEUR(lb,m.lc);eu+=t;sT("mt_"+i,`Fein ${f3(fe)} ‰ · Feingold ${f3(hv)} g${fx?" × "+f2(parse(m.lab))+" "+m.lc:""} · je g ${f2(fx?fe/1000*parse(m.lab):fromEUR(fe/1000*g,m.lc)+parse(m.lab))} ${m.lc}${fx?" (Festpreis Feingold, ohne Goldkurs)":""} · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
  d.stones.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.qty)*parse(s.price),s.cur);eu+=t;const pc=parse(s.pcs)||1,dd=diaTxt(parse(s.qty)/pc);sT("tt_"+i,`Summe ${f2(fromEUR(t,d.cur))} ${d.cur}${dd?" · "+dd+(pc>1?" je Stein":""):""}`)});
  d.steps.forEach((s,i)=>{cu(s.cur);const t=toEUR(parse(s.amt),s.cur),fr=parse(s.out)-parse(s.in);eu+=t;fire+=fr;sT("st_"+i,`Verlust ${f3(fr)} g · Summe ${f2(fromEUR(t,d.cur))} ${d.cur}`)});
  const cost=fromEUR(eu,d.cur);
@@ -3347,7 +3432,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  d.metal.forEach((m,i)=>{h+=`<div class="rowc">${F("Lagerartikel (Metall)",S(`ui.pd.metal.${i}.sid`,m.sid,gOpt,'data-n="1" data-r="1"'))}
   <div class="g2">${F("Menge g",N(`ui.pd.metal.${i}.qty`,m.qty))}${F("Feingehalt ‰ (z. B. 585 oder 0,585)",N(`ui.pd.metal.${i}.fine`,m.fine))}</div>
   ${F("Arbeit in Gold ‰ (z. B. 115 oder 0,115)",N(`ui.pd.metal.${i}.wg`,m.wg||""))}
-  <div class="g2">${F("Zuschlag",S(`ui.pd.metal.${i}.lt`,m.lt||"g",[["g","Goldkurs + Zuschlag pro g"],["fix","Festpreis je g (statt Goldkurs)"]],'data-r="1"'))}${F(m.lt==="fix"?"Festpreis je g":"Zuschlag pro g",N(`ui.pd.metal.${i}.lab`,m.lab))}</div>
+  <div class="g2">${F("Zuschlag",S(`ui.pd.metal.${i}.lt`,m.lt||"g",[["g","Goldkurs + Zuschlag pro g"],["fix","Festpreis je g Feingold (statt Goldkurs)"]],'data-r="1"'))}${F(m.lt==="fix"?"Festpreis je g Feingold":"Zuschlag pro g",N(`ui.pd.metal.${i}.lab`,m.lab))}</div>
    ${F("Währung",S(`ui.pd.metal.${i}.lc`,m.lc,CUR))}
   ${F("Hersteller",I(`ui.pd.metal.${i}.maker`,m.maker))}
   <div class="rf"><span id="mt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="metal" data-i="${i}">Entfernen</button></div></div>`});
@@ -3701,18 +3786,28 @@ function cpHTML(){const f=ui.cp.f,inp=(k,l)=>F(l,I("ui.cp.f."+k,f[k],"",'data-u=
  <div class="g2">${inp("sp","Sp.")}${inp("rb","Rb.")}</div><div class="g2">${inp("em","Em.")}${inp("ot","Ot.")}</div>
  <p class="mu" style="margin:4px 0 6px">Vorschau</p><div style="height:${54*3.78*sc+6}px;overflow:hidden"><div id="cpv" style="transform:scale(${sc});transform-origin:left top;width:85.6mm">${cdOne(f,1)}</div></div>
  <div class="row"><button data-a="cprint">🖨️ Karte drucken</button><button class="sec" data-a="cpx">Schließen</button></div>
- <p class="mu" style="margin:0">Vorschau = Hilfe: gedruckt werden nur Texte und Foto. Im Druckfenster den Kartendrucker wählen, Ränder „Keine“, Skalierung 100 %. Verschiebung und D1-Seitensteine: ⚙️ Einstellungen → Zertifikatskarte.</p></div>`}
+ <p class="mu" style="margin:0">Vorschau = Hilfe: gedruckt werden nur Texte und Foto. ${cdWay()==="direkt"?"Druckt direkt ohne Fenster (Zebra-Druck muss laufen).":"Im Druckfenster den Kartendrucker wählen, Ränder „Keine“, Skalierung 100 %."} Verschiebung und D1-Seitensteine: ⚙️ Einstellungen → Zertifikatskarte.</p></div>`}
 function uCp(){const e=$("cpv");if(e&&ui.cp)e.innerHTML=cdOne(ui.cp.f,1)}
 act.card=()=>{if(!ui.pd)return;ui.lp=null;ui.cp={f:cdFields(ui.pd)};render();setTimeout(()=>{const e=$("cpv");if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"})},50)};
 act.cpx=()=>{ui.cp=null;render()};
-act.cprint=()=>{if(!ui.cp)return;lbPrint(`<div class="lbpg"><div class="lbrt">${cdOne(ui.cp.f)}</div></div>`,{w:85.6,h:54,rot:false})};
-act.ctest=()=>lbPrint(`<div class="lbpg"><div class="lbrt">${cdOne({model:"YZD0000256",gold:"14K",gram:"2.58 gr",d1:"0.60 + 0.13 ct",col:"D-E",cl:"VVS"})}</div></div>`,{w:85.6,h:54,rot:false});
+function cdWay(){const c=CD();return c.way||(/Windows/i.test(navigator.userAgent)?"direkt":"fenster")}
+async function cdPng(f){const W=1011,H=638,div=document.createElement("div");div.innerHTML=cdOne(f);const xml=new XMLSerializer().serializeToString(div.firstElementChild);
+ const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 323.53 204.09"><foreignObject x="0" y="0" width="323.53" height="204.09">${xml}</foreignObject></svg>`;
+ const url="data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+ try{const im=await new Promise((ok,no)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=no;i.src=url});const cv=document.createElement("canvas");cv.width=W;cv.height=H;const g=cv.getContext("2d");
+  g.fillStyle="#fff";g.fillRect(0,0,W,H);g.drawImage(im,0,0,W,H);return await new Promise(ok=>cv.toBlob(ok,"image/png"))}finally{}}
+async function cdGo(f){if(cdWay()!=="direkt"){lbPrint(`<div class="lbpg"><div class="lbrt">${cdOne(f)}</div></div>`,{w:85.6,h:54,rot:false});return}
+ let b=null;try{b=await cdPng(f)}catch(_){}if(!b){toast("Karte konnte nicht erzeugt werden – Druckfenster wird geöffnet");lbPrint(`<div class="lbpg"><div class="lbrt">${cdOne(f)}</div></div>`,{w:85.6,h:54,rot:false});return}
+ const name="pusula-karte.png";try{const dlc=await claude.use("downloads");if(dlc){await dlc.save({filename:name,data:b});toast("💳 Karte → Kartendrucker");return}}catch(_){}
+ const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},4000);toast("💳 Karte → Kartendrucker")}
+act.cprint=()=>{if(!ui.cp)return;cdGo(ui.cp.f)};
+act.ctest=()=>cdGo({model:"YZD0000256",gold:"14K",gram:"2.58 gr",d1:"0.60 + 0.13 ct",col:"D-E",cl:"VVS"});
 act.cbgdel=()=>{delete CD().bg;render()};
 document.addEventListener("change",e=>{const el=e.target;if(!el||el.id!=="cbg"||!el.files||!el.files[0])return;
  const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const W=1012,H=638,cv=document.createElement("canvas");cv.width=W;cv.height=H;const g=cv.getContext("2d");
   const r=Math.max(W/im.width,H/im.height),w=im.width*r,h=im.height*r;g.drawImage(im,(W-w)/2,(H-h)/2,w,h);CD().bg=cv.toDataURL("image/jpeg",0.85);render();toast("Hintergrund gespeichert")};im.src=fr.result};fr.readAsDataURL(el.files[0])});
 function cdSet(){const c=CD(),n=(k,l)=>F(l,I("data.card."+k,c[k]||"",CDD[k],'inputmode="decimal" data-u="uCs"'));
- return `<div class="card"><b>💳 Zertifikatskarte (Kartendrucker)</b>${CB("data.card.pre",c.pre!==false,"Vorgedruckte Karten – nur Werte und Foto drucken",'data-r="1"')}
+ return `<div class="card"><b>💳 Zertifikatskarte (Kartendrucker)</b>${F("Druckweg",S("data.card.way",cdWay(),[["direkt","Direkt (mit Zebra-Druck.bat – ohne Druckfenster)"],["fenster","Druckfenster (Windows/Browser)"]],'data-r="1"'))}${cdWay()==="direkt"?'<p class="mu" style="margin:-4px 0 10px">Die App speichert die Karte als Bild (pusula-karte.png), das Programm Zebra-Druck druckt sie sofort randlos auf dem Kartendrucker. Neues Zebra-Druck.bat aus dem Update einmal doppelklicken – beim ersten Kartendruck fragt es einmal, welcher Drucker der Kartendrucker ist.</p>':""}${CB("data.card.pre",c.pre!==false,"Vorgedruckte Karten – nur Werte und Foto drucken",'data-r="1"')}
  ${c.pre!==false?`<p class="mu" style="margin:4px 0 10px">Gedruckt werden nur die Texte in die weißen Felder und das Foto ins Fotofeld. Die Vorschau zeigt die Karte nur als Hilfe.</p>`:`<p class="mu" style="margin:4px 0 10px">Karte im Scheckkartenformat 85,6 × 54 mm. Eigenen Hintergrund hochladen (z. B. aus iCARDE als Bild exportiert oder Foto/Scan einer leeren Karte).</p>
  <div class="row" style="margin:0 0 8px"><label class="btn sec" style="flex:1;text-align:center;cursor:pointer">🖼️ Hintergrund wählen<input type="file" id="cbg" accept="image/*" style="display:none"></label>${c.bg?`<button class="sec" data-a="cbgdel">Entfernen</button>`:""}</div>
  ${c.bg?CB("data.card.only",!!c.only,"Hintergrund hat schon Beschriftung & weiße Felder – nur Werte drucken",'data-r="1"'):""}`}
@@ -3831,8 +3926,21 @@ act.udai=async()=>{const M=udTexts();if(!M.length){toast("Alles übersetzt ✓")
    if(r&&typeof r==="object")part.forEach(v=>{const o=r[v];if(o&&(o.en||o.tr)){U[v]={en:String(o.en||v),tr:String(o.tr||v)};n++}})}}
  catch(e){toast(e&&e.code==="not_granted"?"KI wurde nicht erlaubt":"KI-Fehler – bitte später nochmal");if(!n)return}
  txReset();render();toast("🤖 "+n+" Texte übersetzt")};
-function rSet(){
- $("s-set").innerHTML=`
+function rSet(){rSet0();setFold()}
+function setFold(){const root=$("s-set");if(!root)return;ui.sf=ui.sf||{};
+ const cards=[...root.children].filter(c=>c.classList&&c.classList.contains("card"));
+ cards.forEach((c,i)=>{const hd=c.firstElementChild;if(!hd)return;const tb=hd.tagName==="B"?hd:hd.querySelector&&hd.querySelector("b");if(!tb)return;
+  const key=(tb.__o!==undefined?tb.__o:tb.textContent).trim().replace(/\s+\d[\d.,]*$/,"");if(/^Version/.test(key))return;
+  const body=document.createElement("div");body.className="sfb";while(hd.nextSibling)body.appendChild(hd.nextSibling);c.appendChild(body);
+  const open=!!ui.sf[key];body.style.display=open?"":"none";
+  const head=document.createElement("button");head.type="button";head.className="sfh";head.innerHTML=`<span></span><span class="sfc">${open?"▾":"▸"}</span>`;
+  head.firstChild.appendChild(hd.tagName==="B"?hd:hd);c.insertBefore(head,body);
+  head.addEventListener("click",e=>{if(e.target.closest("[data-a]")&&e.target.closest("[data-a]")!==head)return;ui.sf[key]=!ui.sf[key];body.style.display=ui.sf[key]?"":"none";head.querySelector(".sfc").textContent=ui.sf[key]?"▾":"▸"})});
+ if(!root.querySelector(".sfall")){const bar=document.createElement("div");bar.className="row sfall";bar.style.margin="0 0 10px";bar.innerHTML=`<button class="sec sm" type="button" data-sfa="1">${tx("Alle öffnen")}</button><button class="sec sm" type="button" data-sfa="0">${tx("Alle schließen")}</button>`;root.insertBefore(bar,root.firstChild);
+  bar.addEventListener("click",e=>{const b=e.target.closest("[data-sfa]");if(!b)return;const o=b.dataset.sfa==="1";root.querySelectorAll(".card").forEach(c=>{const hb=c.querySelector(":scope>.sfh"),bd=c.querySelector(":scope>.sfb");if(!hb||!bd)return;const k=(hb.querySelector("b")||{}).textContent;bd.style.display=o?"":"none";hb.querySelector(".sfc").textContent=o?"▾":"▸"});
+   cards.forEach(c=>{const hb=c.querySelector(":scope>.sfh");if(!hb)return;const tb=hb.querySelector("b");const k=(tb.__o!==undefined?tb.__o:tb.textContent).trim().replace(/\s+\d[\d.,]*$/,"");ui.sf[k]=o})})}}
+function rSet0(){
+ $("s-set").innerHTML=`<div class="card"><b>🎨 Design</b><p class="mu" style="margin:4px 0 8px">LOW = einfach &amp; schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird pro Gerät gemerkt.</p><div class="row dsel"><button class="${design==="low"?"":"sec"}" data-a="design" data-v="low">◻︎ Einfach (LOW)</button><button class="${design==="high"?"":"sec"}" data-a="design" data-v="high">✨ Modern (HIGH)</button></div></div>
  <div class="card"><b>⏰ Speicher-Erinnerung</b><p class="mu" style="margin:4px 0 8px">Warnt oben, wenn so lange nicht gespeichert wurde. „Später“ erinnert in 15 Minuten wieder.</p>${S("data.remind",String(remMin()),[["0","Aus"],["30","nach 30 Minuten"],["60","nach 1 Stunde"],["90","nach 1,5 Stunden"],["120","nach 2 Stunden"]])}</div>
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  ${udSet()}
