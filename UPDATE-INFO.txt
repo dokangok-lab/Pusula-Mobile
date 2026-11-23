@@ -1,10 +1,25 @@
-Pusula Mobile – Update 1.36 (Komplettpaket)
+Pusula Mobile – Update 1.41 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.36.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.41.
 
 Änderungen:
+
+1.41 (23.11.2026)
+  - Zebra-Etikett: LG- und Seriennummer ca. 10 % größer; ohne Zertifikat rückt der Barcode nach oben (etwas höher) und die Seriennummer wird bis ca. 1,4× größer
+
+1.40 (23.11.2026)
+  - Design HIGH: neue, sauberere Icons für Werkstatt (Schraubenschlüssel) und Fahrtenbuch (Auto)
+
+1.39 (23.11.2026)
+  - Laptop: Seitenleiste nutzt den ganzen Platz – unter den Haupt-Bereichen stehen jetzt direkt Helfer, Kontobuch, Bestellungen, Werkstatt, Zertifikat-Finder, Statistik, Notizen, Fahrtenbuch, Import und Einstellungen
+
+1.38 (23.11.2026)
+  - Design HIGH: Einstellungen-Symbol ist jetzt ein richtiges Zahnrad (sah vorher wie Helligkeit aus)
+
+1.37 (23.11.2026)
+  - Übersicht → Offene Konten: zwei Spalten „＋ Er schuldet mir“ (grün) und „− Ich schulde“ (rot) – jeder Betrag steht in der richtigen Spalte; unten Summen je Währung
 
 1.36 (23.11.2026)
   - Zertifikatskarte ohne Druckfenster: App speichert die Karte als Bild, Zebra-Druck druckt sie sofort randlos auf dem Kartendrucker (Druckweg unter Einstellungen → Zertifikatskarte; am Laptop voreingestellt)
