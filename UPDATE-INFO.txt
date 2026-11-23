@@ -1,10 +1,19 @@
-Pusula Mobile – Update 1.41 (Komplettpaket)
+Pusula Mobile – Update 1.44 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.41.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.44.
 
 Änderungen:
+
+1.44 (23.11.2026)
+  - Zebra-Etikett: LG- und Seriennummer wieder dünn (nicht fett), gleiche Größe; Barcode und Seriennummer weiter oben und kompakter, damit unten nichts abgeschnitten wird; 14K wird automatisch so klein, dass es nie über den rechten Teil hinaus aufs Schwänzchen geht
+
+1.43 (23.11.2026)
+  - Design wird jetzt im Profil (in der Datei) gespeichert: Beim Start ist immer LOW; erst nach dem Öffnen der Datei mit Passwort kommt das zuletzt gewählte Design (HIGH/LOW); nach „Speichern & Beenden“ wieder LOW
+
+1.42 (23.11.2026)
+  - Zebra-Druck: bei der Frage nach dem Kartendrucker gibt es jetzt die letzte Option „Keiner“ – dann kommt die Meldung, dass die Karte nicht gedruckt werden kann, weil kein Kartendrucker ausgewählt/vorhanden ist (beim nächsten Kartendruck wird neu gefragt)
 
 1.41 (23.11.2026)
   - Zebra-Etikett: LG- und Seriennummer ca. 10 % größer; ohne Zertifikat rückt der Barcode nach oben (etwas höher) und die Seriennummer wird bis ca. 1,4× größer

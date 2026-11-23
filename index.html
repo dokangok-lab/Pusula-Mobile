@@ -199,8 +199,11 @@ html.hi .tiles button{color:#fff}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.41";
+const VER="1.44";
 const HIST=[
+ ["1.44","23.11.2026",["Zebra-Etikett: LG- und Seriennummer wieder dünn (nicht fett), gleiche Größe; Barcode und Seriennummer weiter oben und kompakter, damit unten nichts abgeschnitten wird; 14K wird automatisch so klein, dass es nie über den rechten Teil hinaus aufs Schwänzchen geht"]],
+ ["1.43","23.11.2026",["Design wird jetzt im Profil (in der Datei) gespeichert: Beim Start ist immer LOW; erst nach dem Öffnen der Datei mit Passwort kommt das zuletzt gewählte Design (HIGH/LOW); nach „Speichern & Beenden“ wieder LOW"]],
+ ["1.42","23.11.2026",["Zebra-Druck: bei der Frage nach dem Kartendrucker gibt es jetzt die letzte Option „Keiner“ – dann kommt die Meldung, dass die Karte nicht gedruckt werden kann, weil kein Kartendrucker ausgewählt/vorhanden ist (beim nächsten Kartendruck wird neu gefragt)"]],
  ["1.41","23.11.2026",["Zebra-Etikett: LG- und Seriennummer ca. 10 % größer; ohne Zertifikat rückt der Barcode nach oben (etwas höher) und die Seriennummer wird bis ca. 1,4× größer"]],
  ["1.40","23.11.2026",["Design HIGH: neue, sauberere Icons für Werkstatt (Schraubenschlüssel) und Fahrtenbuch (Auto)"]],
  ["1.39","23.11.2026",["Laptop: Seitenleiste nutzt den ganzen Platz – unter den Haupt-Bereichen stehen jetzt direkt Helfer, Kontobuch, Bestellungen, Werkstatt, Zertifikat-Finder, Statistik, Notizen, Fahrtenbuch, Import und Einstellungen"]],
@@ -398,8 +401,8 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 
 /* ---------- Start / Laden / Speichern ---------- */
 $("verS").textContent="Version "+VER;
-function show(on){$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
-function open(d){ui.savedAt=Date.now();if(typeof txReset==="function")txReset();
+function show(on){if(!on&&typeof setDesign==="function")setDesign("low");$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
+function open(d){ui.savedAt=Date.now();if(typeof txReset==="function")txReset();if(typeof setDesign==="function")setDesign(d&&d.design==="high"?"high":"low");
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
  if(!Array.isArray(data.pkSt))data.pkSt=["Wird gerade gemacht","Wartet auf Steine","Wartet auf Gold","Etikett muss gedruckt werden","Gravur fehlt","Qualitätskontrolle","Rückfrage an Werkstatt"];
@@ -843,6 +846,9 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zebra-Etikett: LG- und Seriennummer wieder dünn (nicht fett), gleiche Größe; Barcode und Seriennummer weiter oben und kompakter, damit unten nichts abgeschnitten wird; 14K wird automatisch so klein, dass es nie über den rechten Teil hinaus aufs Schwänzchen geht ~ Zebra label: LG and serial thin again (not bold), same size; barcode and serial higher and more compact so nothing is cut off at the bottom; 14K automatically shrinks so it never runs past the right part onto the tail ~ Zebra etiketi: LG ve seri numarası yine ince (kalın değil), aynı boyut; barkod ve seri numarası daha yukarıda ve sıkı, altta kesilmez; 14K otomatik küçülür, sağ kısmı aşıp kuyruğa taşmaz
+Design wird jetzt im Profil (in der Datei) gespeichert: Beim Start ist immer LOW; erst nach dem Öffnen der Datei mit Passwort kommt das zuletzt gewählte Design (HIGH/LOW); nach „Speichern & Beenden“ wieder LOW ~ The design is now saved in the profile (in the file): the start is always LOW; only after opening the file with the password does the last chosen design (HIGH/LOW) appear; after “Save & quit” it is LOW again ~ Tasarım artık profilde (dosyada) saklanır: başlangıç her zaman LOW; dosya şifreyle açıldıktan sonra son seçilen tasarım (HIGH/LOW) gelir; “Kaydet ve çık” sonrası yine LOW
+Zebra-Druck: bei der Frage nach dem Kartendrucker gibt es jetzt die letzte Option „Keiner“ – dann kommt die Meldung, dass die Karte nicht gedruckt werden kann, weil kein Kartendrucker ausgewählt/vorhanden ist (beim nächsten Kartendruck wird neu gefragt) ~ Zebra-Druck: when asked for the card printer there is now a last option “None” – it then says the card cannot be printed because no card printer is selected/available (asks again on the next card print) ~ Zebra-Druck: kart yazıcısı sorulduğunda artık son seçenek “Hiçbiri” var – kart yazıcısı seçilmediği/olmadığı için kartın basılamayacağı söylenir (sonraki kart baskısında tekrar sorar)
 Zebra-Etikett: LG- und Seriennummer ca. 10 % größer; ohne Zertifikat rückt der Barcode nach oben (etwas höher) und die Seriennummer wird bis ca. 1,4× größer ~ Zebra label: LG and serial number about 10 % bigger; without certificate the barcode moves up (a bit taller) and the serial number gets up to about 1.4× bigger ~ Zebra etiketi: LG ve seri numarası yaklaşık %10 daha büyük; sertifika yoksa barkod yukarı kayar (biraz daha yüksek) ve seri numarası yaklaşık 1,4 kata kadar büyür
 Design HIGH: neue, sauberere Icons für Werkstatt (Schraubenschlüssel) und Fahrtenbuch (Auto) ~ Design HIGH: new, cleaner icons for Workshop (wrench) and Logbook (car) ~ Tasarım HIGH: Atölye (anahtar) ve Yol defteri (araba) için yeni, daha temiz ikonlar
 Laptop: Seitenleiste nutzt den ganzen Platz – unter den Haupt-Bereichen stehen jetzt direkt Helfer, Kontobuch, Bestellungen, Werkstatt, Zertifikat-Finder, Statistik, Notizen, Fahrtenbuch, Import und Einstellungen ~ Laptop: the sidebar uses all the space – below the main sections there are now direct links to Helper, Cash book, Orders, Workshop, Certificate finder, Statistics, Notes, Logbook, Import and Settings ~ Dizüstü: kenar çubuğu tüm alanı kullanır – ana bölümlerin altında artık doğrudan Yardımcı, Kasa defteri, Siparişler, Atölye, Sertifika bulucu, İstatistik, Notlar, Yol defteri, İçe aktarma ve Ayarlar var
@@ -869,8 +875,8 @@ Neu: Design wählbar – „Einfach (LOW)“ wie bisher oder „Modern (HIGH)“
 🎨 Design ~ 🎨 Design ~ 🎨 Tasarım
 ◻︎ Einfach (LOW) ~ ◻︎ Simple (LOW) ~ ◻︎ Sade (LOW)
 ✨ Modern (HIGH) ~ ✨ Modern (HIGH) ~ ✨ Modern (HIGH)
-LOW = einfach &amp; schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird pro Gerät gemerkt. ~ LOW = simple & fast with emojis. HIGH = modern font, animated colour background, custom icons instead of emojis. Remembered per device. ~ LOW = emojilerle sade ve hızlı. HIGH = modern yazı tipi, hareketli renkli arka plan, emoji yerine özel ikonlar. Cihaz başına hatırlanır.
-LOW = einfach & schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird pro Gerät gemerkt. ~ LOW = simple & fast with emojis. HIGH = modern font, animated colour background, custom icons instead of emojis. Remembered per device. ~ LOW = emojilerle sade ve hızlı. HIGH = modern yazı tipi, hareketli renkli arka plan, emoji yerine özel ikonlar. Cihaz başına hatırlanır.
+LOW = einfach &amp; schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird in deinem Profil gespeichert. ~ LOW = simple & fast with emojis. HIGH = modern font, animated colour background, custom icons instead of emojis. Saved in your profile. ~ LOW = emojilerle sade ve hızlı. HIGH = modern yazı tipi, hareketli renkli arka plan, emoji yerine özel ikonlar. Profilinizde saklanır.
+LOW = einfach & schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird in deinem Profil gespeichert. ~ LOW = simple & fast with emojis. HIGH = modern font, animated colour background, custom icons instead of emojis. Saved in your profile. ~ LOW = emojilerle sade ve hızlı. HIGH = modern yazı tipi, hareketli renkli arka plan, emoji yerine özel ikonlar. Profilinizde saklanır.
 Einstellungen übersichtlicher: jeder Bereich ist zugeklappt und öffnet sich per Tipp auf die Überschrift (▸/▾); oben „Alle öffnen“ / „Alle schließen“ ~ Clearer settings: each section is collapsed and opens by tapping its heading (▸/▾); “Open all” / “Close all” at the top ~ Daha düzenli ayarlar: her bölüm kapalı, başlığa dokununca açılır (▸/▾); üstte “Tümünü aç” / “Tümünü kapat”
 Alle öffnen ~ Open all ~ Tümünü aç
 Alle schließen ~ Close all ~ Tümünü kapat
@@ -2126,7 +2132,7 @@ const ICP={home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h14V10"/><path d="M10
  star:'<path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8l-5.4 2.9 1.1-6.1-4.5-4.2 6.1-.8z"/>',pin:'<path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/>',cal:'<rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/>',bell:'<path d="M6 16V11a6 6 0 0 1 12 0v5l2 2H4z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>'};
 const ICE={"🏠":"home","👥":"users","👤":"user","📦":"box","💍":"ring","🏷":"tag","☰":"menu","📋":"clip","⚙":"gear","💾":"save","💎":"gem","🦓":"barcode","💳":"card","⏰":"clock","🌐":"globe","🔑":"key","🔧":"wrench","🔐":"lock","📊":"chart","📒":"book","📜":"cert","🔍":"search","🔨":"hammer","💱":"swap","🤖":"bot","📝":"note","⚠":"alert","✅":"check","🖨":"printer","💶":"cash","💵":"cash","💰":"cash","🟡":"coin","📥":"inbox","🚗":"car","⚖":"scale","↩":"undo","➕":"plus","🎨":"palette","✨":"star","📍":"pin","📅":"cal","🗑":"trash","🔔":"bell"};
 const ICRE=new RegExp("("+Object.keys(ICE).map(k=>k.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")).join("|")+")\uFE0F?","gu");
-var design="low";try{design=localStorage.getItem("pusula-design")==="high"?"high":"low"}catch(_){}
+var design="low";try{localStorage.removeItem("pusula-design")}catch(_){}
 function icSvg(k){return `<svg viewBox="0 0 24 24" aria-hidden="true">${ICP[k]||""}</svg>`}
 function iconize(nodes){if(design!=="high")return;nodes.forEach(n=>{const pt=n.parentNode;if(!pt||/^(OPTION|TEXTAREA|SCRIPT|STYLE|TITLE)$/.test(pt.tagName)||pt.closest&&pt.closest("svg,select"))return;const v=n.nodeValue;ICRE.lastIndex=0;if(!ICRE.test(v))return;ICRE.lastIndex=0;
  const fr=document.createDocumentFragment();let last=0,m;while((m=ICRE.exec(v))){if(m.index>last){const t=document.createTextNode(v.slice(last,m.index));t.__o=t.nodeValue;t.__t=t.nodeValue;fr.appendChild(t)}const s=document.createElement("span");s.className="ic";s.dataset.e=m[0];s.innerHTML=icSvg(ICE[m[1]]);fr.appendChild(s);last=m.index+m[0].length}
@@ -2135,8 +2141,8 @@ let fontLoaded=false;
 function applyDesign(){document.documentElement.classList.toggle("hi",design==="high");
  if(design==="high"&&!fontLoaded){fontLoaded=true;try{const l=document.createElement("link");l.rel="stylesheet";l.href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap";document.head.appendChild(l)}catch(_){}}
  document.querySelectorAll("[data-a='design']").forEach(b=>b.classList.toggle("sec",b.dataset.v!==design))}
-act.design=d=>{const nv=d.v==="high"?"high":"low";if(nv===design)return;design=nv;try{localStorage.setItem("pusula-design",design)}catch(_){}
- if(typeof data!=="undefined"&&data)data.design=design;applyDesign();if(design==="low"){document.querySelectorAll("span.ic[data-e]").forEach(s=>s.replaceWith(document.createTextNode(s.dataset.e)))}if(typeof data!=="undefined"&&data)render();applyLang()};
+function setDesign(nv){nv=nv==="high"?"high":"low";if(nv===design)return false;design=nv;applyDesign();if(design==="low"){document.querySelectorAll("span.ic[data-e]").forEach(s=>s.replaceWith(document.createTextNode(s.dataset.e)))}return true}
+act.design=d=>{const nv=d.v==="high"?"high":"low";if(typeof data!=="undefined"&&data)data.design=nv;if(!setDesign(nv))return;if(typeof data!=="undefined"&&data)render();applyLang()};
 applyDesign();
 function langBtns(){document.querySelectorAll("#langS button").forEach(b=>b.classList.toggle("sec",b.dataset.v!==lang))}
 act.lang=d=>{lang=d.v;txReset();picked=true;document.documentElement.lang=lang;if(data){data.lang=lang;render()}langBtns();applyLang()};
@@ -3875,11 +3881,12 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
   const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,gx=xs+D(0.7);
   const kH=Math.min(fs*1.05,c.h*0.24);let tH=cert?kH:Math.min(fs*1.33,c.h*0.31);if(!cert&&f.ser){const avail=xe-gx-D(0.5),est=String(f.ser).length*F(tH)*0.92*0.6;if(est>avail)tH=tH*avail/est;tH=Math.max(tH,kH)}
-  const bh=Math.round(H*(cert?0.36:0.42)),g1=D(0.4),Ft=F(tH),Fk=F(kH),blk=(cert?Ft+g1:0)+(f.bc?bh:0)+(f.ser?g1+Ft:0),top=Math.max(0,Math.round((H-blk)/2));
-  const B=zbc(f.bc),bcw=B.mods*mod,bold=(x,y,hh,t,wr)=>{const a=`^A0N,${F(hh)},${F(hh*(wr||0.92))}^FD${zs(t)}^FS`;return `^FO${x},${y}${a}^FO${x+1},${y}${a}`};
+  const bh=Math.round(H*(cert?0.30:0.36)),g1=D(0.25),Ft=F(tH),blk=(cert?Ft+g1:0)+(f.bc?bh:0)+(f.ser?g1+Ft:0),top=Math.min(D(0.4),Math.max(0,Math.round((H-blk)/2)));
+  const B=zbc(f.bc),bcw=B.mods*mod,bold=(x,y,hh,t,wr)=>`^FO${x},${y}^A0N,${F(hh)},${F(hh*(wr||0.85))}^FD${zs(t)}^FS`;
+  const kx=gx+bcw+D(0.4),kAvail=xe-D(0.4)-kx;let kh2=kH;if(f.kar){const kw=q=>String(f.kar).length*F(q)*0.8*0.62;while(kh2>kH*0.6&&kw(kh2)>kAvail)kh2*=0.93}const Fk=F(kh2);
   let y=top;if(cert){z+=bold(gx,y,tH,cert);y+=Ft+g1}
   const yb=y;if(f.bc){z+=`^FO${gx},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N,N^FD${B.data}^FS`;y+=bh+g1}
-  if(f.kar)z+=bold(gx+bcw+D(0.5),f.bc?yb+Math.round((bh-Fk)/2):Math.round((H-Fk)/2),kH,f.kar,0.85);
+  if(f.kar)z+=bold(kx,f.bc?yb+Math.round((bh-Fk)/2):Math.round((H-Fk)/2),kh2,f.kar,0.8);
   if(f.ser)z+=bold(gx,y,tH,f.ser);
   const lb=data.lbl||{};if(lb.mk!==false){const mx=D(parse(lb.mx)||73),v=lb.mv||"o",y0=Math.round(H*(v==="o"?0.14:v==="m"?0.33:0.54)),lh=Math.round(H*0.32);if(mx>L+R&&mx<D(c.w))z+=`^FO${mx},${y0}^GB${Math.max(3,D(0.5))},${lh},${Math.max(3,D(0.5))}^FS`}}
  return z+`^PQ${n||1}^XZ`}
@@ -3977,7 +3984,7 @@ function setFold(){const root=$("s-set");if(!root)return;ui.sf=ui.sf||{};
   bar.addEventListener("click",e=>{const b=e.target.closest("[data-sfa]");if(!b)return;const o=b.dataset.sfa==="1";root.querySelectorAll(".card").forEach(c=>{const hb=c.querySelector(":scope>.sfh"),bd=c.querySelector(":scope>.sfb");if(!hb||!bd)return;const k=(hb.querySelector("b")||{}).textContent;bd.style.display=o?"":"none";hb.querySelector(".sfc").textContent=o?"▾":"▸"});
    cards.forEach(c=>{const hb=c.querySelector(":scope>.sfh");if(!hb)return;const tb=hb.querySelector("b");const k=(tb.__o!==undefined?tb.__o:tb.textContent).trim().replace(/\s+\d[\d.,]*$/,"");ui.sf[k]=o})})}}
 function rSet0(){
- $("s-set").innerHTML=`<div class="card"><b>🎨 Design</b><p class="mu" style="margin:4px 0 8px">LOW = einfach &amp; schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird pro Gerät gemerkt.</p><div class="row dsel"><button class="${design==="low"?"":"sec"}" data-a="design" data-v="low">◻︎ Einfach (LOW)</button><button class="${design==="high"?"":"sec"}" data-a="design" data-v="high">✨ Modern (HIGH)</button></div></div>
+ $("s-set").innerHTML=`<div class="card"><b>🎨 Design</b><p class="mu" style="margin:4px 0 8px">LOW = einfach &amp; schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird in deinem Profil gespeichert.</p><div class="row dsel"><button class="${design==="low"?"":"sec"}" data-a="design" data-v="low">◻︎ Einfach (LOW)</button><button class="${design==="high"?"":"sec"}" data-a="design" data-v="high">✨ Modern (HIGH)</button></div></div>
  <div class="card"><b>⏰ Speicher-Erinnerung</b><p class="mu" style="margin:4px 0 8px">Warnt oben, wenn so lange nicht gespeichert wurde. „Später“ erinnert in 15 Minuten wieder.</p>${S("data.remind",String(remMin()),[["0","Aus"],["30","nach 30 Minuten"],["60","nach 1 Stunde"],["90","nach 1,5 Stunden"],["120","nach 2 Stunden"]])}</div>
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  ${udSet()}

@@ -86,8 +86,18 @@ function Get-CardPrinter {
     Write-Host ""
     Write-Host "Welcher Drucker ist der KARTENDRUCKER?" -ForegroundColor Yellow
     for ($i = 0; $i -lt $list.Count; $i++) { Write-Host ("  [" + ($i + 1) + "] " + $list[$i].Name) }
+    Write-Host ("  [" + ($list.Count + 1) + "] Keiner - Kartendrucker nicht vorhanden / nicht in der Liste")
     $k = Read-Host "Nummer eingeben"
-    $n = $list[[int]$k - 1].Name
+    $num = 0
+    if (-not [int]::TryParse(($k + "").Trim(), [ref]$num) -or $num -lt 1 -or $num -gt $list.Count) {
+      Write-Host ""
+      Write-Host "  Karte kann NICHT gedruckt werden: kein Kartendrucker ausgewaehlt bzw. nicht vorhanden." -ForegroundColor Red
+      Write-Host "  Bitte zuerst den Treiber des Kartendruckers installieren (Windows > Drucker & Scanner)." -ForegroundColor Yellow
+      Write-Host "  Beim naechsten Kartendruck wird erneut gefragt." -ForegroundColor Yellow
+      Write-Host ""
+      return $null
+    }
+    $n = $list[$num - 1].Name
   }
   Set-Content -Path $CfgCard -Value $n -Encoding UTF8
   return $n
@@ -102,6 +112,7 @@ function Send-Card([string]$path) {
   $ms = New-Object System.IO.MemoryStream(,$bytes)
   $img = [System.Drawing.Image]::FromStream($ms)
   $cardPrn = Get-CardPrinter
+  if (-not $cardPrn) { $img.Dispose(); $ms.Dispose(); Remove-Item -LiteralPath $path -Force -ErrorAction SilentlyContinue; return }
   $doc = New-Object System.Drawing.Printing.PrintDocument
   $doc.DocumentName = "Pusula Karte"
   $doc.PrinterSettings.PrinterName = $cardPrn
