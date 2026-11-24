@@ -210,8 +210,10 @@ html.hi #dock{background:color-mix(in srgb,var(--card) 82%,transparent);backdrop
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.58";
+const VER="1.60";
 const HIST=[
+ ["1.60","24.11.2026",["Zebra: Etiketten werden langsamer gedruckt (2 Zoll/s) – gleichmäßigere Schriftdicke und Position, auch wenn viele Etiketten hintereinander gedruckt werden"]],
+ ["1.59","24.11.2026",["Zebra-Etikett links: Schrift wird nur noch schmaler, wenn sie wirklich nicht passt (genauere Breitenberechnung je Zeichen) – „D :1.52ct“ und „E VS1“ wieder in normaler Breite, nur lange Angaben wie „D-E VVS“ werden enger"]],
  ["1.58","24.11.2026",["Zebra-Etikett: Farbe/Reinheit (z. B. D-E VVS) wird automatisch schmaler, wenn sie sonst über den linken Teil hinausgeht; ohne Zertifikat sitzen Barcode und Nummer jetzt mittig (Barcode etwas höher); 14K hält jetzt mehr Abstand zum Rand"]],
  ["1.57","24.11.2026",["Laptop-Übersicht: Kästen rücken jetzt direkt untereinander nach (keine großen Lücken mehr neben hohen Kästen)"]],
  ["1.56","24.11.2026",["Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar"]],
@@ -883,6 +885,8 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zebra: Etiketten werden langsamer gedruckt (2 Zoll/s) – gleichmäßigere Schriftdicke und Position, auch wenn viele Etiketten hintereinander gedruckt werden ~ Zebra: labels are printed more slowly (2 in/s) – more even text thickness and position, even when many labels are printed in a row ~ Zebra: etiketler daha yavaş basılır (2 inç/sn) – arka arkaya çok etiket basılsa bile daha eşit yazı kalınlığı ve konum
+Zebra-Etikett links: Schrift wird nur noch schmaler, wenn sie wirklich nicht passt (genauere Breitenberechnung je Zeichen) – „D :1.52ct“ und „E VS1“ wieder in normaler Breite, nur lange Angaben wie „D-E VVS“ werden enger ~ Zebra label left: text only gets narrower when it really doesn't fit (more precise width per character) – “D :1.52ct” and “E VS1” back to normal width, only long values like “D-E VVS” get narrower ~ Zebra etiketi sol: yazı yalnızca gerçekten sığmadığında daralır (karakter başına daha hassas genişlik) – “D :1.52ct” ve “E VS1” yine normal genişlikte, yalnızca “D-E VVS” gibi uzun değerler daralır
 Zebra-Etikett: Farbe/Reinheit (z. B. D-E VVS) wird automatisch schmaler, wenn sie sonst über den linken Teil hinausgeht; ohne Zertifikat sitzen Barcode und Nummer jetzt mittig (Barcode etwas höher); 14K hält jetzt mehr Abstand zum Rand ~ Zebra label: colour/clarity (e.g. D-E VVS) gets narrower automatically if it would run past the left part; without certificate barcode and number now sit centred (barcode a bit taller); 14K now keeps more distance from the edge ~ Zebra etiketi: renk/berraklık (ör. D-E VVS) sol kısmı aşacaksa otomatik daralır; sertifikasızda barkod ve numara artık ortada (barkod biraz daha yüksek); 14K kenardan daha fazla mesafe bırakır
 Laptop-Übersicht: Kästen rücken jetzt direkt untereinander nach (keine großen Lücken mehr neben hohen Kästen) ~ Laptop overview: boxes now stack directly below each other (no more big gaps next to tall boxes) ~ Dizüstü genel bakış: kutular artık doğrudan alt alta dizilir (uzun kutuların yanında büyük boşluk yok)
 Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar ~ Note pinning: the empty column on the right now disappears completely when no note is pinned – full screen usable again ~ Not sabitleme: sabitlenmiş not yokken sağdaki boş sütun artık tamamen kaybolur – tam ekran yeniden kullanılabilir
@@ -3978,13 +3982,14 @@ const c128n=t=>{const s=c128(t);return s?Number((s.match(/viewBox="0 0 (\d+)/)||
 const zs=v=>String(v??"").replace(/[\^~]/g," ");
 function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4,D=v=>Math.max(0,Math.round(v*d));
  const H=D(c.h),L=D(c.l),R=D(c.r),m=D(c.m),fs=c.h*0.2*c.fs,F=mm=>D(mm),T=(x,y,h,t,b)=>`^FO${x},${y}^A0N,${F(h)},${F(h*(b||0.9))}^FD${zs(t)}^FS`;
- let z=`^XA^CI28^PW${D(c.w)}^LL${H}^PO${(data.lbl||{}).zrot?"I":"N"}^LH${D(c.x)},${D(c.y)}^MMT`;
+ let z=`^XA^CI28^PW${D(c.w)}^LL${H}^PO${(data.lbl||{}).zrot?"I":"N"}^LH${D(c.x)},${D(c.y)}^MMT^PR2,2,2`;
  if(k==="ws"){const big=f.mode==="short"?f.ser:(f.stn||"–"),small=f.mode==="both"?f.ser:"",bh=String(big).length>6?fs*1.05:fs*1.6;
   z+=`^FO${L},${Math.round((H-F(bh))/2)}^FB${R},1,0,C^A0N,${F(bh)},${F(bh*0.95)}^FD${zs(big)}^FS`;
   const sm=[small,f.note].filter(Boolean);sm.forEach((t,i)=>{z+=`^FO${m},${Math.round(H/2-F(fs)*(sm.length/2)+i*F(fs)*1.15)}^FB${L-2*m},1,0,C^A0N,${F(fs*0.95)},${F(fs*0.85)}^FD${zs(t)}^FS`})}
  else{const x0=Math.round(m*1.5),c2=x0+Math.round((L-3*m)*0.58),y1=Math.round(H*0.2),y2=Math.round(H*0.58),bw=Math.max(3,D(0.7)),fl=fs*1.06,wl=1.0;
   const fa=f.d2?fl*0.85:fl,ya=f.d2?Math.round(H*0.12):y1;
-  const fitTo=(t,x,xmax,q)=>Math.max(0.55,Math.min(wl,(xmax-x)/Math.max(1,String(t).length*F(q)*0.62))),cc=[f.col,f.cl].filter(Boolean).join(" "),ctT="D :"+f.ct+"ct";
+  const cw=t=>[...String(t)].reduce((a,ch)=>a+(/[.:,;']/.test(ch)?0.22:ch===" "?0.28:ch==="-"?0.34:/[0-9]/.test(ch)?0.5:/[MWmw]/.test(ch)?0.78:/[A-Z]/.test(ch)?0.66:/[ijlft]/.test(ch)?0.3:0.5),0);
+  const fitTo=(t,x,xmax,q)=>Math.max(0.6,Math.min(wl,(xmax-x-D(0.4))/Math.max(1,cw(t)*F(q)))),cc=[f.col,f.cl].filter(Boolean).join(" "),ctT="D :"+f.ct+"ct";
   if(f.ct)z+=T(x0,ya,fa,ctT,fitTo(ctT,x0,c2-D(0.8),fa));z+=T(c2,ya,fa,cc,fitTo(cc,c2,L-m,fa));
   if(f.gr)z+=T(x0,y2,fl,f.gr+"gr",wl);if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
