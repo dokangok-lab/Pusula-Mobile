@@ -1,10 +1,16 @@
-Pusula Mobile – Update 1.56 (Komplettpaket)
+Pusula Mobile – Update 1.58 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.56.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.58.
 
 Änderungen:
+
+1.58 (24.11.2026)
+  - Zebra-Etikett: Farbe/Reinheit (z. B. D-E VVS) wird automatisch schmaler, wenn sie sonst über den linken Teil hinausgeht; ohne Zertifikat sitzen Barcode und Nummer jetzt mittig (Barcode etwas höher); 14K hält jetzt mehr Abstand zum Rand
+
+1.57 (24.11.2026)
+  - Laptop-Übersicht: Kästen rücken jetzt direkt untereinander nach (keine großen Lücken mehr neben hohen Kästen)
 
 1.56 (24.11.2026)
   - Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar

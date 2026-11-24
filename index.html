@@ -74,12 +74,12 @@ body{max-width:none;padding:20px 28px 40px}
 .nbsub .nbs{width:100%;font-size:13.5px;min-height:36px;padding:7px 12px;opacity:.88}
 .nbsub .nbs span{font-size:16px}
 .nbsub .nbs.on,.nbsub .nbs:hover{opacity:1}
-#s-home:not(.hide){display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:start}
-#s-home>.card{margin:0}
+#s-home:not(.hide){display:block;column-count:2;column-gap:14px}
+#s-home>.card{margin:0 0 14px;break-inside:avoid;-webkit-column-break-inside:avoid;display:block;width:100%}
 .tiles{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
 #toast{bottom:28px}
 }
-@media (min-width:1400px){#s-home:not(.hide){grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (min-width:1400px){#s-home:not(.hide){column-count:3}}
 
 #ov{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.92);display:flex;align-items:center;justify-content:center;padding:16px}#ov img{max-width:100%;max-height:85vh;object-fit:contain;border-radius:10px}#ov .x{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:16px}
 .att{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}.att .a{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;background:var(--fld);border:1px solid var(--bd);display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;padding:4px}.att .a img{width:100%;height:100%;object-fit:cover}.att .d{position:absolute;top:2px;right:2px;min-width:22px;height:22px;padding:0 4px;border-radius:11px;background:rgba(0,0,0,.65);color:#fff;font-size:12px;border:0}.attbtn{display:block;text-align:center;padding:12px;border-radius:12px;border:1px solid var(--bd);background:var(--fld);font-weight:600;cursor:pointer;margin:6px 0}
@@ -210,8 +210,10 @@ html.hi #dock{background:color-mix(in srgb,var(--card) 82%,transparent);backdrop
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.56";
+const VER="1.58";
 const HIST=[
+ ["1.58","24.11.2026",["Zebra-Etikett: Farbe/Reinheit (z. B. D-E VVS) wird automatisch schmaler, wenn sie sonst über den linken Teil hinausgeht; ohne Zertifikat sitzen Barcode und Nummer jetzt mittig (Barcode etwas höher); 14K hält jetzt mehr Abstand zum Rand"]],
+ ["1.57","24.11.2026",["Laptop-Übersicht: Kästen rücken jetzt direkt untereinander nach (keine großen Lücken mehr neben hohen Kästen)"]],
  ["1.56","24.11.2026",["Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar"]],
  ["1.55","24.11.2026",["Zertifikat-Finder: Waren ohne LG-Zertifikat (unter 1 ct / ohne Zertifikat) und Armbänder erscheinen jetzt als „💳 Kartenzertifikat“ in der Liste – abhaken, als abgegeben speichern, offene erscheinen unter „Noch abzugeben“; Gegenprüfung auch über die Warennummer (z. B. 320)","Fertigung: Hinweis, wenn eine Ware ein Kartenzertifikat braucht"]],
  ["1.54","24.11.2026",["Übersicht: „Offene Position“ entfernt – „Offene Konten“ zeigt unten die Summen je Währung jetzt zusätzlich mit Saldo (Differenz)"]],
@@ -881,6 +883,8 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Zebra-Etikett: Farbe/Reinheit (z. B. D-E VVS) wird automatisch schmaler, wenn sie sonst über den linken Teil hinausgeht; ohne Zertifikat sitzen Barcode und Nummer jetzt mittig (Barcode etwas höher); 14K hält jetzt mehr Abstand zum Rand ~ Zebra label: colour/clarity (e.g. D-E VVS) gets narrower automatically if it would run past the left part; without certificate barcode and number now sit centred (barcode a bit taller); 14K now keeps more distance from the edge ~ Zebra etiketi: renk/berraklık (ör. D-E VVS) sol kısmı aşacaksa otomatik daralır; sertifikasızda barkod ve numara artık ortada (barkod biraz daha yüksek); 14K kenardan daha fazla mesafe bırakır
+Laptop-Übersicht: Kästen rücken jetzt direkt untereinander nach (keine großen Lücken mehr neben hohen Kästen) ~ Laptop overview: boxes now stack directly below each other (no more big gaps next to tall boxes) ~ Dizüstü genel bakış: kutular artık doğrudan alt alta dizilir (uzun kutuların yanında büyük boşluk yok)
 Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar ~ Note pinning: the empty column on the right now disappears completely when no note is pinned – full screen usable again ~ Not sabitleme: sabitlenmiş not yokken sağdaki boş sütun artık tamamen kaybolur – tam ekran yeniden kullanılabilir
 Zertifikat-Finder: Waren ohne LG-Zertifikat (unter 1 ct / ohne Zertifikat) und Armbänder erscheinen jetzt als „💳 Kartenzertifikat“ in der Liste – abhaken, als abgegeben speichern, offene erscheinen unter „Noch abzugeben“; Gegenprüfung auch über die Warennummer (z. B. 320) ~ Certificate finder: items without LG certificate (below 1 ct / no certificate) and bracelets now appear as “💳 Card certificate” in the list – tick, save as handed over, open ones appear under “Still to hand over”; cross-check also by item number (e.g. 320) ~ Sertifika bulucu: LG sertifikası olmayan ürünler (1 ct altı / sertifikasız) ve bileklikler artık listede “💳 Kart sertifikası” olarak görünür – işaretle, teslim edildi olarak kaydet, açık olanlar “Teslim edilecek” altında; çapraz kontrol ürün numarasıyla da (ör. 320)
 Fertigung: Hinweis, wenn eine Ware ein Kartenzertifikat braucht ~ Production: note when an item needs a card certificate ~ Üretim: bir ürün kart sertifikası gerektirdiğinde uyarı
@@ -3980,14 +3984,15 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
   const sm=[small,f.note].filter(Boolean);sm.forEach((t,i)=>{z+=`^FO${m},${Math.round(H/2-F(fs)*(sm.length/2)+i*F(fs)*1.15)}^FB${L-2*m},1,0,C^A0N,${F(fs*0.95)},${F(fs*0.85)}^FD${zs(t)}^FS`})}
  else{const x0=Math.round(m*1.5),c2=x0+Math.round((L-3*m)*0.58),y1=Math.round(H*0.2),y2=Math.round(H*0.58),bw=Math.max(3,D(0.7)),fl=fs*1.06,wl=1.0;
   const fa=f.d2?fl*0.85:fl,ya=f.d2?Math.round(H*0.12):y1;
-  if(f.ct)z+=T(x0,ya,fa,"D :"+f.ct+"ct",wl);z+=T(c2,ya,fa,[f.col,f.cl].filter(Boolean).join(" "),wl);if(f.d2)z+=T(x0,ya+F(fa)+D(0.4),fa,"D2 :"+f.d2+"ct",wl);
+  const fitTo=(t,x,xmax,q)=>Math.max(0.55,Math.min(wl,(xmax-x)/Math.max(1,String(t).length*F(q)*0.62))),cc=[f.col,f.cl].filter(Boolean).join(" "),ctT="D :"+f.ct+"ct";
+  if(f.ct)z+=T(x0,ya,fa,ctT,fitTo(ctT,x0,c2-D(0.8),fa));z+=T(c2,ya,fa,cc,fitTo(cc,c2,L-m,fa));
   if(f.gr)z+=T(x0,y2,fl,f.gr+"gr",wl);if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
-  const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,gx=xs+D(0.7);
+  const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,gx=xs+D(0.4);
   const kH=Math.min(fs*1.05,c.h*0.24);let tH=cert?kH:Math.min(fs*1.33,c.h*0.31);if(!cert&&f.ser){const avail=xe-gx-D(0.5),est=String(f.ser).length*F(tH)*0.92*0.6;if(est>avail)tH=tH*avail/est;tH=Math.max(tH,kH)}
-  const bh=Math.round(H*(cert?0.30:0.36)),g1=D(0.25),Ft=F(tH),blk=(cert?Ft+g1:0)+(f.bc?bh:0)+(f.ser?g1+Ft:0),top=Math.min(D(0.4),Math.max(0,Math.round((H-blk)/2)));
+  const bh=Math.round(H*(cert?0.30:0.40)),g1=D(0.25),Ft=F(tH),blk=(cert?Ft+g1:0)+(f.bc?bh:0)+(f.ser?g1+Ft:0),top=cert?Math.min(D(0.4),Math.max(0,Math.round((H-blk)/2))):Math.max(0,Math.round((H-blk)/2));
   const B=zbc(f.bc),bcw=B.mods*mod,bold=(x,y,hh,t,wr)=>`^FO${x},${y}^A0N,${F(hh)},${F(hh*(wr||0.92))}^FD${zs(t)}^FS`;
-  const kx=gx+bcw+D(0.4),kAvail=xe-D(0.4)-kx;let kh2=kH;if(f.kar){const kw=q=>String(f.kar).length*F(q)*0.8*0.62;while(kh2>kH*0.6&&kw(kh2)>kAvail)kh2*=0.93}const Fk=F(kh2);
+  const kx=gx+bcw+D(0.35),kAvail=xe-D(1.0)-kx;let kh2=kH;if(f.kar){const kw=q=>String(f.kar).length*F(q)*0.8*0.62;while(kh2>kH*0.6&&kw(kh2)>kAvail)kh2*=0.93}const Fk=F(kh2);
   let y=top;if(cert){z+=bold(gx,y,tH,cert);y+=Ft+g1}
   const yb=y;if(f.bc){z+=`^FO${gx},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N,N^FD${B.data}^FS`;y+=bh+g1}
   if(f.kar)z+=bold(kx,f.bc?yb+Math.round((bh-Fk)/2):Math.round((H-Fk)/2),kh2,f.kar,0.8);
