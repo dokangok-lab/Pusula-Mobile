@@ -113,6 +113,7 @@ html.hi .tiles button{color:#fff}
 #dock .dkh b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dock .dkh span{display:flex;gap:4px;flex:none}#dock .dkh button{padding:4px 8px;min-height:0}
 #dock .dkb{padding:8px 12px;font-size:12.5px;line-height:1.45;white-space:pre-wrap;overflow-y:auto;flex:1}
 #dock .dka{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px}#dock .dka img{width:56px;height:56px;object-fit:cover;border-radius:8px;cursor:pointer}
+#dock.hide{display:none!important}
 body.docked #main{padding-bottom:32vh}
 html.hi #dock{background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 @media (min-width:900px){#dock{left:auto;right:16px;top:16px;bottom:16px;width:270px;max-height:none}body.docked #main{padding-right:290px;padding-bottom:0}}
@@ -209,8 +210,13 @@ html.hi #dock{background:color-mix(in srgb,var(--card) 82%,transparent);backdrop
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.51";
+const VER="1.56";
 const HIST=[
+ ["1.56","24.11.2026",["Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar"]],
+ ["1.55","24.11.2026",["Zertifikat-Finder: Waren ohne LG-Zertifikat (unter 1 ct / ohne Zertifikat) und Armbänder erscheinen jetzt als „💳 Kartenzertifikat“ in der Liste – abhaken, als abgegeben speichern, offene erscheinen unter „Noch abzugeben“; Gegenprüfung auch über die Warennummer (z. B. 320)","Fertigung: Hinweis, wenn eine Ware ein Kartenzertifikat braucht"]],
+ ["1.54","24.11.2026",["Übersicht: „Offene Position“ entfernt – „Offene Konten“ zeigt unten die Summen je Währung jetzt zusätzlich mit Saldo (Differenz)"]],
+ ["1.53","24.11.2026",["Backup-Datei heißt jetzt einfach „NAME-BACKUP.json“ (z. B. DIAMOND-BACKUP.json) – ohne Datum"]],
+ ["1.52","24.11.2026",["Notfall-Sicherung erscheint nur noch beim nächsten Öffnen der App – beim zweiten Öffnen ohne Wiederherstellen wird sie automatisch verworfen","Neu: 🗄️ Backup – zusätzliche verschlüsselte Kopie als eigene Datei „Name-Backup-Datum.json“; Rhythmus wählbar (3 Tage, 1 Woche, 2 Wochen, 1 Monat, Aus); merkt sich das letzte Backup und warnt bei Überschreitung, danach alle 6 Stunden erneut"]],
  ["1.51","24.11.2026",["Design HIGH am Handy: Farbhintergrund reicht jetzt bis ganz nach unten (auch unter der Leiste)"]],
  ["1.50","23.11.2026",["Fertigung: Sobald ein Stein eingetragen ist, werden Montage und Polieren automatisch als Arbeitsschritt hinzugefügt; bei D2-Seitensteinen zusätzlich Montage D2 (mit Anzahl und Preis automatisch)","Beim Speichern/Fertigstellen wird nochmal geprüft und Fehlendes ergänzt (mit Hinweis); selbst gelöschte Schritte werden nicht wieder hinzugefügt"]],
  ["1.49","23.11.2026",["Fertigung: Häkchen „Etikettenpreis aufrunden“ unter dem Etikettenpreis – rundet automatisch auf (ganze Zahl, 5, 10, 50 oder 100), z. B. 2064,60 → 2065; Einstellung wird für alle Waren gemerkt"]],
@@ -418,7 +424,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 
 /* ---------- Start / Laden / Speichern ---------- */
 $("verS").textContent="Version "+VER;
-function show(on){if(!on){document.body.classList.remove("docked");const dk=$("dock");if(dk)dk.classList.add("hide")}if(!on&&typeof setDesign==="function")setDesign("low");$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
+function show(on){if(!on&&typeof bkHide==="function")bkHide();if(on&&typeof bkCheck==="function")setTimeout(bkCheck,2500);if(!on){document.body.classList.remove("docked");const dk=$("dock");if(dk)dk.classList.add("hide")}if(!on&&typeof setDesign==="function")setDesign("low");$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){ui.savedAt=Date.now();if(typeof txReset==="function")txReset();if(typeof setDesign==="function")setDesign(d&&d.design==="high"?"high":"low");
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
@@ -457,7 +463,8 @@ async function rcSnap(){if(!data||!data.user||!pw||rcBusy)return;if((data.people
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="hidden")rcSnap()});
 window.addEventListener("pagehide",()=>rcSnap());setInterval(rcSnap,120000);
 let rcCur=null;
-async function rcShow(){const b=$("rcbox");if(!b)return;rcCur=await rcGet();if(!rcCur||!rcCur.text){b.classList.add("hide");return}
+async function rcShow(startup){const b=$("rcbox");if(!b)return;rcCur=await rcGet();if(!rcCur||!rcCur.text){b.classList.add("hide");return}
+ if(startup){if(rcCur.shown){await rcDel();rcCur=null;b.classList.add("hide");return}try{await rcOp("readwrite",s=>s.put(Object.assign({},rcCur,{shown:1}),RCK))}catch(_){}}
  const d=new Date(rcCur.t);$("rct").textContent=tx("⚠️ Nicht gespeicherte Sitzung gefunden")+": „"+rcCur.user+"“ · "+d.toLocaleDateString("de-DE")+" "+d.toLocaleTimeString("de-DE",{hour:"2-digit",minute:"2-digit"});b.classList.remove("hide")}
 $("bRc").onclick=async()=>{if(!rcCur)return;if(!$("pw").value){$("msg").textContent=tx("Bitte zuerst das Passwort eingeben.");return}
  try{await loadJ(JSON.parse(rcCur.text));if(data){ui.savedAt=0;toast(tx("Sitzung wiederhergestellt – bitte gleich speichern 💾"))}}catch(_){$("msg").textContent=tx("Passwort falsch.")}};
@@ -495,13 +502,24 @@ function remCheck(){try{if(!data||!data.user||!ui.savedAt||$("main").classList.c
  const t=Math.round(age),txt=t>=60?(Math.floor(t/60)+" Std"+(t%60?" "+(t%60)+" Min":"")):t+" Min";
  d.innerHTML=`<b style="flex:1;min-width:180px">⚠️ ${esc(tx("Seit"))} ${txt} ${esc(tx("nicht gespeichert"))}</b><button data-a="savekeep" style="width:auto;background:#fff;color:#b45309">💾 ${esc(tx("Jetzt speichern"))}</button><button class="sec" data-a="remlater" style="width:auto">${esc(tx("Später"))}</button>`;document.body.appendChild(d)}catch(_){}}
 setInterval(remCheck,30000);
+function bkIv(){const b=data&&data.bk||{};return b.iv===undefined?7:Number(b.iv)}
+function bkBase(){const b=data.bk=data.bk||{};if(!b.last&&!b.start)b.start=nowIso();return new Date(b.last||b.start)}
+function bkDue(){return new Date(bkBase().getTime()+bkIv()*86400000)}
+function bkOver(){if(!data||!bkIv())return 0;const d=(Date.now()-bkDue().getTime())/86400000;return d>=0?Math.max(1,Math.ceil(d)):0}
+function bkHide(){const e=document.getElementById("bkbar");if(e)e.remove()}
+function bkCheck(force){try{if(!data||!data.user||$("main").classList.contains("hide")||!bkIv())return bkHide();const b=data.bk=data.bk||{};bkBase();
+ if(Date.now()<bkDue().getTime())return bkHide();if(document.getElementById("bkbar"))return;
+ if(!force&&b.warnAt&&Date.now()-new Date(b.warnAt).getTime()<6*3600000)return;b.warnAt=nowIso();
+ const d=document.createElement("div");d.id="bkbar";d.style.cssText="position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 92px);z-index:60;background:#1d4ed8;color:#fff;border-radius:14px;padding:12px 14px;box-shadow:0 6px 20px rgba(0,0,0,.35);display:flex;gap:8px;align-items:center;flex-wrap:wrap;max-width:620px;margin:0 auto";
+ d.innerHTML=`<b style="flex:1;min-width:180px">🗄️ ${esc(tx(b.last?"Backup überfällig – letztes Backup am":"Noch kein Backup gemacht"))}${b.last?" "+dt(b.last.slice(0,10)):""}</b><button data-a="backup" style="width:auto;background:#fff;color:#1d4ed8">💾 ${esc(tx("Backup jetzt"))}</button><button class="sec" data-a="bklater" style="width:auto;color:#fff;border-color:#fff">${esc(tx("Später"))}</button>`;document.body.appendChild(d)}catch(_){}}
+setInterval(bkCheck,5*60000);
 $("bSave").onclick=async()=>{
  const name=data.user+".json";let text;
  try{text=await enc(data,pw);
   await writeOut(name,text);await rcDel();rcLast="";
  }catch(e){alert(tx("Nicht gespeichert – die Daten bleiben noch in der App."));return}
  data=null;pw="";pend3=null;$("pw").value="";$("pw3box").classList.add("hide");$("msg").textContent="Gespeichert. Die App ist jetzt leer.";show(false);rcShow()};
-rcShow();
+rcShow(true);
 
 /* ---------- Navigation und Ereignisse ---------- */
 const act={};
@@ -863,6 +881,33 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar ~ Note pinning: the empty column on the right now disappears completely when no note is pinned – full screen usable again ~ Not sabitleme: sabitlenmiş not yokken sağdaki boş sütun artık tamamen kaybolur – tam ekran yeniden kullanılabilir
+Zertifikat-Finder: Waren ohne LG-Zertifikat (unter 1 ct / ohne Zertifikat) und Armbänder erscheinen jetzt als „💳 Kartenzertifikat“ in der Liste – abhaken, als abgegeben speichern, offene erscheinen unter „Noch abzugeben“; Gegenprüfung auch über die Warennummer (z. B. 320) ~ Certificate finder: items without LG certificate (below 1 ct / no certificate) and bracelets now appear as “💳 Card certificate” in the list – tick, save as handed over, open ones appear under “Still to hand over”; cross-check also by item number (e.g. 320) ~ Sertifika bulucu: LG sertifikası olmayan ürünler (1 ct altı / sertifikasız) ve bileklikler artık listede “💳 Kart sertifikası” olarak görünür – işaretle, teslim edildi olarak kaydet, açık olanlar “Teslim edilecek” altında; çapraz kontrol ürün numarasıyla da (ör. 320)
+Fertigung: Hinweis, wenn eine Ware ein Kartenzertifikat braucht ~ Production: note when an item needs a card certificate ~ Üretim: bir ürün kart sertifikası gerektirdiğinde uyarı
+💳 Kartenzertifikat ~ 💳 Card certificate ~ 💳 Kart sertifikası
+Kartenzertifikat ~ card certificate ~ kart sertifikası
+unter 1 ct / ohne Zertifikat ~ below 1 ct / no certificate ~ 1 ct altı / sertifikasız
+Armband ~ Bracelet ~ Bileklik
+Diese Ware braucht ein ~ This item needs a ~ Bu ürün şunu gerektirir:
+Übersicht: „Offene Position“ entfernt – „Offene Konten“ zeigt unten die Summen je Währung jetzt zusätzlich mit Saldo (Differenz) ~ Overview: “Open position” removed – “Open accounts” now also shows the balance (difference) with the totals per currency ~ Genel bakış: “Açık pozisyon” kaldırıldı – “Açık hesaplar” altta para birimine göre toplamları artık bakiye (fark) ile de gösterir
+Saldo ~ Balance ~ Bakiye
+Backup-Datei heißt jetzt einfach „NAME-BACKUP.json“ (z. B. DIAMOND-BACKUP.json) – ohne Datum ~ The backup file is now simply called “NAME-BACKUP.json” (e.g. DIAMOND-BACKUP.json) – without date ~ Yedek dosyasının adı artık sadece “AD-BACKUP.json” (ör. DIAMOND-BACKUP.json) – tarihsiz
+Notfall-Sicherung erscheint nur noch beim nächsten Öffnen der App – beim zweiten Öffnen ohne Wiederherstellen wird sie automatisch verworfen ~ The emergency backup only appears on the next app start – on the second start without restoring it is discarded automatically ~ Acil yedek yalnızca uygulamanın bir sonraki açılışında görünür – geri yüklemeden ikinci açılışta otomatik silinir
+Neu: 🗄️ Backup – zusätzliche verschlüsselte Kopie als eigene Datei „Name-Backup-Datum.json“; Rhythmus wählbar (3 Tage, 1 Woche, 2 Wochen, 1 Monat, Aus); merkt sich das letzte Backup und warnt bei Überschreitung, danach alle 6 Stunden erneut ~ New: 🗄️ Backup – additional encrypted copy as its own file “Name-Backup-date.json”; interval selectable (3 days, 1 week, 2 weeks, 1 month, off); remembers the last backup and warns when overdue, then again every 6 hours ~ Yeni: 🗄️ Yedek – ayrı dosya olarak ek şifreli kopya “Ad-Backup-tarih.json”; aralık seçilebilir (3 gün, 1 hafta, 2 hafta, 1 ay, kapalı); son yedeği hatırlar ve geciktiğinde uyarır, sonra her 6 saatte bir tekrar
+🗄️ Backup ~ 🗄️ Backup ~ 🗄️ Yedek
+Backup-Rhythmus ~ Backup interval ~ Yedekleme aralığı
+alle 3 Tage ~ every 3 days ~ 3 günde bir
+jede Woche ~ every week ~ her hafta
+alle 2 Wochen ~ every 2 weeks ~ 2 haftada bir
+jeden Monat ~ every month ~ her ay
+Letztes Backup: ~ Last backup: ~ Son yedek:
+Noch kein Backup gemacht ~ No backup made yet ~ Henüz yedek alınmadı
+🗄️ Backup jetzt speichern ~ 🗄️ Save backup now ~ 🗄️ Şimdi yedekle
+Backup überfällig – letztes Backup am ~ Backup overdue – last backup on ~ Yedek gecikti – son yedek:
+Backup jetzt ~ Backup now ~ Şimdi yedekle
+Erinnerung in 6 Stunden wieder ~ Reminder again in 6 hours ~ 6 saat sonra tekrar hatırlatma
+🗄️ Backup gespeichert: ~ 🗄️ Backup saved: ~ 🗄️ Yedek kaydedildi:
+Backup nicht gespeichert ~ Backup not saved ~ Yedek kaydedilmedi
 Design HIGH am Handy: Farbhintergrund reicht jetzt bis ganz nach unten (auch unter der Leiste) ~ Design HIGH on the phone: the colour background now reaches all the way down (also below the bar) ~ Telefonda HIGH tasarım: renkli arka plan artık en alta kadar uzanıyor (çubuğun altında da)
 Fertigung: Sobald ein Stein eingetragen ist, werden Montage und Polieren automatisch als Arbeitsschritt hinzugefügt; bei D2-Seitensteinen zusätzlich Montage D2 (mit Anzahl und Preis automatisch) ~ Production: as soon as a stone is entered, setting and polishing are added automatically as work steps; for D2 side stones also setting D2 (with count and price automatically) ~ Üretim: taş girilir girilmez montaj ve cila otomatik iş adımı olarak eklenir; D2 yan taşlarda ayrıca montaj D2 (adet ve fiyat otomatik)
 Beim Speichern/Fertigstellen wird nochmal geprüft und Fehlendes ergänzt (mit Hinweis); selbst gelöschte Schritte werden nicht wieder hinzugefügt ~ On save/finish it checks again and adds what is missing (with a note); steps you deleted yourself are not added again ~ Kaydet/tamamla sırasında tekrar kontrol edilir ve eksikler eklenir (uyarıyla); kendi sildiğiniz adımlar tekrar eklenmez
@@ -2540,7 +2585,11 @@ act.stp=d=>{ui.stp=d.v;render()};
 /* ---------- Zertifikat-Finder ---------- */
 function cfSales(){const g={};data.moves.filter(m=>m.type==="VB"&&m.sno).forEach(m=>{(g[m.sno]=g[m.sno]||{sno:m.sno,date:m.date,pid:m.pid,ms:[]}).ms.push(m)});
  return Object.values(g).sort((a,b)=>String(b.date).localeCompare(String(a.date))||b.sno.localeCompare(a.sno))}
-function cfCerts(sel){const L=[];cfSales().filter(s=>sel[s.sno]).forEach(s=>s.ms.forEach(m=>mProds(m).forEach(p=>(p.stones||[]).filter(x=>!x.d2&&x.sid).forEach(x=>{const st=data.stock.find(y=>y.id===x.sid);
+function isArmband(p){return /armband|bracelet|bileklik|tennis/i.test([p.group,p.name,p.model,p.cat].filter(Boolean).join(" "))}
+function cardNeed(p){if(isArmband(p))return"Armband";const lg=(p.stones||[]).some(x=>!x.d2&&x.sid&&(data.stock.find(y=>y.id===x.sid)||{}).name&&!x.rng);return lg?"":"unter 1 ct / ohne Zertifikat"}
+function cfCerts(sel){const L=[];cfSales().filter(s=>sel[s.sno]).forEach(s=>s.ms.forEach(m=>mProds(m).forEach(p=>{const why=cardNeed(p);if(why){const o=data.orders.find(o=>oItems(o).some(it=>Array.isArray(it.pids)&&it.pids.includes(p.id)));const ct=(p.stones||[]).reduce((a,x)=>a+(parse(x.qty)||0),0);
+  L.push({l4:String(p.code).replace(/\D/g,"").slice(-4),cert:"KARTE·"+p.code,code:p.code,sno:s.sno,ct,type:"💳 Kartenzertifikat ("+why+")",card:1,buyer:pnm(s.pid),for:o&&o.pid!==s.pid?pnm(o.pid):"",ono:o?o.no||"":""})}})));
+ cfSales().filter(s=>sel[s.sno]).forEach(s=>s.ms.forEach(m=>mProds(m).forEach(p=>(p.stones||[]).filter(x=>!x.d2&&x.sid).forEach(x=>{const st=data.stock.find(y=>y.id===x.sid);
   if(st&&st.name){const o=data.orders.find(o=>oItems(o).some(it=>Array.isArray(it.pids)&&it.pids.includes(p.id)));L.push({l4:st4(st.name),cert:st.name,code:p.code,sno:s.sno,ct:parse(x.qty)||parse(st.ct),type:x.type||st.type||"",buyer:pnm(s.pid),for:o&&o.pid!==s.pid?pnm(o.pid):"",ono:o?o.no||"":""})}}))));
  return L.sort((a,b)=>a.l4.localeCompare(b.l4,"de",{numeric:true})||a.cert.localeCompare(b.cert))}
 function rCert(){const sel=ui.cfs||(ui.cfs={}),q=String(ui.cfq||"").trim().toLowerCase(),S=cfSales().filter(s=>!q||(s.sno+" "+pnm(s.pid)).toLowerCase().includes(q)),C=cfCerts(sel),n=Object.values(sel).filter(Boolean).length;
@@ -2571,6 +2620,8 @@ act.cfcheck=()=>{const e=$("cfchk");if(!e)return;const q=String(e.value||"").tri
  const n=q.toUpperCase().replace(/\s+/g,""),dg=n.replace(/\D/g,""),C=cfCerts(ui.cfs||{});
  const stones=data.stock.filter(s=>s.name&&(String(s.name).toUpperCase().replace(/\s+/g,"")===n||(dg.length>=4&&String(s.name).replace(/\D/g,"").endsWith(dg))));
  const R=ui.cfr=ui.cfr||[];
+ const cards=C.filter(c=>c.card&&(String(c.code).toUpperCase()===n||String(c.code).toUpperCase()===yzSwap(n)||(dg.length>=3&&String(c.code).replace(/\D/g,"").replace(/^0+/,"").endsWith(dg.replace(/^0+/,"")))));
+ if(cards.length&&!stones.length){cards.forEach(c=>{data.cfok=data.cfok||{};const was=data.cfok[c.cert];if(!was)data.cfok[c.cert]=2;R.unshift({q:c.code,ok:true,msg:"💳 Kartenzertifikat: "+shortCode(c.code)+" · "+(c.for||c.buyer)+" · "+c.sno+(was?" · war schon abgehakt":" · jetzt abgehakt")})});rCert();setTimeout(()=>{const x=$("cfchk");if(x)x.focus()},30);return}
  if(!stones.length)R.unshift({q,ok:false,msg:"Nicht im System gefunden – gehört nicht zu diesen Verkäufen"});
  else stones.forEach(s=>{const c=C.find(x=>x.cert===s.name),du=!c&&cfDue().find(x=>x.cert===s.name);
   if(c){data.cfok=data.cfok||{};const was=data.cfok[c.cert];if(!was)data.cfok[c.cert]=2;R.unshift({q:s.name,ok:true,msg:"Gehört dazu: "+shortCode(c.code)+" · "+(c.for||c.buyer)+" · "+c.sno+(was?" · war schon abgehakt":" · jetzt abgehakt")})}
@@ -3562,7 +3613,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  ${ui.pnew?"":`<div class="row"><button class="sec" data-a="pdup">⧉ Duplizieren (gleiches Modell, neue Nummer)</button></div>`}
  <div class="row">${d.status==="sold"?"":`<button class="sec" data-a="pfin">${d.status==="done"?"Wieder in Fertigung":"Fertigstellen"}</button>`}</div>
  <div class="row"><button class="sec" data-a="lbl" data-k="fin">🏷️ Etikett drucken</button><button class="sec" data-a="lbl" data-k="ws">🔧 Werkstatt-Etikett</button></div>${ui.lp?lpHTML():""}
- <div class="row"><button class="sec" data-a="card">💳 Zertifikatskarte drucken</button></div>${ui.cp?cpHTML():""}
+ ${cardNeed(d)?`<p class="mu" style="margin:0 0 4px">💳 Diese Ware braucht ein <b>Kartenzertifikat</b> (${esc(cardNeed(d))}).</p>`:""}<div class="row"><button class="sec" data-a="card">💳 Zertifikatskarte drucken</button></div>${ui.cp?cpHTML():""}
  ${d.status==="sold"?"":pkPHTML(d)}
  <div class="row"><button class="sec" data-a="pback">← Zurück zur Liste</button></div>
  ${idx>=0?`<div class="row"><button class="sec" data-a="pnav" data-v="-1">◀ Vorheriges</button><button class="sec" data-a="pnav" data-v="1">Nächstes ▶</button></div>`:""}`;
@@ -3724,7 +3775,6 @@ function rHome(){
  const nS=Object.values(days).reduce((a,d)=>a+d.n,0);
  const dR=Object.keys(days).sort().reverse().slice(0,10).map(k=>[dt(k),String(days[k].n),Object.keys(days[k].r).map(c=>f2(days[k].r[c])+" "+c).join(" + ")||"–"]);
  $("s-home").innerHTML=
-  box("Offene Position","⚖️",TB(["Währung","Forderung","Schuld","Differenz"],pos),"konten")+
   ocDue()+ocBox()+ocCfd()+ocOrd()+
   box("Kasse","💶",TB(["Währung","Bestand"],bl(cash)),"kasse")+
   box("Bank","🏦",TB(["Währung","Bestand"],bl(bank)),"kasse")+
@@ -3742,7 +3792,7 @@ function ocBox(){
  const G='display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center';
  const rows=oc.map(x=>`<div class="it click" data-a="gop" data-id="${x.p.id}" style="${G}"><div style="min-width:0"><b>${esc(x.p.name)}</b><small>${esc([x.p.city,x.p.country].filter(Boolean).join(", "))}</small></div><div class="in" style="text-align:right">${cell(x,1)}</div><div class="out" style="text-align:right">${cell(x,0)}</div></div>`).join("");
  const head=`<div style="${G};padding:0 0 6px;border-bottom:1px solid var(--bd);font-weight:700;font-size:13px"><span class="mu">Person</span><span class="in" style="text-align:right">＋ Er schuldet mir</span><span class="out" style="text-align:right">− Ich schulde</span></div>`;
- const tot=Object.keys(T).map(u=>`<div style="${G};padding:6px 0 0"><b>Summe ${UN[u]}</b><b class="in" style="text-align:right">${T[u][0]?fn(T[u][0],u):"–"}</b><b class="out" style="text-align:right">${T[u][1]?fn(T[u][1],u):"–"}</b></div>`).join("");
+ const tot=Object.keys(T).map(u=>`<div style="${G};padding:6px 0 0"><div><b>Summe ${UN[u]}</b><small style="display:block;font-weight:600" class="${T[u][0]-T[u][1]>=0?"in":"out"}">Saldo ${T[u][0]-T[u][1]>=0?"+":"−"}${fn(Math.abs(T[u][0]-T[u][1]),u)}</small></div><b class="in" style="text-align:right">${T[u][0]?fn(T[u][0],u):"–"}</b><b class="out" style="text-align:right">${T[u][1]?fn(T[u][1],u):"–"}</b></div>`).join("");
  return box("Offene Konten","👥",head+rows+`<div style="border-top:2px solid var(--bd);margin-top:4px">${tot}</div>`,"konten")}
 
 /* ---------- Einstellungen ---------- */
@@ -3992,6 +4042,9 @@ function lbSet(){LB();const b=data.lbl;
 function lsPrev(){const c=LB(),sc=Math.min(2.4,320/(c.w*3.78));return `<div style="height:${c.h*3.78*sc+4}px"><div style="transform:scale(${sc});transform-origin:left top;width:${c.w}mm;outline:1px dashed #999">${lbOne("fin",LSAMP)}</div></div>`}
 function uLs(){const e=$("lsv");if(e)e.innerHTML=lsPrev()}
 act.fs=()=>{const d=document;try{if(d.fullscreenElement)d.exitFullscreen();else if(d.documentElement.requestFullscreen)d.documentElement.requestFullscreen();else toast("Vollbild: Taste F11")}catch(_){toast("Vollbild: Taste F11")}};
+act.bklater=()=>{bkHide();toast("Erinnerung in 6 Stunden wieder")};
+act.backup=async()=>{const b=data.bk=data.bk||{},old=b.last,ow=b.warnAt;b.last=nowIso();b.warnAt="";const nm=data.user+"-BACKUP.json";
+ try{const text=await enc(data,pw);await writeOut(nm,text);bkHide();toast("🗄️ Backup gespeichert: "+nm);render()}catch(e){b.last=old;b.warnAt=ow;toast("Backup nicht gespeichert")}};
 act.remlater=()=>{ui.savedAt=Date.now()-Math.max(0,remMin()-15)*60000;remHide()};
 act.savekeep=async()=>{try{await saveFile();data.savedAt=nowIso();toast("Zwischengespeichert – du kannst weiterarbeiten");render()}catch(e){if(e&&e.name==="AbortError"){toast("Nicht gespeichert");return}toast("Nicht gespeichert")}};
 act.pwchg=()=>{const f=ui.pwf;
@@ -4039,6 +4092,10 @@ function setFold(){const root=$("s-set");if(!root)return;ui.sf=ui.sf||{};
    cards.forEach(c=>{const hb=c.querySelector(":scope>.sfh");if(!hb)return;const tb=hb.querySelector("b");const k=(tb.__o!==undefined?tb.__o:tb.textContent).trim().replace(/\s+\d[\d.,]*$/,"");ui.sf[k]=o})})}}
 function rSet0(){
  $("s-set").innerHTML=`<div class="card"><b>🎨 Design</b><p class="mu" style="margin:4px 0 8px">LOW = einfach &amp; schnell mit Emojis. HIGH = moderne Schrift, animierter Farbhintergrund, eigene Icons statt Emojis. Wird in deinem Profil gespeichert.</p><div class="row dsel"><button class="${design==="low"?"":"sec"}" data-a="design" data-v="low">◻︎ Einfach (LOW)</button><button class="${design==="high"?"":"sec"}" data-a="design" data-v="high">✨ Modern (HIGH)</button></div></div>
+ ${(data.bk=data.bk||{}),""}<div class="card"><b>🗄️ Backup</b><p class="mu" style="margin:4px 0 8px">Speichert eine zusätzliche Sicherheitskopie als eigene Datei „${esc(data.user)}-BACKUP.json“ (gleich verschlüsselt). Die App erinnert, wenn das letzte Backup zu lange her ist – danach alle 6 Stunden erneut.</p>
+ ${F("Backup-Rhythmus",S("data.bk.iv",String(bkIv()),[["3","alle 3 Tage"],["7","jede Woche"],["14","alle 2 Wochen"],["30","jeden Monat"],["0","Aus"]],'data-r="1"'))}
+ <p style="margin:0 0 8px">${(data.bk||{}).last?"Letztes Backup: <b>"+dt((data.bk||{}).last.slice(0,10))+"</b>"+(bkOver()>0?` <span class="out">· seit ${bkOver()} Tag(en) überfällig</span>`:` <span class="in">· nächstes fällig am ${dt(bkDue().toISOString().slice(0,10))}</span>`):'<span class="out">Noch kein Backup gemacht</span>'}</p>
+ <button data-a="backup">🗄️ Backup jetzt speichern</button></div>
  <div class="card"><b>⏰ Speicher-Erinnerung</b><p class="mu" style="margin:4px 0 8px">Warnt oben, wenn so lange nicht gespeichert wurde. „Später“ erinnert in 15 Minuten wieder.</p>${S("data.remind",String(remMin()),[["0","Aus"],["30","nach 30 Minuten"],["60","nach 1 Stunde"],["90","nach 1,5 Stunden"],["120","nach 2 Stunden"]])}</div>
  <div class="card"><b>Sprache</b><div class="row" style="margin:8px 0 0">${LANGS.map(([c,f,n])=>`<button class="${lang===c?"":"sec"}" data-a="lang" data-v="${c}">${f} ${n}</button>`).join("")}</div></div>
  ${udSet()}

@@ -1,10 +1,27 @@
-Pusula Mobile – Update 1.51 (Komplettpaket)
+Pusula Mobile – Update 1.56 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.51.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.56.
 
 Änderungen:
+
+1.56 (24.11.2026)
+  - Notiz-Fixierung: leere Spalte rechts verschwindet jetzt ganz, wenn keine Notiz fixiert ist – voller Bildschirm wieder nutzbar
+
+1.55 (24.11.2026)
+  - Zertifikat-Finder: Waren ohne LG-Zertifikat (unter 1 ct / ohne Zertifikat) und Armbänder erscheinen jetzt als „💳 Kartenzertifikat“ in der Liste – abhaken, als abgegeben speichern, offene erscheinen unter „Noch abzugeben“; Gegenprüfung auch über die Warennummer (z. B. 320)
+  - Fertigung: Hinweis, wenn eine Ware ein Kartenzertifikat braucht
+
+1.54 (24.11.2026)
+  - Übersicht: „Offene Position“ entfernt – „Offene Konten“ zeigt unten die Summen je Währung jetzt zusätzlich mit Saldo (Differenz)
+
+1.53 (24.11.2026)
+  - Backup-Datei heißt jetzt einfach „NAME-BACKUP.json“ (z. B. DIAMOND-BACKUP.json) – ohne Datum
+
+1.52 (24.11.2026)
+  - Notfall-Sicherung erscheint nur noch beim nächsten Öffnen der App – beim zweiten Öffnen ohne Wiederherstellen wird sie automatisch verworfen
+  - Neu: 🗄️ Backup – zusätzliche verschlüsselte Kopie als eigene Datei „Name-Backup-Datum.json“; Rhythmus wählbar (3 Tage, 1 Woche, 2 Wochen, 1 Monat, Aus); merkt sich das letzte Backup und warnt bei Überschreitung, danach alle 6 Stunden erneut
 
 1.51 (24.11.2026)
   - Design HIGH am Handy: Farbhintergrund reicht jetzt bis ganz nach unten (auch unter der Leiste)
