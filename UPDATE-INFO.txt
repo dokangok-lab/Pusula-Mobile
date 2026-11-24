@@ -1,10 +1,32 @@
-Pusula Mobile – Update 1.44 (Komplettpaket)
+Pusula Mobile – Update 1.51 (Komplettpaket)
 
 Alle Dateien bei GitHub (Pusula-Mobile) hochladen und vorhandene ersetzen:
 index.html, sw.js, manifest.webmanifest, icon-180.png, icon-192.png, icon-512.png
-Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.44.
+Danach die App 2x neu laden – unter Einstellungen steht dann Version 1.51.
 
 Änderungen:
+
+1.51 (24.11.2026)
+  - Design HIGH am Handy: Farbhintergrund reicht jetzt bis ganz nach unten (auch unter der Leiste)
+
+1.50 (23.11.2026)
+  - Fertigung: Sobald ein Stein eingetragen ist, werden Montage und Polieren automatisch als Arbeitsschritt hinzugefügt; bei D2-Seitensteinen zusätzlich Montage D2 (mit Anzahl und Preis automatisch)
+  - Beim Speichern/Fertigstellen wird nochmal geprüft und Fehlendes ergänzt (mit Hinweis); selbst gelöschte Schritte werden nicht wieder hinzugefügt
+
+1.49 (23.11.2026)
+  - Fertigung: Häkchen „Etikettenpreis aufrunden“ unter dem Etikettenpreis – rundet automatisch auf (ganze Zahl, 5, 10, 50 oder 100), z. B. 2064,60 → 2065; Einstellung wird für alle Waren gemerkt
+
+1.48 (23.11.2026)
+  - Fertigung → Arbeitsschritte (Montage, Montage D2, Polieren …): sobald Ausgang und Eingang eingetragen sind, springt der Status automatisch auf „Erledigt“ (selbst geänderter Status bleibt)
+
+1.47 (23.11.2026)
+  - Zebra-Etikett: linker Teil (D, D2, Farbe/Reinheit, Gramm) minimal größer und etwas breiter gezogen – weiterhin dünn, nicht fett; Farbe/Reinheit etwas weiter rechts; LG- und Seriennummer minimal breiter
+
+1.46 (23.11.2026)
+  - Fertigungsliste: neben dem Werkstattpaket steht jetzt auch, für welchen Kunden es ist (z. B. 🔧 P0010 (Mira) 👤 für Liva Gold)
+
+1.45 (23.11.2026)
+  - Notizen: „📌 Rechts fixieren“ – die Notiz bleibt am Laptop als schmale Spalte rechts stehen (Titel, Text klein, Fotos), während du in Fertigung, Lager usw. arbeitest; am Handy als kleines Fenster über der Leiste; ✏️ öffnet sie, ✕ löst die Fixierung
 
 1.44 (23.11.2026)
   - Zebra-Etikett: LG- und Seriennummer wieder dünn (nicht fett), gleiche Größe; Barcode und Seriennummer weiter oben und kompakter, damit unten nichts abgeschnitten wird; 14K wird automatisch so klein, dass es nie über den rechten Teil hinaus aufs Schwänzchen geht

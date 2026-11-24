@@ -88,8 +88,8 @@ body{max-width:none;padding:20px 28px 40px}
 
 /* ---- Design HIGH ---- */
 html.hi body{font-family:"Plus Jakarta Sans",-apple-system,system-ui,"Segoe UI",sans-serif;letter-spacing:-.005em;background:transparent}
-html.hi{background:var(--bg)}
-html.hi body::before{content:"";position:fixed;inset:-20%;z-index:-1;pointer-events:none;
+html.hi{background:radial-gradient(60% 40% at 85% 100%,rgba(40,200,190,.22),transparent 70%),radial-gradient(60% 40% at 10% 100%,rgba(255,80,160,.18),transparent 70%),var(--bg);background-attachment:fixed;min-height:100%}
+html.hi body::before{content:"";position:fixed;left:-20%;right:-20%;top:-20vh;height:calc(140lvh + env(safe-area-inset-bottom,0px) + 120px);z-index:-1;pointer-events:none;
  background:radial-gradient(40% 35% at 20% 25%,color-mix(in srgb,var(--ac) 55%,transparent),transparent 70%),radial-gradient(35% 30% at 80% 20%,rgba(255,170,60,.38),transparent 70%),radial-gradient(45% 40% at 70% 80%,rgba(40,200,190,.32),transparent 70%),radial-gradient(40% 35% at 15% 85%,rgba(255,80,160,.28),transparent 70%);
  filter:blur(30px);animation:hiBg 26s ease-in-out infinite alternate}
 @keyframes hiBg{0%{transform:translate(0,0) rotate(0deg) scale(1)}50%{transform:translate(4%,-3%) rotate(8deg) scale(1.08)}100%{transform:translate(-4%,3%) rotate(-6deg) scale(1.02)}}
@@ -107,6 +107,15 @@ html.hi button:not(.sec):not(.sfh){text-shadow:0 0 1px rgba(0,0,0,.55),0 1px 2px
 html.hi .tiles button b{color:#ffe08a;font-size:17px;letter-spacing:.02em;-webkit-text-stroke:.5px rgba(0,0,0,.6);text-shadow:0 1px 3px rgba(0,0,0,.5)}
 html.hi .tiles button{color:#fff}
 .dsel{display:flex;gap:8px}.dsel button{flex:1}
+
+#dock{position:fixed;z-index:6;background:var(--card);border:1px solid var(--bd);border-radius:16px;box-shadow:0 8px 24px rgba(0,0,0,.25);display:flex;flex-direction:column;left:8px;right:8px;bottom:84px;max-height:30vh;overflow:hidden}
+#dock .dkh{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--bd);font-size:13px}
+#dock .dkh b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#dock .dkh span{display:flex;gap:4px;flex:none}#dock .dkh button{padding:4px 8px;min-height:0}
+#dock .dkb{padding:8px 12px;font-size:12.5px;line-height:1.45;white-space:pre-wrap;overflow-y:auto;flex:1}
+#dock .dka{display:flex;flex-wrap:wrap;gap:6px;padding:0 12px 10px}#dock .dka img{width:56px;height:56px;object-fit:cover;border-radius:8px;cursor:pointer}
+body.docked #main{padding-bottom:32vh}
+html.hi #dock{background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+@media (min-width:900px){#dock{left:auto;right:16px;top:16px;bottom:16px;width:270px;max-height:none}body.docked #main{padding-right:290px;padding-bottom:0}}
 </style></head><body>
 
 <div id="start">
@@ -174,6 +183,7 @@ html.hi .tiles button{color:#fff}
  <section id="s-pkg" class="hide"></section>
  <section id="s-set" class="hide"></section>
 
+ <aside id="dock" class="hide"></aside>
  <nav class="nb">
   <button data-a="go" data-v="home" class="on"><span>🏠</span>Übersicht</button>
   <button data-a="go" data-v="konten"><span>👥</span>Konten</button>
@@ -199,8 +209,15 @@ html.hi .tiles button{color:#fff}
 
 <script>
 if(!window.claude)window.claude={use:async()=>null};
-const VER="1.44";
+const VER="1.51";
 const HIST=[
+ ["1.51","24.11.2026",["Design HIGH am Handy: Farbhintergrund reicht jetzt bis ganz nach unten (auch unter der Leiste)"]],
+ ["1.50","23.11.2026",["Fertigung: Sobald ein Stein eingetragen ist, werden Montage und Polieren automatisch als Arbeitsschritt hinzugefügt; bei D2-Seitensteinen zusätzlich Montage D2 (mit Anzahl und Preis automatisch)","Beim Speichern/Fertigstellen wird nochmal geprüft und Fehlendes ergänzt (mit Hinweis); selbst gelöschte Schritte werden nicht wieder hinzugefügt"]],
+ ["1.49","23.11.2026",["Fertigung: Häkchen „Etikettenpreis aufrunden“ unter dem Etikettenpreis – rundet automatisch auf (ganze Zahl, 5, 10, 50 oder 100), z. B. 2064,60 → 2065; Einstellung wird für alle Waren gemerkt"]],
+ ["1.48","23.11.2026",["Fertigung → Arbeitsschritte (Montage, Montage D2, Polieren …): sobald Ausgang und Eingang eingetragen sind, springt der Status automatisch auf „Erledigt“ (selbst geänderter Status bleibt)"]],
+ ["1.47","23.11.2026",["Zebra-Etikett: linker Teil (D, D2, Farbe/Reinheit, Gramm) minimal größer und etwas breiter gezogen – weiterhin dünn, nicht fett; Farbe/Reinheit etwas weiter rechts; LG- und Seriennummer minimal breiter"]],
+ ["1.46","23.11.2026",["Fertigungsliste: neben dem Werkstattpaket steht jetzt auch, für welchen Kunden es ist (z. B. 🔧 P0010 (Mira) 👤 für Liva Gold)"]],
+ ["1.45","23.11.2026",["Notizen: „📌 Rechts fixieren“ – die Notiz bleibt am Laptop als schmale Spalte rechts stehen (Titel, Text klein, Fotos), während du in Fertigung, Lager usw. arbeitest; am Handy als kleines Fenster über der Leiste; ✏️ öffnet sie, ✕ löst die Fixierung"]],
  ["1.44","23.11.2026",["Zebra-Etikett: LG- und Seriennummer wieder dünn (nicht fett), gleiche Größe; Barcode und Seriennummer weiter oben und kompakter, damit unten nichts abgeschnitten wird; 14K wird automatisch so klein, dass es nie über den rechten Teil hinaus aufs Schwänzchen geht"]],
  ["1.43","23.11.2026",["Design wird jetzt im Profil (in der Datei) gespeichert: Beim Start ist immer LOW; erst nach dem Öffnen der Datei mit Passwort kommt das zuletzt gewählte Design (HIGH/LOW); nach „Speichern & Beenden“ wieder LOW"]],
  ["1.42","23.11.2026",["Zebra-Druck: bei der Frage nach dem Kartendrucker gibt es jetzt die letzte Option „Keiner“ – dann kommt die Meldung, dass die Karte nicht gedruckt werden kann, weil kein Kartendrucker ausgewählt/vorhanden ist (beim nächsten Kartendruck wird neu gefragt)"]],
@@ -401,7 +418,7 @@ async function dec(f,p){const c=await crypto.subtle.decrypt({name:"AES-GCM",iv:u
 
 /* ---------- Start / Laden / Speichern ---------- */
 $("verS").textContent="Version "+VER;
-function show(on){if(!on&&typeof setDesign==="function")setDesign("low");$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
+function show(on){if(!on){document.body.classList.remove("docked");const dk=$("dock");if(dk)dk.classList.add("hide")}if(!on&&typeof setDesign==="function")setDesign("low");$("start").classList.toggle("hide",on);$("main").classList.toggle("hide",!on)}
 function open(d){ui.savedAt=Date.now();if(typeof txReset==="function")txReset();if(typeof setDesign==="function")setDesign(d&&d.design==="high"?"high":"low");
  data=Object.assign({people:[],moves:[],stock:[],smoves:[],prods:[],sales:[],rates:{},entries:[],books:[],orders:[],notes:[],cars:[],trips:[],pkgs:[],prefix:{},base:"EUR",ab:{on:true,cash:0,bank:0}},d);
  if(!data.ab)data.ab={on:true,cash:0,bank:0};
@@ -497,7 +514,7 @@ function navReset(v){const R={konten:()=>{ui.pid=null;ui.kf=null;ui.pe=false;ui.
 act.go=d=>{const now=Date.now(),cur=NVM.includes(ui.s)?"more":ui.s,T=ui._tap;
  if(d.v===cur){if(T&&T.v===d.v&&now-T.t<1500){navReset(d.v);ui._tap=null;go(d.v);toast("Neu geladen");return}ui._tap={v:d.v,t:now}}else ui._tap=null;
  if(d.v==="prod"&&ui.s==="prod"&&ui.pd){act.pback();return}go(d.v)};
-function render(){snoSync();({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat,cert:rCert,imp:rImp,help:rHelp})[ui.s]()}
+function render(){snoSync();renderDock();({home:rHome,kasse:rKasse,konten:rKo,lager:rL,prod:rP,verkauf:rV,orders:rOrd,set:rSet,more:rMore,notes:rNotes,trips:rTrips,pkg:rPkg,stat:rStat,cert:rCert,imp:rImp,help:rHelp})[ui.s]()}
 function getPath(p){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length&&t!=null;i++)t=t[a[i]];return t}
 function setPath(p,v){const a=p.split("."),o=a[0]==="ui"?ui:data;let t=o;for(let i=1;i<a.length-1;i++)t=t[a[i]];t[a[a.length-1]]=v}
 document.addEventListener("click",e=>{const t=e.target.closest("[data-a]");if(!t)return;const f=act[t.dataset.a];if(f)f(t.dataset,t)});
@@ -846,6 +863,26 @@ Erste Version: Einnahmen und Ausgaben, Kategorien, Monatsübersicht ~ First vers
 Speichern und Laden als Datei pro Benutzer ~ Save and load as one file per user ~ Kullanıcı başına bir dosya olarak kaydet ve yükle`;
 const DYT=`Zuletzt eingegeben: ~ Last entered: ~ Son giriş:
 Letzte Buchung: ~ Last posting: ~ Son kayıt:
+Design HIGH am Handy: Farbhintergrund reicht jetzt bis ganz nach unten (auch unter der Leiste) ~ Design HIGH on the phone: the colour background now reaches all the way down (also below the bar) ~ Telefonda HIGH tasarım: renkli arka plan artık en alta kadar uzanıyor (çubuğun altında da)
+Fertigung: Sobald ein Stein eingetragen ist, werden Montage und Polieren automatisch als Arbeitsschritt hinzugefügt; bei D2-Seitensteinen zusätzlich Montage D2 (mit Anzahl und Preis automatisch) ~ Production: as soon as a stone is entered, setting and polishing are added automatically as work steps; for D2 side stones also setting D2 (with count and price automatically) ~ Üretim: taş girilir girilmez montaj ve cila otomatik iş adımı olarak eklenir; D2 yan taşlarda ayrıca montaj D2 (adet ve fiyat otomatik)
+Beim Speichern/Fertigstellen wird nochmal geprüft und Fehlendes ergänzt (mit Hinweis); selbst gelöschte Schritte werden nicht wieder hinzugefügt ~ On save/finish it checks again and adds what is missing (with a note); steps you deleted yourself are not added again ~ Kaydet/tamamla sırasında tekrar kontrol edilir ve eksikler eklenir (uyarıyla); kendi sildiğiniz adımlar tekrar eklenmez
+➕ Automatisch hinzugefügt: ~ ➕ Added automatically: ~ ➕ Otomatik eklendi:
+➕ Nicht vergessen – automatisch hinzugefügt: ~ ➕ Don't forget – added automatically: ~ ➕ Unutmayın – otomatik eklendi:
+Fertigung: Häkchen „Etikettenpreis aufrunden“ unter dem Etikettenpreis – rundet automatisch auf (ganze Zahl, 5, 10, 50 oder 100), z. B. 2064,60 → 2065; Einstellung wird für alle Waren gemerkt ~ Production: tick “Round up label price” below the label price – rounds up automatically (whole number, 5, 10, 50 or 100), e.g. 2064.60 → 2065; the setting is remembered for all items ~ Üretim: etiket fiyatının altında “Etiket fiyatını yukarı yuvarla” işareti – otomatik yuvarlar (tam sayı, 5, 10, 50 veya 100), ör. 2064,60 → 2065; ayar tüm ürünler için hatırlanır
+Etikettenpreis aufrunden ~ Round up label price ~ Etiket fiyatını yukarı yuvarla
+auf ganze Zahl (2064,60 → 2065) ~ to whole number (2064.60 → 2065) ~ tam sayıya (2064,60 → 2065)
+auf 5 (→ 2065) ~ to 5 (→ 2065) ~ 5'e (→ 2065)
+auf 10 (→ 2070) ~ to 10 (→ 2070) ~ 10'a (→ 2070)
+auf 50 (→ 2100) ~ to 50 (→ 2100) ~ 50'ye (→ 2100)
+auf 100 (→ 2100) ~ to 100 (→ 2100) ~ 100'e (→ 2100)
+Fertigung → Arbeitsschritte (Montage, Montage D2, Polieren …): sobald Ausgang und Eingang eingetragen sind, springt der Status automatisch auf „Erledigt“ (selbst geänderter Status bleibt) ~ Production → work steps (setting, setting D2, polishing …): as soon as out and in weights are entered, the status switches to “Done” automatically (a status changed by hand stays) ~ Üretim → iş adımları (montaj, montaj D2, cila …): çıkış ve giriş girildiğinde durum otomatik “Tamamlandı” olur (elle değiştirilen durum kalır)
+Zebra-Etikett: linker Teil (D, D2, Farbe/Reinheit, Gramm) minimal größer und etwas breiter gezogen – weiterhin dünn, nicht fett; Farbe/Reinheit etwas weiter rechts; LG- und Seriennummer minimal breiter ~ Zebra label: left part (D, D2, colour/clarity, grams) slightly bigger and a bit wider – still thin, not bold; colour/clarity a bit further right; LG and serial slightly wider ~ Zebra etiketi: sol kısım (D, D2, renk/berraklık, gram) çok az büyük ve biraz geniş – hâlâ ince, kalın değil; renk/berraklık biraz daha sağda; LG ve seri numarası çok az geniş
+Fertigungsliste: neben dem Werkstattpaket steht jetzt auch, für welchen Kunden es ist (z. B. 🔧 P0010 (Mira) 👤 für Liva Gold) ~ Production list: next to the workshop package it now also shows which customer it is for (e.g. 🔧 P0010 (Mira) 👤 for Liva Gold) ~ Üretim listesi: atölye paketinin yanında artık hangi müşteri için olduğu da yazar (ör. 🔧 P0010 (Mira) 👤 Liva Gold için)
+Notizen: „📌 Rechts fixieren“ – die Notiz bleibt am Laptop als schmale Spalte rechts stehen (Titel, Text klein, Fotos), während du in Fertigung, Lager usw. arbeitest; am Handy als kleines Fenster über der Leiste; ✏️ öffnet sie, ✕ löst die Fixierung ~ Notes: “📌 Pin right” – on the laptop the note stays as a narrow column on the right (title, small text, photos) while you work in production, stock etc.; on the phone as a small window above the bar; ✏️ opens it, ✕ unpins ~ Notlar: “📌 Sağa sabitle” – not dizüstünde sağda dar bir sütun olarak kalır (başlık, küçük metin, fotoğraflar), siz üretim, depo vb. ile çalışırken; telefonda çubuğun üstünde küçük pencere; ✏️ açar, ✕ sabitlemeyi kaldırır
+📌 Rechts fixieren ~ 📌 Pin right ~ 📌 Sağa sabitle
+📌 Fixierung lösen ~ 📌 Unpin ~ 📌 Sabitlemeyi kaldır
+📌 Notiz rechts fixiert ~ 📌 Note pinned right ~ 📌 Not sağa sabitlendi
+Fixierung gelöst ~ Unpinned ~ Sabitleme kaldırıldı
 Zebra-Etikett: LG- und Seriennummer wieder dünn (nicht fett), gleiche Größe; Barcode und Seriennummer weiter oben und kompakter, damit unten nichts abgeschnitten wird; 14K wird automatisch so klein, dass es nie über den rechten Teil hinaus aufs Schwänzchen geht ~ Zebra label: LG and serial thin again (not bold), same size; barcode and serial higher and more compact so nothing is cut off at the bottom; 14K automatically shrinks so it never runs past the right part onto the tail ~ Zebra etiketi: LG ve seri numarası yine ince (kalın değil), aynı boyut; barkod ve seri numarası daha yukarıda ve sıkı, altta kesilmez; 14K otomatik küçülür, sağ kısmı aşıp kuyruğa taşmaz
 Design wird jetzt im Profil (in der Datei) gespeichert: Beim Start ist immer LOW; erst nach dem Öffnen der Datei mit Passwort kommt das zuletzt gewählte Design (HIGH/LOW); nach „Speichern & Beenden“ wieder LOW ~ The design is now saved in the profile (in the file): the start is always LOW; only after opening the file with the password does the last chosen design (HIGH/LOW) appear; after “Save & quit” it is LOW again ~ Tasarım artık profilde (dosyada) saklanır: başlangıç her zaman LOW; dosya şifreyle açıldıktan sonra son seçilen tasarım (HIGH/LOW) gelir; “Kaydet ve çık” sonrası yine LOW
 Zebra-Druck: bei der Frage nach dem Kartendrucker gibt es jetzt die letzte Option „Keiner“ – dann kommt die Meldung, dass die Karte nicht gedruckt werden kann, weil kein Kartendrucker ausgewählt/vorhanden ist (beim nächsten Kartendruck wird neu gefragt) ~ Zebra-Druck: when asked for the card printer there is now a last option “None” – it then says the card cannot be printed because no card printer is selected/available (asks again on the next card print) ~ Zebra-Druck: kart yazıcısı sorulduğunda artık son seçenek “Hiçbiri” var – kart yazıcısı seçilmediği/olmadığı için kartın basılamayacağı söylenir (sonraki kart baskısında tekrar sorar)
@@ -2721,13 +2758,19 @@ const nMatch=(x,q)=>!q||(x.title+" "+x.text).toLowerCase().includes(q);
 function noteRows(){const q=String(ui.nq||"").trim().toLowerCase();
  return data.notes.filter(x=>nMatch(x,q)).sort((a,b)=>(b.pin?1:0)-(a.pin?1:0)||String(b.upd).localeCompare(String(a.upd))).map(x=>`<div class="it click" data-a="nedit" data-id="${x.id}"><div style="flex:1;min-width:0"><b>${x.pin?"📌 ":""}${esc(x.title||"(ohne Titel)")}</b><small style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${(x.att||[]).length?"📎 "+x.att.length+" · ":""}${esc(String(x.text||"").split("\n")[0])}</small></div><div class="r"><small>${dt(String(x.upd).slice(0,10))}</small></div></div>`).join("")||'<p class="mu">Keine Notizen.</p>'}
 function uNq(){const e=$("nrows");if(e)e.innerHTML=noteRows()}
+function renderDock(){const el=$("dock");if(!el)return;const n=typeof data!=="undefined"&&data&&data.dockNote&&data.notes.find(x=>x.id===data.dockNote);
+ document.body.classList.toggle("docked",!!n);if(!n){el.classList.add("hide");el.innerHTML="";return}el.classList.remove("hide");
+ el.innerHTML=`<div class="dkh"><b>📌 ${esc(n.title||"Notiz")}</b><span><button class="sec sm" data-a="ndockedit" data-id="${n.id}" title="Bearbeiten">✏️</button><button class="sec sm" data-a="undock">✕</button></span></div><div class="dkb">${esc(n.text||"")}</div>${(n.att||[]).length?`<div class="dka">${n.att.map(a=>/^image/.test(a.type||"")?`<img src="${a.data}" data-a="aopen" data-oid="n${n.id}" data-aid="${a.id}" alt="">`:`<button class="sec sm" data-a="aopen" data-oid="n${n.id}" data-aid="${a.id}">📄 PDF</button>`).join("")}</div>`:""}`}
+act.ndock=d=>{const id=Number(d.id);data.dockNote=data.dockNote===id?0:id;render();toast(data.dockNote?"📌 Notiz rechts fixiert":"Fixierung gelöst")};
+act.undock=()=>{data.dockNote=0;render()};
+act.ndockedit=d=>{go("notes");act.nedit({id:d.id})};
 function rNotes(){const e=$("s-notes");
  if(ui.ne){const n=ui.ne;e.innerHTML=`<div class="nav"><b>${n.id?"Notiz":"Neue Notiz"}</b><button class="sec sm" data-a="nback">Liste</button></div>
   <div class="card">${F("Titel",I("ui.ne.title",n.title,"z. B. Werkstatt Freitag"))}
   ${F("Text",`<textarea data-f="ui.ne.text" rows="10" style="width:100%" placeholder="Notiz …">${esc(n.text||"")}</textarea>`)}
   <div style="margin:4px 0 10px"><b>📎 Fotos &amp; PDFs</b>${attHTML(n.att||[],"n")}</div>
   ${CB("ui.ne.pin",!!n.pin,"Oben anheften 📌")}
-  <div class="row"><button data-a="nsave">Speichern</button>${n.id?`<button class="sec" data-a="ndel">${dl("ndel","Löschen")}</button>`:""}</div>
+  <div class="row"><button data-a="nsave">Speichern</button>${n.id?`<button class="sec" data-a="ndock" data-id="${n.id}">${data.dockNote===n.id?"📌 Fixierung lösen":"📌 Rechts fixieren"}</button><button class="sec" data-a="ndel">${dl("ndel","Löschen")}</button>`:""}</div>
   ${n.id?`<p class="mu" style="margin:8px 0 0">Zuletzt geändert: ${dt(String(n.upd).slice(0,10))} ${String(n.upd).slice(11,16)}</p>`:""}</div>`;return}
  e.innerHTML=`<div class="bar"><span>Notizen</span><span>📝</span></div><button data-a="nnew">+ Neue Notiz</button>
  <div class="card" style="margin-top:10px">${F("Suchen",I("ui.nq",ui.nq,"Titel oder Text …",'data-u="uNq" autocomplete="off"'))}</div>
@@ -2739,7 +2782,7 @@ act.nback=()=>{ui.ne=null;rNotes()};
 act.nsave=()=>{const n=ui.ne;if(!n)return;if(!String(n.title).trim()&&!String(n.text).trim()&&!(n.att||[]).length){toast("Notiz ist leer");return}
  const o={id:n.id||uid(),title:String(n.title||"").trim(),text:String(n.text||""),pin:!!n.pin,upd:nowIso()};if((n.att||[]).length)o.att=n.att;
  const i=data.notes.findIndex(x=>x.id===o.id);if(i<0)data.notes.push(o);else data.notes[i]=o;ui.ne=null;rNotes();toast("Gespeichert")};
-act.ndel=()=>{if(!confirmTap("ndel"))return;data.notes=data.notes.filter(x=>x.id!==ui.ne.id);ui.ne=null;rNotes()};
+act.ndel=()=>{if(!confirmTap("ndel"))return;if(data.dockNote===ui.ne.id)data.dockNote=0;data.notes=data.notes.filter(x=>x.id!==ui.ne.id);ui.ne=null;rNotes()};
 function xNotes(){return["Notizen",[["Titel","Text","Angeheftet","Geändert"],...data.notes.map(n=>[n.title,n.text,n.pin?"ja":"",String(n.upd).replace("T"," ")])]]}
 
 
@@ -2747,7 +2790,7 @@ function xNotes(){return["Notizen",[["Titel","Text","Angeheftet","Geändert"],..
 function attHTML(list,oid){
  return `<div class="att">${list.map(a=>`<div class="a">${a.type.startsWith("image/")?`<img src="${a.data}" alt="" data-a="aopen" data-oid="${oid}" data-aid="${a.id}" style="pointer-events:auto">`:`<span data-a="aopen" data-oid="${oid}" data-aid="${a.id}" style="pointer-events:auto">📄<br>${esc(String(a.name||"Datei").slice(0,18))}</span>`}<button class="d" data-a="adel" data-oid="${oid}" data-aid="${a.id}">${armed("ad"+a.id)?"Weg?":"×"}</button></div>`).join("")}</div>
  <div class="row" style="margin:0"><label class="attbtn" style="flex:1">📷 Kamera<input class="attin" data-oid="${oid}" type="file" accept="image/*" capture="environment" style="display:none"></label><label class="attbtn" style="flex:1">🖼️ Foto / Datei<input class="attin" data-oid="${oid}" type="file" accept="image/*,application/pdf" multiple style="display:none"></label></div>`}
-const attList=oid=>oid==="n"?(ui.ne?(ui.ne.att=ui.ne.att||[]):null):oid?((data.orders.find(o=>o.id===Number(oid))||{}).att||null):(ui.of?(ui.of.att=ui.of.att||[]):null);
+const attList=oid=>/^n\d+$/.test(String(oid))?((data.notes.find(x=>x.id===Number(String(oid).slice(1)))||{}).att||null):oid==="n"?(ui.ne?(ui.ne.att=ui.ne.att||[]):null):oid?((data.orders.find(o=>o.id===Number(oid))||{}).att||null):(ui.of?(ui.of.att=ui.of.att||[]):null);
 function attAdd(oid,a){if(oid==="n"){if(ui.ne)(ui.ne.att=ui.ne.att||[]).push(a);return}if(oid){const o=data.orders.find(x=>x.id===Number(oid));if(!o)return;(o.att=o.att||[]).push(a)}else{ui.of.att=ui.of.att||[];ui.of.att.push(a)}}
 function imgShrink(src,cb){const im=new Image();im.onload=()=>{try{const sc=Math.min(1,1400/Math.max(im.width,im.height)),w=Math.max(1,Math.round(im.width*sc)),hh=Math.max(1,Math.round(im.height*sc)),c=document.createElement("canvas");c.width=w;c.height=hh;const x=c.getContext("2d");x.fillStyle="#fff";x.fillRect(0,0,w,hh);x.drawImage(im,0,0,w,hh);cb(c.toDataURL("image/jpeg",.78))}catch(_){cb(null)}};im.onerror=()=>cb(null);im.src=src}
 document.addEventListener("change",e=>{const el=e.target;if(!el||!el.classList||!el.classList.contains("attin")||!el.files||!el.files.length)return;
@@ -3340,7 +3383,7 @@ function rP(){
 function pStn(p,withNo=true){return (p.stones||[]).filter(s=>s.sid||parse(s.qty)>0||s.type).map(s=>{const st=data.stock.find(x=>x.id===s.sid);
  const ct=parse(s.qty);return [s.d2?"D2":"",s.type||(st&&st.type)||"",ct?f2(ct).replace(/0$/,"")+" ct":"",s.nat||(st&&st.nat)||"",withNo&&st?st.name:""].filter(Boolean).join(" ")}).filter(Boolean).join(" + ")}
 const pLbl=p=>{const st=pStn(p);return shortCode(p.code)+" · "+(p.name||p.grp)+(st?" · 💎 "+st:"")+" · "+f3(pTW(p))+" g"};
-const soldTxt=p=>((g=>g?" · "+(g.status==="ready"?"📦 abholbereit ":"🔧 ")+g.no+" ("+pnm(g.pid)+")":"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
+const soldTxt=p=>((g=>g?" · "+(g.status==="ready"?"📦 abholbereit ":"🔧 ")+g.no+" ("+pnm(g.pid)+")"+(pkFor(g)?" 👤 für "+pnm(pkFor(g)):""):"")(pkgOf("prod",p.id)))+(p.status==="sold"&&p.soldTo?" · an "+pnm(p.soldTo)+" am "+dt(p.soldDate):"")+((r=>r?" · 📋 "+r.o.no:"")(prodOrd(p.id)));
 function uP(){const l=plist();
  $("prows").innerHTML=l.map(p=>`<div class="it click" data-a="pedit" data-id="${p.id}"${ui.phl===p.id?' style="background:color-mix(in srgb,var(--in) 14%,transparent);border-radius:10px;padding-left:8px;padding-right:8px"':""}>${p.img?`<img src="${p.img}" alt="" style="width:52px;height:52px;object-fit:contain;border-radius:8px;flex:none;background:var(--fld)">`:""}<div style="flex:1;min-width:0"><b>${esc(p.code)}</b> ${esc(p.name)}<small>${p.grp} · ${f3(pTW(p))} g${Math.abs(pTW(p)-(p.w||0))>1e-9?" (Gold "+f3(p.w||0)+" g)":""}${(st=>st?"</small><small>💎 "+esc(st)+"</small><small>":"")(pStn(p))} · ${SL[p.status]}${soldTxt(p)}</small></div><div class="r">${f2(p.cost)} ${p.cur}<small>VK ${p.p1||"–"} · Etikett ${p.p2||"–"}</small>${p.status!=="sold"?`<button class="sec sm" data-a="pql" data-id="${p.id}" title="Etikett drucken" style="margin-top:4px">🏷️</button>`:""}</div></div>`).join("")||'<p class="mu">Keine Ware.</p>';
  $("prows").innerHTML+=l.length?`<div class="it"><b>${l.length} Stück</b><b>${f3(l.reduce((a,p)=>a+pTW(p),0))} g gesamt</b></div>`:""}
@@ -3354,7 +3397,7 @@ act.pedit=d=>{ui.lp=null;ui.cp=null;ui.nst=null;ui.pd=openP(data.prods.find(p=>p
 act.pback=()=>{const id=ui.pd&&ui.pd.id;ui.lp=null;ui.cp=null;ui.pd=null;render();
  setTimeout(()=>{const e=id&&document.querySelector(`#s-prod [data-a="pedit"][data-id="${id}"]`);if(e&&e.scrollIntoView)e.scrollIntoView({block:"center"});else scrollTo(0,0)},30)};
 act.padd=d=>{const t=d.t;ui.pd[t].push(t==="metal"?{sid:0,qty:"",fine:"",wg:"",lab:"",lc:BC(),maker:""}:t==="stones"?{sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""}:{type:"",amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});render()};
-act.pdelr=d=>{ui.pd[d.t].splice(Number(d.i),1);render()};
+act.pdelr=d=>{const r=ui.pd[d.t][Number(d.i)];if(d.t==="steps"&&r&&["Montage","Montage D2","Polieren"].includes(r.type))(ui.pd.stepNo=ui.pd.stepNo||{})[r.type]=1;ui.pd[d.t].splice(Number(d.i),1);render()};
 function twAsk(d){const tw=parse(d.tw);if(!(tw>0))return"";const no=ui.twNo||{};
  const L=d.steps.map((s,i)=>({s,i})).filter(({s,i})=>s.type&&Math.abs(parse(s.in)-tw)>1e-9&&!no[i+":"+d.tw]);if(!L.length)return"";
  return `<div class="rowc" style="border-color:var(--ac);margin-top:4px"><b>Ist ${esc(d.tw)} g der Eingang für …</b><p class="mu" style="margin:2px 0 6px">Gewicht mit allen Steinen (auch D2)</p>
@@ -3379,7 +3422,14 @@ function mHook(p){const d=ui.pd;if(!d||!p.startsWith("ui.pd."))return;const k=p.
   else if(!String(s.amt||"").trim()||s.mAuto){if(!String(s.mb||"").trim())s.mb=data.mbase||"15";s.mAuto=1;mCalc(s,i);ch=true}}}
  if(/^stones/.test(k))d.steps.forEach((s,i)=>{if(s.type==="Montage"&&s.mAuto){mCalc(s,i);ch=true}});
  if(ch)calcP()}
-function pEdit(p){pEdit0(p);mHook(p)}
+function pEdit(p){pEdit0(p);mHook(p);if(/^ui\.pd\.stones\.\d+\.(sid|qty|d2)$/.test(p)){const a=ensureSteps();if(a.length){toast("➕ Automatisch hinzugefügt: "+a.join(", "));ui.rrPend=1}}}
+function ensureSteps(){const d=ui.pd;if(!d)return[];d.steps=d.steps||[];const no=d.stepNo||{},has=t=>d.steps.some(s=>s.type===t),add=[];
+ const real=d.stones.filter(s=>s.sid||parse(s.qty)>0);if(!real.length)return add;
+ const mk=t=>{d.steps.push({type:t,amt:"",cur:BC(),atelier:"",out:"",in:"",state:"Offen"});pEdit0(`ui.pd.steps.${d.steps.length-1}.type`);mHook(`ui.pd.steps.${d.steps.length-1}.type`);add.push(t)};
+ if(!has("Montage")&&!no["Montage"])mk("Montage");
+ if(real.some(s=>s.d2)&&!has("Montage D2")&&!no["Montage D2"])mk("Montage D2");
+ if(!has("Polieren")&&!no["Polieren"])mk("Polieren");
+ return add}
 function nstHTML(){const n=ui.nst;if(!n)return`<button data-a="nst" style="width:100%;margin-bottom:10px">💎 Neuer Stein (direkt ins Lager + einsetzen)</button>`;
  return `<div class="rowc" style="border-color:var(--ac);margin-bottom:10px"><b>💎 Neuer Stein</b><p class="mu" style="margin:2px 0 8px">Wird als Einzelstein im Lager angelegt und hier eingesetzt.</p>
  <div class="f"><span>Zertifikat-/Steinnummer</span><div style="display:grid;grid-template-columns:88px 1fr;gap:8px">${S("ui.nst.pre",n.pre,[...stPres().map(x=>[x,x]),["","ohne"]])}${I("ui.nst.name",n.name,"nur Ziffern",'inputmode="numeric" pattern="[0-9]*" autocorrect="off" autocomplete="off" spellcheck="false" name="stno-x"')}</div></div>
@@ -3399,7 +3449,10 @@ act.nstok=()=>{const n=ui.nst,d=ui.pd;if(!n||!d)return;let nm=String(n.name||"")
  if(d.stones.some(x=>x.sid===st.id)){toast("Stein ist schon eingesetzt");return}
  let i=d.stones.findIndex(x=>!x.sid&&!String(x.qty||"").trim());if(i<0){d.stones.push({sid:0,qty:"",pcs:"",price:"",cur:BC(),type:"",color:"",clar:"",cut:""});i=d.stones.length-1}
  d.stones[i].sid=st.id;d.stones[i].d2=!!n.d2;pEdit("ui.pd.stones."+i+".sid");ui.nst=null;render();toast("💎 "+nm+" im Lager angelegt und eingesetzt")};
+function stepAuto(s){if(!s||s.stm||s.state==="Erledigt")return false;if(parse(s.out)>0&&parse(s.in)>0){s.state="Erledigt";return true}return false}
+function uP2r(){}
 function pEdit0(p){const d=ui.pd,k=p.slice(6);
+ const sq=k.match(/^steps\.(\d+)\.(in|out|state)$/);if(sq){const s=d.steps[sq[1]];if(s){if(sq[2]==="state")s.stm=1;else if(stepAuto(s)){const el=document.querySelector(`[data-f="ui.pd.steps.${sq[1]}.state"]`);if(el)el.value="Erledigt"}}}
  const rq=k.match(/^stones\.(\d+)\.(qty|pcs|rng|sid)$/);
  if(rq){const s=d.stones[rq[1]];if(s){if(rq[2]==="rng")s.rngm=1;else if(!s.sid&&!s.rngm&&data.certAuto!==false){const per=parse(s.qty)/(parse(s.pcs)||1),thr=parse(data.certMin)||1;
   if(per>0){const want=per<thr-1e-9;if(want!==!!s.rng){s.rng=want;const cb=document.querySelector(`[data-f="ui.pd.stones.${rq[1]}.rng"]`);if(cb)cb.checked=want;ui.rrPend=1}}}}}
@@ -3444,7 +3497,7 @@ function calcP(){
  d.cost=cost;d.w=w;
  if(d.m1==="p")d.f1=cost>0?fs(parse(d.p1)/cost):d.f1;else d.p1=fx(cost*parse(d.f1));
  const b=parse(d.p1);
- if(d.m2==="p")d.f2=b>0?fs(parse(d.p2)/b):d.f2;else d.p2=fx(b*parse(d.f2));
+ if(d.m2==="p")d.f2=b>0?fs(parse(d.p2)/b):d.f2;else{let v=b*parse(d.f2);const ru=data.p2r||{};if(ru.on&&v>0){const st=parse(ru.st)||1;v=Math.ceil(v/st-1e-9)*st}d.p2=fx(v)}
  const e=$("cT");if(e)e.value=f2(cost);
  setV("ui.pd.p1",d.p1);setV("ui.pd.f1",d.f1);setV("ui.pd.p2",d.p2);setV("ui.pd.f2",d.f2);
  if(d.wm!=="t"){d.tw=(w||sg)?w3(w+sg):"";setV("ui.pd.tw",d.tw)}
@@ -3487,7 +3540,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
   <div class="rf"><span id="tt_${i}"></span><button class="sec sm" data-a="pdelr" data-t="stones" data-i="${i}">Entfernen</button></div></div>`});
  h+=`<button class="sec" data-a="padd" data-t="stones">+ Stein-Zeile</button></div>
  <div class="bar"><span>Fertigung (Arbeit, Politur …)</span><span>🔧</span></div><div class="card"><datalist id="stepl"><option>Arbeit</option><option>Politur</option><option>Fassen</option><option>Guss</option><option>Gravur</option></datalist>`;
- d.steps.forEach((s,i)=>{h+=`<div class="rowc"><div class="g2">${F("Vorgang",SX(`ui.pd.steps.${i}.type`,s.type,L_STEP))}${F("Atelier",I(`ui.pd.steps.${i}.atelier`,s.atelier))}</div>
+ d.steps.forEach(stepAuto);d.steps.forEach((s,i)=>{h+=`<div class="rowc"><div class="g2">${F("Vorgang",SX(`ui.pd.steps.${i}.type`,s.type,L_STEP))}${F("Atelier",I(`ui.pd.steps.${i}.atelier`,s.atelier))}</div>
   ${s.type==="Montage"?`<div class="g2">${F("Basis pro ct",N(`ui.pd.steps.${i}.mb`,s.mb||""))}<div class="mu" id="mi_${i}" style="align-self:end;padding-bottom:12px">${mInfo(i)}</div></div>${CB(`ui.pd.steps.${i}.mup`,s.mup===undefined?!!data.mup:!!s.mup,"Auf ganze Zahl aufrunden (z. B. 22,50 → 23)")}`:""}
   ${s.type==="Montage D2"?`<div class="g2">${F("Anzahl Steine (D2)",N(`ui.pd.steps.${i}.pcs`,s.pcs||""))}${F("Preis pro Stein",N(`ui.pd.steps.${i}.pp`,s.pp||""))}</div>`:""}
   <div class="g2">${F(s.type==="Montage D2"?"Betrag (automatisch)":"Betrag",N(`ui.pd.steps.${i}.amt`,s.amt))}${F("Währung",S(`ui.pd.steps.${i}.cur`,s.cur,CUR))}</div>
@@ -3501,6 +3554,7 @@ ${d.status==="sold"&&d.soldTo?`<div class="card"><b>Verkauft</b><div>an ${esc(pn
  <p class="mu" id="cW" style="margin:0 0 8px"></p>
  <div class="g2">${F("Multiplikator (Verkauf)",N("ui.pd.f1",d.f1))}${F("Verkaufspreis",N("ui.pd.p1",d.p1))}</div>
  <div class="g2">${F("Multiplikator (Etikett)",N("ui.pd.f2",d.f2))}${F("Etikettenpreis",N("ui.pd.p2",d.p2))}</div>
+  <div class="g2" style="align-items:center;margin:-4px 0 8px">${(data.p2r=data.p2r||{on:false,st:"1"}),""}${CB("data.p2r.on",!!(data.p2r||{}).on,"Etikettenpreis aufrunden",'data-r="1" data-u="uP2r"')}${(data.p2r||{}).on?S("data.p2r.st",(data.p2r||{}).st||"1",[["1","auf ganze Zahl (2064,60 → 2065)"],["5","auf 5 (→ 2065)"],["10","auf 10 (→ 2070)"],["50","auf 50 (→ 2100)"],["100","auf 100 (→ 2100)"]],'data-r="1"'):""}</div>
  <p class="mu out" id="cWarn" style="margin:0 0 8px"></p>
  ${F("Beschreibung",I("ui.pd.note",d.note))}
  <p class="mu">Goldwert wird mit dem Verkaufskurs oben gerechnet. Preis oder Multiplikator: du kannst beides eingeben, das andere rechnet sich.</p></div>
@@ -3517,7 +3571,7 @@ function syncStock(p){
  data.smoves=data.smoves.filter(m=>m.ref!=="p"+p.id);
  if(p.status==="prod")return;
  [...p.metal,...p.stones].forEach(x=>{const q=parse(x.qty);if(x.sid&&q)data.smoves.push({id:uid(),sid:x.sid,qty:-q,date:today(),note:"Fertigung "+p.code,ref:"p"+p.id})})}
-function pSave(quiet){const d=ui.pd;calcP();d.code=d.code.trim();
+function pSave(quiet){const d=ui.pd;{const a=ensureSteps();if(a.length)setTimeout(()=>toast("➕ Nicht vergessen – automatisch hinzugefügt: "+a.join(", ")),900)}calcP();d.code=d.code.trim();
  if(!d.code){toast("Nummer fehlt");return false}
  if(data.prods.some(x=>x.code===d.code&&x.id!==d.id)){toast("Diese Nummer gibt es schon");return false}
  const c=JSON.parse(JSON.stringify(d)),i=data.prods.findIndex(x=>x.id===d.id);
@@ -3874,15 +3928,15 @@ function zplOf(k,f,n){const c=LB(),dpi=parse((data.lbl||{}).dpi)||203,d=dpi/25.4
  if(k==="ws"){const big=f.mode==="short"?f.ser:(f.stn||"–"),small=f.mode==="both"?f.ser:"",bh=String(big).length>6?fs*1.05:fs*1.6;
   z+=`^FO${L},${Math.round((H-F(bh))/2)}^FB${R},1,0,C^A0N,${F(bh)},${F(bh*0.95)}^FD${zs(big)}^FS`;
   const sm=[small,f.note].filter(Boolean);sm.forEach((t,i)=>{z+=`^FO${m},${Math.round(H/2-F(fs)*(sm.length/2)+i*F(fs)*1.15)}^FB${L-2*m},1,0,C^A0N,${F(fs*0.95)},${F(fs*0.85)}^FD${zs(t)}^FS`})}
- else{const x0=Math.round(m*1.5),c2=x0+Math.round((L-3*m)*0.53),y1=Math.round(H*0.2),y2=Math.round(H*0.58),bw=Math.max(3,D(0.7));
-  const fa=f.d2?fs*0.85:fs,ya=f.d2?Math.round(H*0.12):y1;
-  if(f.ct)z+=T(x0,ya,fa,"D :"+f.ct+"ct");z+=T(c2,ya,fa,[f.col,f.cl].filter(Boolean).join(" "));if(f.d2)z+=T(x0,ya+F(fa)+D(0.4),fa,"D2 :"+f.d2+"ct");
-  if(f.gr)z+=T(x0,y2,fs,f.gr+"gr");if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
+ else{const x0=Math.round(m*1.5),c2=x0+Math.round((L-3*m)*0.58),y1=Math.round(H*0.2),y2=Math.round(H*0.58),bw=Math.max(3,D(0.7)),fl=fs*1.06,wl=1.0;
+  const fa=f.d2?fl*0.85:fl,ya=f.d2?Math.round(H*0.12):y1;
+  if(f.ct)z+=T(x0,ya,fa,"D :"+f.ct+"ct",wl);z+=T(c2,ya,fa,[f.col,f.cl].filter(Boolean).join(" "),wl);if(f.d2)z+=T(x0,ya+F(fa)+D(0.4),fa,"D2 :"+f.d2+"ct",wl);
+  if(f.gr)z+=T(x0,y2,fl,f.gr+"gr",wl);if(f.pr)z+=`^FO${x0},${Math.round(H*0.52)}^FB${L-x0-m},1,0,R^A0N,${F(fs*1.3)},${F(fs*1.15)}^FD${zs(f.pr)}^FS`;
   z+=`^FO${L},${Math.round(H*0.06)}^GB${bw},${Math.round(H*0.88)},${bw}^FS`;
   const cert=f.cert?(/^\d/.test(f.cert)?"LG":"")+f.cert:"",mod=dpi>=290?2:1,xs=L+bw,xe=L+R,gx=xs+D(0.7);
   const kH=Math.min(fs*1.05,c.h*0.24);let tH=cert?kH:Math.min(fs*1.33,c.h*0.31);if(!cert&&f.ser){const avail=xe-gx-D(0.5),est=String(f.ser).length*F(tH)*0.92*0.6;if(est>avail)tH=tH*avail/est;tH=Math.max(tH,kH)}
   const bh=Math.round(H*(cert?0.30:0.36)),g1=D(0.25),Ft=F(tH),blk=(cert?Ft+g1:0)+(f.bc?bh:0)+(f.ser?g1+Ft:0),top=Math.min(D(0.4),Math.max(0,Math.round((H-blk)/2)));
-  const B=zbc(f.bc),bcw=B.mods*mod,bold=(x,y,hh,t,wr)=>`^FO${x},${y}^A0N,${F(hh)},${F(hh*(wr||0.85))}^FD${zs(t)}^FS`;
+  const B=zbc(f.bc),bcw=B.mods*mod,bold=(x,y,hh,t,wr)=>`^FO${x},${y}^A0N,${F(hh)},${F(hh*(wr||0.92))}^FD${zs(t)}^FS`;
   const kx=gx+bcw+D(0.4),kAvail=xe-D(0.4)-kx;let kh2=kH;if(f.kar){const kw=q=>String(f.kar).length*F(q)*0.8*0.62;while(kh2>kH*0.6&&kw(kh2)>kAvail)kh2*=0.93}const Fk=F(kh2);
   let y=top;if(cert){z+=bold(gx,y,tH,cert);y+=Ft+g1}
   const yb=y;if(f.bc){z+=`^FO${gx},${yb}^BY${mod},2,${bh}^BCN,${bh},N,N,N,N^FD${B.data}^FS`;y+=bh+g1}
